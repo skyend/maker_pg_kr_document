@@ -1,0 +1,2348 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>エラー報告とログ取得</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="問い合わせ計画"
+HREF="runtime-config-query.html"><LINK
+REL="NEXT"
+TITLE="実行時統計情報"
+HREF="runtime-config-statistics.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="問い合わせ計画"
+HREF="runtime-config-query.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="実行時統計情報"
+HREF="runtime-config-statistics.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-LOGGING"
+>18.8. エラー報告とログ取得</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-LOGGING-WHERE"
+>18.8.1. ログの出力先</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-LOG-DESTINATION"
+></A
+><TT
+CLASS="VARNAME"
+>log_destination</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	 <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、<SPAN
+CLASS="SYSTEMITEM"
+>stderr</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>csvlog</SPAN
+>および<SPAN
+CLASS="SYSTEMITEM"
+>syslog</SPAN
+>を含めて、サーバメッセージのログ取得に対し数種類の方法を提供します。
+Windowsでは、<SPAN
+CLASS="SYSTEMITEM"
+>eventlog</SPAN
+>も同時に提供します。
+このパラメータを設定するには、コンマ区切りでお好みのログ出力先を記載します。
+デフォルトでは、ログは<SPAN
+CLASS="SYSTEMITEM"
+>stderr</SPAN
+>のみに出力されます。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみ設定されます。
+       </P
+><P
+>       
+	<SPAN
+CLASS="SYSTEMITEM"
+>csvlog</SPAN
+>が<TT
+CLASS="VARNAME"
+>log_destination</TT
+>に含まれる場合、ログ項目はプログラムへの読み込みが簡便な<SPAN
+CLASS="QUOTE"
+>"カンマ区切り値"</SPAN
+>書式（<ACRONYM
+CLASS="ACRONYM"
+>CSV</ACRONYM
+>）で出力されます。
+詳細は<A
+HREF="runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-CSVLOG"
+>&#38917;18.8.4</A
+>を参照してください。
+CSV書式のログ出力を生成するためには<A
+HREF="runtime-config-logging.html#GUC-LOGGING-COLLECTOR"
+>logging_collector</A
+>を有効にする必要があります。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	
+	 <TT
+CLASS="VARNAME"
+>log_destination</TT
+>で<SPAN
+CLASS="SYSTEMITEM"
+>syslog</SPAN
+>オプションを使用できるようにするために、ほとんどのUnixシステムではシステムの<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>デーモンの設定を変更しなければならないでしょう。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではログを<TT
+CLASS="LITERAL"
+>LOCAL0</TT
+>から<TT
+CLASS="LITERAL"
+>LOCAL7</TT
+>までの<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>ファシリティで記録することができます（<A
+HREF="runtime-config-logging.html#GUC-SYSLOG-FACILITY"
+>syslog_facility</A
+>を参照してください）。
+しかし、ほとんどのプラットフォームのデフォルトの<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>設定ではこれらのメッセージはすべて破棄されます。
+うまく動作させるために<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>デーモンの設定に以下のようなものを追加しなければならないでしょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>local0.*    /var/log/postgresql</PRE
+><P>
+        
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-LOGGING-COLLECTOR"
+></A
+><TT
+CLASS="VARNAME"
+>logging_collector</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+このパラメータは、ログメッセージを集積し<SPAN
+CLASS="SYSTEMITEM"
+>stderr</SPAN
+>に送信、ログファイルにリダイレクトするバックエンドプロセスである<I
+CLASS="FIRSTTERM"
+>ログコレクタ</I
+>を有効にします。
+この方法は<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>へのログよりもしばしば有用です。
+メッセージの一部の種類が<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>では出力されない可能性があるためです。
+（一般的な例として、ダイナミックリンカのエラーメッセージがあります。
+他にも<TT
+CLASS="VARNAME"
+>archive_command</TT
+>などのスクリプトにより生成されるエラーメッセージがあります。）
+このパラメータはサーバ起動時のみ設定可能です。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>このログコレクタを使わずに<SPAN
+CLASS="SYSTEMITEM"
+>stderr</SPAN
+>にログを取ることができます。
+ログメッセージは単にサーバの<SPAN
+CLASS="SYSTEMITEM"
+>stderr</SPAN
+>が向いている場所に送信されます。
+しかしこの方法はログの領が少ない場合にのみ適しています。
+ログファイルのローテートを行う簡便な方法が存在しないためです。
+また、ログコレクタを使用しない一部のシステムでは、同じログファイルの中に同時に複数のプロセスが書き出すことにより、互いの出力を上書きしてしまう可能性があるため、ログ出力をなくしてしまう、または取り違えてしまう可能性があります。
+
+        </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	
+ログコレクタのログ取得はメッセージを決して失わないために設計されました。
+これは、極端に高い負荷の場合、サーバプロセスは、コレクタが遅れをとった場合、追加のログメッセージを送信しようと試みる間、ブロックされる可能性があります。
+それとは反対に<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>は、もし書き込みができなかったときメッセージの廃棄方を選びます。
+つまり、これらの場合には一部のメッセージの記録に失敗するかもしれませんが、システムの他の部分をブロックしません。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-LOG-DIRECTORY"
+></A
+><TT
+CLASS="VARNAME"
+>log_directory</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>logging_collector</TT
+>を有効と設定した場合、このパラメータはログファイルが作成されるディレクトリを確定します。
+        ディレクトリは、絶対パス、もしくはデータベースクラスタのディレクトリに対する相対パスで指定することができます。
+        このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、またはサーバコマンドラインからのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-FILENAME"
+></A
+><TT
+CLASS="VARNAME"
+>log_filename</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>logging_collector</TT
+>が有効な場合、このパラメータは作成されたログファイルのファイル名を設定します。
+値は<SPAN
+CLASS="SYSTEMITEM"
+>strftime</SPAN
+>パターンとして扱われるため、<TT
+CLASS="LITERAL"
+>%</TT
+>エスケープを使用して、時刻によって変動するファイル名を指定することができます。
+（時間帯に依存した<TT
+CLASS="LITERAL"
+>%</TT
+>エスケープが存在する場合、<A
+HREF="runtime-config-logging.html#GUC-LOG-TIMEZONE"
+>log_timezone</A
+>で指定された時間帯で計算が行われます。）
+　　　　サポートされている <TT
+CLASS="LITERAL"
+>%</TT
+>-エスケープは<A
+HREF="http://pubs.opengroup.org/onlinepubs/009695399/functions/strftime.html"
+TARGET="_top"
+>strftime
+        </A
+> 仕様によく似ています。
+システムの<SPAN
+CLASS="SYSTEMITEM"
+>strftime</SPAN
+>は直接使用されないので、プラットフォーム固有の（非標準）の拡張は動作しません。
+       </P
+><P
+>       
+	エスケープすることなくファイル名を指定する場合、ディスク全体を使い切ってしまうことを防止するためにログローテーションを行うユーティリティを使用することを計画しなければなりません。
+	8.4より前のリリースの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、<TT
+CLASS="LITERAL"
+>%</TT
+>エスケープがなければ、新しいログファイルの生成時のエポック時刻を付与しますが、これはもはや当てはまりません。
+       </P
+><P
+>       
+	CSV書式の出力が<TT
+CLASS="VARNAME"
+>log_destination</TT
+>で有効な場合、タイムスタンプ付きのログファイル名にに<TT
+CLASS="LITERAL"
+>.csv</TT
+>を付与し、最終的なCSV書式出力用のファイル名が作成されます。
+（log_filenameが<TT
+CLASS="LITERAL"
+>.log</TT
+>で終わる場合は後置詞が置き換えられます。）
+上の例の場合、ファイル名は<TT
+CLASS="LITERAL"
+>server_log.1093827753.csv</TT
+>となります。
+       </P
+><P
+>       
+	このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>か、サーバコマンドラインのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-FILE-MODE"
+></A
+><TT
+CLASS="VARNAME"
+>log_file_mode</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	Unixシステムにおいては、<TT
+CLASS="VARNAME"
+>logging_collector</TT
+>が有効になっている場合、このパラメータはログファイルのパーミッションを設定します。
+	（Microsoft Windowsではこのパラメータは無視されます。）
+	パラメータの値は<CODE
+CLASS="FUNCTION"
+>chmod</CODE
+> および <CODE
+CLASS="FUNCTION"
+>umask</CODE
+>システムコールで許容されるフォーマットで指定される数値モードであると期待されます。
+	（慣例的な8進数フォーマットを使用する場合、番号は<TT
+CLASS="LITERAL"
+>0</TT
+>（ゼロ）で始まらなければなりません。
+       </P
+><P
+>       
+	デフォルトのパーミッションは<TT
+CLASS="LITERAL"
+>0600</TT
+>で、意味するところはサーバの所有者のみログファイルの読み書きが可能です。
+	そのほか一般的に実用的な設定は<TT
+CLASS="LITERAL"
+>0640</TT
+>で、所有者のグループはファイルを読み込めます。
+	しかし、これらの設定を活用するには<A
+HREF="runtime-config-logging.html#GUC-LOG-DIRECTORY"
+>log_directory</A
+>がクラスタデータディレクトリの外部のどこかにあるファイルを格納できるように変更する必要があります。
+       </P
+><P
+>       	
+	このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、またはサーバコマンドラインからのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-ROTATION-AGE"
+></A
+><TT
+CLASS="VARNAME"
+>log_rotation_age</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>logging_collector</TT
+>が有効な場合、このパラメータは個々のログファイルの最大寿命をを決定します。
+ここで指定した時間（分単位）経過すると、新しいログファイルが生成されます。
+ゼロに設定することで、時間に基づいた新しいログファイルの生成は無効になります。
+このパラメータは、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-ROTATION-SIZE"
+></A
+><TT
+CLASS="VARNAME"
+>log_rotation_size</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>logging_collector</TT
+>が有効な場合、このパラメータは個々のログファイルの最大要領を決定します。
+ここで指定したキロバイト分ログファイルに出力された後、新しいログファイルが生成されます。
+ゼロに設定することで、サイズに基づいた新しいログファイルの生成は無効になります。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-TRUNCATE-ON-ROTATION"
+></A
+><TT
+CLASS="VARNAME"
+>log_truncate_on_rotation</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>logging_collector</TT
+>が有効な場合、このパラメータにより、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は既存の同名のファイルに追加するのではなく、そのファイルを切り詰める（上書きする）ようになります。
+しかし、切り詰めは時間を基にしたローテーションのために新規にファイルが開かれた時にのみ発生し、サーバ起動時やサイズを基にしたローテーションでは発生しません。
+偽の場合、全ての場合において既存のファイルは追記されます。
+例えば、この設定を<TT
+CLASS="LITERAL"
+>postgresql-%H.log</TT
+>のような<TT
+CLASS="VARNAME"
+>log_filename</TT
+>と組み合わせて使用すると、24個の時別のログファイルが生成され、それらは周期的に上書きされることになります。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインで設定されます。
+       </P
+><P
+>       
+	例：7日間のログを保存し、毎日のログを <TT
+CLASS="LITERAL"
+>server_log.Mon</TT
+>、<TT
+CLASS="LITERAL"
+>server_log.Tue</TT
+>、等とし、そして自動的に前週のログを今週のログで上書きするには以下のように設定します。
+        <TT
+CLASS="VARNAME"
+>log_filename</TT
+> を <TT
+CLASS="LITERAL"
+>server_log.%a</TT
+>とし、 
+        <TT
+CLASS="VARNAME"
+>log_truncate_on_rotation</TT
+> を <TT
+CLASS="LITERAL"
+>on</TT
+>にし、そして 
+        <TT
+CLASS="VARNAME"
+>log_rotation_age</TT
+> を <TT
+CLASS="LITERAL"
+>1440</TT
+>に設定します。
+       </P
+><P
+>       
+	例：24時間のログを保持、1時間おきに1つのログファイルを作成、ただし、ログファイルのサイズが1ギガバイトを超えそうな場合即座に切り替えさせるには、
+        <TT
+CLASS="VARNAME"
+>log_filename</TT
+> を <TT
+CLASS="LITERAL"
+>server_log.%H%M</TT
+>にし、 
+        <TT
+CLASS="VARNAME"
+>log_truncate_on_rotation</TT
+> を <TT
+CLASS="LITERAL"
+>on</TT
+>にし、 
+        <TT
+CLASS="VARNAME"
+>log_rotation_age</TT
+> を <TT
+CLASS="LITERAL"
+>60</TT
+>にし、そして
+        <TT
+CLASS="VARNAME"
+>log_rotation_size</TT
+> を <TT
+CLASS="LITERAL"
+>1000000</TT
+>に設定します。
+        <TT
+CLASS="VARNAME"
+>log_filename</TT
+>に<TT
+CLASS="LITERAL"
+>%M</TT
+>を含めると、元の時間毎のファイル名と異なる名前を選択する可能性がある、サイズを元にしたローテーションを行うことができます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SYSLOG-FACILITY"
+></A
+><TT
+CLASS="VARNAME"
+>syslog_facility</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>へのログ取得が有効な場合、このパラメータは<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>の<SPAN
+CLASS="QUOTE"
+>"facility"</SPAN
+>が使われるように確定します。
+<TT
+CLASS="LITERAL"
+>LOCAL0</TT
+>、<TT
+CLASS="LITERAL"
+>LOCAL1</TT
+>、<TT
+CLASS="LITERAL"
+>LOCAL2</TT
+>、<TT
+CLASS="LITERAL"
+>LOCAL3</TT
+>、<TT
+CLASS="LITERAL"
+>LOCAL4</TT
+>、<TT
+CLASS="LITERAL"
+>LOCAL5</TT
+>、<TT
+CLASS="LITERAL"
+>LOCAL6</TT
+>、<TT
+CLASS="LITERAL"
+>LOCAL7</TT
+>の中から選んでください。
+デフォルトは<TT
+CLASS="LITERAL"
+>LOCAL0</TT
+>です。
+使用しているシステムの<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>デーモンの文書を同時に参照してください。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SYSLOG-IDENT"
+></A
+><TT
+CLASS="VARNAME"
+>syslog_ident</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>	
+	 <SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>にログ取得が有効な場合、このパラメータは<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>ログ内の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>メッセージを特定するのに使用するプログラム名を確定します。デフォルトは<TT
+CLASS="LITERAL"
+>postgres</TT
+>です。
+このパラメータは、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+        </P
+></DD
+><DT
+><A
+NAME="GUC-SILENT-MODE"
+></A
+><TT
+CLASS="VARNAME"
+>silent_mode</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	サーバをメッセージ出力なしで実行します。
+このパラメータを設定すると、サーバは自動的にバックグラウンドで起動し、制御端末を切り離します。
+このパラメータはサーバ起動時にのみ設定可能です。
+       </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="90%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>       
+	このパラメータが設定されると、サーバの標準出力と標準エラーはディレクトリ内の<TT
+CLASS="FILENAME"
+>postmaster.log</TT
+>ファイルにリダイレクトされます。
+	このファイルを使い廻す方策はありません。従って、他の設定でサーバのログ出力が別のどこかにリダイレクトされない限り無制限に肥大化します。<TT
+CLASS="VARNAME"
+>log_destination</TT
+>を<TT
+CLASS="LITERAL"
+>syslog</TT
+>に設定するか、その<TT
+CLASS="VARNAME"
+>logging_collector</TT
+>オプションを使用するときに有効にすることを推奨します。これらの対策を施しても、通常のログ送り先ではなく<TT
+CLASS="FILENAME"
+>postmaster.log</TT
+>ファイルに起動時点のエラーが報告されることがあります。
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-LOGGING-WHEN"
+>18.8.2. いつログを取得するか</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-CLIENT-MIN-MESSAGES"
+></A
+><TT
+CLASS="VARNAME"
+>client_min_messages</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	どのメッセージ階層をクライアントに送るかを管理します。有効な値は、<TT
+CLASS="LITERAL"
+>DEBUG5</TT
+>、
+        <TT
+CLASS="LITERAL"
+>DEBUG4</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG3</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG2</TT
+>、
+        <TT
+CLASS="LITERAL"
+>DEBUG1</TT
+>、<TT
+CLASS="LITERAL"
+>LOG</TT
+>、<TT
+CLASS="LITERAL"
+>NOTICE</TT
+>、
+        <TT
+CLASS="LITERAL"
+>WARNING</TT
+>、<TT
+CLASS="LITERAL"
+>ERROR</TT
+>、<TT
+CLASS="LITERAL"
+>FATAL</TT
+>、および<TT
+CLASS="LITERAL"
+>PANIC</TT
+>です。それぞれの階層はそれに続く全ての階層を包含します。階層が後の方になるにつれ、より少ないメッセージが送られます。デフォルトは<TT
+CLASS="LITERAL"
+>NOTICE</TT
+>です。ここでの<TT
+CLASS="LITERAL"
+>LOG</TT
+>の優先順位が<TT
+CLASS="VARNAME"
+>log_min_messages</TT
+>の場合と異なることに注意してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-MIN-MESSAGES"
+></A
+><TT
+CLASS="VARNAME"
+>log_min_messages</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	どのメッセージ階層をサーバログに書き込むかを管理します。有効な値は
+        <TT
+CLASS="LITERAL"
+>DEBUG5</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG4</TT
+>、
+        <TT
+CLASS="LITERAL"
+>DEBUG3</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG2</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG1</TT
+>、
+        <TT
+CLASS="LITERAL"
+>INFO</TT
+>、<TT
+CLASS="LITERAL"
+>NOTICE</TT
+>、<TT
+CLASS="LITERAL"
+>WARNING</TT
+>、
+        <TT
+CLASS="LITERAL"
+>ERROR</TT
+>、<TT
+CLASS="LITERAL"
+>LOG</TT
+>、<TT
+CLASS="LITERAL"
+>FATAL</TT
+>、および
+        <TT
+CLASS="LITERAL"
+>PANIC</TT
+>です。それぞれの階層はその下の全ての階層を含みます。階層を低くする程、より少ないメッセージがログに送られます。デフォルトは<TT
+CLASS="LITERAL"
+>WARNING</TT
+>です。ここでの<TT
+CLASS="LITERAL"
+>LOG</TT
+>の優先順位が<TT
+CLASS="VARNAME"
+>client_min_messages</TT
+>の場合と異なることに注意してください。スーパユーザのみこの設定を変更できます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-MIN-ERROR-STATEMENT"
+></A
+><TT
+CLASS="VARNAME"
+>log_min_error_statement</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	エラー条件の原因となったどのSQL文をサーバログに記録するかを制御します。
+設定したレベル以上のメッセージについては現在のSQL文がログに記録されます。
+有効な値は、<TT
+CLASS="LITERAL"
+>DEBUG5</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG4</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG3</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG2</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG1</TT
+>、<TT
+CLASS="LITERAL"
+>INFO</TT
+>、<TT
+CLASS="LITERAL"
+>NOTICE</TT
+>、<TT
+CLASS="LITERAL"
+>WARNING</TT
+>、<TT
+CLASS="LITERAL"
+>ERROR</TT
+>、<TT
+CLASS="LITERAL"
+>LOG</TT
+>、<TT
+CLASS="LITERAL"
+>FATAL</TT
+>、<TT
+CLASS="LITERAL"
+>PANIC</TT
+>です。
+デフォルトは<TT
+CLASS="LITERAL"
+>ERROR</TT
+>です。
+エラー、ログメッセージ、致命的エラー、パニックを引き起こした文がログに記録されることを意味します。
+失敗した文の記録を実質的に無効にするには、このパラメータを<TT
+CLASS="LITERAL"
+>PANIC</TT
+>に設定してください。
+スーパーユーザのみがこのオプションを変更することができます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-MIN-DURATION-STATEMENT"
+></A
+><TT
+CLASS="VARNAME"
+>log_min_duration_statement</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 文の実行に少なくとも指定したミリ秒数かかった場合、それぞれの文の実行に要した時間をログに記録します。
+0に設定すれば、すべての文の実行時間が出力されます。
+-1（デフォルト）は、文実行時間の記録を無効にします。
+例えば、<TT
+CLASS="LITERAL"
+>250ms</TT
+>と設定した場合、250msもしくはそれ以上長くかかった全てのSQL文がログとして残ります。
+このパラメータを有効にすることにより、アプリケーションで最適化されていない問い合わせを追跡するのが便利になります。
+スーパーユーザのみこの設定を変更できます。
+        </P
+><P
+>	
+	 拡張問い合わせプロトコルを使用するクライアントでは、Parse、Bind、Executeそれぞれの段階で要した時間が独立して記録されます。
+        </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	
+	 このオプションと<A
+HREF="runtime-config-logging.html#GUC-LOG-STATEMENT"
+>log_statement</A
+>を一緒に使用する時、<TT
+CLASS="VARNAME"
+>log_statement</TT
+>によってログされるテキスト文は、実行時間のログには重複されません。
+<SPAN
+CLASS="APPLICATION"
+>syslog</SPAN
+>を使用していなければ、プロセスIDとセッションIDを使用して、文メッセージと後の実行時間メッセージを関連付けできるように、<A
+HREF="runtime-config-logging.html#GUC-LOG-LINE-PREFIX"
+>log_line_prefix</A
+>を使用してPIDまたはセッションIDをログに記録することを勧めます。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+></DL
+></DIV
+><P
+>    
+     <A
+HREF="runtime-config-logging.html#RUNTIME-CONFIG-SEVERITY-LEVELS"
+>&#34920;18-1</A
+>で、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で使用されるメッセージ深刻度レベルを説明します。
+ログ出力が<SPAN
+CLASS="SYSTEMITEM"
+>syslog</SPAN
+>またはWindowsの<SPAN
+CLASS="SYSTEMITEM"
+>eventlog</SPAN
+>に送られる場合、この深刻度レベルは表で示すように変換されます。
+    </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="RUNTIME-CONFIG-SEVERITY-LEVELS"
+></A
+><P
+><B
+>&#34920; 18-1. メッセージ深刻度レベル</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>深刻度</TH
+><TH
+>使用方法</TH
+><TH
+><SPAN
+CLASS="SYSTEMITEM"
+>syslog</SPAN
+></TH
+><TH
+><SPAN
+CLASS="SYSTEMITEM"
+>eventlog</SPAN
+></TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>DEBUG1..DEBUG5</TT
+></TD
+><TD
+>開発者が使用する連続的かつより詳細な情報を提供します。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>DEBUG</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>INFORMATION</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>INFO</TT
+></TD
+><TD
+><TT
+CLASS="COMMAND"
+>VACUUM VERBOSE</TT
+>の出力などの、
+	 ユーザによって暗黙的に要求された情報を提供します。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>INFO</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>INFORMATION</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>NOTICE</TT
+></TD
+><TD
+>長い識別子の切り詰めに関する注意など、
+	 ユーザの補助になる情報を提供します。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>NOTICE</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>INFORMATION</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>WARNING</TT
+></TD
+><TD
+>トランザクションブロック外での<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>の様な、
+	 ユーザへの警告を提供します。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>NOTICE</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>WARNING</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>ERROR</TT
+></TD
+><TD
+>現在のコマンドを中断させる原因となったエラーを報告します。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>WARNING</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>ERROR</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>LOG</TT
+></TD
+><TD
+>チェックポイントの活動の様な、
+	 管理者に関心のある情報を報告します。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>INFO</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>INFORMATION</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>FATAL</TT
+></TD
+><TD
+>現在のセッションを中断させる原因となったエラーを報告します。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ERR</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>ERROR</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>PANIC</TT
+></TD
+><TD
+>全てのデータベースセッションを中断させる原因となったエラーを報告します。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>CRIT</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>ERROR</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-LOGGING-WHAT"
+>18.8.3. 何をログに</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-APPLICATION-NAME"
+></A
+><TT
+CLASS="VARNAME"
+>application_name</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>application_name</TT
+>は<TT
+CLASS="SYMBOL"
+>NAMEDATALEN</TT
+>文字以下（標準構築では64文字）のいかなる文字列が可能です。
+	サーバに接続するときに、典型的にアプリケーションで設定されます。
+	名前は<TT
+CLASS="STRUCTNAME"
+>pg_stat_activity</TT
+>ビューに表示され、CVSログ項目に含まれます。
+	<A
+HREF="runtime-config-logging.html#GUC-LOG-LINE-PREFIX"
+>log_line_prefix</A
+>パラメータで通常のログ項目にも含まれます。
+	印字可能なASCII文字のみ<TT
+CLASS="VARNAME"
+>application_name</TT
+>値に使用されます。
+	その他の文字は疑問符（<TT
+CLASS="LITERAL"
+>?</TT
+>）に置換されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>debug_print_parse</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)<BR><TT
+CLASS="VARNAME"
+>debug_print_rewritten</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)<BR><TT
+CLASS="VARNAME"
+>debug_print_plan</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	これらのパラメータは生成される各種デバッグ出力を有効にします。
+	設定すると実行された問い合わせそれぞれに対し、最終的な解析ツリー、問い合わせリライタの出力、実行計画を出力します。
+	これらのメッセージは<TT
+CLASS="LITERAL"
+>LOG</TT
+>メッセージレベルで出力されますので、デフォルトではサーバログに出力され、クライアントには渡されません。
+	<A
+HREF="runtime-config-logging.html#GUC-CLIENT-MIN-MESSAGES"
+>client_min_messages</A
+>、<A
+HREF="runtime-config-logging.html#GUC-LOG-MIN-MESSAGES"
+>log_min_messages</A
+>またはその両方を調整することで変更することができます。
+	デフォルトではこれらのパラメータは無効です。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>debug_pretty_print</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	設定された場合、<TT
+CLASS="VARNAME"
+>debug_print_parse</TT
+>、
+	<TT
+CLASS="VARNAME"
+>debug_print_rewritten</TT
+>、または
+        <TT
+CLASS="VARNAME"
+>debug_print_plan</TT
+>で生成されたメッセージを字下げします。設定されない場合の<SPAN
+CLASS="QUOTE"
+>"コンパクト"</SPAN
+>形式よりもより見やすく、しかしより長いものとなります。デフォルトは有効です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-CHECKPOINTS"
+></A
+><TT
+CLASS="VARNAME"
+>log_checkpoints</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	チェックポイントおよびリスタートポイントをサーバログに記録するようにします。
+	書き出されたバッファ数や書き出しに要した時間など、いくつかの統計情報がこのログメッセージに含まれます。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイルまたはサーバのコマンドラインでのみ設定可能です。
+デフォルトはoffです。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-CONNECTIONS"
+></A
+><TT
+CLASS="VARNAME"
+>log_connections</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	これにより、クライアント認証の成功終了などのサーバへの接続試行がログに残ります。
+このパラメータはセッションが開始された後は変更できません。
+デフォルトはoffです。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	
+	 <SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>などクライアントプログラムの中には、パスワードを要求されると決定まで2回接続を試みるので、二重の<SPAN
+CLASS="QUOTE"
+>"connection received"</SPAN
+>メッセージは必ずしも問題を示すものではありません。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-LOG-DISCONNECTIONS"
+></A
+><TT
+CLASS="VARNAME"
+>log_disconnections</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	これは<TT
+CLASS="VARNAME"
+>log_connections</TT
+>と同様の内容をサーバログに行として出力します。
+	しかし、セッションが完了した時点であって、かつセッションが持続していたことが条件です。
+	デフォルトではoffです
+	このパラメータはセッションが開始された後は変更できません。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-DURATION"
+></A
+><TT
+CLASS="VARNAME"
+>log_duration</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	すべての完了した文について、その経過時間をログするようにします。
+デフォルトは<TT
+CLASS="LITERAL"
+>off</TT
+>です。
+スーパーユーザのみがこの設定を変更することができます。
+       </P
+><P
+>       
+	拡張問い合わせプロトコルを使用するクライアントでは、Parse、Bind、Executeそれぞれの段階で要した時間が独立して記録されます。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	
+	 このオプションと<A
+HREF="runtime-config-logging.html#GUC-LOG-MIN-DURATION-STATEMENT"
+>log_min_duration_statement</A
+>を0に設定する方法との違いは、<TT
+CLASS="VARNAME"
+>log_min_duration_statement</TT
+>を超えた場合、テキスト版の問い合わせが強制的に出力されるのに対して、このオプションでは出力されないという点です。
+したがって、<TT
+CLASS="VARNAME"
+>log_duration</TT
+>が<TT
+CLASS="LITERAL"
+>on</TT
+>、かつ、<TT
+CLASS="VARNAME"
+>log_min_duration_statement</TT
+>が正の値を持つ場合、すべての経過時間がログに記録されますが、閾値を超えた文のみがテキスト版の問い合わせが含められるようになります。
+この動作は、高負荷なインストレーションで統計情報を収集する際に有用です。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-LOG-ERROR-VERBOSITY"
+></A
+><TT
+CLASS="VARNAME"
+>log_error_verbosity</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	ログ取得されるそれぞれのメッセージに対し、サーバログに書き込まれる詳細の量を制御します。
+	有効な値は、<TT
+CLASS="LITERAL"
+>TERSE</TT
+>、<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>、および<TT
+CLASS="LITERAL"
+>VERBOSE</TT
+>で、それぞれは表示されるメッセージにより多くのフィールドを追加します。
+	<TT
+CLASS="LITERAL"
+>TERSE</TT
+>は<TT
+CLASS="LITERAL"
+>DETAIL</TT
+>、<TT
+CLASS="LITERAL"
+>HINT</TT
+>、<TT
+CLASS="LITERAL"
+>QUERY</TT
+>、および<TT
+CLASS="LITERAL"
+>CONTEXT</TT
+>エラー情報を除外します。
+	<TT
+CLASS="LITERAL"
+>VERBOSE</TT
+>出力は、<TT
+CLASS="SYMBOL"
+>SQLSTATE</TT
+>エラーコード（<A
+HREF="errcodes-appendix.html"
+>&#20184;&#37682;A</A
+>も参照）、および、ソースコードファイル名、関数名、そしてエラーを生成した行番号を含みます。
+	スーパユーザのみこの設定を変更できます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-HOSTNAME"
+></A
+><TT
+CLASS="VARNAME"
+>log_hostname</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	デフォルトでは、接続ログメッセージは接続元ホストのIPアドレスのみを表示します。
+このパラメータを有効にすると、ホスト名もログに残るようになります。
+ホスト名解決方法の設定に依存しますが、これが無視できないほどの性能劣化を起こす可能性があることに注意してください。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル内またはサーバのコマンドラインでのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-LINE-PREFIX"
+></A
+><TT
+CLASS="VARNAME"
+>log_line_prefix</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	 これは、各ログ行の先頭に出力する<CODE
+CLASS="FUNCTION"
+>printf</CODE
+>の書式文字列です。
+<TT
+CLASS="LITERAL"
+>%</TT
+>から始まる<SPAN
+CLASS="QUOTE"
+>"エスケープシーケンス"</SPAN
+>は、後述の通りのステータス情報で置き換えられます。
+この他のエスケープは無視されます。
+他の文字はそのままログ行に出力されます。
+エスケープの中には、セッションプロセスによってのみ認識可能なものがあり、これらはメインサーバプロセスなどのバックグラウンドプロセスでは無視されます。
+このパラメータは、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定することができます。
+デフォルトは空文字列です。
+
+         <DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><A
+NAME="AEN28259"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>エスケープ</TH
+><TH
+>効果</TH
+><TH
+>セッションのみ</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%a</TT
+></TD
+><TD
+>アプリケーション名</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%u</TT
+></TD
+><TD
+>ユーザ名</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%d</TT
+></TD
+><TD
+>データベース名</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%r</TT
+></TD
+><TD
+>遠隔ホスト名、またはIPアドレス、およびポート番号</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%h</TT
+></TD
+><TD
+>遠隔ホスト名、またはIPアドレス</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%p</TT
+></TD
+><TD
+>プロセス識別子</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%t</TT
+></TD
+><TD
+>ミリ秒無しのタイムスタンプ</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%m</TT
+></TD
+><TD
+>ミリ秒付きタイムスタンプ</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%i</TT
+></TD
+><TD
+>コマンドタグ。セッションの現在のコマンド種類</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%e</TT
+></TD
+><TD
+>SQLSTATE エラーコード</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%c</TT
+></TD
+><TD
+>セッションID。下記参照</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%l</TT
+></TD
+><TD
+>各セッションまたは各プロセスのログ行の番号。1から始まります。</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%s</TT
+></TD
+><TD
+>プロセスの開始タイムスタンプ</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%v</TT
+></TD
+><TD
+>仮想トランザクションID（backendID/localXID）</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%x</TT
+></TD
+><TD
+>トランザクションID （未割り当ての場合は0）</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%q</TT
+></TD
+><TD
+>何も出力しません。
+	     非セッションプロセスではこのエスケープ以降の出力を停止します。
+	     セッションプロセスでは無視されます。</TD
+><TD
+>×</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>%%</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>%</TT
+>文字そのもの</TD
+><TD
+>×</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+
+        
+	 <TT
+CLASS="LITERAL"
+>%c</TT
+>エスケープは、2つの4バイトの16進数（先頭のゼロは省略）をドットで区切った構成の、準一意なセッション識別子を表示します。
+この数値はプロセスの起動時間とそのプロセスIDです。
+したがって、<TT
+CLASS="LITERAL"
+>%c</TT
+>を使用して、これらの項目を出力するための文字数を省略することができます。例として、<TT
+CLASS="LITERAL"
+>pg_stat_activity</TT
+>からセッション識別子を生成するには以下の問い合わせを行ないます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT to_hex(EXTRACT(EPOCH FROM backend_start)::integer) || '.' ||
+       to_hex(procpid)
+FROM pg_stat_activity;</PRE
+><P>
+
+       </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>	
+	 <TT
+CLASS="VARNAME"
+>log_line_prefix</TT
+>に空白文字以外の値を設定する場合、通常、ログ行の残りとの区切りを明確にするために、その最後の文字を空白文字にすべきです。
+句読点用の文字も使用できます。
+        </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>	
+	 <SPAN
+CLASS="APPLICATION"
+>Syslog</SPAN
+>は独自にタイムスタンプとプロセスID情報を生成します。
+ですのでおそらく、<SPAN
+CLASS="APPLICATION"
+>Syslog</SPAN
+>にログを保管する場合は、こうしたエスケープを含めるとは考えないでしょう。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-LOG-LOCK-WAITS"
+></A
+><TT
+CLASS="VARNAME"
+>log_lock_waits</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	セッションがロックの獲得までの間に<A
+HREF="runtime-config-locks.html#GUC-DEADLOCK-TIMEOUT"
+>deadlock_timeout</A
+>より長く待機する場合にログメッセージを生成するかどうかを制御します。
+これは、ロックが待たされ性能がでていないのかどうか決める時に有用です。
+デフォルトは<TT
+CLASS="LITERAL"
+>off</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-STATEMENT"
+></A
+><TT
+CLASS="VARNAME"
+>log_statement</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	どのSQL文をログに記録するかを制御します。
+有効な値は、<TT
+CLASS="LITERAL"
+>none</TT
+>（off）、<TT
+CLASS="LITERAL"
+>ddl</TT
+>、<TT
+CLASS="LITERAL"
+>mod</TT
+>、および<TT
+CLASS="LITERAL"
+>all</TT
+>（全てのメッセージ）です。
+<TT
+CLASS="LITERAL"
+>ddl</TT
+>は、<TT
+CLASS="LITERAL"
+>CREATE</TT
+>、<TT
+CLASS="LITERAL"
+>ALTER</TT
+>、および<TT
+CLASS="LITERAL"
+>DROP</TT
+>文といった、データ定義文を全てログに記録します。
+<TT
+CLASS="LITERAL"
+>mod</TT
+>は、全ての<TT
+CLASS="LITERAL"
+>ddl</TT
+>文に加え、<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>、および<TT
+CLASS="LITERAL"
+>COPY FROM</TT
+>といった、データ変更文をログに記録します。
+<TT
+CLASS="LITERAL"
+>PREPARE</TT
+>と<TT
+CLASS="LITERAL"
+>EXPLAIN ANALYZE</TT
+>コマンドも、そこに含まれるコマンドが適切な種類であればログが録られます。
+拡張問い合わせプロトコルを使用するクライアントでは、Executeメッセージを受け取った時にBindパラメータの値が（すべての単一引用符が二重にされた常態で）含まれていた場合、ログに記録されます。
+       </P
+><P
+>       
+	デフォルトは<TT
+CLASS="LITERAL"
+>none</TT
+>です。スーパユーザのみこの設定を変更できます。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	
+	 ログメッセージの発行は、基本解析により文の種類が決まった後に行われますので、<TT
+CLASS="VARNAME"
+>log_statement</TT
+> = <TT
+CLASS="LITERAL"
+>all</TT
+>という設定を行ったとしても、単純な構文エラーを持つ文は記録されません。
+拡張問い合わせプロトコルの場合も同様に、この設定ではExecute段階以前（つまり、解析や計画作成期間）に失敗した文は記録されません。
+こうした文のログを記録するには、<TT
+CLASS="VARNAME"
+>log_min_error_statement</TT
+>を<TT
+CLASS="LITERAL"
+>ERROR</TT
+>（以下）に設定してください。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-LOG-TEMP-FILES"
+></A
+><TT
+CLASS="VARNAME"
+>log_temp_files</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	一時ファイル名と容量を制御します。
+一時ファイルはソート処理やハッシュ処理、一時的な問い合わせの結果のために作成されます。
+ログの項目はすべての一時ファイルそれぞれについて削除されたときに生成されます。
+ゼロという値ではすべての一時ファイル情報のログが残ります。
+正数ではキロバイト単位の指定値以上の容量のファイルのみがログに残ります。
+デフォルトの設定は-1で、このログ処理を無効にします。
+スーパーユーザのみがこの設定を変更できます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-TIMEZONE"
+></A
+><TT
+CLASS="VARNAME"
+>log_timezone</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	サーバログに書き出す際に使用される時間帯を設定します。
+<A
+HREF="runtime-config-client.html#GUC-TIMEZONE"
+>timezone</A
+>と異なり、すべてのセッションで一貫性を持ってタイムスタンプが報告されるようにこの値はクラスタ全体に適用されます。
+        明示的に設定された場合、サーバはシステム環境で指定された時間帯をこの値で初期化します。
+        詳細は<A
+HREF="datatype-datetime.html#DATATYPE-TIMEZONES"
+>&#38917;8.5.3</A
+>を参照してください。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>内またはサーバのコマンドラインでのみ設定することができます。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-LOGGING-CSVLOG"
+>18.8.4. CSV書式のログ出力の利用</A
+></H2
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>log_destination</TT
+>リストに<TT
+CLASS="LITERAL"
+>csvlog</TT
+>を含めることは、ログファイルをデータベーステーブルにインポートする簡便な方法を提供します。このオプションはカンマ区切り値書式（(<ACRONYM
+CLASS="ACRONYM"
+>CSV</ACRONYM
+>）で以下の列を含むログ行を生成します。
+
+        ミリ秒単位のtimestamp、
+        ユーザ名、
+        データベース名、
+        プロセス識別子、
+	クライアントホスト：ポート番号、
+        セッション識別子、
+        セッション前行番号、
+        コマンドタグ、
+        セッション開始時間、
+        仮想トランザクション識別子、
+        通常トランザクション識別子、
+        エラーの深刻度、
+        SQL状態コード、
+        エラーメッセージ、
+        詳細エラーメッセージ、
+        ヒント、
+        エラーとなった内部的な問い合わせ（もしあれば）、
+        内部問い合わせにおけるエラー位置の文字数、
+	エラーの文脈、
+	PostgreSQLソースコード上のエラー発生場所（<TT
+CLASS="VARNAME"
+>log_error_verbosity</TT
+>が<TT
+CLASS="LITERAL"
+>verbose</TT
+>に設定されているならば）
+        アプリケーション名
+以下にcsvlog出力を格納するためのテーブル定義のサンプルを示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE postgres_log
+(
+  log_time timestamp(3) with time zone,
+  user_name text,
+  database_name text,
+  process_id integer,
+  connection_from text,
+  session_id text,
+  session_line_num bigint,
+  command_tag text,
+  session_start_time timestamp with time zone,
+  virtual_transaction_id text,
+  transaction_id bigint,
+  error_severity text,
+  sql_state_code text,
+  message text,
+  detail text,
+  hint text,
+  internal_query text,
+  internal_query_pos integer,
+  context text,
+  query text,
+  query_pos integer,
+  location text,
+  application_name text,
+  PRIMARY KEY (session_id, session_line_num)
+);</PRE
+><P>
+       </P
+><P
+>       
+	このテーブルにインポートするためには、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>コマンドを使用してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>COPY postgres_log FROM '/full/path/to/logfile.csv' WITH csv;</PRE
+><P>
+       </P
+><P
+>       
+       CSVログファイルをインポートする作業を単純にするためにいくつか必要な作業があります。
+
+       <P
+></P
+></P><OL
+TYPE="1"
+><LI
+><P
+>	   
+	    一貫性があり、予測可能なログファイル命名機構を提供するために、<TT
+CLASS="VARNAME"
+>log_filename</TT
+>および<TT
+CLASS="VARNAME"
+>log_rotation_age</TT
+>を設定してください。
+これによりどのようなファイル名になると、個々のログファイルが完了しインポートする準備が整ったかが推測できるようになります。
+         </P
+></LI
+><LI
+><P
+>	   
+	    ログファイル名の予測が困難になりますので、<TT
+CLASS="VARNAME"
+>log_rotation_size</TT
+>を0にして容量を基にしたログの回転を無効にしてください。
+           </P
+></LI
+><LI
+><P
+>	  
+	   同じファイルに古いログデータと新しいログデータが混在しないようにするために、<TT
+CLASS="VARNAME"
+>log_truncate_on_rotate</TT
+>を<TT
+CLASS="LITERAL"
+>on</TT
+>に設定してください。
+          </P
+></LI
+><LI
+><P
+>	  
+	   上のテーブル定義にはプライマリキーの指定が含まれています。
+これにより、同じ情報が2回インポートされる事故を防止するために有用です。
+<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドは、一度にインポートするすべてのデータをコミットしますので、何か1つでもエラーがあればインポート全体が失敗します。
+ログファイルの一部をインポートし、そのファイルが完了した後に再度インポートしようとした場合、プライマリキー違反によりインポートが失敗します。
+インポートする前に、ログファイルの完了を待ち、閉じるまで待機してください。
+この手順は、<TT
+CLASS="COMMAND"
+>COPY</TT
+>が失敗する原因となる、完全に書き込まれなかった欠落した行をインポートするという事故も防止します。
+          </P
+></LI
+></OL
+><P>
+      </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-query.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-statistics.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>問い合わせ計画</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>実行時統計情報</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

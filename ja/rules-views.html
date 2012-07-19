@@ -1,0 +1,1016 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ビューとルールシステム</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ルールシステム"
+HREF="rules.html"><LINK
+REL="PREVIOUS"
+TITLE="問い合わせツリーとは"
+HREF="querytree.html"><LINK
+REL="NEXT"
+TITLE="INSERT、UPDATE、DELETEについてのルール"
+HREF="rules-update.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="問い合わせツリーとは"
+HREF="querytree.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ルールシステム"
+HREF="rules.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 37&#31456;ルールシステム</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ルールシステム"
+HREF="rules.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="INSERT、UPDATE、DELETEについてのルール"
+HREF="rules-update.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RULES-VIEWS"
+>37.2. ビューとルールシステム</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>におけるビューはルールシステムを使って実装されています。 
+実際、
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW myview AS SELECT * FROM mytab;</PRE
+><P>
+
+と
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE myview (<TT
+CLASS="REPLACEABLE"
+><I
+>same column list as mytab</I
+></TT
+>);
+CREATE RULE "_RETURN" AS ON SELECT TO myview DO INSTEAD
+    SELECT * FROM mytab;</PRE
+><P>
+の2つのコマンドの間には基本的な違いはありません。
+
+と言うのは、<TT
+CLASS="COMMAND"
+>CREATE VIEW</TT
+>コマンドによって内部的にまったく同じコマンドが行われるからです。
+これには副作用もあります。
+その1つは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>システムカタログのビューについての情報はテーブルの情報とまったく同一であるということです。
+そのため、パーサにとってはテーブルとビューの間に違いは一切ありません。
+これらは同じもの、つまりリレーションです。</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RULES-SELECT"
+>37.2.1. <TT
+CLASS="COMMAND"
+>SELECT</TT
+>ルールの動き</A
+></H2
+><P
+>たとえコマンドが<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>などであっても、<TT
+CLASS="LITERAL"
+>ON SELECT</TT
+>ルールは全ての問い合わせに対し最後に適用されます。
+そして、このルールは他のコマンド種類のルールと異なるセマンティックを持っていて、問い合わせツリーを新規に生成せずに、そこにあるものを修正します。
+したがって<TT
+CLASS="COMMAND"
+>SELECT</TT
+>ルールが一番初めに記述されなければいけません。</P
+><P
+>現在のところ、<TT
+CLASS="LITERAL"
+>ON SELECT</TT
+>ルールでは1つのアクションしか許されず、それは<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>である無条件の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>アクションでなければいけません。
+この制約は、一般のユーザが何をしても、ルールシステムが堅牢であるために必要であり、<TT
+CLASS="LITERAL"
+>ON SELECT</TT
+>のルールはビュー同様の動作に限定されます。</P
+><P
+>本章の例として挙げているのは、ちょっとした演算をする2つの結合のビューと、次にこれらの機能を利用するいくつかのビューです。
+最終結果が何らかの魔法の機能によりあたかも実テーブルのように振舞うビューになるように、初めの2つのビューのうちの1つは、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作に対するルールを後で追加することでカスタマイズされます。
+初めて学ぶための例としては決して簡単ではなく先に進むことを躊躇させるかもしれませんが、多くの別々の例を持ち出して頭の混乱を招くよりも、全ての論点をステップごとに追う1つの例を挙げる方が良いでしょう。</P
+><P
+>この例では、2つの整数から小さな値を返すちょっとした<TT
+CLASS="LITERAL"
+>min</TT
+>関数を必要とします。
+関数の生成は以下のようにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION min(integer, integer) RETURNS integer AS $$
+    SELECT CASE WHEN $1 &lt; $2 THEN $1 ELSE $2 END
+$$ LANGUAGE SQL STRICT;</PRE
+><P></P
+><P
+>最初の2つのルールシステムの説明で必要とする実テーブルを以下に示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE shoe_data (
+    shoename   text,          -- プライマリキー
+    sh_avail   integer,       -- 在庫
+    slcolor    text,          -- 望ましい靴紐の色
+    slminlen   real,          -- 靴紐の最短サイズ
+    slmaxlen   real,          -- 靴紐の最長サイズ
+    slunit     text           -- 長さの単位
+);
+
+CREATE TABLE shoelace_data (
+    sl_name    text,          -- プライマリキー
+    sl_avail   integer,       -- 在庫
+    sl_color   text,          -- 靴紐の色
+    sl_len     real,          -- 靴紐の長さ
+    sl_unit    text           -- 長さの単位
+);
+
+CREATE TABLE unit (
+    un_name    text,          -- プライマリキー
+    un_fact    real           -- cmに変換するファクタ
+);</PRE
+><P>
+
+これでわかるかもしれませんが、これらは靴屋のデータを表しています。</P
+><P
+>ビューを以下のように作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW shoe AS
+    SELECT sh.shoename,
+           sh.sh_avail,
+           sh.slcolor,
+           sh.slminlen,
+           sh.slminlen * un.un_fact AS slminlen_cm,
+           sh.slmaxlen,
+           sh.slmaxlen * un.un_fact AS slmaxlen_cm,
+           sh.slunit
+      FROM shoe_data sh, unit un
+     WHERE sh.slunit = un.un_name;
+
+CREATE VIEW shoelace AS
+    SELECT s.sl_name,
+           s.sl_avail,
+           s.sl_color,
+           s.sl_len,
+           s.sl_unit,
+           s.sl_len * u.un_fact AS sl_len_cm
+      FROM shoelace_data s, unit u
+     WHERE s.sl_unit = u.un_name;
+
+CREATE VIEW shoe_ready AS
+    SELECT rsh.shoename,
+           rsh.sh_avail,
+           rsl.sl_name,
+           rsl.sl_avail,
+           min(rsh.sh_avail, rsl.sl_avail) AS total_avail
+      FROM shoe rsh, shoelace rsl
+     WHERE rsl.sl_color = rsh.slcolor
+       AND rsl.sl_len_cm &gt;= rsh.slminlen_cm
+       AND rsl.sl_len_cm &lt;= rsh.slmaxlen_cm;</PRE
+><P>
+
+<TT
+CLASS="LITERAL"
+>shoelace</TT
+>ビュー（今ある一番簡単なビュー）用の<TT
+CLASS="COMMAND"
+>CREATE VIEW</TT
+>コマンドは、<TT
+CLASS="LITERAL"
+>shoelace</TT
+>リレーションと、問い合わせ範囲テーブルの中で<TT
+CLASS="LITERAL"
+>shoelace</TT
+>リレーションが参照される時はいつでも、適用されるべき書き換えルールの存在を示す項目を<TT
+CLASS="STRUCTNAME"
+>pg_rewrite</TT
+>に作ります。
+ルールはルール条件（<TT
+CLASS="COMMAND"
+>SELECT</TT
+>ルールは現在持つことができませんので、非<TT
+CLASS="COMMAND"
+>SELECT</TT
+>ルールのところで取り上げます）を持たない<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>です。
+ルール条件は問い合わせ条件とは異なることに注意してください！
+ルールアクションは問い合わせ条件を持っています。
+このルールアクションは、ビュー作成コマンド内の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>のコピーである、1つの問い合わせツリーです。</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="STRUCTNAME"
+>pg_rewrite</TT
+>項目の<TT
+CLASS="LITERAL"
+>NEW</TT
+>と<TT
+CLASS="LITERAL"
+>OLD</TT
+>に対する2つの特別な範囲テーブル項目は<TT
+CLASS="COMMAND"
+>SELECT</TT
+>ルールには関係ありません。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>ではここで<TT
+CLASS="LITERAL"
+>unit</TT
+>、<TT
+CLASS="LITERAL"
+>shoe_data</TT
+>、<TT
+CLASS="LITERAL"
+>shoelace_data</TT
+>にデータを入れ、ビューに簡単な問い合わせを行います。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO unit VALUES ('cm', 1.0);
+INSERT INTO unit VALUES ('m', 100.0);
+INSERT INTO unit VALUES ('inch', 2.54);
+
+INSERT INTO shoe_data VALUES ('sh1', 2, 'black', 70.0, 90.0, 'cm');
+INSERT INTO shoe_data VALUES ('sh2', 0, 'black', 30.0, 40.0, 'inch');
+INSERT INTO shoe_data VALUES ('sh3', 4, 'brown', 50.0, 65.0, 'cm');
+INSERT INTO shoe_data VALUES ('sh4', 3, 'brown', 40.0, 50.0, 'inch');
+
+INSERT INTO shoelace_data VALUES ('sl1', 5, 'black', 80.0, 'cm');
+INSERT INTO shoelace_data VALUES ('sl2', 6, 'black', 100.0, 'cm');
+INSERT INTO shoelace_data VALUES ('sl3', 0, 'black', 35.0 , 'inch');
+INSERT INTO shoelace_data VALUES ('sl4', 8, 'black', 40.0 , 'inch');
+INSERT INTO shoelace_data VALUES ('sl5', 4, 'brown', 1.0 , 'm');
+INSERT INTO shoelace_data VALUES ('sl6', 0, 'brown', 0.9 , 'm');
+INSERT INTO shoelace_data VALUES ('sl7', 7, 'brown', 60 , 'cm');
+INSERT INTO shoelace_data VALUES ('sl8', 1, 'brown', 40 , 'inch');
+
+SELECT * FROM shoelace;
+
+ sl_name   | sl_avail | sl_color | sl_len | sl_unit | sl_len_cm
+-----------+----------+----------+--------+---------+-----------
+ sl1       |        5 | black    |     80 | cm      |        80
+ sl2       |        6 | black    |    100 | cm      |       100
+ sl7       |        7 | brown    |     60 | cm      |        60
+ sl3       |        0 | black    |     35 | inch    |      88.9
+ sl4       |        8 | black    |     40 | inch    |     101.6
+ sl8       |        1 | brown    |     40 | inch    |     101.6
+ sl5       |        4 | brown    |      1 | m       |       100
+ sl6       |        0 | brown    |    0.9 | m       |        90
+(8 rows)</PRE
+><P>
+   </P
+><P
+>これは、ビューに対する最も簡単な<TT
+CLASS="COMMAND"
+>SELECT</TT
+>ですので、この機会にビュールールの基本を説明します。
+<TT
+CLASS="LITERAL"
+>SELECT * FROM shoelace</TT
+>はパーサによって処理され、次の問い合わせツリーが生成されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT shoelace.sl_name, shoelace.sl_avail,
+       shoelace.sl_color, shoelace.sl_len,
+       shoelace.sl_unit, shoelace.sl_len_cm
+  FROM shoelace shoelace;</PRE
+><P>
+
+このツリーがルールシステムに伝えられます。
+ルールシステムは範囲テーブルを参照し、何らかのリレーションに対してルールが存在するか調べます。
+<TT
+CLASS="LITERAL"
+>shoelace</TT
+>（現時点では唯一のビュー）についての範囲テーブル項目を処理する際、問い合わせツリーで<TT
+CLASS="LITERAL"
+>_RETURN</TT
+>ルールを検出します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT s.sl_name, s.sl_avail,
+       s.sl_color, s.sl_len, s.sl_unit,
+       s.sl_len * u.un_fact AS sl_len_cm
+  FROM shoelace old, shoelace new,
+       shoelace_data s, unit u
+ WHERE s.sl_unit = u.un_name;</PRE
+><P></P
+><P
+>ビューを展開するために、リライタは単純にルールのアクション問い合わせツリーを持つ副問い合わせ範囲テーブルの項目を作り、ビューを参照していた元の範囲テーブルを置き換えます。
+書き換えられた結果の問い合わせツリーは、以下のように入力した場合とほぼ同じです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT shoelace.sl_name, shoelace.sl_avail,
+       shoelace.sl_color, shoelace.sl_len,
+       shoelace.sl_unit, shoelace.sl_len_cm
+  FROM (SELECT s.sl_name,
+               s.sl_avail,
+               s.sl_color,
+               s.sl_len,
+               s.sl_unit,
+               s.sl_len * u.un_fact AS sl_len_cm
+          FROM shoelace_data s, unit u
+         WHERE s.sl_unit = u.un_name) shoelace;</PRE
+><P>
+
+しかし1つだけ違いがあります。
+副問い合わせの範囲テーブルが2つの余分な項目<TT
+CLASS="LITERAL"
+>shoelace old</TT
+>と<TT
+CLASS="LITERAL"
+>shoelace new</TT
+>を持っていることです。
+これらの項目は副問い合わせの結合ツリーや目的リストで参照されませんので、直接問い合わせでは使われません。
+リライタはそれらを使用して、ビューを参照した範囲テーブルの項目に元々存在したアクセス権限確認情報を格納します。
+この方法で、書き換えられた問い合わせで直接ビューを使用していなくても、エクゼキュータはユーザがそのビューにアクセスするための正しい権限を持っているか確認します。</P
+><P
+>これが最初に適用されるルールです。
+ルールシステムは最上位の問い合わせの残り（この例ではこれ以上ありません）の範囲テーブルの項目をチェックし続けます。
+そしてルールシステムは、追加された副問い合わせの範囲テーブルの項目がビューを参照するかを再帰的に確認します
+（しかし<TT
+CLASS="LITERAL"
+>old</TT
+>や<TT
+CLASS="LITERAL"
+>new</TT
+>は展開しません。
+そうでなければ無限再帰になってしまいます！）。
+この例では<TT
+CLASS="LITERAL"
+>shoelace_data</TT
+>や<TT
+CLASS="LITERAL"
+>unit</TT
+>用の書き換えルールはありません。
+ですから書き換えは完結し、上記がプランナに渡される最終的な結果となります。</P
+><P
+>さて、店に置いてある靴紐（の色とサイズ）に一致する靴が店にあるか、完全に一致する靴紐の在庫数が2以上あるかどうかを把握する問い合わせを書いてみましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM shoe_ready WHERE total_avail &gt;= 2;
+
+ shoename | sh_avail | sl_name | sl_avail | total_avail
+----------+----------+---------+----------+-------------
+ sh1      |        2 | sl1     |        5 |           2
+ sh3      |        4 | sl7     |        7 |           4
+(2 rows)</PRE
+><P></P
+><P
+>今回のパーサの出力は以下の問い合わせツリーです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT shoe_ready.shoename, shoe_ready.sh_avail,
+       shoe_ready.sl_name, shoe_ready.sl_avail,
+       shoe_ready.total_avail
+  FROM shoe_ready shoe_ready
+ WHERE shoe_ready.total_avail &gt;= 2;</PRE
+><P>
+
+最初に適用されるルールは<TT
+CLASS="LITERAL"
+>shoe_ready</TT
+>ビュー用のもので、問い合わせツリーにおける結果は以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT shoe_ready.shoename, shoe_ready.sh_avail,
+       shoe_ready.sl_name, shoe_ready.sl_avail,
+       shoe_ready.total_avail
+  FROM (SELECT rsh.shoename,
+               rsh.sh_avail,
+               rsl.sl_name,
+               rsl.sl_avail,
+               min(rsh.sh_avail, rsl.sl_avail) AS total_avail
+          FROM shoe rsh, shoelace rsl
+         WHERE rsl.sl_color = rsh.slcolor
+           AND rsl.sl_len_cm &gt;= rsh.slminlen_cm
+           AND rsl.sl_len_cm &lt;= rsh.slmaxlen_cm) shoe_ready
+ WHERE shoe_ready.total_avail &gt;= 2;</PRE
+><P>
+
+同じように、<TT
+CLASS="LITERAL"
+>shoe</TT
+>と<TT
+CLASS="LITERAL"
+>shoelace</TT
+>用のルールは副問い合わせの範囲テーブルとして代用され、3レベルの最終問い合わせツリーへと導きます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT shoe_ready.shoename, shoe_ready.sh_avail,
+       shoe_ready.sl_name, shoe_ready.sl_avail,
+       shoe_ready.total_avail
+  FROM (SELECT rsh.shoename,
+               rsh.sh_avail,
+               rsl.sl_name,
+               rsl.sl_avail,
+               min(rsh.sh_avail, rsl.sl_avail) AS total_avail
+          FROM (SELECT sh.shoename,
+                       sh.sh_avail,
+                       sh.slcolor,
+                       sh.slminlen,
+                       sh.slminlen * un.un_fact AS slminlen_cm,
+                       sh.slmaxlen,
+                       sh.slmaxlen * un.un_fact AS slmaxlen_cm,
+                       sh.slunit
+                  FROM shoe_data sh, unit un
+                 WHERE sh.slunit = un.un_name) rsh,
+               (SELECT s.sl_name,
+                       s.sl_avail,
+                       s.sl_color,
+                       s.sl_len,
+                       s.sl_unit,
+                       s.sl_len * u.un_fact AS sl_len_cm
+                  FROM shoelace_data s, unit u
+                 WHERE s.sl_unit = u.un_name) rsl
+         WHERE rsl.sl_color = rsh.slcolor
+           AND rsl.sl_len_cm &gt;= rsh.slminlen_cm
+           AND rsl.sl_len_cm &lt;= rsh.slmaxlen_cm) shoe_ready
+ WHERE shoe_ready.total_avail &gt; 2;</PRE
+><P>
+   </P
+><P
+>次にプランナはこのツリーを2レベルの問い合わせツリーに縮めます。
+一番下の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドは別々に処理する必要がありませんので2つ目の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>に<SPAN
+CLASS="QUOTE"
+>"引っ張り上げ"</SPAN
+>られます。
+しかし2つ目の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>は集約関数を持つため、頂点からは区別されます。
+もしそれらを引っ張り上げてしまうと一番上の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の動作を変えてしまうことになり、それはしたくありません。
+しかし、問い合わせツリーを縮めるという最適化を、書き換えシステム自身で意識する必要はありません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN52777"
+>37.2.2. 非<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文のビュールール</A
+></H2
+><P
+>これまでのビュールールの説明では問い合わせツリーの2つの詳細について触れませんでした。
+それらは、コマンドタイプと結果リレーションです。
+実際、コマンドタイプはビュールールでは必要とされませんが、結果リレーションがビューの場合には特別な考慮が必要ですので、結果リレーションは問い合わせリライタの動作に影響するかもしれません。</P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>と他のコマンドに対する問い合わせツリーの間には大きな違いはありません。
+それらは明らかに違うコマンドタイプを持っていて、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>以外のコマンドでは、結果リレーションは結果の格納先となる範囲テーブルの項目を指し示します。
+それ以外ではまったく同じです。
+ですから、<TT
+CLASS="LITERAL"
+>a</TT
+>と<TT
+CLASS="LITERAL"
+>b</TT
+>の列を持つテーブル<TT
+CLASS="LITERAL"
+>t1</TT
+>、<TT
+CLASS="LITERAL"
+>t2</TT
+>に対する以下の2つの文の問い合わせツリーは、ほとんど同じです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT t2.b FROM t1, t2 WHERE t1.a = t2.a;
+
+UPDATE t1 SET b = t2.b FROM t2 WHERE t1.a = t2.a;</PRE
+><P>
+
+以下に、具体的に示します。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>範囲テーブルには、テーブル<TT
+CLASS="LITERAL"
+>t1</TT
+>と<TT
+CLASS="LITERAL"
+>t2</TT
+>に対する項目があります。
+        </P
+></LI
+><LI
+><P
+>目的リストにはテーブル<TT
+CLASS="LITERAL"
+>t2</TT
+>に対する範囲テーブル項目の<TT
+CLASS="LITERAL"
+>b</TT
+>列を指し示す1つの変数があります。
+        </P
+></LI
+><LI
+><P
+>条件式は、範囲テーブルの両項目の<TT
+CLASS="LITERAL"
+>a</TT
+>列の等価性を比較します。
+        </P
+></LI
+><LI
+><P
+>結合ツリーは<TT
+CLASS="LITERAL"
+>t1</TT
+>と<TT
+CLASS="LITERAL"
+>t2</TT
+>の単純な結合を表しています。
+        </P
+></LI
+></UL
+><P>
+   </P
+><P
+>結果として、両方の問い合わせツリーは似たような実行計画になります。
+それらはともに2つのテーブルの結合です。
+<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>では<TT
+CLASS="LITERAL"
+>t1</TT
+>から抜けている列はプランナによって目的リストに追加され、最終の問い合わせツリーは、以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE t1 SET a = t1.a, b = t2.b FROM t2 WHERE t1.a = t2.a;</PRE
+><P>
+
+そして、結合を実行したエクゼキュータは、
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT t1.a, t2.b FROM t1, t2 WHERE t1.a = t2.a;</PRE
+><P>
+
+の結果集合とまったく同じ結果集合を作成します。
+とは言っても<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>にはちょっとした問題があります。
+結合を行うエクゼキュータの計画の部分は、結合の結果が何に向けられているかに関与しません。
+エクゼキュータは単に結果となる行の集合を作成するだけです。
+1つは<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドでもう1つは<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドであるという事実は、エクゼキュータの中のより上位で扱われます。
+そこでは、これが<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>であるとわかっていて、この結果がテーブル<TT
+CLASS="LITERAL"
+>t1</TT
+>に入らなければいけないことを知っています。
+しかし、そこにあるどの行が新しい行によって置換されなければならないのでしょうか。</P
+><P
+>この問題を解決するため、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>文（<TT
+CLASS="COMMAND"
+>DELETE</TT
+>文の場合も同様）の目的リストに別の項目が付け加えられます。
+それは、現在のタプルID（<ACRONYM
+CLASS="ACRONYM"
+>CTID</ACRONYM
+>）です。
+
+これはその行のファイルブロック番号とブロック中の位置を持つシステム列です。
+テーブルがわかっている場合、<ACRONYM
+CLASS="ACRONYM"
+>CTID</ACRONYM
+>を使用して、元の<TT
+CLASS="LITERAL"
+>t1</TT
+>行を抽出して更新することができます。
+<ACRONYM
+CLASS="ACRONYM"
+>CTID</ACRONYM
+>を目的リストに追加すると、問い合わせは以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT t1.a, t2.b, t1.ctid FROM t1, t2 WHERE t1.a = t2.a;</PRE
+><P>
+
+では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の別の詳細説明に入りましょう。
+テーブルの行は上書きされませんので、<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>処理は速いのです。
+<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>では、（<ACRONYM
+CLASS="ACRONYM"
+>CTID</ACRONYM
+>を取り除いた後）テーブルに新しい結果行が挿入され、<ACRONYM
+CLASS="ACRONYM"
+>CTID</ACRONYM
+>が指し示す古い行の行ヘッダ内の<TT
+CLASS="LITERAL"
+>cmax</TT
+>と<TT
+CLASS="LITERAL"
+>xmax</TT
+>項目は現在のコマンドカウンタと現在のトランザクションIDに設定されます。 
+このようにして、古い行は隠され、トランザクションがコミットされた後、vacuum掃除機が不必要になった行をそのうちに削除できます。</P
+><P
+>これらの詳細が全部理解できれば、どんなコマンドに対してもまったく同じようにしてビューのルールを簡単に適用することができます。
+そこには差異がありません。</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN52833"
+>37.2.3. <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>におけるビューの能力</A
+></H2
+><P
+>ここまでで、ルールシステムがどのようにビューの諸定義を元の問い合わせツリーに組み入れるかを解説しました。
+第2の例では、1つのビューからの単純な<TT
+CLASS="COMMAND"
+>SELECT</TT
+>によって、最終的に4つのテーブルを結合する問い合わせツリーが生成されました（<TT
+CLASS="LITERAL"
+>unit</TT
+>は違った名前で2回使われました）。</P
+><P
+>ビューをルールシステムで実装する利点は、どのテーブルをスキャンすべきか、それらのテーブル間の関連性、ビューからの制約条件、元の問い合わせ条件に関する情報を全て、プランナが1つの問い合わせツリーの中に持っていることです。
+元の問い合わせが既にビューに対する結合である時も同様です。
+プランナはここでどれが問い合わせ処理の最適経路かを決定しなければなりません。
+プランナは保持する情報が多ければ多いほど、より良い決定を下すことができます。
+そして<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に実装されているルールシステムはこれが現時点で、提供されている全ての情報であることを保証します。</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RULES-VIEWS-UPDATE"
+>37.2.4. ビューの更新について</A
+></H2
+><P
+>ビューが<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>などの目的リレーションとして名付けられた場合はどうなるのでしょうか？
+単純に上で説明したような置換をすると、結果リレーションが副問い合わせの範囲テーブル項目を指す問い合わせツリーができますが、それでは使えません。
+その代わり、リライタは操作がビューの<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガによって扱われると仮定します。
+（もしそのようなトリガがなければ、エクゼキュータはエラーを発生します。）
+この場合、書き換えは少々違う形で行われます。
+<TT
+CLASS="COMMAND"
+>INSERT</TT
+>に対しては、リライタはビューに全く何もせず、問い合わせの結果リレーションをそのままにします。
+<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>と<TT
+CLASS="COMMAND"
+>DELETE</TT
+>に対しては、コマンドが更新もしくは削除しようとする<SPAN
+CLASS="QUOTE"
+>"古い"</SPAN
+>行を生成するためにビュー問い合わせを展開する必要がまだあります。
+そのため、ビューは通常通り展開されますが、もう一つの展開されない範囲テーブル項目が結果リレーションとしてビューを表す問い合わせに追加されます。</P
+><P
+>ここで起こる問題はビューで更新される行をどのように特定するかということです。
+結果リレーションがテーブルの場合、更新する行の物理的な位置を特定するために特別な<ACRONYM
+CLASS="ACRONYM"
+>CTID</ACRONYM
+>項目が目的リストに追加されることを思い出して下さい。
+ビューの行には実際の物理的な位置がないため、ビューには<ACRONYM
+CLASS="ACRONYM"
+>CTID</ACRONYM
+>がありませんので、これは結果リレーションがビューの場合には上手くいきません。
+その代わり、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>や<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作では、特別な<TT
+CLASS="LITERAL"
+>行全体</TT
+>の項目が目的リストに追加されていて、それはビューからすべての列を含むように展開されています。
+エクゼキュータこの値を使って<SPAN
+CLASS="QUOTE"
+>"古い"</SPAN
+>行を<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガに提供します。
+新旧の行の値に基づいて更新するものを計算するのはトリガの責任です。</P
+><P
+>ビューを更新する<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガがなければ、ビューを独力では自動的に更新できませんのでエラーが発生します。
+これを変えるために、ビューで<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドの動作を変えるルールを定義できます。
+これらのルールは、ビューではなくコマンドを書き換えます。
+通常は1つもしくは複数のテーブルを更新するコマンドに書き換えます。
+それが次節の論題になります。</P
+><P
+>ルールが最初に評価され、元の問い合わせが計画され実行される前にそれを書き換えることに注意して下さい。
+そのためビューに<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガと<TT
+CLASS="COMMAND"
+>INSERT</TT
+>や<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>や<TT
+CLASS="COMMAND"
+>DELETE</TT
+>に関するルールがあった場合、ルールが最初に評価され、その結果よってはトリガが全く使われないかもしれません。</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="querytree.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="rules-update.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>問い合わせツリーとは</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="rules.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>についてのルール</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

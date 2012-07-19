@@ -1,0 +1,554 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ユーザ定義の型</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLの拡張"
+HREF="extend.html"><LINK
+REL="PREVIOUS"
+TITLE="ユーザ定義の集約"
+HREF="xaggr.html"><LINK
+REL="NEXT"
+TITLE="ユーザ定義の演算子"
+HREF="xoper.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ユーザ定義の集約"
+HREF="xaggr.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 35&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の拡張</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ユーザ定義の演算子"
+HREF="xoper.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="XTYPES"
+>35.11. ユーザ定義の型</A
+></H1
+><P
+><A
+HREF="extend-type-system.html"
+>&#38917;35.2</A
+>に述べられているように、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、新しい型をサポートするように拡張することができます。
+本節では、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語以下のレベルで定義されるデータ型である基本型を新しく定義する方法について説明します。
+新しい基本型の作成には、低レベル言語、通常Cで作成された型を操作する関数の実装が必要です。
+  </P
+><P
+>本節で使用する例は、ソース配布物内の<TT
+CLASS="FILENAME"
+>src/tutorial</TT
+>ディレクトリに<TT
+CLASS="FILENAME"
+>complex.sql</TT
+>と<TT
+CLASS="FILENAME"
+>complex.c</TT
+>という名前で置いてあります。
+この例の実行方法についてはディレクトリ内の<TT
+CLASS="FILENAME"
+>README</TT
+>を参照してください。
+  </P
+><P
+>  
+  
+ユーザ定義データ型では必ず入力関数と出力関数が必要です。
+これらの関数は、その型が（ユーザによる入力とユーザへの出力のための）文字列としてどのように表現されるかと、その型がメモリ中でどう構成されるかを決定します。
+入力関数は引数としてヌル終端文字列を取り、その型の（メモリ中の）内部表現を返します。
+出力関数は引数としてその型の内部表現を取り、ヌル終端文字列を返します。
+単に格納するだけではなく、その型に操作を加えたいのであれば、その型に持たせたい全ての操作を実装した関数をさらに提供しなければなりません。
+ </P
+><P
+>例えば、複素数を表現する<TT
+CLASS="TYPE"
+>complex</TT
+>型を定義することを考えます。
+おそらく、次のようなC構造体で複素数をメモリ中で表現することがごく自然な方法です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct Complex {
+    double      x;
+    double      y;
+} Complex;</PRE
+><P>
+
+単一の<TT
+CLASS="TYPE"
+>Datum</TT
+>値で扱うには大き過ぎるので、これは参照渡し型にしなければなりません。
+ </P
+><P
+>この型の外部文字列表現として<TT
+CLASS="LITERAL"
+>(x,y)</TT
+>形式の文字列を使用することを選択します。
+ </P
+><P
+>入出力関数、特に出力関数を作成することは困難ではありません。
+しかし、この型の外部表現文字列を定義する時、その表現のための完全で堅牢なパーサを入力関数として作成しなければなりません。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PG_FUNCTION_INFO_V1(complex_in);
+
+Datum
+complex_in(PG_FUNCTION_ARGS)
+{
+    char       *str = PG_GETARG_CSTRING(0);
+    double      x,
+                y;
+    Complex    *result;
+
+    if (sscanf(str, " ( %lf , %lf )", &#38;x, &#38;y) != 2)
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+                 errmsg("invalid input syntax for complex: \"%s\"",
+                        str)));
+
+    result = (Complex *) palloc(sizeof(Complex));
+    result-&#62;x = x;
+    result-&#62;y = y;
+    PG_RETURN_POINTER(result);
+}</PRE
+><P>
+
+出力関数は以下のように簡単にできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PG_FUNCTION_INFO_V1(complex_out);
+
+Datum
+complex_out(PG_FUNCTION_ARGS)
+{
+    Complex    *complex = (Complex *) PG_GETARG_POINTER(0);
+    char       *result;
+
+    result = (char *) palloc(100);
+    snprintf(result, 100, "(%g,%g)", complex-&#62;x, complex-&#62;y);
+    PG_RETURN_CSTRING(result);
+}</PRE
+><P>
+ </P
+><P
+>入出力関数は各々の逆関数になるように注意しなければなりません。
+そうしないと、データをファイルにダンプし、それを読み戻そうとする際に、深刻な問題が発生するでしょう。
+これは特に浮動小数点数が関係する際によく発生する問題です。
+ </P
+><P
+>省略することができますが、ユーザ定義型はバイナリ入出力関数を提供することができます。
+バイナリ入出力は通常テキスト入出力より高速ですが、テキスト入出力より移植性がありません。
+テキスト入出力と同様に、外部バイナリ表現を正確に定義することは作成者の責任です。
+ほとんどの組み込みデータ型は、マシンに依存しないバイナリ表現を提供しようとしています。
+<TT
+CLASS="TYPE"
+>complex</TT
+>型では<TT
+CLASS="TYPE"
+>float8</TT
+>型のバイナリ入出力コンバータを元にします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PG_FUNCTION_INFO_V1(complex_recv);
+
+Datum
+complex_recv(PG_FUNCTION_ARGS)
+{
+    StringInfo  buf = (StringInfo) PG_GETARG_POINTER(0);
+    Complex    *result;
+
+    result = (Complex *) palloc(sizeof(Complex));
+    result-&#62;x = pq_getmsgfloat8(buf);
+    result-&#62;y = pq_getmsgfloat8(buf);
+    PG_RETURN_POINTER(result);
+}
+
+PG_FUNCTION_INFO_V1(complex_send);
+
+Datum
+complex_send(PG_FUNCTION_ARGS)
+{
+    Complex    *complex = (Complex *) PG_GETARG_POINTER(0);
+    StringInfoData buf;
+
+    pq_begintypsend(&#38;buf);
+    pq_sendfloat8(&#38;buf, complex-&#62;x);
+    pq_sendfloat8(&#38;buf, complex-&#62;y);
+    PG_RETURN_BYTEA_P(pq_endtypsend(&#38;buf));
+}</PRE
+><P>
+ </P
+><P
+>入出力関数を作成し共有ライブラリ内にコンパイルすれば、SQLで<TT
+CLASS="TYPE"
+>complex</TT
+>型を定義することができます。
+まずシェル型として宣言します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE complex;</PRE
+><P>
+
+これは、入出力関数を定義する時にこの型を参照することができるプレースホルダとして動作します。
+この後以下のように、入出力関数を定義することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION complex_in(cstring)
+    RETURNS complex
+    AS '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>'
+    LANGUAGE C IMMUTABLE STRICT;
+
+CREATE FUNCTION complex_out(complex)
+    RETURNS cstring
+    AS '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>'
+    LANGUAGE C IMMUTABLE STRICT;
+
+CREATE FUNCTION complex_recv(internal)
+   RETURNS complex
+   AS '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>'
+   LANGUAGE C IMMUTABLE STRICT;
+
+CREATE FUNCTION complex_send(complex)
+   RETURNS bytea
+   AS '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>'
+   LANGUAGE C IMMUTABLE STRICT;</PRE
+><P>
+ </P
+><P
+>最後にデータ型の完全な定義を提供することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE complex (
+   internallength = 16,
+   input = complex_in,
+   output = complex_out,
+   receive = complex_recv,
+   send = complex_send,
+   alignment = double
+);</PRE
+><P>
+ </P
+><P
+>  
+新しい基本型を定義すると、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は自動的にその型の配列のサポートを提供します。
+配列型は通常、基本型の名前の前にアンダースコア文字<TT
+CLASS="LITERAL"
+>_</TT
+>が付いた名前になります。
+ </P
+><P
+>データ型が存在するようになると、そのデータ型に対する有用な操作を提供する関数を宣言することができます。
+そしてその関数を使用する演算子も定義できます。
+また、必要に応じて、そのデータ型用のインデックスをサポートするための演算子クラスも作成することができます。
+こうした追加層については後の節で説明します。
+ </P
+><P
+>   
+データ型の値により（内部形式で）容量が変動する場合、そのデータ型を<ACRONYM
+CLASS="ACRONYM"
+>TOAST</ACRONYM
+>可能としなければなりません。
+（<A
+HREF="storage-toast.html"
+>&#38917;55.2</A
+>を参照してください。）
+ヘッダのオーバーヘッドを減らすことで<ACRONYM
+CLASS="ACRONYM"
+>TOAST</ACRONYM
+>は小さなデータに対しても容量を抑えることができますので、データが常に圧縮し外部に格納するには小さ過ぎる場合でも、これを行わなければなりません。
+ </P
+><P
+>このためには、内部表現が可変長データの標準レイアウトに従っていなければなりません。
+先頭の4バイトは<TT
+CLASS="TYPE"
+>char[4]</TT
+>フィールドで、直接アクセスされることは決してありません（慣習的に<TT
+CLASS="STRUCTFIELD"
+>vl_len_</TT
+>と呼ばれます）。
+<CODE
+CLASS="FUNCTION"
+>SET_VARSIZE()</CODE
+>を使用してデータの容量をこのフィールドに格納し、また、<CODE
+CLASS="FUNCTION"
+>VARSIZE()</CODE
+>を使用してこのフィールドを取り出さなければなりません。
+そのデータ型を扱うC関数は常に、<CODE
+CLASS="FUNCTION"
+>PG_DETOAST_DATUM</CODE
+>を使用して、渡されたTOAST化値を注意深く展開しなければなりません。
+（通常、こうした詳細は型独自の<CODE
+CLASS="FUNCTION"
+>GETARG_DATATYPE_P</CODE
+>マクロを定義して隠蔽します。）
+その後、<TT
+CLASS="COMMAND"
+>CREATE TYPE</TT
+>コマンドを実行する際に、内部長を<TT
+CLASS="LITERAL"
+>variable</TT
+>と指定し、また、適当な格納オプションを選択してください。
+ </P
+><P
+>整列が（単なる特定の関数向けやデータ型が常にバイト単位の整列を規定しているため）重要でない場合、<CODE
+CLASS="FUNCTION"
+>PG_DETOAST_DATUM</CODE
+>のオーバヘッドの一部を省くことができます。
+代わりに<CODE
+CLASS="FUNCTION"
+>PG_DETOAST_DATUM_PACKED</CODE
+>を使用してください（通常は<CODE
+CLASS="FUNCTION"
+>PG_DETOAST_DATUM_PACKED</CODE
+>マクロを定義することで隠蔽されます）。
+そして、<CODE
+CLASS="FUNCTION"
+>VARSIZE_ANY_EXHDR</CODE
+>および<CODE
+CLASS="FUNCTION"
+>VARDATA_ANY</CODE
+>マクロを使用して、圧縮されている可能性があるデータにアクセスしてください。
+繰り返しますが、これらのマクロから返されるデータは、たとえデータ型定義で整列を規定していたとしても、整列されません。
+整列が重要であれば、通常の<CODE
+CLASS="FUNCTION"
+>PG_DETOAST_DATUM</CODE
+>インタフェースを介して実行してください。
+ </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>古めのコードではしばしば<TT
+CLASS="STRUCTFIELD"
+>vl_len_</TT
+>を<TT
+CLASS="TYPE"
+>char[4]</TT
+>ではなく<TT
+CLASS="TYPE"
+>int32</TT
+>として宣言しています。
+この構造体定義が少なくとも<TT
+CLASS="TYPE"
+>int32</TT
+>で整列されたフィールドを持っている限り、これは問題ありません。
+しかし、整列されていない可能性があるデータを扱う場合に、こうした構造体定義を使用することは危険です。
+データが実際に整列されていると仮定することをコンパイラの規則としているかもしれず、この場合、整列に厳密なアーキテクチャではコアダンプしてしまいます。
+  </P
+></BLOCKQUOTE
+></DIV
+><P
+>詳細については<A
+HREF="sql-createtype.html"
+>CREATE TYPE</A
+>コマンドの説明を参照してください。
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="xaggr.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="xoper.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ユーザ定義の集約</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="extend.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ユーザ定義の演算子</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

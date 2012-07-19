@@ -1,0 +1,1464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>クライアント接続デフォルト</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="自動Vacuum作業"
+HREF="runtime-config-autovacuum.html"><LINK
+REL="NEXT"
+TITLE="ロック管理"
+HREF="runtime-config-locks.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="自動Vacuum作業"
+HREF="runtime-config-autovacuum.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ロック管理"
+HREF="runtime-config-locks.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-CLIENT"
+>18.11. クライアント接続デフォルト</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-CLIENT-STATEMENT"
+>18.11.1. 文の動作</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-SEARCH-PATH"
+></A
+><TT
+CLASS="VARNAME"
+>search_path</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	この変数は、オブジェクト（テーブル、データ型、関数など）がスキーマを指定されていない単純な名前で参照されている場合に、スキーマを検索する順番を指定します。
+	異なるスキーマに同じ名前のオブジェクトがある場合、検索パスで最初に見つかったものが使用されます。
+	検索パス内のどのスキーマにも存在しないオブジェクトを参照するには、修飾名（ドット付き）でそのオブジェクトが含まれるスキーマを指定する必要があります。
+       </P
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>search_path</TT
+>の値は、スキーマの名前をカンマで区切った一覧でなければなりません。
+	一覧内の項目の1つが特別な値である<TT
+CLASS="LITERAL"
+>$user</TT
+>の場合、<CODE
+CLASS="FUNCTION"
+>SESSION_USER</CODE
+>と同じ名前を持つスキーマがあれば、そのスキーマが置換されます（このような名前空間がない場合は<TT
+CLASS="LITERAL"
+>$user</TT
+>は無視されます）。
+       </P
+><P
+>       
+	システムカタログのスキーマである<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>は、パスでの指定の有無にかかわらず、常に検索されます。
+パスで指定されている場合は、指定された順序で検索されます。
+<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>がパスに含まれていない場合、パスに含まれる項目を検索する<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>前に</I
+></SPAN
+>検索が行われます
+       </P
+><P
+>       
+	同様に、現在のセッションの一時テーブルスキーマ<TT
+CLASS="LITERAL"
+>pg_temp_<TT
+CLASS="REPLACEABLE"
+><I
+>nnn</I
+></TT
+></TT
+>も、存在すれば常に検索されます。
+これは<TT
+CLASS="LITERAL"
+>pg_temp</TT
+>という別名を使用してパスに明示的に列挙させることができます。
+パスに列挙されていない場合、最初に（<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>よりも前であっても）検索されます。
+しかし、一時スキーマはリレーション（テーブル、ビュー、シーケンスなど）とデータ型名に対してのみ検索されます。
+関数や演算子名に対してはまったく検索されません。
+       </P
+><P
+>       
+	対象となる特定のスキーマを指定せずにオブジェクトが作成された場合、それらのオブジェクトは検索パスで最初に指定されているスキーマに配置されます。
+検索パスが空の場合、エラーが報告されます。
+       </P
+><P
+>       
+	このパラメータのデフォルト値は<TT
+CLASS="LITERAL"
+>'"$user", public'</TT
+>です（<TT
+CLASS="LITERAL"
+>public</TT
+>という名前のスキーマが存在しない場合、2 つ目の部分は無視されます）。 
+これにより、データベースの共有（どのユーザも非公開のスキーマを持たず、全員が<TT
+CLASS="LITERAL"
+>public</TT
+>を共有）、ユーザごとの非公開のスキーマ、およびこれらの組み合わせがサポートされます。
+デフォルトの検索パスの設定を全体的またはユーザごとに変更することで、その他の効果を得ることもできます。
+       </P
+><P
+>       
+	<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数の<CODE
+CLASS="FUNCTION"
+>current_schemas</CODE
+> によって、検索パスの現在の有効な値を調べることができます（<A
+HREF="functions-info.html"
+>&#38917;9.23</A
+>を参照してください）。
+これは、<TT
+CLASS="VARNAME"
+>search_path</TT
+> の値を調べるのとは異なります。
+<CODE
+CLASS="FUNCTION"
+>current_schemas</CODE
+>は、<TT
+CLASS="VARNAME"
+>search_path</TT
+>に現れる項目がどのように解決されたかを表すからです。
+       </P
+><P
+>       
+	スキーマ操作に付いてより多くの情報は、<A
+HREF="ddl-schemas.html"
+>&#38917;5.7</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-DEFAULT-TABLESPACE"
+></A
+><TT
+CLASS="VARNAME"
+>default_tablespace</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	この変数は、<TT
+CLASS="COMMAND"
+>CREATE</TT
+>コマンドで明示的にテーブル空間を指定していない場合にオブジェクトの作成先となるデフォルトのテーブル空間を指定します。
+       </P
+><P
+>       
+	値はテーブル空間名、もしくは現在のデータベースのデフォルトのテーブル空間を使用することを意味する空文字列です。
+この値が既存のテーブル空間名と一致しない場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は自動的に現在のデータベースのデフォルトのテーブル空間を使用します。
+デフォルト以外のテーブル空間が指定された場合、ユーザはそのテーブル空間で<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限を持たなければなりません。
+さもなくば作成に失敗します。
+       </P
+><P
+>       
+	この変数は一時テーブル向けには使用されません。
+一時テーブル向けには代わりに<A
+HREF="runtime-config-client.html#GUC-TEMP-TABLESPACES"
+>temp_tablespaces</A
+>が考慮されます。
+       </P
+><P
+>       
+	同時に、この変数はデータベース作成時には使用されません。
+       </P
+><P
+>       
+	テーブル空間に付いてより詳細な情報は<A
+HREF="manage-ag-tablespaces.html"
+>&#38917;21.6</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-TEMP-TABLESPACES"
+></A
+><TT
+CLASS="VARNAME"
+>temp_tablespaces</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	この変数は、<TT
+CLASS="COMMAND"
+>CREATE</TT
+>コマンドで明示的にテーブル空間が指定されない場合に、生成する一時オブジェクト（一時テーブルと一時テーブル上のインデックス）を格納するテーブル空間（複数可）を指定します。
+大規模データ集合のソートなどを目的とした一時ファイルもまた、このテーブル空間（複数可）に作成されます。
+       </P
+><P
+>       
+	この値はテーブル空間名のリストです。
+リストに複数の名前が存在する場合、一時オブジェクトが作成される度に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は無作為にリストから要素を選択します。
+トランザクションの内側は例外で、連続して作成される一時オブジェクトはそのリストで連続するテーブル空間に格納されます。
+リスト内の選択された要素が空文字列だった場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は自動的に現在のデータベースのデフォルトのテーブル空間を代わりに使用します。
+       </P
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>temp_tablespaces</TT
+>を対話式に設定する場合、存在しないテーブル空間を指定するとエラーになります。
+ユーザが<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限を持たないテーブル空間を指定した場合も同様です。
+しかし事前に設定された値を使用する場合、存在しないテーブル空間は無視されます。
+ユーザが<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限を持たないテーブル空間も同様です。
+具体的には、この規則は<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>内で設定した値を使用する場合に適用されます。
+       </P
+><P
+>       
+	デフォルト値は空文字列です。
+この結果、すべての一時オブジェクトは現在のデータベースのデフォルトのテーブル空間内に作成されます。
+       </P
+><P
+>       
+	<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TABLESPACE"
+>default_tablespace</A
+>も参照してください
+       </P
+></DD
+><DT
+><A
+NAME="GUC-CHECK-FUNCTION-BODIES"
+></A
+><TT
+CLASS="VARNAME"
+>check_function_bodies</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	このパラメータは通常オンです。<TT
+CLASS="LITERAL"
+>off</TT
+>に設定すると、<A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>の間で関数本体文字列の妥当性検証を無効にします。
+	妥当性検証を無効にすることは、時たまダンプから関数定義をリストアする時に参照を転送するような問題を回避する場合には便利です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-DEFAULT-TRANSACTION-ISOLATION"
+></A
+><TT
+CLASS="VARNAME"
+>default_transaction_isolation</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	SQLトランザクションはそれぞれ、<SPAN
+CLASS="QUOTE"
+>"read uncommitted"</SPAN
+>、<SPAN
+CLASS="QUOTE"
+>"read committed"</SPAN
+>、<SPAN
+CLASS="QUOTE"
+>"repeatable read"</SPAN
+>、または<SPAN
+CLASS="QUOTE"
+>"serializable"</SPAN
+>のいずれかの隔離レベルを持ちます。
+このパラメータは各新規トランザクションのデフォルトの隔離レベルを制御します。
+デフォルトは<SPAN
+CLASS="QUOTE"
+>"read committed"</SPAN
+>です。
+       </P
+><P
+>       
+	より詳細は <A
+HREF="mvcc.html"
+>&#31532;13&#31456;</A
+> および <A
+HREF="sql-set-transaction.html"
+>SET TRANSACTION</A
+> を調べてください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-DEFAULT-TRANSACTION-READ-ONLY"
+></A
+><TT
+CLASS="VARNAME"
+>default_transaction_read_only</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	読み取り専用のSQLトランザクションでは、非一時的テーブルを変更することができません。
+このパラメータは、各新規トランザクションのデフォルトの読み取りのみ状況を制御します。
+デフォルト<TT
+CLASS="LITERAL"
+>off</TT
+>（読み書き）です。
+       </P
+><P
+>       
+	より詳細な情報は<A
+HREF="sql-set-transaction.html"
+>SET TRANSACTION</A
+>を調べてください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-DEFAULT-TRANSACTION-DEFERRABLE"
+></A
+><TT
+CLASS="VARNAME"
+>default_transaction_deferrable</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="LITERAL"
+>シリアライザブル</TT
+>隔離レベルで運用されている場合、繰り延べ読み取り専用SQLトランザクションは、その処理の許可の前に遅延されることがあります。
+	しかし、ひとたび処理が開始されるとシリアライザブル可能性を保障するために必要ないかなるオーバヘッドも発生させません。
+	従って、シリアル化（直列化）のコードは、このオプションを長期間にわたる読み取り専用トランザクションに対して適切な処置と位置づけ、同時実行の更新の観点から中断を強制する理由はありません。
+        </P
+><P
+>	
+	このパラメータはそれぞれの新規トランザクションのデフォルトでの繰り延べ状態を制御します。
+	現時点では、読み取り専用トランザクション、または<TT
+CLASS="LITERAL"
+>シリアライザブル</TT
+>より低位の隔離レベルの運用に対して効果はありません。
+       </P
+><P
+>       
+	より詳細は<A
+HREF="sql-set-transaction.html"
+>SET TRANSACTION</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SESSION-REPLICATION-ROLE"
+></A
+><TT
+CLASS="VARNAME"
+>session_replication_role</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	現在のセッションでのレプリケーションに関連したトリガおよびルールの発行を制御します。
+この変数を設定するにはスーパーユーザ権限が必要で、かつ、これまでにキャッシュされた問い合わせ計画が破棄されることになります。
+取り得る値は、<TT
+CLASS="LITERAL"
+>origin</TT
+>（デフォルト）、<TT
+CLASS="LITERAL"
+>replica</TT
+>、<TT
+CLASS="LITERAL"
+>local</TT
+>です。
+詳細については<A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-STATEMENT-TIMEOUT"
+></A
+><TT
+CLASS="VARNAME"
+>statement_timeout</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	指定されたミリ秒数以上、コマンドがクライアントからサーバに届いてから経過したどんなコマンドの実行も停止します。
+もし、<TT
+CLASS="VARNAME"
+>log_min_error_statement</TT
+>が<TT
+CLASS="LITERAL"
+>ERROR</TT
+>もしくはそれ以下に設定されると、タイムアウトする文は同時にログに書き込まれます。値がゼロ（デフォルト）の場合、これを無効にします。
+       </P
+><P
+>       
+	すべてのセッションに影響しますので、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>内で<TT
+CLASS="VARNAME"
+>statement_timeout</TT
+>を設定することは推奨されません。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-VACUUM-FREEZE-TABLE-AGE"
+></A
+><TT
+CLASS="VARNAME"
+>vacuum_freeze_table_age</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	テーブルの<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>relfrozenxid</TT
+>フィールドがこの設定で指定した時期に達すると、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>はテーブル全体の走査を行います。
+	デフォルトは1.5億トランザクションです。
+	ユーザはこの値をゼロから10億までの任意の値に設定することができますが、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>は警告することなく、周回問題対策のautovacuumがテーブルに対して起動する前に定期的な手動<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>が実行する機会を持つように、<A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-FREEZE-MAX-AGE"
+>autovacuum_freeze_max_age</A
+>の95%に実効値を制限します。
+	<A
+HREF="routine-vacuuming.html#VACUUM-FOR-WRAPAROUND"
+>&#38917;23.1.4</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-VACUUM-FREEZE-MIN-AGE"
+></A
+><TT
+CLASS="VARNAME"
+>vacuum_freeze_min_age</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>がテーブルスキャン時にトランザクションIDを<TT
+CLASS="LITERAL"
+>FrozenXID</TT
+>に置き換えるかどうかを決定する際に使用する、カットオフ（トランザクション）年代を指定します。
+デフォルトは5千万トランザクションです。
+ユーザはこの値を0から10億までの間で任意の値に設定することができますが、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>は警告なく<A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-FREEZE-MAX-AGE"
+>autovacuum_freeze_max_age</A
+>の半分までの値に値を制限します。
+このため、強制的なautovacuumの間隔が不合理に短くなることはありません。
+詳細は<A
+HREF="routine-vacuuming.html#VACUUM-FOR-WRAPAROUND"
+>&#38917;23.1.4</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-BYTEA-OUTPUT"
+></A
+><TT
+CLASS="VARNAME"
+>bytea_output</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="TYPE"
+>bytea</TT
+>型の値の出力形式を設定します。
+	有効な値は<TT
+CLASS="LITERAL"
+>hex</TT
+>（デフォルト）、および<TT
+CLASS="LITERAL"
+>escape</TT
+>（PostgreSQLの伝統的な書式）です。
+	より詳細は<A
+HREF="datatype-binary.html"
+>&#38917;8.4</A
+>を参照してください。
+	<TT
+CLASS="TYPE"
+>bytea</TT
+>型は常にこの設定に係わらず、入力時に双方の書式を受け付けます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-XMLBINARY"
+></A
+><TT
+CLASS="VARNAME"
+>xmlbinary</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	バイナリデータをXMLに符号化する方法を設定します。
+例えばこれは、<CODE
+CLASS="FUNCTION"
+>xmlelement</CODE
+>や<CODE
+CLASS="FUNCTION"
+>xmlforest</CODE
+>関数で<TT
+CLASS="TYPE"
+>bytea</TT
+>値をXMLに変換する際に適用されます。
+取り得る値は<TT
+CLASS="LITERAL"
+>base64</TT
+>と<TT
+CLASS="LITERAL"
+>hex</TT
+>です。
+どちらもXMLスキーマ標準で定義されています。
+デフォルトは<TT
+CLASS="LITERAL"
+>base64</TT
+>です。
+XMLに関連した関数については<A
+HREF="functions-xml.html"
+>&#38917;9.14</A
+>を参照してください。
+       </P
+><P
+>       
+	実のところこの選択はほとんど趣味の問題で、クライアントアプリケーションで起こり得る制限のみに制約されます。
+どちらの方法もすべての値をサポートしますが、hex符号化方式はbase64符号化方式より少し大きくなります。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-XMLOPTION"
+></A
+><TT
+CLASS="VARNAME"
+>xmloption</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	XMLと文字列値との変換時に<TT
+CLASS="LITERAL"
+>DOCUMENT</TT
+>とするか<TT
+CLASS="LITERAL"
+>CONTENT</TT
+>とするかを設定します。
+この説明については<A
+HREF="datatype-xml.html"
+>&#38917;8.13</A
+>を参照してください。
+有効な値は<TT
+CLASS="LITERAL"
+>DOCUMENT</TT
+>と<TT
+CLASS="LITERAL"
+>CONTENT</TT
+>です。
+デフォルトは<TT
+CLASS="LITERAL"
+>CONTENT</TT
+>です。
+       </P
+><P
+>       
+	標準SQLに従うと、このオプションを設定するコマンドは以下のようになります。
+</P><PRE
+CLASS="SYNOPSIS"
+>SET XML OPTION { DOCUMENT | CONTENT };</PRE
+><P>
+       
+	この構文はPostgreSQLでも使用可能です。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-CLIENT-FORMAT"
+>18.11.2. ロケールと書式設定</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-DATESTYLE"
+></A
+><TT
+CLASS="VARNAME"
+>DateStyle</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	日付時刻値の表示書式を設定し、曖昧な日付入力の解釈規則を設定します。
+歴史的な理由により、この変数には2つの依存した要素が含まれています。
+出力書式指定（<TT
+CLASS="LITERAL"
+>ISO</TT
+>、<TT
+CLASS="LITERAL"
+>Postgres</TT
+>、<TT
+CLASS="LITERAL"
+>SQL</TT
+>、<TT
+CLASS="LITERAL"
+>German</TT
+>）と年/月/日の順序の入出力指定（<TT
+CLASS="LITERAL"
+>DMY</TT
+>、<TT
+CLASS="LITERAL"
+>MDY</TT
+>、<TT
+CLASS="LITERAL"
+>YMD</TT
+>）です。
+これらは分けて設定することもまとめて設定することもできます。
+<TT
+CLASS="LITERAL"
+>Euro</TT
+>および<TT
+CLASS="LITERAL"
+>European</TT
+>キーワードは<TT
+CLASS="LITERAL"
+>DMY</TT
+>の同義語であり、<TT
+CLASS="LITERAL"
+>US</TT
+>、<TT
+CLASS="LITERAL"
+>NonEuro</TT
+>、<TT
+CLASS="LITERAL"
+>NonEuropean</TT
+>は<TT
+CLASS="LITERAL"
+>MDY</TT
+>の同義語です。
+詳細は<A
+HREF="datatype-datetime.html"
+>&#38917;8.5</A
+>を参照してください。
+組み込みのデフォルトは<TT
+CLASS="LITERAL"
+>ISO, MDY</TT
+>ですが、<SPAN
+CLASS="APPLICATION"
+>initdb</SPAN
+>により、選択された<TT
+CLASS="VARNAME"
+>lc_time</TT
+>ロケールの動作に対応した設定で設定ファイルが初期化されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-INTERVALSTYLE"
+></A
+><TT
+CLASS="VARNAME"
+>IntervalStyle</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	間隔の値の表示形式を設定します。<TT
+CLASS="LITERAL"
+>sql_standard</TT
+>値は、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>標準間隔リテラルに一致する出力を生成します。
+	（デフォルトの）値<TT
+CLASS="LITERAL"
+>postgres</TT
+>は、<A
+HREF="runtime-config-client.html#GUC-DATESTYLE"
+>DateStyle</A
+>パラメータが<TT
+CLASS="LITERAL"
+>ISO</TT
+>に設定されている場合、リリース8.4以前の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に一致する出力を生成します。
+	値<TT
+CLASS="LITERAL"
+>postgres_verbose</TT
+>は、<TT
+CLASS="VARNAME"
+>DateStyle</TT
+>パラメータが非<TT
+CLASS="LITERAL"
+>ISO</TT
+>出力に設定されている場合、リリース8.4以前の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に一致する出力を生成します。
+	値<TT
+CLASS="LITERAL"
+>iso_8601</TT
+>は、ISO 8601の4.4.3.2節で定義されている時間間隔<SPAN
+CLASS="QUOTE"
+>"format with designators"</SPAN
+>に一致する出力を生成します。
+       </P
+><P
+>       
+	また<TT
+CLASS="VARNAME"
+>IntervalStyle</TT
+>パラメータはあいまいに入力された時間間隔の解釈に影響を与えます。
+	詳細については<A
+HREF="datatype-datetime.html#DATATYPE-INTERVAL-INPUT"
+>&#38917;8.5.4</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-TIMEZONE"
+></A
+><TT
+CLASS="VARNAME"
+>timezone</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	表示用およびタイムスタンプ解釈用の時間帯を設定します。
+	明示的に設定されない場合、サーバはシステム環境で指定された時間帯に対してこの値で初期化します。
+        詳細は<A
+HREF="datatype-datetime.html#DATATYPE-TIMEZONES"
+>&#38917;8.5.3</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-TIMEZONE-ABBREVIATIONS"
+></A
+><TT
+CLASS="VARNAME"
+>timezone_abbreviations</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	サーバで日付時刻の入力として受付け可能となる時間帯省略形の集合を設定します。
+デフォルトは<TT
+CLASS="LITERAL"
+>'Default'</TT
+>です。
+これはほぼ全世界で通じる集合です。
+また、<TT
+CLASS="LITERAL"
+>Australia</TT
+>、<TT
+CLASS="LITERAL"
+>India</TT
+>、その他特定のインストレーションで定義可能な集合が存在します。
+詳細は<A
+HREF="datetime-appendix.html"
+>&#20184;&#37682;B</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-EXTRA-FLOAT-DIGITS"
+></A
+><TT
+CLASS="VARNAME"
+>extra_float_digits</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	このパラメータは、<TT
+CLASS="TYPE"
+>float4</TT
+>、<TT
+CLASS="TYPE"
+>float8</TT
+>、幾何データ型などの浮動小数点値の表示桁数を調整します。
+パラメータ値が標準的な桁数（<TT
+CLASS="LITERAL"
+>FLT_DIG</TT
+>もしくは<TT
+CLASS="LITERAL"
+>DBL_DIG</TT
+>どちらか適切な方）に追加されます。
+この値は、部分有効数を含めるために3まで設定することができます。
+これは基本的に、正確にリストアする必要がある浮動小数点データをダンプするために有用です。
+もしくは、不要な桁を抑制するために負の値を設定することもできます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-CLIENT-ENCODING"
+></A
+><TT
+CLASS="VARNAME"
+>client_encoding</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	クライアント側符号化方式（文字セット）を設定します。デフォルトはデータベース符号化方式を使用します。
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバでサポートされている文字セットは<A
+HREF="multibyte.html#MULTIBYTE-CHARSET-SUPPORTED"
+>&#38917;22.3.1</A
+>に記載されています。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LC-MESSAGES"
+></A
+><TT
+CLASS="VARNAME"
+>lc_messages</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	メッセージが表示される言語を設定します。使用可能な値はシステムに依存します。詳細については<A
+HREF="locale.html"
+>&#38917;22.1</A
+>を参照してください。
+	この変数が空に設定された場合（これがデフォルトです）、値はシステムに依存する方法でサーバの実行環境から継承されます。
+       </P
+><P
+>       
+	システムによっては、このロケールのカテゴリが存在しません。この変数を設定することはできますが、実効性はありません。
+	また、指定の言語に翻訳されたメッセージが存在しないこともあります。
+	その場合は、引き続き英語のメッセージが表示されます。
+       </P
+><P
+>       
+	サーバログやクライアントに送信されるメッセージに影響するため、および、全ての不適切な値がサーバログの信頼性を損ねる可能性があるため、スーパユーザのみがこの設定を変更することができます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LC-MONETARY"
+></A
+><TT
+CLASS="VARNAME"
+>lc_monetary</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	通貨書式で使用するロケールを設定します。
+例えば、<CODE
+CLASS="FUNCTION"
+>to_char()</CODE
+>系の関数で使用します。
+使用可能な値はシステムに依存します。
+詳細については<A
+HREF="locale.html"
+>&#38917;22.1</A
+>を参照してください。
+この変数が空に設定された場合（これがデフォルトです）、値はシステムに依存する方法でサーバの実行環境から継承されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LC-NUMERIC"
+></A
+><TT
+CLASS="VARNAME"
+>lc_numeric</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	数字の書式で使用するロケールを設定します。
+例えば、<CODE
+CLASS="FUNCTION"
+>to_char</CODE
+>系の関数で使用します。
+使用可能な値はシステムに依存します。
+詳細については<A
+HREF="locale.html"
+>&#38917;22.1</A
+>を参照してください。
+この変数が空に設定された場合（これがデフォルトです）、値はシステムに依存する方法でサーバの実行環境から継承されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LC-TIME"
+></A
+><TT
+CLASS="VARNAME"
+>lc_time</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	例えば<CODE
+CLASS="FUNCTION"
+>to_char</CODE
+>系関数における、日付と時間の書式で使用するロケールを設定します。
+	使用可能な値はシステムに依存します。
+	詳細については<A
+HREF="locale.html"
+>&#38917;22.1</A
+>を参照してください。
+この変数が空に設定された場合（これがデフォルトです）、値はシステムに依存する方法でサーバの実行環境から継承されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-DEFAULT-TEXT-SEARCH-CONFIG"
+></A
+><TT
+CLASS="VARNAME"
+>default_text_search_config</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	明示的な設定指定引数を持たないテキスト検索関数の亜種で使用される、テキスト検索設定を選択します。
+詳細は<A
+HREF="textsearch.html"
+>&#31532;12&#31456;</A
+>を参照してください。
+組み込みのデフォルトは<TT
+CLASS="LITERAL"
+>pg_catalog.simple</TT
+>ですが、<SPAN
+CLASS="APPLICATION"
+>initdb</SPAN
+>は、ロケールに合う設定を認識することができれば、選択された<TT
+CLASS="VARNAME"
+>lc_ctype</TT
+>ロケールに対応した設定で設定ファイルを初期化します。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-CLIENT-OTHER"
+>18.11.3. その他のデフォルト</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-DYNAMIC-LIBRARY-PATH"
+></A
+><TT
+CLASS="VARNAME"
+>dynamic_library_path</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	オープンする必要がある動的ロード可能なモジュールについて、その<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>や<TT
+CLASS="COMMAND"
+>LOAD</TT
+>コマンドで指定されたファイル名にディレクトリ要素がなく（つまり、名前にスラッシュが含まれずに）指定された場合、システムは必要なファイルをこのパスから検索します。
+       </P
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>dynamic_library_path</TT
+>の値は、絶対パスのディレクトリ名をコロン（Windowsの場合はセミコロン）を区切った一覧です。
+この一覧の要素が特別な<TT
+CLASS="LITERAL"
+>$libdir</TT
+>という値から始まる場合、コンパイルされた<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>パッケージのライブラリディレクトリで<TT
+CLASS="LITERAL"
+>$libdir</TT
+>は置換されます。
+ここには、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の標準配布物により提供されるモジュールがインストールされます
+（このディレクトリ名を表示するには、<TT
+CLASS="LITERAL"
+>pg_config --pkglibdir</TT
+> を使用してください）。
+例を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>dynamic_library_path = '/usr/local/lib/postgresql:/home/my_project/lib:$libdir'</PRE
+><P>
+        or, in a Windows environment:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>dynamic_library_path = 'C:\tools\postgresql;H:\my_project\lib;$libdir'</PRE
+><P>
+       </P
+><P
+>       
+	このパラメータのデフォルト値は<TT
+CLASS="LITERAL"
+>'$libdir'</TT
+>です。
+この値が空に設定された場合、自動的なパス検索は無効になります。
+       </P
+><P
+>       
+	このパラメータはスーパーユーザによって実行時に変更することができますが、この方法での設定は、そのクライアント接続が終わるまでしか有効になりません。
+ですので、この方法は開発目的でのみ使用すべきです。 
+推奨方法はこのパラメータを<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>設定ファイル内で設定することです。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-GIN-FUZZY-SEARCH-LIMIT"
+></A
+><TT
+CLASS="VARNAME"
+>gin_fuzzy_search_limit</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	GINインデックス走査により返されるセットのソフトな上限サイズです。
+詳細は<A
+HREF="gin-tips.html"
+>&#38917;54.4</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOCAL-PRELOAD-LIBRARIES"
+></A
+><TT
+CLASS="VARNAME"
+>local_preload_libraries</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	この変数は、接続時に事前読み込みされる、1つまたは複数の共有ライブラリを指定します。
+複数のライブラリが読み込まれる場合、コンマで名前を区切ってください。
+二重引用符で括らていない限り、全てのライブラリ名は小文字に変換されます。
+このパラメータは、特定のセッションが開始した後で変更することはできません。
+       </P
+><P
+>       
+	これはスーパーユーザのみのオプションではありませんので、読み込み可能なライブラリはインストレーションの共有ライブラリディレクトリのサブディレクトリ<TT
+CLASS="FILENAME"
+>plugins</TT
+>内にあるものに制限されています。
+（確実に<SPAN
+CLASS="QUOTE"
+>"安全"</SPAN
+>なライブラリのみをここにインストールすることはデータベース管理者の責任です。）
+ <TT
+CLASS="VARNAME"
+>local_preload_libraries</TT
+>内の項目で、たとえば<TT
+CLASS="LITERAL"
+>$libdir/plugins/mylib</TT
+>のようにこのディレクトリを明示的に指定することも、単にライブラリ名を指定することも可能です。
+<TT
+CLASS="LITERAL"
+>mylib</TT
+> は<TT
+CLASS="LITERAL"
+>$libdir/plugins/mylib</TT
+>と同じ効果です。
+       </P
+><P
+>       
+	<A
+HREF="runtime-config-resource.html#GUC-SHARED-PRELOAD-LIBRARIES"
+>shared_preload_libraries</A
+>とは異なり、最初に使用する時にライブラリを読み込む操作とセッション開始時にライブラリを読み込む操作との間に性能的な違いはありません。
+しかし、この昨日の目的は、特定のセッションに明示的な<TT
+CLASS="COMMAND"
+>LOAD</TT
+>コマンドを行わずに、デバッグ用または性能測定用のライブラリを読み込ませることを可能にすることです。
+たとえば、このパラメータを<TT
+CLASS="COMMAND"
+>ALTER ROLE SET</TT
+>を使用して設定すれば、あるユーザ名で行われるすべてのセッションでデバッグが可能になります。
+       </P
+><P
+>       
+	指定したライブラリが存在しない場合、接続に失敗します。
+
+       </P
+><P
+>       
+	PostgreSQLがサポートするライブラリはすべて、互換性を保証するために検査される<SPAN
+CLASS="QUOTE"
+>"マジックブロック"</SPAN
+>を持ちます。
+このため、この方法でPostgresQL以外のライブラリが読み込まれることはありません。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-autovacuum.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-locks.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>自動Vacuum作業</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ロック管理</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

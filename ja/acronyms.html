@@ -1,0 +1,1301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>頭字語</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="付録"
+HREF="appendixes.html"><LINK
+REL="PREVIOUS"
+TITLE="スタイルガイド"
+HREF="docguide-style.html"><LINK
+REL="NEXT"
+TITLE="参考文献"
+HREF="biblio.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="APPENDIX"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="スタイルガイド"
+HREF="docguide-style.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ドキュメント作成"
+HREF="docguide.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="参考文献"
+HREF="biblio.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="参考文献"
+HREF="biblio.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="APPENDIX"
+><H1
+><A
+NAME="ACRONYMS"
+></A
+>&#20184;&#37682; J. 頭字語</H1
+><P
+>  以下は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ドキュメントと、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の論議で一般に使用される頭字語の一覧です。
+
+  <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>ANSI</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/American_National_Standards_Institute"
+TARGET="_top"
+>      American National Standards Institute（米国規格協会）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>API</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/API"
+TARGET="_top"
+>Application Programming Interface（エイ・ピー・アイ）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>ASCII</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Ascii"
+TARGET="_top"
+>American Standard
+      Code for Information Interchange（情報交換用米国標準コード）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>BKI</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="bki.html"
+>Backend Interface（バックエンドインターフェイス）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>CA</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Certificate_authority"
+TARGET="_top"
+>Certificate Authority（認証局）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>CIDR</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing"
+TARGET="_top"
+>Classless
+      Inter-Domain Routing（クラスレスドメイン間ルーティング）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>CPAN</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://www.cpan.org/"
+TARGET="_top"
+>Comprehensive Perl Archive Network（シーパン）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>CRL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Certificate_revocation_list"
+TARGET="_top"
+>Certificate
+      Revocation List（証明書失効リスト）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>CSV</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Comma-separated_values"
+TARGET="_top"
+>Comma
+      Separated Values（コンマ区切り）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>CTE</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="queries-with.html"
+>Common Table Expression（共通テーブル式）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>CVE</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://cve.mitre.org/"
+TARGET="_top"
+>Common Vulnerabilities and Exposures（共通脆弱性識別子）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>DBA</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Database_administrator"
+TARGET="_top"
+>Database
+      Administrator（データベース管理者）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>DBI</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://dbi.perl.org/"
+TARGET="_top"
+>Database Interface (Perl)（[Perlの]データベースインターフェイス）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>DBMS</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Dbms"
+TARGET="_top"
+>Database Management
+      System（データベース管理システム）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>DDL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Data_Definition_Language"
+TARGET="_top"
+>Data
+      Definition Language（データ定義言語）</A
+>、<TT
+CLASS="COMMAND"
+>CREATE
+      TABLE</TT
+>、<TT
+CLASS="COMMAND"
+>ALTER USER</TT
+>などのSQLコマンド
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>DML</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Data_Manipulation_Language"
+TARGET="_top"
+>Data
+      Manipulation Language（データ操作言語）</A
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、
+      <TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>などのSQLコマンド
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>DST</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Daylight_saving_time"
+TARGET="_top"
+>Daylight
+      Saving Time（夏時間）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>ECPG</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="ecpg.html"
+>Embedded C for PostgreSQL（PostgreSQL用の組み込みC）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>ESQL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Embedded_SQL"
+TARGET="_top"
+>Embedded
+      SQL（組み込みSQL）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>FAQ</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/FAQ"
+TARGET="_top"
+>Frequently Asked
+      Questions（よくある質問）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>FSM</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="storage-fsm.html"
+>Free Space Map（空き領域マップ）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="geqo.html"
+>Genetic Query Optimizer（遺伝的問い合わせオプティマイザ）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>GIN</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="gin.html"
+>Generalized Inverted Index（汎用転置インデックス）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>GiST</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="gist.html"
+>Generalized Search Tree（汎用検索ツリー）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>Git</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Git_(software)"
+TARGET="_top"
+>Git</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>GMT</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/GMT"
+TARGET="_top"
+>Greenwich Mean Time（グリニッジ標準時）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>GSSAPI</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Generic_Security_Services_Application_Program_Interface"
+TARGET="_top"
+>Generic
+      Security Services Application Programming Interface</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>GUC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="config-setting.html"
+>Grand Unified Configuration</A
+>、
+      サーバ構成処理を行う<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のサブシステム
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>HBA</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="auth-pg-hba-conf.html"
+>Host-Based Authentication（ホストベース認証）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>HOT</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://git.postgresql.org/gitweb?p=postgresql.git;a=blob;f=src/backend/access/heap/README.HOT;hb=HEAD"
+TARGET="_top"
+>Heap-Only
+      Tuples（ヒープ専用タプル）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>IEC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/International_Electrotechnical_Commission"
+TARGET="_top"
+>International
+      Electrotechnical Commission（国際電気標準会議）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>IEEE</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://standards.ieee.org/"
+TARGET="_top"
+>Institute of Electrical and
+      Electronics Engineers（米国電気電子学会）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>IPC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Inter-process_communication"
+TARGET="_top"
+>Inter-Process
+      Communication（プロセス間通信）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>ISO</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://www.iso.org/iso/home.htm"
+TARGET="_top"
+>International Organization for
+      Standardization（国際標準化機構）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>ISSN</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Issn"
+TARGET="_top"
+>International Standard
+      Serial Number（国際標準逐次刊行物番号）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>JDBC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Java_Database_Connectivity"
+TARGET="_top"
+>Java
+      Database Connectivity</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>LDAP</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol"
+TARGET="_top"
+>Lightweight
+      Directory Access Protocol</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>MSVC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Visual_C++"
+TARGET="_top"
+><SPAN
+CLASS="PRODUCTNAME"
+>Microsoft
+      Visual C</SPAN
+></A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>MVCC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="mvcc.html"
+>Multi-Version Concurrency Control（多版型同時実行制御）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>NLS</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Internationalization_and_localization"
+TARGET="_top"
+>National
+      Language Support</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>ODBC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Open_Database_Connectivity"
+TARGET="_top"
+>Open
+      Database Connectivity</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>OID</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="datatype-oid.html"
+>Object Identifier（オブジェクト識別子）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>OLAP</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Olap"
+TARGET="_top"
+>Online Analytical
+      Processing</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>OLTP</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/OLTP"
+TARGET="_top"
+>Online Transaction
+      Processing（オンライントランザクション処理）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>ORDBMS</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/ORDBMS"
+TARGET="_top"
+>Object-Relational
+      Database Management System（オブジェクトリレーショナルデータベース管理システム）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>PAM</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Pluggable_Authentication_Modules"
+TARGET="_top"
+>Pluggable
+      Authentication Modules（着脱可能認証モジュール）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>PGSQL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="index.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+></A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>PGXS</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="extend-pgxs.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> Extension System（<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>拡張システム）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>PID</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Process_identifier"
+TARGET="_top"
+>Process Identifier（プロセス識別子）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>PITR</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="continuous-archiving.html"
+>Point-In-Time
+      Recovery（ポイントインタイムリカバリ）</A
+>（Continuous Archiving - 継続的アーカイブ）
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>PL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="server-programming.html"
+>Procedural Languages（手続き言語） （サーバ側）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/POSIX"
+TARGET="_top"
+>Portable Operating
+      System Interface</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>RDBMS</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Relational_database_management_system"
+TARGET="_top"
+>Relational
+      Database Management System（リレーショナルデータベース管理システム）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>RFC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Request_for_Comments"
+TARGET="_top"
+>Request For
+      Comments</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>SGML</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/SGML"
+TARGET="_top"
+>Standard Generalized
+      Markup Language（標準汎用マークアップ言語）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>SPI</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="spi.html"
+>Server Programming Interface</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/SQL"
+TARGET="_top"
+>Structured Query Language（構造化問い合わせ言語）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>SRF</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="xfunc-c.html#XFUNC-C-RETURN-SET"
+>Set-Returning Function</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>SSH</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Secure_Shell"
+TARGET="_top"
+>Secure
+      Shell</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Secure_Sockets_Layer"
+TARGET="_top"
+>Secure Sockets Layer</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>SSPI</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://msdn.microsoft.com/en-us/library/aa380493%28VS.85%29.aspx"
+TARGET="_top"
+>Security
+      Support Provider Interface</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>SYSV</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/System_V"
+TARGET="_top"
+>Unix System V</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>TCP/IP</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Transmission_Control_Protocol"
+TARGET="_top"
+>Transmission
+      Control Protocol (TCP) / Internet Protocol (IP)</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>TID</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="datatype-oid.html"
+>Tuple Identifier（タプル識別子）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>TOAST</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="storage-toast.html"
+>The Oversized-Attribute Storage Technique（過大属性格納技法）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>TPC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://www.tpc.org/"
+TARGET="_top"
+>Transaction Processing
+      Performance Council（トランザクション処理性能評議会）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>URL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/URL"
+TARGET="_top"
+>Uniform Resource
+      Locator（統一資源位置指定子）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>UTC</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Coordinated_Universal_Time"
+TARGET="_top"
+>Coordinated
+      Universal Time（協定世界時）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>UTF</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://www.unicode.org/"
+TARGET="_top"
+>Unicode Transformation
+      Format（ユニコード変換書式）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>UTF8</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Utf8"
+TARGET="_top"
+>Eight-Bit Unicode
+      Transformation Format（８ビットユニコード変換書式）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>UUID</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="datatype-uuid.html"
+>Universally Unique Identifier（汎用一意識別子）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="wal.html"
+>Write-Ahead Log（ログ先行書き込み）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>XID</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="datatype-oid.html"
+>Transaction Identifier（トランザクション識別子）</A
+>
+     </P
+></DD
+><DT
+><ACRONYM
+CLASS="ACRONYM"
+>XML</ACRONYM
+></DT
+><DD
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/XML"
+TARGET="_top"
+>Extensible Markup
+      Language（拡張可能マークアップ言語）</A
+>
+     </P
+></DD
+></DL
+></DIV
+><P>
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="docguide-style.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="biblio.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>スタイルガイド</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="appendixes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>参考文献</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,3061 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.1</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.1.1"
+HREF="release-8-1-1.html"><LINK
+REL="NEXT"
+TITLE="リリース8.0.26"
+HREF="release-8-0-26.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.1.1"
+HREF="release-8-1-1.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.0.26"
+HREF="release-8-0-26.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-1"
+>E.95. リリース8.1</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2005-11-08</P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN121948"
+>E.95.1. 概要</A
+></H2
+><P
+>このリリースの主な変更点を以下に示します。
+    </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>共有バッファキャッシュへの同時アクセスの改良(Tom)</DT
+><DD
+><P
+>共有バッファキャッシュへのアクセスが、特に、マルチCPUシステムにおいて深刻なスケーラビリティ問題であることは分かっていました。
+本リリースでは、バッファマネージャ内で行われていたロックの方法を見直し、ロックの競合を軽減し、スケーラビリティを向上しました。
+また、バッファマネージャは<SPAN
+CLASS="QUOTE"
+>"clock sweep"</SPAN
+>置換ポリシーを使用するように変更されました。
+       </P
+></DD
+><DT
+>インデックススキャンが中間でメモリ内ビットマップを使用することができるようになりました。</DT
+><DD
+><P
+>過去のリリースでは、テーブル検索の実行において単一インデックスのみを使用することができました。
+この機能により、<TT
+CLASS="COMMAND"
+>WHERE tab.col1 = 4 and tab.col2 = 9</TT
+>を持つ問い合わせで、<TT
+CLASS="LITERAL"
+>col1</TT
+>と<TT
+CLASS="LITERAL"
+>col2</TT
+>に対する複数列インデックスが存在しない場合、<TT
+CLASS="LITERAL"
+>col1</TT
+>に対するインデックスと<TT
+CLASS="LITERAL"
+>col2</TT
+>に対するインデックスがあれば、両方のインデックスを検索し、結果をメモリ内で組み合わせ、<TT
+CLASS="LITERAL"
+>col1</TT
+>と<TT
+CLASS="LITERAL"
+>col2</TT
+>に関する両方の制約に一致する行のみをヒープから取り出すことができるようになります。
+これは、問い合わせが構造化されておらず、すべての起こり得るアクセス条件に一致するインデックスを前もって作成できないような状況では、非常に有用です。
+必要なランダムアクセスの総数を減少させるため、ビットマップスキャンは単一のインデックスの場合でも有用です。
+ビットマップインデックススキャンはテーブル全体で多くの割合を占める部分を取り出す際に効率的です。
+この場合、通常のインデックススキャンでは非効率的です。
+
+
+       </P
+></DD
+><DT
+>二相コミットの追加(Heikki Linnakangas, Alvaro, Tom)</DT
+><DD
+><P
+>二相コミットを使用して、トランザクションを複数のコンピュータで"準備"することができます。
+すべてのコンピュータでトランザクションの準備を（失敗することなく）行った後、すべてのトランザクションをコミットすることができます。
+準備した後でマシンがクラッシュしたとしても、マシンの再起動後に準備したトランザクションをコミットすることができます。
+<TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>および<TT
+CLASS="COMMAND"
+>COMMIT/ROLLBACK PREPARED</TT
+>という新しい構文があります。
+また、新しい<TT
+CLASS="LITERAL"
+>pg_prepared_xacts</TT
+>システムビューも追加されました。
+       </P
+></DD
+><DT
+>ユーザとグループを置き換える、新しいロールシステムの作成(Stephen Frost)</DT
+><DD
+><P
+>ロールとは、ユーザとグループを組み合わせたものです。
+ユーザのようにロールはログイン機能を持つことができますし、グループのようにロールは他のロールをメンバとして持つこともできます。
+基本的にロールは、ユーザとグループの区別を取り除きました。
+例えば、ロールは以下のことを行うことができます。
+       </P
+><P
+></P
+><UL
+><LI
+><P
+>ログイン機能を有す（省略可能）
+         </P
+></LI
+><LI
+><P
+>オブジェクトを所有する
+         </P
+></LI
+><LI
+><P
+>データベースオブジェクトに対するアクセス権限を保持する
+         </P
+></LI
+><LI
+><P
+>属している他のロールの権限を継承する
+         </P
+></LI
+></UL
+><P
+>ユーザがあるロールにログインした後、そのユーザはログインロールの能力の他、継承したロールの能力も持つことになります。
+また、<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>を使用して、属している他のロールに変わることもできます。
+この機能は、標準SQLのロールの概念を汎用化したものです。
+またこの変更により、<TT
+CLASS="STRUCTNAME"
+>pg_shadow</TT
+>と<TT
+CLASS="STRUCTNAME"
+>pg_group</TT
+>は、新しいロール機能の付いたカタログ<TT
+CLASS="STRUCTNAME"
+>pg_authid</TT
+>と<TT
+CLASS="STRUCTNAME"
+>pg_auth_members</TT
+>に置き換わりました。
+古いテーブルは、新しいロールテーブルに対する読み取りのみのビューとして再定義されています。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>MIN()</CODE
+> と<CODE
+CLASS="FUNCTION"
+>MAX()</CODE
+>におけるインデックスの自動使用 (Tom)</DT
+><DD
+><P
+>過去のリリースでは、<CODE
+CLASS="FUNCTION"
+>MIN()</CODE
+>または<CODE
+CLASS="FUNCTION"
+>MAX()</CODE
+>でインデックスを使用する方法は、問い合わせを<TT
+CLASS="COMMAND"
+>SELECT col FROM tab ORDER BY col LIMIT 1</TT
+>に書き換える方法しかありませんでした。
+インデックスが自動的に使用されるようになりました。
+       </P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>/contrib/pg_autovacuum</TT
+>を主サーバに移動しました。(Alvaro)</DT
+><DD
+><P
+>autovacuumをサーバに統合することで、データベースサーバと同期して自動的にautovacuumが起動、停止できるようになりました。
+また、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>でautovacuumの設定を行うことができるようになりました。
+       </P
+></DD
+><DT
+><TT
+CLASS="COMMAND"
+>SELECT ... FOR SHARE</TT
+>を使用した共有行レベルロックの追加(Alvaro)</DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のMVCCロックにより<TT
+CLASS="COMMAND"
+>SELECT</TT
+>は書き込みによってブロックされることはありません。
+そのため、通常の操作では共有行レベルロックは不要ですが、共有行ロックを必要とするアプリケーションでは共有ロックは有用です。
+特に、これにより参照性合成検査で発生するロック要求が減少します。
+       </P
+></DD
+><DT
+>共有オブジェクト、特にロールへの依存性を追加(Alvaro)</DT
+><DD
+><P
+>依存性機構の拡張により、データベースオブジェクトを所有するロールが削除されることを防ぎます。
+これまでは、所有者の削除により<SPAN
+CLASS="QUOTE"
+>"親のいない"</SPAN
+>オブジェクトができてしまう可能性がありました。
+これは復旧させることができましたが、厄介で好まれないものでした。
+       </P
+></DD
+><DT
+>テーブルパーティションによる性能向上(Simon)</DT
+><DD
+><P
+>新しい<TT
+CLASS="VARNAME"
+>constraint_exclusion</TT
+>設定パラメータは、子テーブルに一致する行が存在しないことを制約が示している場合、子テーブルの検索を防ぎます。
+       </P
+><P
+>これにより、テーブルパーティションの基本的な種類を実現できます。
+子テーブルが別々のキー範囲を格納し、これを適切な<TT
+CLASS="COMMAND"
+>CHECK</TT
+>制約で強制している場合、オプティマイザは、この制約により子テーブル内に一致することがないことが保証されている時にその子テーブルへのアクセスを飛ばします。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN122028"
+>E.95.2. バージョン8.1への移行</A
+></H2
+><P
+>全ての以前のリリースからデータの移行を行うためには、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>を使用したダンプ、リストアが必要です。
+    </P
+><P
+>8.0リリースでは、8.1でintervalに対する<CODE
+CLASS="FUNCTION"
+>to_char()</CODE
+>を削除するとアナウンスしましたが、より優れたAPIの提案がありませんでしたので、<CODE
+CLASS="FUNCTION"
+>to_char(interval)</CODE
+>は強化され、サーバに残りました。
+    </P
+><P
+>以下の非互換性に注意してください。
+    </P
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>add_missing_from</TT
+>のデフォルトがfalseになりました(Neil)
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>参照を持たない問い合わせでテーブルが使用された場合、デフォルトでエラーとなるようになりました。
+まだ過去の動作を使用することができますが、そのためにはこのパラメータを'true'にしなければなりません。
+      </P
+><P
+>ダンプに暗黙的な<TT
+CLASS="LITERAL"
+>FROM</TT
+>構文を使用して作成したビューやルールがある場合、既存のダンプファイルをロードするために、<TT
+CLASS="VARNAME"
+>add_missing_from</TT
+>を真に設定しなければならないかもしれません。
+これに悩まされるのは一回だけのはずです。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.1は、こうしたビューやルールを標準の明示的な<TT
+CLASS="LITERAL"
+>FROM</TT
+>構文に変換するためです。
+したがって、今後のダンプではこの問題は起こりません。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>float4</TT
+>/<TT
+CLASS="TYPE"
+>float8</TT
+>/<TT
+CLASS="TYPE"
+>oid</TT
+>に長さが0の文字列(<TT
+CLASS="LITERAL"
+>''</TT
+>)が入力された場合、ゼロとして扱わずエラーとなるようになりました(Neil)
+      </P
+><P
+>この変更により、現行の整数に対する長さが0の文字列の扱いと矛盾がなくなりました。
+この変更の時期については8.0でアナウンスしていました。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>default_with_oids</TT
+>のデフォルトがfalseになりました(Neil)
+      </P
+><P
+>このオプションをfalseに設定した場合、<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>で<TT
+CLASS="COMMAND"
+>WITH OIDS</TT
+>を指定しない限り、ユーザが作成したテーブルはOID列を持たなくなります。
+すべての<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リリースでOIDは存在していましたが、4バイト長しかなく、インストールされたデータベース全体で共有アクセスされていることから、OIDの利用は制限されてきました。
+一意に行を識別するには、シーケンスまたは<TT
+CLASS="TYPE"
+>SERIAL</TT
+>型を使用することを勧めます。
+これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 6.4からサポートされています。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>E''</TT
+>構文が追加されました。
+そのため、普通の文字列でバックスラッシュ文字を扱うことができます。(Bruce)
+      </P
+><P
+>現在の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は文字列リテラル内のバックスラッシュを、特別なエスケープシーケンスの始まりとして扱います。
+例えば、<TT
+CLASS="LITERAL"
+>\n</TT
+>や<TT
+CLASS="LITERAL"
+>\010</TT
+>です。
+これで簡単に特別な値を埋め込むことができますが、非標準であり、他のデータベースからのアプリケーションの移植を困難にしています。
+このため、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>プロジェクトでは、文字列内のバックスラッシュが特別な意味を持たないようにすることを計画しています。
+後方互換性と、特別なバックスラッシュ処理を使用したいユーザのために、新しい文字列構文を作成しました。
+この新しい文字列構文は、例えば<TT
+CLASS="LITERAL"
+>E'hi\n'</TT
+>のように、<TT
+CLASS="LITERAL"
+>E</TT
+>、直後に単一引用符、そして文字列を始めるという形です。
+このリリースでは文字列内のバックスラッシュの扱いに変更はありませんが、今後のリリースに向けたアプリケーションの移行を補助するために、以下の設定パラメータが追加されました。
+
+      </P
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>。
+このリリースで普通の文字列内のバックスラッシュをそのまま扱うかどうかを指定します。
+        </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>escape_string_warning</TT
+>。
+普通の文字列（非E）内でバックスラッシュが存在した場合に警告する。
+       </P
+></LI
+></UL
+><P
+><TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>の値は読み取りのみです。
+アプリケーションでは、この値を読み取ることで、どのようにバックスラッシュが解釈されるかが分かります。
+（また、このパラメータが存在するかどうかで、<TT
+CLASS="LITERAL"
+>E''</TT
+>文字列構文がサポートされているかどうかが分かります。）
+今後のリリースでは、<TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>は真になる予定です。
+つまり、非E文字列でのバックスラッシュは文字そのものとして扱われます。
+この変更に備えて、バックスラッシュの特別処理が必要な場所に<TT
+CLASS="LITERAL"
+>E''</TT
+>を使用し、かつ、<TT
+CLASS="LITERAL"
+>E''</TT
+>を使用するように変換しなければならない文字列を更に検出するために<TT
+CLASS="VARNAME"
+>escape_string_warning</TT
+>を有効にしてください。
+また、文字列内に単一引用符そのものを埋め込む場合には、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がサポートするバックスラッシュ+単一引用符（<TT
+CLASS="LITERAL"
+>\'</TT
+>）という構文ではなく、2つの単一引用符（<TT
+CLASS="LITERAL"
+>''</TT
+>）を使用してください。
+後者は標準に準拠しており、また、<TT
+CLASS="LITERAL"
+>E''</TT
+>文字列構文を使用する必要がありません。
+また、バックスラッシュを特別に扱わない、<TT
+CLASS="LITERAL"
+>$$</TT
+>文字列構文も使用することができます。
+
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>REINDEX DATABASE</TT
+>がデータベース内のすべてのインデックスの再作成を行うようになりました。(Tom)
+      </P
+><P
+>これまでは、<TT
+CLASS="COMMAND"
+>REINDEX DATABASE</TT
+>はシステムテーブルのみのインデックスを再作成しました。
+この新しい動作の方がより直感的です。
+新しい<TT
+CLASS="COMMAND"
+>REINDEX SYSTEM</TT
+>コマンドが、システムテーブルのみのインデックス再作成という以前の機能を提供します。
+      </P
+></LI
+><LI
+><P
+>読みとりのみのラージオブジェクト記述子がMVCCスナップショットセマンティックスに従うようになりました。
+      </P
+><P
+>ラージオブジェクトが<TT
+CLASS="LITERAL"
+>INV_READ</TT
+> (かつ<TT
+CLASS="LITERAL"
+>INV_WRITE</TT
+>なし)で開かれた場合、
+その記述子から読みとられるデータが、<CODE
+CLASS="FUNCTION"
+>lo_open()</CODE
+>を呼び出した問い合わせで使用するトランザクションスナップショットの時点のラージオブジェクトの状態<SPAN
+CLASS="QUOTE"
+>"スナップショット"</SPAN
+>を反映するようになりました。
+常に最新のコミットされたデータを返すという以前の動作に戻すには、<CODE
+CLASS="FUNCTION"
+>lo_open()</CODE
+>のモードフラグに<TT
+CLASS="LITERAL"
+>INV_WRITE</TT
+>を付与して下さい。
+      </P
+></LI
+><LI
+><P
+>シーケンス関数の引数に対して、適切な依存性を追加しました。(Tom)
+      </P
+><P
+>以前のリリースでは、<CODE
+CLASS="FUNCTION"
+>nextval()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>currval()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>setval()</CODE
+>に渡されるシーケンス名は、単なるテキスト文字列として保持されていました。
+つまり、<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句で使用中のシーケンスの名称変更や削除により、<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句が無効となりました。
+このリリースでは、すべて新しく作成した、内部用OIDを引数として持つシーケンス関数を保持します。
+これにより、シーケンス名の変更を追跡できるようになり、また、不適切なシーケンスの削除を防ぐために依存情報も追加されました。
+また、これにより、スキーマ名称の変更や検索パスの変更から、こうした<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句を保護できるようになりました。
+
+      </P
+><P
+>アプリケーションの中には、以前の実行時にシーケンス名を検索する動作に依存しているものがあるかもしれません。
+これは、<TT
+CLASS="LITERAL"
+>nextval('myseq'::text)</TT
+>のように、明示的に引数を<TT
+CLASS="TYPE"
+>text</TT
+>にキャストすることで実現することができます。
+      </P
+><P
+>8.1より前のデータベースダンプを8.1にロードした場合、古いテキストを基とした表現が使用されますので、OIDを引数として保持させる機能は持てません。
+しかし、テキスト版の<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句を持つデータベースを更新することができます。
+まず、以下の問い合わせを<TT
+CLASS="FILENAME"
+>fixseq.sql</TT
+>などという名前のファイルに保存してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT  'ALTER TABLE ' ||
+    pg_catalog.quote_ident(n.nspname) || '.' ||
+    pg_catalog.quote_ident(c.relname) ||
+    ' ALTER COLUMN ' || pg_catalog.quote_ident(a.attname) ||
+    ' SET DEFAULT ' ||
+    regexp_replace(d.adsrc,
+                   $$val\(\(('[^']*')::text\)::regclass$$,
+                   $$val(\1$$,
+                   'g') ||
+    ';'
+FROM    pg_namespace n, pg_class c, pg_attribute a, pg_attrdef d
+WHERE   n.oid = c.relnamespace AND
+    c.oid = a.attrelid AND
+    a.attrelid = d.adrelid AND
+    a.attnum = d.adnum AND
+    d.adsrc ~ $$val\(\('[^']*'::text\)::regclass$$;</PRE
+><P>
+次に、調整が必要であることが分かったデータベースに対してこの問い合わせを実行してください。
+以下では<TT
+CLASS="LITERAL"
+>db1</TT
+>というデータベースに対して実行しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>psql -t -f fixseq.sql db1</PRE
+><P>
+これにより、データベースを新しいOID版の表現に変換するための<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>コマンドが表示されます。
+このコマンドが問題ないことを確認した後に、以下を実行してデータベースを更新してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>psql -t -f fixseq.sql db1 | psql -e db1</PRE
+><P>
+この手続きを更新すべきデータベースそれぞれに対して繰り返し実行しなければなりません。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>において、引用符で括られていない<TT
+CLASS="LITERAL"
+>\{digit}+</TT
+>という並びを8進数として扱うようになりました。(Bruce)
+      </P
+><P
+>以前のリリースでは、<TT
+CLASS="LITERAL"
+>\{digit}+</TT
+>という並びは10進数として扱われ、<TT
+CLASS="LITERAL"
+>\0{digit}+</TT
+>のみが8進数として扱われました。
+この変更は一貫性のために行われました。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>%</TT
+>および<TT
+CLASS="LITERAL"
+>^</TT
+>演算子の接頭辞と接尾辞の文法積を削除しました。
+      </P
+><P
+>これは文書化されておらず、また、負値の剰余演算子 (<TT
+CLASS="LITERAL"
+>%</TT
+>)の使用を複雑にしていました。
+      </P
+></LI
+><LI
+><P
+>多角形用の<TT
+CLASS="LITERAL"
+>&amp;&lt;</TT
+>と<TT
+CLASS="LITERAL"
+>&amp;&gt;</TT
+>をボックス型の"over"演算子と矛盾がないようにしました。(Tom)
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>は、<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>の情報によって指定された引数を無視することができます。(Tom)
+      </P
+><P
+>新しい<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>システムカタログが、手続き言語の好みの定義（検証関数をもつかどうかなど）についての情報を保持するために定義されました。
+作成しようとする言語に関する項目がこのカタログに存在する場合、<TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>は言語名以外のパラメータをすべて無視し、カタログの情報を使用します。
+古いダンプファイルからロードされる古い言語定義に伴う問題が増大したため、この方式が取られました。
+8.1では、ロード時にテンプレート項目が存在することに依存し、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は手続き言語定義を単なる <TT
+CLASS="COMMAND"
+>CREATE LANGUAGE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+>としてダンプします。
+これがより将来を見込んだ表現になることを期待しています。
+      </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_cancel_backend(int)</CODE
+>が<TT
+CLASS="TYPE"
+>integer</TT
+>ではなく<TT
+CLASS="TYPE"
+>boolean</TT
+>を返すようになりました。(Neil)
+      </P
+></LI
+><LI
+><P
+>UTF-8のデータを8.1.Xにロードする場合に問題が起きる可能性があります。
+これは、
+以前のバージョンでは無効なUTF-8のバイト列をデータベースに投入することができましたが、今回のリリースでは正しく有効なUTF-8列のみを受付けるようになったことが原因です。
+ダンプファイルを修正する方法の1つとして、<TT
+CLASS="COMMAND"
+>iconv -c -f UTF-8 -t UTF-8 -o cleanfile.sql dumpfile.sql</TT
+>を実行することがあります。
+<TT
+CLASS="LITERAL"
+>-c</TT
+>オプションにより無効な文字列が削除されます。
+この2つのファイルの違いを見ることで、無効な列を表示することができます。
+<TT
+CLASS="COMMAND"
+>iconv</TT
+>は入力ファイル全体をメモリに読み込みますので、この処理のためにダンプを複数の小さなファイルに分割する必要があるかもしれません。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN122164"
+>E.95.3. その他の変更点</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>8.1と以前のメジャーリリースとの間でなされた、その他の変更点について詳細を以下に示します。
+    </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122168"
+>E.95.3.1. 性能向上</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>GiSTとR-treeインデックスの性能を向上しました。(Neil)
+       </P
+></LI
+><LI
+><P
+>ハッシュ結合の自動サイズ変更を含む、オプティマイザの改良を行いました。
+        (Tom)
+       </P
+></LI
+><LI
+><P
+>様々な所で内部用のAPIを見直しました。
+       </P
+></LI
+><LI
+><P
+>WALレコードのCRCを64ビットから32ビットに変更しました。(Tom)
+       </P
+><P
+>64ビットのCRCを計算するコストが過大で、信頼性に関する長所は無視できるものであると考えました。
+
+       </P
+></LI
+><LI
+><P
+>WALページに巨大な空のギャップを書き出さないように変更しました。(Tom)
+       </P
+></LI
+><LI
+><P
+>SMPマシン、特にOpteronマシンにおけるスピンロック動作を改良しました。(Tom)
+       </P
+></LI
+><LI
+><P
+>連続していないインデックス列を複数列に対するインデックスで使用できるようにしました。(Tom)
+       </P
+><P
+>例えば、これによりa,b,c列に対するインデックスを<TT
+CLASS="COMMAND"
+>WHERE a = 4 and c = 10</TT
+>といった問い合わせで使用することができます。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>/<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>に対するWALロギングを飛ばします。(Simon)
+       </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>実行中のクラッシュにより復旧中にテーブルが削除されてしまいますので、そのテーブルをロードするためにWALに記録する意味がありません。
+（しかし、WALアーカイブが有効な場合はロギングを行います。）
+       </P
+></LI
+><LI
+><P
+>GiSTインデックスへの同時アクセスを可能にしました。(Teodor, Oleg)
+
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>full_page_writes</TT
+>設定パラメータを追加し、WALへページ全体を書き出すかどうか制御できるようになりました。(Bruce)
+       </P
+><P
+>破損したデータベースから部分的なディスク書き出しを防ぐために、チェックポイントの後に変更されたディスクページを最初に書き出す時に、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は各データベースディスクページ全体のコピーをWALに書き出します。
+このオプションにより、この機能を無効にすることができ、より高速になります。
+部分的なページ書き出しが起こることがない、バッテリでバックアップされたディスクキャッシュを持つ場合、これは安全です。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>wal_sync_method</TT
+>で<TT
+CLASS="LITERAL"
+>O_SYNC</TT
+>を使用している場合、利用できるのであれば<TT
+CLASS="LITERAL"
+>O_DIRECT</TT
+>を使用します。
+        (Itagaki Takahiro)
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>O_DIRECT</TT
+>によりディスクへの書き出しがカーネルキャッシュを介さずに行われます。
+そのため、WALへの書き出しが高速になり、性能が向上します。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>の性能を向上しました。(Alon Goldshuv)
+
+       </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>入力を一文字ずつではなくより巨大なまとまり内に読み込むことで実現しました。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>COUNT()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>SUM</CODE
+>、<CODE
+CLASS="FUNCTION"
+>AVG()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>STDDEV()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>VARIANCE()</CODE
+>を改良しました。(Neil, Tom)
+
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122220"
+>E.95.3.2. サーバの変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>トランザクションID(XID)周回問題を防止しました。(Tom)
+       </P
+><P
+>トランザクションカウンタが周回点に近づいた時にサーバは警告を発します。
+カウンタが周回点に近づき過ぎている場合、サーバは問い合わせの受付を停止します。
+これにより、必要なバキューム処理の実行を行う前にデータが損失されることは確実になくなります。
+       </P
+></LI
+><LI
+><P
+>OIDカウンタが周回した後に生じる、既存のシステムオブジェクトとオブジェクトID（OID）が競合する問題を修正しました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM</TT
+>時に<TT
+CLASS="VARNAME"
+>max_fsm_relations</TT
+>と<TT
+CLASS="VARNAME"
+>max_fsm_pages</TT
+>を増大させる必要がある場合の警告を追加しました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>temp_buffers</TT
+>設定パラメータを追加し、一時テーブルアクセス用のローカルバッファのサイズをユーザが決定できるようになりました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>pg_stat_activity</TT
+>にセッションの開始時刻とクライアントIPアドレスを追加しました。(Magnus)
+       </P
+></LI
+><LI
+><P
+>ビットマップスキャンのために<TT
+CLASS="LITERAL"
+>pg_stat</TT
+>ビューを調整しました。(Tom)
+       </P
+><P
+>一部のフィールドの意味が少し変わりました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>pg_locks</TT
+>ビューを改良しました。(Tom)
+       </P
+></LI
+><LI
+><P
+>クライアント側における<TT
+CLASS="COMMAND"
+>PREPARE</TT
+>および<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>のログを記録するようにしました。(Simon)
+       </P
+></LI
+><LI
+><P
+>Kerberos名とユーザ名に関する大文字小文字の区別を<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>で指定できるようにしました。(Magnus)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>krb_server_hostname</TT
+>設定パラメータを追加し、サーバプリンシパルの一部としてサーバのホスト名を指定できるようになりました。(Todd Kover)
+       </P
+><P
+>設定されていない場合、keytab内の一致するサービスプリンシパルが使用されます。
+これは本リリースにおける新しいKerberosの検索動作です。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>log_line_prefix</TT
+>オプションにミリ秒(<TT
+CLASS="LITERAL"
+>%m</TT
+>)とリモートホスト(<TT
+CLASS="LITERAL"
+>%h</TT
+>)を追加しました。(Ed L.)
+       </P
+></LI
+><LI
+><P
+>GiSTインデックスに対するWALロギングを追加しました。(Teodor, Oleg)
+       </P
+><P
+>GiSTインデックスはクラッシュに対してもポイントインタイムリカバリに対しても安全になりました。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_stop_backup()</CODE
+>を実行した時に古い<TT
+CLASS="FILENAME"
+>*.backup</TT
+>ファイルを削除するようにしました。(Bruce)
+       </P
+><P
+>これにより、多くの<TT
+CLASS="FILENAME"
+>*.backup</TT
+>ファイルが<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>に残らないようになります。
+       </P
+></LI
+><LI
+><P
+>TCP/IPキープアライブ時間について待機、間隔、個数を制御する設定パラメータを追加しました。(Oliver Jowett)
+       </P
+><P
+>これらの値を変更することで、クライアント接続の喪失を素早く検知できるようになります。
+       </P
+></LI
+><LI
+><P
+>ユーザ毎およびデータベース毎の接続上限を追加しました。(Petr Jelinek)
+       </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER USER</TT
+>および<TT
+CLASS="COMMAND"
+>ALTER DATABASE</TT
+>を使用して、特定ユーザが同時に接続できる、もしくは特定のデータベースへ同時に接続できる、最大セッション数に制限をかけることができるようになりました。
+この制限をゼロにすると、ユーザからの接続またはデータベースへの接続が無効になります。
+       </P
+></LI
+><LI
+><P
+>64ビットマシンにおいて、2ギガバイト以上の共有メモリとバックエンド単位の作業メモリを使用できるようになりました。(Koichi Suzuki)
+       </P
+></LI
+><LI
+><P
+>新しい<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>によりダンプファイル内の廃止された手続き言語定義を上書きできるようになりました。(Tom)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122285"
+>E.95.3.3. 問い合わせの変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>一時ビューを追加しました。(Koju Iijima, Neil) 
+       </P
+></LI
+><LI
+><P
+>集約関数や<TT
+CLASS="COMMAND"
+>GROUP BY</TT
+>を持たない<TT
+CLASS="COMMAND"
+>HAVING</TT
+>を、単一グループを返すように修正しました。(Tom)
+       </P
+><P
+>これまでこうした状況では、<TT
+CLASS="COMMAND"
+>HAVING</TT
+>句を<TT
+CLASS="COMMAND"
+>WHERE</TT
+>句と同様に扱っていました。
+これは仕様に従っていませんでした。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>DELETE</TT
+>にテーブルを追加指定できるように<TT
+CLASS="COMMAND"
+>USING</TT
+>句を追加しました。(Euler Taveira de Oliveira, Neil)
+       </P
+><P
+>以前のリリースでは、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>文内で結合に使用するテーブルを追加指定する明確な方法はありませんでした。
+<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>には、すでにこの目的のための<TT
+CLASS="LITERAL"
+>FROM</TT
+>があります。
+       </P
+></LI
+><LI
+><P
+>バックエンドおよびecpg文字列における<TT
+CLASS="LITERAL"
+>\x</TT
+>16進数エスケープのサポートを追加しました。(Bruce)
+       </P
+><P
+>これは、標準Cの<TT
+CLASS="LITERAL"
+>\x</TT
+>エスケープ構文そのものです。
+8進数エスケープはサポート済みです。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>BETWEEN SYMMETRIC</TT
+>問い合わせ構文を追加しました。(Pavel Stehule)
+       </P
+><P
+>この機能により<TT
+CLASS="COMMAND"
+>BETWEEN</TT
+>比較で、1番目の値が2番目より小さいことを必要としなくなりました。
+例えば、<TT
+CLASS="COMMAND"
+>2 BETWEEN [ASYMMETRIC] 3 AND 1</TT
+>は偽を返しますが、<TT
+CLASS="COMMAND"
+>2 BETWEEN SYMMETRIC 3 AND 1</TT
+>は真を返します。
+<TT
+CLASS="COMMAND"
+>BETWEEN ASYMMETRIC</TT
+>はすでにサポート済みです。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SELECT ... FOR UPDATE/SHARE</TT
+>のオプションに<TT
+CLASS="COMMAND"
+>NOWAIT</TT
+>を追加しました。(Hans-Juergen Schoenig)
+       </P
+><P
+><TT
+CLASS="VARNAME"
+>statement_timeout</TT
+>設定パラメータにより、一定以上の時間がかかる問い合わせをキャンセルすることができますが、この<TT
+CLASS="COMMAND"
+>NOWAIT</TT
+>オプションにより、<TT
+CLASS="COMMAND"
+>SELECT ... FOR UPDATE/SHARE</TT
+>が即座に行ロックを獲得できなかった時、すぐに問い合わせをキャンセルすることができます。
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122326"
+>E.95.3.4. オブジェクト操作の変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>共有オブジェクトの依存関係の追跡(Alvaro)
+       </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、グローバルテーブル（ユーザ、データベース、テーブル空間）の情報を複数のデータベースから参照することができます。
+今回の変更でグローバルテーブルに関する依存性情報が追加されました。
+従って、例えば、ユーザの所有権をデータベースに跨って確認できますので、他のデータベースで何かを所有しているユーザを削除できないようにすることができます。
+データベースに局所的なオブジェクトに関する依存関係の追跡はすでに存在します。
+       </P
+></LI
+><LI
+><P
+>オブジェクト所有者が制限付きの<TT
+CLASS="COMMAND"
+>ALTER OWNER</TT
+>コマンドを実行できるようになりました。(Stephen Frost)
+       </P
+><P
+>以前のリリースでは、スーパーユーザのみがオブジェクトの所有権を変更できました。
+今では、コマンドを実行したユーザがオブジェクトを所有し、かつ、新しい所有者として作成できる（つまり、そのユーザが新しい所有者のロールのメンバであり、そのロールが新規にオブジェクトを作成する時に必要なCREATE権限を持つ場合）場合、所有権を移すことができます。
+       </P
+></LI
+><LI
+><P
+>一部のオブジェクト型（テーブル、関数、型）に対する<TT
+CLASS="COMMAND"
+>ALTER</TT
+> object <TT
+CLASS="COMMAND"
+>SET SCHEMA</TT
+>機能を追加しました。(Bernd Helmle)
+       </P
+><P
+>これによりオブジェクトを異なるスキーマに移すことができるようになります。
+       </P
+></LI
+><LI
+><P
+>トリガを無効にする<TT
+CLASS="COMMAND"
+>ALTER TABLE ENABLE/DISABLE TRIGGER</TT
+>を追加しました。(Satoshi Nagayasu)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122345"
+>E.95.3.5. ユーティリティコマンドの変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>単一の<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>コマンドで複数のテーブルの消去ができるようになりました。(Alvaro)
+       </P
+><P
+>参照整合性検査のため、参照整合性制約の一部となるテーブルを消去することはできません。
+この新しい機能を使用することで、参照整合性制約に含まれる両テーブルが単一の<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>コマンドで消去される場合、<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>を使用してこうしたテーブルを消去できるようになりました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>COPY CSV</TT
+>モードにおける復帰コード、改行コードの処理が適切になりました。(Andrew)
+       </P
+><P
+>8.0リリースでは、<TT
+CLASS="COMMAND"
+>CSV COPY TO</TT
+>における復帰コードと改行コードは一貫性のある方法で処理されていませんでした。
+（これはTODOリストに記載されていました。）
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>にて、先頭行にヘッダ行を記載できるように<TT
+CLASS="COMMAND"
+>COPY WITH CSV HEADER</TT
+>を追加しました。(Andrew)
+       </P
+><P
+>これにより、データファイルの先頭行に列名を記載するという一般的な<TT
+CLASS="COMMAND"
+>CSV</TT
+>の使用方法を扱うことができます。
+<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>では先頭行には列名が記載され、 <TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>では先頭行は無視されます。
+       </P
+></LI
+><LI
+><P
+>Windowsにおいて、<TT
+CLASS="COMMAND"
+>EXPLAIN ANALYZE</TT
+>の表示を秒以下の精度にしました。 (Magnus)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>EXPLAIN ANALYZE</TT
+>の表示にトリガ期間を追加しました。
+        (Tom)
+       </P
+><P
+>以前のリリースではトリガの実行時間は総実行時間に含まれていました。
+各トリガで費やされる時間がどのくらいかがわかるようになりました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>にて、<TT
+CLASS="LITERAL"
+>\x</TT
+>16進数エスケープのサポートを追加しました。
+        (Sergey Ten)
+       </P
+><P
+>以前のリリースでは8進数エスケープのみをサポートしていました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SHOW ALL</TT
+>が変数の説明を含むようにしました。
+        (Matthias Schmidt)
+       </P
+><P
+><TT
+CLASS="COMMAND"
+>SHOW</TT
+> varname はまだ変数の値のみを表示し、説明を表示しません。
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>initdb</SPAN
+>が<TT
+CLASS="LITERAL"
+>postgres</TT
+>という新しい標準データベースを作成するようになりました。
+このためユーティリティが標準データベースを検索する時に<TT
+CLASS="LITERAL"
+>template1</TT
+>ではなく<TT
+CLASS="LITERAL"
+>postgres</TT
+>を使用するように変更されました。(Dave)
+       </P
+><P
+>以前のリリースでは、<SPAN
+CLASS="APPLICATION"
+>createuser</SPAN
+>などのユーティリティのデフォルト接続用、および、新規データベースのテンプレート用として、<TT
+CLASS="LITERAL"
+>template1</TT
+>が使用されていました。
+テンプレートデータベースにだれかが接続しているために新しいデータベースを作成することができず、<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>の失敗の原因となることがありました。
+この変更により、デフォルトの接続データベースが<TT
+CLASS="LITERAL"
+>postgres</TT
+>になりました。
+つまり、<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>時にだれかが<TT
+CLASS="LITERAL"
+>template1</TT
+>を使用している可能性がかなり減少しました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/reindexdb</TT
+>をサーバへ移動し、新しく<SPAN
+CLASS="APPLICATION"
+>reindexdb</SPAN
+>コマンドラインユーティリティを作成しました。(Euler Taveira de Oliveira)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122401"
+>E.95.3.6. データ型および関数の変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>配列型に対する<CODE
+CLASS="FUNCTION"
+>MAX()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>MIN()</CODE
+>集約を追加しました。(Koju Iijima)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>CC</TT
+>、<TT
+CLASS="LITERAL"
+>YY</TT
+>、またはこの両方のフィールドが使用されている場合に合理的な動作を行うように<CODE
+CLASS="FUNCTION"
+>to_date()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>to_timestamp()</CODE
+>を修正しました。(Karel Zak)
+
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>CC</TT
+> が書式指定にあり、<TT
+CLASS="LITERAL"
+>YYY</TT
+>以上の長さが年指定にあると、<TT
+CLASS="LITERAL"
+>CC</TT
+> を無視します。
+年指定の長さが<TT
+CLASS="LITERAL"
+>YY</TT
+>以下の場合、<TT
+CLASS="LITERAL"
+>CC</TT
+>を直前の世紀であると解釈します。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>md5(bytea)</CODE
+>を追加しました。 (Abhijit Menon-Sen)
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>md5(text)</CODE
+>はすでに存在していました。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>power(numeric, numeric)</CODE
+>を基にした<TT
+CLASS="COMMAND"
+>numeric ^ numeric</TT
+>のサポートを追加しました。
+       </P
+><P
+>関数はすでに存在していましたが、対応する演算子がありませんでした。
+       </P
+></LI
+><LI
+><P
+>計算処理中に適切に商を除去するように<TT
+CLASS="TYPE"
+>NUMERIC</TT
+>の剰余を修正しました。
+       </P
+><P
+>以前のリリースでは、巨大な値に対する剰余が商の丸めにより負の値を返すことがありました。
+       </P
+></LI
+><LI
+><P
+>        <CODE
+CLASS="FUNCTION"
+>lastval()</CODE
+>関数を追加しました。(Dennis Bj&ouml;rklund)
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>lastval()</CODE
+>は<CODE
+CLASS="FUNCTION"
+>currval()</CODE
+>を簡単にしたものです。
+これは、現在のセッションで実行されたもっとも最近の<CODE
+CLASS="FUNCTION"
+>nextval()</CODE
+>または<CODE
+CLASS="FUNCTION"
+>setval()</CODE
+>に基づいて自動的に適切なシーケンス名を決定します。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>to_timestamp(DOUBLE PRECISION)</CODE
+>を追加しました。(Michael Glaesemann)
+       </P
+><P
+>1970年からのUnix秒を<TT
+CLASS="TYPE"
+>TIMESTAMP WITH TIMEZONE</TT
+>に変換します。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_postmaster_start_time()</CODE
+>関数を追加しました。(Euler Taveira de Oliveira, Matthias Schmidt)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>AT TIME ZONE</TT
+>で完全なゾーン名を使用できるようになりました。
+以前は省略形のみが使用できました。(Magnus)
+       </P
+><P
+>以前は、定義済みのタイムゾーン名の一覧のみが<TT
+CLASS="COMMAND"
+>AT TIME ZONE</TT
+>でサポートされていました。
+現在では、サポート済みのタイムゾーン名すべてを使用することができます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT CURRENT_TIMESTAMP AT TIME ZONE 'Europe/London';</PRE
+><P>
+上の問い合わせでは、タイムゾーンは指定した日付に影響する夏時間規則に従って調整されます。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>GREATEST()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>LEAST()</CODE
+>可変長引数関数を追加しました。(Pavel Stehule)
+       </P
+><P
+>これらの関数は可変数の引数を取り、引数の中で最大もしくは最小の値を返します。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_column_size()</CODE
+>を追加しました。 (Mark Kirkwood)
+       </P
+><P
+>これは列の格納サイズを返します。圧縮が使用されている場合もあります。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>regexp_replace()</CODE
+>を追加しました。 (Atsushi Ogawa)
+       </P
+><P
+>これによりsedのように正規表現による置換を行うことができます。
+省略可能なフラグ引数により、全領域の選択（全置換）や大文字小文字の区別モードを指定することができます。
+       </P
+></LI
+><LI
+><P
+>intervalの除算、乗算を修正しました。(Bruce)
+       </P
+><P
+>以前のバージョンでは、
+<TT
+CLASS="COMMAND"
+>'4 months'::interval / 5</TT
+>が<TT
+CLASS="COMMAND"
+>'1 mon -6 days'</TT
+>といった不揃いの結果を返すことがありました。
+       </P
+></LI
+><LI
+><P
+>timestamp、time、interval出力における端数処理を修正しました。(Tom)
+       </P
+><P
+>上位部分を増加させずに秒部分が<TT
+CLASS="LITERAL"
+>60</TT
+>と表示される問題を修正したものです。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>INTERVAL</TT
+>に別途日フィールドを追加し、1日という間隔と24時間という間隔を区別できるようになりました。(Michael Glaesemann)
+       </P
+><P
+>夏時間による時間調整を含む日にちは24時間ではなく、よく23時間や25時間となります。
+この変更により、<SPAN
+CLASS="QUOTE"
+>"何日間"</SPAN
+>という時間間隔と<SPAN
+CLASS="QUOTE"
+>"何時間"</SPAN
+>という時間間隔の間に概念的な違いが生じます。
+timestampに<TT
+CLASS="LITERAL"
+>1 day</TT
+>を加えると、その間に夏時間による時間調整があったとしても、同じローカル時間における次の日になるようになりました。
+一方で<TT
+CLASS="LITERAL"
+>24 hours</TT
+>を加えると、時間調整があると異なるローカル時間となります。
+US DSTの例を以下に示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'2005-04-03 00:00:00-05' + '1 day' = '2005-04-04 00:00:00-04'
+'2005-04-03 00:00:00-05' + '24 hours' = '2005-04-04 01:00:00-04'</PRE
+><P>
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>justify_days()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>justify_hours()</CODE
+>を追加しました。
+        (Michael Glaesemann)
+       </P
+><P
+>これらの関数はそれぞれ、日数を適切な月数と日数に、時間数を適切な日数と時間数に調整します。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/dbsize</TT
+>をバックエンドに移し、一部の関数の名前を変更しました。 (Dave Page, Andreas Pflug)
+       </P
+><P
+>        <P
+></P
+></P><UL
+><LI
+><P
+>            <CODE
+CLASS="FUNCTION"
+>pg_tablespace_size()</CODE
+>
+          </P
+></LI
+><LI
+><P
+>           <CODE
+CLASS="FUNCTION"
+>pg_database_size()</CODE
+>
+          </P
+></LI
+><LI
+><P
+>           <CODE
+CLASS="FUNCTION"
+>pg_relation_size()</CODE
+>
+          </P
+></LI
+><LI
+><P
+>           <CODE
+CLASS="FUNCTION"
+>pg_total_relation_size()</CODE
+>
+          </P
+></LI
+><LI
+><P
+>           <CODE
+CLASS="FUNCTION"
+>pg_size_pretty()</CODE
+>
+          </P
+></LI
+></UL
+><P>
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_total_relation_size()</CODE
+>にはインデックスとTOASTテーブルが含まれます。
+       </P
+></LI
+><LI
+><P
+>クラスタディレクトリへの読み取りのみのファイルアクセス用の関数を追加しました。(Dave Page, Andreas Pflug)
+       </P
+><P
+>        <P
+></P
+></P><UL
+><LI
+><P
+>           <CODE
+CLASS="FUNCTION"
+>pg_stat_file()</CODE
+>
+          </P
+></LI
+><LI
+><P
+>           <CODE
+CLASS="FUNCTION"
+>pg_read_file()</CODE
+>
+          </P
+></LI
+><LI
+><P
+>           <CODE
+CLASS="FUNCTION"
+>pg_ls_dir()</CODE
+>
+          </P
+></LI
+></UL
+><P>
+       </P
+></LI
+><LI
+><P
+>設定ファイルを強制的に再読み込みする<CODE
+CLASS="FUNCTION"
+>pg_reload_conf()</CODE
+>を追加しました。(Dave Page, Andreas Pflug)
+       </P
+></LI
+><LI
+><P
+>サーバログファイルを強制的にローテートする<CODE
+CLASS="FUNCTION"
+>pg_rotate_logfile()</CODE
+>を追加しました。(Dave Page, Andreas Pflug)
+       </P
+></LI
+><LI
+><P
+>TOASTテーブルを含めるように<TT
+CLASS="LITERAL"
+>pg_stat_*</TT
+>ビューを変更しました。(Tom)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122536"
+>E.95.3.7. 符号化方式およびロケールの変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>より一貫性を高め、かつ、国際的な標準に従うように一部の符号化方式の名前を変更しました。
+       </P
+><P
+>        <P
+></P
+></P><UL
+><LI
+><P
+>           <TT
+CLASS="LITERAL"
+>UNICODE</TT
+> は<TT
+CLASS="LITERAL"
+>UTF8</TT
+>になりました。
+          </P
+></LI
+><LI
+><P
+>           <TT
+CLASS="LITERAL"
+>ALT</TT
+>は<TT
+CLASS="LITERAL"
+>WIN866</TT
+>になりました。
+          </P
+></LI
+><LI
+><P
+>           <TT
+CLASS="LITERAL"
+>WIN</TT
+>は<TT
+CLASS="LITERAL"
+>WIN1251</TT
+>になりました。
+          </P
+></LI
+><LI
+><P
+>          <TT
+CLASS="LITERAL"
+>TCVN</TT
+>は<TT
+CLASS="LITERAL"
+>WIN1258</TT
+>になりました。
+          </P
+></LI
+></UL
+><P>
+       </P
+><P
+>以前の名前もまだ使用できます。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>WIN1252</TT
+>符号化方式のサポートを追加しました。(Roland Volkmann)
+
+       </P
+></LI
+><LI
+><P
+>4バイトの<TT
+CLASS="LITERAL"
+>UTF8</TT
+>文字のサポートを追加しました。(John Hansen)
+
+       </P
+><P
+>これまでは1バイト、2バイトおよび3バイトの<TT
+CLASS="LITERAL"
+>UTF8</TT
+>文字がサポートされていました。
+これは特に一部の中国語文字セットをサポートするために重要です。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>EUC_JP</TT
+>、<TT
+CLASS="LITERAL"
+>SJIS</TT
+>間の直接変換を可能とし、性能を向上しました。(Atsushi Ogawa)
+       </P
+></LI
+><LI
+><P
+>WindowsにおいてUTF8符号化方式が動作できるようになりました。(Magnus)
+       </P
+><P
+>これはUTF8をWindows独自のUTF16実装に対応付けすることでなされました。
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122575"
+>E.95.3.8. サーバサイド言語の一般的な変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>ALTER LANGUAGE RENAME</TT
+>を修正しました。(Sergey Yatskevich)
+       </P
+></LI
+><LI
+><P
+>厳密性、揮発性などの関数特性を<TT
+CLASS="COMMAND"
+>ALTER FUNCTION</TT
+>で変更できるようにしました。(Neil)
+       </P
+></LI
+><LI
+><P
+>関数引数の最大数を100まで増加しました。(Tom)
+       </P
+></LI
+><LI
+><P
+>SQL関数およびPL/pgSQL関数で<TT
+CLASS="COMMAND"
+>OUT</TT
+>および<TT
+CLASS="COMMAND"
+>INOUT</TT
+>パラメータを使用できるようにしました。(Tom)
+       </P
+><P
+><TT
+CLASS="COMMAND"
+>OUT</TT
+>は、関数の戻り値をあらわす別の方法です。
+<TT
+CLASS="COMMAND"
+>RETURN</TT
+>の代わりに使用して、<TT
+CLASS="COMMAND"
+>OUT</TT
+>または<TT
+CLASS="COMMAND"
+>INOUT</TT
+>で宣言されたパラメータに割り当てて、値を返します。
+これにより、特に複数の値を返さなければならない場合、記述がより簡単になる場合があります。
+以前のリリースでも関数から複数の値を返すことは可能でしたが、これによりその手続きが非常に簡単になりました
+（今後のリリースでこの機能は他のサーバサイド言語にも拡張される予定です）。
+
+       </P
+></LI
+><LI
+><P
+>言語ハンドラ関数を<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>スキーマに移動しました。
+       </P
+><P
+>これによりpublicスキーマの削除が簡単にできるようになりました。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>SPI_getnspname()</CODE
+>をSPIに追加しました。(Neil)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122602"
+>E.95.3.9. PL/pgSQLサーバサイド言語の変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>PL/pgSQL関数のメモリ管理を全面的に見直しました。(Neil)
+       </P
+><P
+>各関数の解析ツリーが異なるメモリコンテキストに保存されるようになりました。
+これにより、不要になった時にメモリの回収が簡単にできるようになりました。
+       </P
+></LI
+><LI
+><P
+>実行時ではなく、<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>時に関数の構文を検査します。(Neil)
+       </P
+><P
+>以前は、構文エラーのほとんどが関数を実行した時にのみ報告されていました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>OPEN</TT
+>により、<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+> や<TT
+CLASS="COMMAND"
+>SHOW</TT
+>などの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>以外の問い合わせを開くことができるようになりました。(Tom)
+       </P
+></LI
+><LI
+><P
+>関数で<TT
+CLASS="COMMAND"
+>RETURN</TT
+>文を実行する必要がなくなりました。(Tom)
+       </P
+><P
+>これは<TT
+CLASS="COMMAND"
+>OUT</TT
+>および<TT
+CLASS="COMMAND"
+>INOUT</TT
+>機能の新規追加に伴う副産物です。
+関数の戻り値を提供する必要がない場合<TT
+CLASS="COMMAND"
+>RETURN</TT
+>を省略することができます。
+       </P
+></LI
+><LI
+><P
+>PL/pgSQLの<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>文における省略可能な<TT
+CLASS="COMMAND"
+>INTO</TT
+>句サポートを追加しました。(Pavel Stehule, Neil)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>が<TT
+CLASS="COMMAND"
+>ROW_COUNT</TT
+>を設定するようにしました。(Tom)
+       </P
+></LI
+><LI
+><P
+>現在の例外に関する<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>とエラーメッセージを返す<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>と<TT
+CLASS="LITERAL"
+>SQLERRM</TT
+>を定義しました。(Pavel Stehule, Neil)
+       </P
+><P
+>これらの変数は、例外ブロック内でのみ定義されます。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>RAISE</TT
+>文のパラメータを式とすることが可能になりました。 (Pavel Stehule, Neil)
+       </P
+></LI
+><LI
+><P
+>ループの<TT
+CLASS="COMMAND"
+>CONTINUE</TT
+>文を追加しました。(Pavel Stehule, Neil)
+       </P
+></LI
+><LI
+><P
+>ブロックラベルとループラベルを追加しました。(Pavel Stehule)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122647"
+>E.95.3.10. PL/Perlサーバサイド言語の変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>大規模な結果セットを効率的に返すことが可能になりました。(Abhijit Menon-Sen)
+       </P
+><P
+>これにより関数で、結果セット全体をメモリ内に構築することなく<CODE
+CLASS="FUNCTION"
+>return_next()</CODE
+>が使用できるようになりました。
+       </P
+></LI
+><LI
+><P
+>一度に一行という形で、問い合わせ結果の取り出しが可能になりました。(Abhijit Menon-Sen)
+       </P
+><P
+>これにより関数で、結果セット全体をメモリ内に保存することなく<CODE
+CLASS="FUNCTION"
+>spi_query()</CODE
+>と<CODE
+CLASS="FUNCTION"
+>spi_fetchrow()</CODE
+>が使用できるようになりました。
+       </P
+></LI
+><LI
+><P
+>サーバの符号化方式が<TT
+CLASS="LITERAL"
+>UTF8</TT
+>の場合、PL/Perlは文字列を強制的に<TT
+CLASS="LITERAL"
+>UTF8</TT
+> として扱うようになりました。(David Kamholz)
+       </P
+></LI
+><LI
+><P
+>PL/Perlで検証関数を追加しました。(Andrew)
+       </P
+><P
+>これにより、構文エラーを実行時ではなく定義時に報告できるようになりました。
+       </P
+></LI
+><LI
+><P
+>関数が配列型を返す場合にPL/PerlがPerlの配列を返すことができるようになりました。(Andrew)
+       </P
+><P
+>これは基本的には<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>配列をPerl配列に対応付けします。
+       </P
+></LI
+><LI
+><P
+>Perlの非致命的警告で<TT
+CLASS="COMMAND"
+>NOTICE</TT
+>メッセージを生成できるようになりました。(Andrew)
+       </P
+></LI
+><LI
+><P
+>Perlの<TT
+CLASS="LITERAL"
+>strict</TT
+>モードを有効にできるようになりました。(Andrew)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122676"
+>E.95.3.11. <SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>トランザクション内の文がトランザクションの残りに影響することなくエラーになることができるように、<TT
+CLASS="COMMAND"
+>\set ON_ERROR_ROLLBACK</TT
+>を追加しました。(Greg Sabino Mullane)
+       </P
+><P
+>これは、基本的に、すべての文を副トランザクション内で行うことで実装しています。
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>変数内で<TT
+CLASS="LITERAL"
+>\x</TT
+>16進数文字列のサポートを追加しました。(Bruce)
+       </P
+><P
+>8進数エスケープはすでにサポートされていました。
+       </P
+></LI
+><LI
+><P
+> <TT
+CLASS="COMMAND"
+>troff -ms</TT
+>出力書式のサポートを追加しました。(Roger
+        Leigh)
+
+       </P
+></LI
+><LI
+><P
+>履歴ファイルの格納場所を<TT
+CLASS="ENVAR"
+>HISTFILE</TT
+>で制御可能にしました。 (Andreas Seltenreich)
+       </P
+><P
+>これによりデータベースごとに履歴ファイルの格納設定が可能になります。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>\x</TT
+> (拡張モード)が<TT
+CLASS="COMMAND"
+>\d tablename</TT
+>の結果に影響しないようにしました。(Neil)
+       </P
+></LI
+><LI
+><P
+>セッションのログを記録するための<TT
+CLASS="OPTION"
+>-L</TT
+>オプションを<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>に追加しました。 (Lorne Sunley)
+       </P
+><P
+>オペレーティングシステムの中には簡単にコマンドライン操作をログ記録する機能がないものがありましたので、このオプションが追加されました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>\d</TT
+>がインデックスのテーブル空間を表示できるようにしました。(Qingqing
+        Zhou)
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のヘルプ（<TT
+CLASS="COMMAND"
+>\h</TT
+>）が適切なヘルプ情報について最善の推測を行うようになりました。
+(Greg Sabino Mullane)
+       </P
+><P
+>これによりユーザは単に構文エラーとなった問い合わせの前に<TT
+CLASS="COMMAND"
+>\h</TT
+>を付けるだけで、サポートしている構文のヘルプ情報を得ることができるようになりました。
+これまでは、<TT
+CLASS="COMMAND"
+>\h</TT
+>を使用する前にコマンド名以外の問い合わせテキストを削除しなければなりませんでした。
+       </P
+></LI
+><LI
+><P
+>ロケールを考慮した書式で数値を出力できるように<TT
+CLASS="COMMAND"
+>\pset numericlocale</TT
+>を追加しました。(Eugen Nedelcu)
+       </P
+><P
+>例えば、<TT
+CLASS="LITERAL"
+>C</TT
+>ロケールでは<TT
+CLASS="LITERAL"
+>100000</TT
+>は<TT
+CLASS="LITERAL"
+>100,000.0</TT
+>として、Europeanロケールでは <TT
+CLASS="LITERAL"
+>100.000,0</TT
+>として出力されます。
+       </P
+></LI
+><LI
+><P
+>起動時のバナーでサーバのバージョン番号と<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のバージョン番号が異なる場合に両方とも表示するようにしました。(Bruce)
+       </P
+><P
+>また、サーバと<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>との間でメジャーリリース番号が異なる場合に警告を発します。
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122728"
+>E.95.3.12. <SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>の変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>に<TT
+CLASS="OPTION"
+>-n</TT
+>および<TT
+CLASS="OPTION"
+>--schema</TT
+>スイッチを追加しました。 (Richard van den Berg)
+       </P
+><P
+>これにより指定したスキーマのオブジェクトのみをリストアすることができます。
+       </P
+></LI
+><LI
+><P
+>テキストモードでも<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>がラージオブジェクトをダンプできるようになりました。(Tom)
+       </P
+><P
+>この変更により、ラージオブジェクトが常にダンプできるようになりました。
+以前の<TT
+CLASS="OPTION"
+>-b</TT
+>スイッチは何も行いません。
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>が一貫性を持ったラージオブジェクトのスナップショットをダンプできるようになりました。(Tom)
+       </P
+></LI
+><LI
+><P
+>ラージオブジェクトのコメントをダンプします。(Tom)
+       </P
+></LI
+><LI
+><P
+>        <SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+> に<TT
+CLASS="OPTION"
+>--encoding</TT
+> を追加しました。
+        (Magnus Hagander)
+       </P
+><P
+>これにより、サーバの符号化方式と異なる符号化方式でデータベースをダンプできるようになりました。
+これは、異なる符号化方式のマシンでダンプを転送する時有用です。
+       </P
+></LI
+><LI
+><P
+>手続き言語の<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>に依存します。(Tom)
+       </P
+><P
+>手続き言語用の呼び出しハンドラが<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>スキーマ内に存在する場合、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>はそのハンドラをダンプしません。
+代わりに、ロード時に言語の生成パラメータを提供する<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>カタログに依存した、単なる<TT
+CLASS="COMMAND"
+>CREATE LANGUAGE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+>を使用してその言語をダンプします。
+
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122762"
+>E.95.3.13. <SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>パスワードファイルのファイル名を指定する<TT
+CLASS="ENVAR"
+>PGPASSFILE</TT
+>環境変数を追加しました。(Andrew)
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>lo_create()</CODE
+>を追加しました。
+これは<CODE
+CLASS="FUNCTION"
+>lo_creat()</CODE
+>と同じですが、ラージオブジェクトのOIDを指定することができます。(Tom)
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>が<CODE
+CLASS="FUNCTION"
+>malloc()</CODE
+>失敗に関するエラーを一貫性を持ってクライアントアプリケーションに返すようにしました。 (Neil)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122777"
+>E.95.3.14. ソースコードの変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>場所を変更したインストレーションに対して構築をサポートするように<SPAN
+CLASS="APPLICATION"
+>pgxs</SPAN
+>を修正しました。
+       </P
+></LI
+><LI
+><P
+>Intelコンパイラを使用するItaniumプロセッサをサポートするスピンロックを追加しました。 (Vikram Kalsi)
+       </P
+></LI
+><LI
+><P
+>Windows用のKerberos 5サポートを追加しました。(Magnus)
+       </P
+></LI
+><LI
+><P
+>中国語版FAQを追加しました。(laser@pgsqldb.com)
+       </P
+></LI
+><LI
+><P
+>OS/Xの機能名称変更に合わせ、RendezvousをBonjourに名前を変更しました。(Bruce)
+       </P
+></LI
+><LI
+><P
+>Darwinにおける<TT
+CLASS="LITERAL"
+>fsync_writethrough</TT
+>のサポートを追加しました。(Chris Campbell)
+       </P
+></LI
+><LI
+><P
+>サーバ、オプティマイザ、ロックシステム内の情報の渡し方を合理化しました。 (Tom)
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_config</SPAN
+>がMSVCを使用してコンパイルできるようになりました。(Andrew)
+       </P
+><P
+>これには、<SPAN
+CLASS="APPLICATION"
+>MSVC</SPAN
+>を使用した DBD::Pgの構築が必要です。
+       </P
+></LI
+><LI
+><P
+>Kerberos V4のサポートをやめました。(Magnus)
+       </P
+><P
+>Kerberos 4 にはセキュリティ上の欠陥があり、保守もされていません。
+       </P
+></LI
+><LI
+><P
+>コードを整理しました。（EnterpriseDBを使用してカバレッジに関する静的解析を行いました。）
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>のドキュメント上のデフォルトを、<TT
+CLASS="LITERAL"
+>true</TT
+>/<TT
+CLASS="LITERAL"
+>false</TT
+>ではなく<TT
+CLASS="LITERAL"
+>on</TT
+>/<TT
+CLASS="LITERAL"
+>off</TT
+>に変更しました。(Bruce)
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_config</SPAN
+>を改良し、より多くの構築時の値を報告できるようにしました。(Tom)
+       </P
+></LI
+><LI
+><P
+>Windowsにおいてスレッドセーフな<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>を構築できるようにしました。(Dave Page)
+       </P
+></LI
+><LI
+><P
+>WindowsにおいてIPv6接続が利用できるようになりました。(Andrew)
+       </P
+></LI
+><LI
+><P
+>I/Oサブシステムの信頼性に関するサーバ管理用文書を追加しました。(Bruce)
+       </P
+></LI
+><LI
+><P
+>秘匿可能な宣言を<TT
+CLASS="FILENAME"
+>gist.h</TT
+>から<TT
+CLASS="FILENAME"
+>gist_private.h</TT
+>に移しました。(Neil)
+       </P
+><P
+>以前のリリースでは、<TT
+CLASS="FILENAME"
+>gist.h</TT
+>には公開GiST API（GiSTインデックス実装者向け）とGiST自体を実装するために使用する秘匿可能な宣言が混在していました。
+後者が<TT
+CLASS="FILENAME"
+>gist_private.h</TT
+>という別のファイルに移りました。
+ほとんどのGiSTインデックス実装には影響がないはずです。
+       </P
+></LI
+><LI
+><P
+>GiSTメモリ管理を再作成しました。(Neil)
+       </P
+><P
+>GiSTのメソッドが常に短命のメモリコンテキスト内で呼び出されるようになりました。
+そのため、<CODE
+CLASS="FUNCTION"
+>palloc()</CODE
+>で割り当てられたメモリは自動的に回収されます。
+これにより、GiSTインデックス実装では<CODE
+CLASS="FUNCTION"
+>pfree()</CODE
+>を使用して割り当てられたメモリを解放する必要がなくなりました。
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN122835"
+>E.95.3.15. Contribの変更</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/pg_buffercache</TT
+> contribモジュールを追加しました。(Mark Kirkwood)
+       </P
+><P
+>これはデバッグや性能の調整を目的としたもので、バッファキャッシュの内容を表示します。
+       </P
+></LI
+><LI
+><P
+>        古くなりましたので<TT
+CLASS="FILENAME"
+>/contrib/array</TT
+>が削除されました。(Tom)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/lo</TT
+>モジュールを整理しました。(Tom)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/findoidjoins</TT
+>を<TT
+CLASS="FILENAME"
+>/src/tools</TT
+>に移動しました。(Tom)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/cube</TT
+>から<TT
+CLASS="LITERAL"
+>&lt;&lt;</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>&amp;&lt;</TT
+>、<TT
+CLASS="LITERAL"
+>&amp;&gt;</TT
+> 演算子を削除しました。
+       </P
+><P
+>これらの演算子が有用ではないからです。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/btree_gist</TT
+>を改良しました。(Janko Richter)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/pgbench</TT
+>を改良しました。 (Tomoaki Sato, Tatsuo)
+       </P
+><P
+>固定のコマンド群だけではなく、ユーザが用意したSQLコマンドスクリプトで試験を行なう機能が追加されました。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/pgcrypto</TT
+>を改良しました。(Marko Kreen)
+       </P
+><P
+></P
+><UL
+><LI
+><P
+>OpenPGP対称キーと公開キー暗号の実装。
+         </P
+><P
+>RSAおよびElgamal公開キーアルゴリズムの両方をサポートします。
+         </P
+></LI
+><LI
+><P
+>単体での構築。SHA256/384/512ハッシュ、Fortuna PRNGを含みます。
+         </P
+></LI
+><LI
+><P
+>OpenSSLの構築。3DESのサポート。OpenSSL &lt; 0.9.7での内部AESの利用。
+         </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>configure</TT
+>の結果を使用した構築パラメータ（OpenSSL、zlib）の取得。
+         </P
+><P
+><TT
+CLASS="FILENAME"
+>Makefile</TT
+>を編集する必要がまったくなくなりました。
+         </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>libmhash</TT
+>および<TT
+CLASS="FILENAME"
+>libmcrypt</TT
+>サポートの削除。
+         </P
+></LI
+></UL
+></LI
+></UL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-1-1.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-0-26.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.1.1</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.0.26</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

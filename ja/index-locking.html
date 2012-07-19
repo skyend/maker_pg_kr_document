@@ -1,0 +1,336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>インデックスのロック処理に関する検討</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"><LINK
+REL="PREVIOUS"
+TITLE="インデックススキャン"
+HREF="index-scanning.html"><LINK
+REL="NEXT"
+TITLE="インデックス一意性検査"
+HREF="index-unique-checks.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックススキャン"
+HREF="index-scanning.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 52&#31456;インデックスアクセスメソッドのインタフェース定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックス一意性検査"
+HREF="index-unique-checks.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEX-LOCKING"
+>52.4. インデックスのロック処理に関する検討</A
+></H1
+><P
+>インデックスアクセスメソッドは、複数のプロセスによるインデックスの同時更新を取り扱えなければなりません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>コアシステムはインデックススキャン中にインデックスに対して<TT
+CLASS="LITERAL"
+>AccessShareLock</TT
+>を獲得します。
+また、（通常の<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>を含む）インデックスの更新中に<TT
+CLASS="LITERAL"
+>RowExclusiveLock</TT
+>を獲得します。
+これらの種類のロックは競合しませんので、アクセスメソッドは必要になるかもしれない粒度の細かなロック処理に関して責任を持ちます。
+インデックスの生成、破棄、<TT
+CLASS="LITERAL"
+>REINDEX</TT
+>時にインデックス全体に対する排他ロックが獲得されます。
+  </P
+><P
+>同時更新をサポートするインデックス種類を構築することは通常、必要な動作について広範かつ微細にわたる解析が必要です。
+B-treeおよびハッシュインデックス種類では、<TT
+CLASS="FILENAME"
+>src/backend/access/nbtree/README</TT
+>と <TT
+CLASS="FILENAME"
+>src/backend/access/hash/README</TT
+>にある設計に関する決定事項を読むことができます。
+  </P
+><P
+>インデックス自身の内部的な一貫性要求の他に、同時実行更新には、親テーブル（<I
+CLASS="FIRSTTERM"
+>ヒープ</I
+>）とインデックス間の一貫性に関する問題が発生します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はヒープへのアクセスおよび更新とインデックスへのアクセスおよび更新を分離していますので、インデックスとヒープとの間の一貫性が無くなる間隔が存在します。
+以下の規則でこうした問題を扱います。
+    <P
+></P
+></P><UL
+><LI
+><P
+>新しいヒープ項目はインデックス項目を作成する前に作成されます。
+（このため、同時実行インデックススキャンはヒープエントリを確認する時によく失敗します。
+インデックスの読み取りは、未コミットの行を対象としませんので問題ありません。
+しかし、<A
+HREF="index-unique-checks.html"
+>&#38917;52.5</A
+>を参照してください。）
+      </P
+></LI
+><LI
+><P
+>ヒープエントリが（<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>によって）削除される時、これに対するすべてのインデックス項目が先に削除されます。
+      </P
+></LI
+><LI
+><P
+>インデックススキャンは、最後に<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>が返した項目を保持するインデックスページ上のピンを管理しなければなりません。
+また、<CODE
+CLASS="FUNCTION"
+>ambulkdelete</CODE
+>は、他のバックエンドがピンを持つページから項目を削除することはできません。
+この規則の必要性については後で説明します。
+      </P
+></LI
+></UL
+><P>
+
+３番目の規則がないと、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>によって削除される直前に、インデックス読み取りがインデックス項目を見つけ、そして、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>によって削除された後に対応するヒープ項目に達する可能性があります。
+空の項目スロットは<CODE
+CLASS="FUNCTION"
+>heap_fetch()</CODE
+>で無視されますので、これは読み取りが達した時にその項目番号が未使用である場合でも大きな問題は起こりません。
+しかし、第三のバックエンドがすでにその項目スロットを他のものに再使用した場合はどうなるでしょうか？
+そのスロット内の新しいものが、スナップショット試験を通過するには新しすぎることが確実ですので、MVCCに則ったスナップショットを使用する場合は問題ありません。
+しかし、MVCCに則らないスナップショット（<TT
+CLASS="LITERAL"
+>SnapshotNow</TT
+>など）では、実際にはスキャンキーに合わない行を受付け、返す可能性があります。
+すべての場合においてヒープ行に対しスキャンキーの再検査を行うことを必須とすることで、こうした状況から保護することができますが、これは高価すぎます。
+代わりに、読み取りがまだ一致するヒープ項目へのインデックス項目の<SPAN
+CLASS="QUOTE"
+>"作業中"</SPAN
+>であることを示す代理として、インデックスページに対するピンを使用します。
+このピンに対して<CODE
+CLASS="FUNCTION"
+>ambulkdelete</CODE
+>がブロックするようにすることで、読み取りの作業が終わる前に<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>がそのヒープ項目を削除できないことを確実にします。
+実行時におけるこの対策のコストは小さく、実際に競合が発生するごく稀な場合にのみブロックするためのオーバーヘッドが加わります。
+  </P
+><P
+>この対策は、インデックススキャンが<SPAN
+CLASS="QUOTE"
+>"同期"</SPAN
+>していることを要求します。
+対応するインデックス項目のスキャンの後即座に各ヒープタプルを取り出さなければなりません。
+多くの理由のため、これは高価です。
+インデックスから多くのTIDを収集し、少し後でのみヒープタプルにアクセスする<SPAN
+CLASS="QUOTE"
+>"非同期"</SPAN
+>スキャンでは、必要なロック処理オーバーヘッドがかなり少なくなり、また、より効率的なヒープへのアクセスパターンを取ることができます。
+上の解析に従うと、MVCCに則らないスナップショットでは同期方式を使用しなければなりませんが、問い合わせがMVCCスナップショットを使用する場合は非同期スキャンを使用することができます。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>インデックススキャンでは、アクセスメソッドは返されるタプル上にインデックスピンをまったく保持しません。
+したがって、MVCCに則ったスナップショットでこうしたスキャンを使用することのみが安全です。
+  </P
+><P
+><TT
+CLASS="STRUCTFIELD"
+>ampredlocks</TT
+>フラグが設定されていない場合、シリアライザブルトランザクション内でそのインデックスアクセスメソッドを使用するスキャンはいずれもインデックス全体に対するブロックしない述部ロックを獲得します。
+これは、同時実行のシリアライザブルトランザクションによるそのインデックスへの何らかのタプル挿入で、読み書きの競合が発生することがあります。
+同時実行のシリアライザブルトランザクションの集合の中で特定の読み書きの競合パターンが検知された場合、データの整合性を保護するためにこれらのトランザクションの１つはキャンセルされます。
+このフラグが設定されている場合、こうしたトランザクションのキャンセルの頻度を低減することになる、より粒度の細かな述部ロックをインデックスアクセスメソッドが実装していることを示します。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index-scanning.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="index-unique-checks.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インデックススキャン</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexam.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>インデックス一意性検査</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

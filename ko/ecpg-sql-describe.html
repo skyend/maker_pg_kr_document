@@ -1,0 +1,354 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>DESCRIBE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \" 포함 SQL 명령\"\n
+HREF="ecpg-sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="DECLARE"
+HREF="ecpg-sql-declare.html"><LINK
+REL="NEXT"
+TITLE="DISCONNECT"
+HREF="ecpg-sql-disconnect.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="DECLARE"
+HREF="ecpg-sql-declare.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="DECLARE"
+HREF="ecpg-sql-declare.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DISCONNECT"
+HREF="ecpg-sql-disconnect.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DISCONNECT"
+HREF="ecpg-sql-disconnect.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="ECPG-SQL-DESCRIBE"
+></A
+>DESCRIBE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN43144"
+></A
+><H2
+>&#21517;&#21069;</H2
+>DESCRIBE&nbsp;--&nbsp;プリペアード・ステートメントまたは結果セットに関する情報を入手します。</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN43147"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>DESCRIBE [ OUTPUT ] <TT
+CLASS="REPLACEABLE"
+><I
+>prepared_name</I
+></TT
+> USING [ SQL ] DESCRIPTOR <TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_name</I
+></TT
+>
+DESCRIBE [ OUTPUT ] <TT
+CLASS="REPLACEABLE"
+><I
+>prepared_name</I
+></TT
+> INTO [ SQL ] DESCRIPTOR <TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_name</I
+></TT
+>
+DESCRIBE [ OUTPUT ] <TT
+CLASS="REPLACEABLE"
+><I
+>prepared_name</I
+></TT
+> INTO <TT
+CLASS="REPLACEABLE"
+><I
+>sqlda_name</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43155"
+></A
+><H2
+>설명 </H2
+><P
+><TT
+CLASS="COMMAND"
+>DESCRIBE</TT
+>실제로 행을 가져오면 않고 뿌리뻬아도 정책 에 포함되는 결과 열에 대한 메타 데이터 정보를 검색합니다 .
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43159"
+></A
+><H2
+>매개 변수 </H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>prepared_name</I
+></TT
+></DT
+><DD
+><P
+>뿌리뻬아도 정책 의 이름입니다.
+이것은 SQL 식별자 또는 호스트 변수 가 될 수 있습니다.
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_name</I
+></TT
+></DT
+><DD
+><P
+>기술자의 이름입니다.
+대소문자를 구분합니다.
+이것은 SQL 식별자 또는 호스트 변수 가 될 수 있습니다.
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>sqlda_name</I
+></TT
+></DT
+><DD
+><P
+>SQLDA 변수 의 이름입니다.
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43177"
+></A
+><H2
+>예 </H2
+><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL ALLOCATE DESCRIPTOR mydesc;
+EXEC SQL PREPARE stmt1 FROM :sql_stmt;
+EXEC SQL DESCRIBE stmt1 INTO SQL DESCRIPTOR mydesc;
+EXEC SQL GET DESCRIPTOR mydesc VALUE 1 :charvar = NAME;
+EXEC SQL DEALLOCATE DESCRIPTOR mydesc;</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43180"
+></A
+><H2
+>호환 </H2
+><P
+><TT
+CLASS="COMMAND"
+>DESCRIBE</TT
+>는 표준 SQL로 규정되어 있습니다.
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43184"
+></A
+><H2
+>관련 항목 </H2
+><A
+HREF="ecpg-sql-allocate-descriptor.html"
+>ALLOCATE DESCRIPTOR</A
+>, <A
+HREF="ecpg-sql-get-descriptor.html"
+>GET DESCRIPTOR</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-sql-declare.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-sql-disconnect.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>DECLARE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg-sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>DISCONNECT</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

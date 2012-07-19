@@ -1,0 +1,668 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>シーケンス操作関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="XML関数"
+HREF="functions-xml.html"><LINK
+REL="NEXT"
+TITLE="条件式"
+HREF="functions-conditional.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="XML関数"
+HREF="functions-xml.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="条件式"
+HREF="functions-conditional.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-SEQUENCE"
+>9.15. シーケンス操作関数</A
+></H1
+><P
+>  
+   本節では<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の<I
+CLASS="FIRSTTERM"
+>シーケンスオブジェクト</I
+>に対し演算を行う関数について説明します。シーケンスオブジェクト（シーケンスジェネレータとも単にシーケンスとも呼ばれます）とは<A
+HREF="sql-createsequence.html"
+>CREATE SEQUENCE</A
+>で作成される1行の特別なテーブルです。シーケンスオブジェクトは通常テーブルの行に一意の識別子を生成するために使用されます。<A
+HREF="functions-sequence.html#FUNCTIONS-SEQUENCE-TABLE"
+>&#34920;9-39</A
+>に列挙されているシーケンス関数は、シーケンスオブジェクトから連続したシーケンス値を取得するための、簡易でマルチユーザに対応した関数です。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-SEQUENCE-TABLE"
+></A
+><P
+><B
+>&#34920; 9-39. シーケンス関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>currval(<TT
+CLASS="TYPE"
+>regclass</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>指定されたシーケンスに対し<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>で得られた最新の値を返す</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>lastval()</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>どんなシーケンスに対してでも<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>により最も最近取得された値を返す
+	</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>nextval(<TT
+CLASS="TYPE"
+>regclass</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>シーケンスを進め、新しい値を返す</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>setval(<TT
+CLASS="TYPE"
+>regclass</TT
+>, <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>シーケンスの現在値を設定する</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>setval(<TT
+CLASS="TYPE"
+>regclass</TT
+>, <TT
+CLASS="TYPE"
+>bigint</TT
+>, <TT
+CLASS="TYPE"
+>boolean</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>シーケンスの現在値と<TT
+CLASS="LITERAL"
+>is_called</TT
+>フラグを設定する</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>  
+   シーケンス関数により操作されるシーケンスは<TT
+CLASS="TYPE"
+>regclass</TT
+>引数で指定され、そしてそれは<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>システムカタログ内のシーケンスのOIDに過ぎません。手作業でOIDを検索してはいけませんが、<TT
+CLASS="TYPE"
+>regclass</TT
+>データ型の入力変換器が代わってその作業を行ってくれます。リテラル関数のように見えるするようにするため、単一引用符で括られたシーケンス名を記述するだけです。通常の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の名称での操作との互換のため、文字列はシーケンス名が二重引用符で括られている以外、小文字に変換されます。よって、以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>nextval('foo')      <I
+CLASS="LINEANNOTATION"
+>operates on sequence <TT
+CLASS="LITERAL"
+>foo</TT
+></I
+>
+nextval('FOO')      <I
+CLASS="LINEANNOTATION"
+>operates on sequence <TT
+CLASS="LITERAL"
+>foo</TT
+></I
+>
+nextval('"Foo"')    <I
+CLASS="LINEANNOTATION"
+>operates on sequence <TT
+CLASS="LITERAL"
+>Foo</TT
+></I
+></PRE
+><P>
+   必要であれば、以下のようにシーケンス名をスキーマで修飾することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>nextval('myschema.foo')     <I
+CLASS="LINEANNOTATION"
+>operates on <TT
+CLASS="LITERAL"
+>myschema.foo</TT
+></I
+>
+nextval('"myschema".foo')   <I
+CLASS="LINEANNOTATION"
+>same as above</I
+>
+nextval('foo')              <I
+CLASS="LINEANNOTATION"
+>searches search path for <TT
+CLASS="LITERAL"
+>foo</TT
+></I
+></PRE
+><P>
+   <TT
+CLASS="TYPE"
+>regclass</TT
+>に関してのより詳細な情報は<A
+HREF="datatype-oid.html"
+>&#38917;8.16</A
+>を参照してください。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>   
+    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.1以前においては、シーケンス関数の引数は<TT
+CLASS="TYPE"
+>regclass</TT
+>型ではなく、<TT
+CLASS="TYPE"
+>text</TT
+>型で、そして上記のテキスト文字列からOID値への変換はそれぞれの呼び出し実行時に起こりました。後方互換性のため、この仕組みはまだ存在しますが、内部的には関数が実行される前に<TT
+CLASS="TYPE"
+>text</TT
+>から<TT
+CLASS="TYPE"
+>regclass</TT
+>への暗黙的強制型変換として現在処理されています。
+   </P
+><P
+>   
+    ありのままのリテラル文字列としてシーケンス関数の引数を記述する時は、<TT
+CLASS="TYPE"
+>regclass</TT
+>データ型の定数になります。これは単にOIDなので、後で名前付けが再び行われたとか、スキーマの再割り振りとかに係わらず、最初に特定されたシーケンスを引き継ぎます。この<SPAN
+CLASS="QUOTE"
+>"初期束縛"</SPAN
+>の動作は、通常列のデフォルトとビュー参照するシーケンスにとって魅力があります。しかし、たまには実行時にシーケンス参照が解決されるような<SPAN
+CLASS="QUOTE"
+>"動的束縛"</SPAN
+>が望まれます。動的束縛の動作を得るには、定数を<TT
+CLASS="TYPE"
+>regclass</TT
+>ではなく<TT
+CLASS="TYPE"
+>text</TT
+>定数としてその定数を保存させます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>nextval('foo'::text)      <I
+CLASS="LINEANNOTATION"
+><TT
+CLASS="LITERAL"
+>foo</TT
+> is looked up at runtime</I
+></PRE
+><P>
+    動的束縛は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のリリース8.1以前でサポートされた動作であったので、旧来のアプリケーションのセマンティクスを保ちたい場合このようにする必要があるかもしれません。
+   </P
+><P
+>   
+    もちろん、シーケンス関数の引数は定数とともに、評価式であることも可能です。もしテキスト式の場合は暗黙的強制型変換が実行時検索に用いられます。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>  
+   使用できるシーケンス関数には以下のものがあります。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><CODE
+CLASS="FUNCTION"
+>nextval</CODE
+></DT
+><DD
+><P
+>       
+	シーケンスオブジェクトをその次の値に進め、その値を返します。これは自動的に処理されます。複数のセッションが同時に<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>を実行したとしても、それぞれのセッションは個別のシーケンス値を間違いなく受け取ります。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>currval</CODE
+></DT
+><DD
+><P
+>       
+	現在のセッションにおいて、そのシーケンスから<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>によって取得された直近の値を返します（セッション内でそのシーケンスに対し<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>が呼ばれていない場合には、エラーが報告されます）。これはローカルのセッション値を返すことから、現在のセッションが実行してから別のセッションが<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>を実行してもしなくても、予想に違わない回答をもたらします。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>lastval</CODE
+></DT
+><DD
+><P
+>       
+	現在のセッションの<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>で戻される最新の値を返します。この関数は、現在のセッションの中で<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>によって使用される最後のシーケンスの値をフェッチする引数としてのシーケンス名を取ることを除いて、<CODE
+CLASS="FUNCTION"
+>currval</CODE
+>と同等です。現在のセッションで<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>が未だ呼ばれていなければエラーになります。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>setval</CODE
+></DT
+><DD
+><P
+>       
+	シーケンスオブジェクトの計数値をリセットします。２つのパラメータを所有する形式では、シーケンスの<TT
+CLASS="LITERAL"
+>last_value</TT
+>フィールドを指定された値に設定し、<TT
+CLASS="LITERAL"
+>is_called</TT
+>フィールドを<TT
+CLASS="LITERAL"
+>true</TT
+>（真）に設定します。この意味は、次の<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>が値を返す前にシーケンスを進めるということです。<CODE
+CLASS="FUNCTION"
+>currval</CODE
+>で報告された値も指定された値に設定されます。３パラメータ形式の場合、<TT
+CLASS="LITERAL"
+>is_called</TT
+>を<TT
+CLASS="LITERAL"
+>true</TT
+>（真）もしくは<TT
+CLASS="LITERAL"
+>false</TT
+>（偽）に設定することができます。<TT
+CLASS="LITERAL"
+>true</TT
+>（真）は２パラメータ形式と同じ効果があります。<TT
+CLASS="LITERAL"
+>false</TT
+>（偽）に設定された場合、次の<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>が指定された正確な値を返し、シーケンスの進行は引き続く<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>から始まります。さらにこの場合（これは8.3以前の動作からの変更）、<CODE
+CLASS="FUNCTION"
+>currval</CODE
+>で報告された値は変更されません。例えば、次の例です。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT setval('foo', 42);           <I
+CLASS="LINEANNOTATION"
+>Next <CODE
+CLASS="FUNCTION"
+>nextval</CODE
+> will return 43</I
+>
+SELECT setval('foo', 42, true);     <I
+CLASS="LINEANNOTATION"
+>Same as above</I
+>
+SELECT setval('foo', 42, false);    <I
+CLASS="LINEANNOTATION"
+>Next <CODE
+CLASS="FUNCTION"
+>nextval</CODE
+> will return 42</I
+></PRE
+><P>
+
+	<CODE
+CLASS="FUNCTION"
+>setval</CODE
+>によって返される結果は単にその第2番目の引数の値です。
+       </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>  
+   デフォルトのパラメータによってシーケンスオブジェクトが作成されているなら、引き続く<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>呼び出しは１から始まる連続的な値を返します。その他の動作を<A
+HREF="sql-createsequence.html"
+>CREATE SEQUENCE</A
+>コマンドの特別なパラメータを使用してさせることが可能です。より詳しくはコマンドのリファレンスガイドを参照ください。
+  </P
+><DIV
+CLASS="IMPORTANT"
+><BLOCKQUOTE
+CLASS="IMPORTANT"
+><P
+><B
+>&#37325;&#35201;&#38917;&#30446;: </B
+>   
+    同一のシーケンスから数値を取得する同時実行トランザクション同士のブロックを防止するため、<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>演算は決してロールバックされません。と言うことは、たとえ<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>を実行したトランザクションが後にアボートしたとしても、値が一度取り出されたらそれは使用されたものと考えます。つまり、アボートされたトランザクションは、割り当てられた値のシーケンス内に未使用の<SPAN
+CLASS="QUOTE"
+>"欠損"</SPAN
+>を残す可能性があります。<CODE
+CLASS="FUNCTION"
+>setval</CODE
+>演算についても同じくロールバックしません。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-xml.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-conditional.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>XML関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>条件式</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

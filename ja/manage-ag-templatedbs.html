@@ -1,0 +1,435 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テンプレートデータベース</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データベース管理"
+HREF="managing-databases.html"><LINK
+REL="PREVIOUS"
+TITLE="データベースの作成"
+HREF="manage-ag-createdb.html"><LINK
+REL="NEXT"
+TITLE="データベースの設定"
+HREF="manage-ag-config.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベースの作成"
+HREF="manage-ag-createdb.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベース管理"
+HREF="managing-databases.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 21&#31456;データベース管理</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベース管理"
+HREF="managing-databases.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベースの設定"
+HREF="manage-ag-config.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MANAGE-AG-TEMPLATEDBS"
+>21.3. テンプレートデータベース</A
+></H1
+><P
+>実際の<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>の動作は、既存のデータベースをコピーすることです。
+デフォルトでは、<TT
+CLASS="LITERAL"
+>template1</TT
+>という名前の標準のシステムデータベースをコピーします。
+したがって、このデータベースは新しく作成するデータベースの元になる<SPAN
+CLASS="QUOTE"
+>"テンプレート"</SPAN
+>となります。
+<TT
+CLASS="LITERAL"
+>template1</TT
+>にオブジェクトを追加した場合、追加したオブジェクトはその後に作成されるユーザデータベースにコピーされます。
+この振舞いによって、データベース標準オブジェクト群にサイト独自の変更を行うことができます。
+例えば、<SPAN
+CLASS="APPLICATION"
+>PL/Perl</SPAN
+>手続き言語を<TT
+CLASS="LITERAL"
+>template1</TT
+>にインストールした場合、データベースを作成する時に追加作業を行うことなく、自動的にこの言語をユーザデータベースで使用することができます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>template0</TT
+>という名前の二次的な標準システムデータベースがあります。
+
+このデータベースには<TT
+CLASS="LITERAL"
+>template1</TT
+>の初期内容と同じデータが含まれています。
+つまり、使用しているバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で定義済みの標準オブジェクトのみから構成されています。
+<TT
+CLASS="LITERAL"
+>template0</TT
+>をデータベースクラスタを初期化した後に変更してはいけません。
+<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>を<TT
+CLASS="LITERAL"
+>template1</TT
+>ではなく<TT
+CLASS="LITERAL"
+>template0</TT
+>をコピーするように実行することで、<TT
+CLASS="LITERAL"
+>template1</TT
+>に追加されたサイト独自のものを含まない、<SPAN
+CLASS="QUOTE"
+>"汚れがない"</SPAN
+>ユーザデータベースを作成することができます。
+これは特に、<TT
+CLASS="LITERAL"
+>pg_dump</TT
+>ダンプからリストアする時に便利です。
+このダンプスクリプトは、後で<TT
+CLASS="LITERAL"
+>template1</TT
+>に追加される可能性のあるオブジェクトと衝突しないように、ダンプしたデータベースの内容を正しく再作成するために、汚れのないデータベースにリストアされなければなりません。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>template1</TT
+>の代わりに<TT
+CLASS="LITERAL"
+>template0</TT
+>をコピーするその他の一般的な理由は、<TT
+CLASS="LITERAL"
+>template0</TT
+>をコピーするときに新規の符号化方式とロケールを設定できることです。
+一方、<TT
+CLASS="LITERAL"
+>template1</TT
+>のコピーはそれが行ったと同一の設定を使用しなければなりません。
+これは<TT
+CLASS="LITERAL"
+>template0</TT
+>が理解しない符号化方式特有の、またはロケール特有のデータを含んでいる可能性があることに依ります。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>template0</TT
+>をコピーしてデータベースを作成するには、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> TEMPLATE template0;</PRE
+><P>
+をSQL環境から実行するか、または
+</P><PRE
+CLASS="PROGRAMLISTING"
+>createdb -T template0 <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></PRE
+><P>
+をシェルから実行します。
+  </P
+><P
+>さらにテンプレートデータベースを作成することができます。
+また、実際のところ<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>のテンプレートとして名前を指定することで、クラスタ内の任意のデータベースをコピーすることができます。
+しかし、この機能は、（まだ）汎用目的の<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="COMMAND"
+>COPY DATABASE</TT
+>"</SPAN
+>能力を意図したものではないことは理解しておいてください。
+コピー操作の間、他のセッションから元のデータベースに接続することができないという点が大きな制限です。
+<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>は、その起動時に他の接続が存在する場合失敗します。
+コピー操作中は元のデータベースへの新しい接続を許しません。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>datistemplate</TT
+>列と<TT
+CLASS="LITERAL"
+>datallowconn</TT
+>列という、データベースそれぞれに有用なフラグが<TT
+CLASS="LITERAL"
+>pg_database</TT
+>に存在します。
+
+<TT
+CLASS="LITERAL"
+>datistemplate</TT
+>は、そのデータベースが<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>のテンプレートとして使用されることを目的としているものであることを意味するために設定することができます。
+このフラグが設定された場合、<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限を持つ全てのユーザはそのデータベースを複製することができます。
+設定されていない場合は、スーパーユーザとそのデータベース所有者のみがそれを複製することができます。
+<TT
+CLASS="LITERAL"
+>datallowconn</TT
+>が偽の場合、そのデータベースへの新規接続はできません（しかし、このフラグを偽にするだけでは既存のセッションは閉ざされません）。
+<TT
+CLASS="LITERAL"
+>template0</TT
+>データベースは、変更を防ぐために、通常<TT
+CLASS="LITERAL"
+>datallowconn</TT
+> = <TT
+CLASS="LITERAL"
+>false</TT
+>とされています。
+<TT
+CLASS="LITERAL"
+>template0</TT
+>と<TT
+CLASS="LITERAL"
+>template1</TT
+>の両方は、常に<TT
+CLASS="LITERAL"
+>datistemplate</TT
+> = <TT
+CLASS="LITERAL"
+>true</TT
+>とされていなければなりません。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="LITERAL"
+>template1</TT
+>と<TT
+CLASS="LITERAL"
+>template0</TT
+>には、<TT
+CLASS="LITERAL"
+>template1</TT
+>という名前が<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>のデフォルトのソースデータベースの名前であること以上の特別な地位はありません。
+例えば、<TT
+CLASS="LITERAL"
+>template1</TT
+>を削除し、<TT
+CLASS="LITERAL"
+>template0</TT
+>から再作成しても何も問題ありません。
+この操作は、不注意にごみを<TT
+CLASS="LITERAL"
+>template1</TT
+>に追加してしまった場合にお勧めします。
+（<TT
+CLASS="LITERAL"
+>template1</TT
+>を削除するには、<TT
+CLASS="LITERAL"
+>pg_database.datistemplate = false</TT
+>としなければなりません。）
+   </P
+><P
+>データベースクラスタが初期化される時、<TT
+CLASS="LITERAL"
+>postgres</TT
+>も作成されます。
+このデータベースは、ユーザとアプリケーションのデフォルトの接続先を意図したものです。
+これは<TT
+CLASS="LITERAL"
+>template1</TT
+>の単純なコピーで、必要に応じて削除したり再作成したりすることができます。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="manage-ag-createdb.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="manage-ag-config.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データベースの作成</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="managing-databases.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データベースの設定</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

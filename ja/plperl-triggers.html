@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/Perlトリガ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"><LINK
+REL="PREVIOUS"
+TITLE="信頼されたPL/Perlおよび信頼されないPL/Perl"
+HREF="plperl-trusted.html"><LINK
+REL="NEXT"
+TITLE="PL/Perlの内部"
+HREF="plperl-under-the-hood.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="信頼されたPL/Perlおよび信頼されないPL/Perl"
+HREF="plperl-trusted.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 41&#31456;PL/Perl - Perl手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Perlの内部"
+HREF="plperl-under-the-hood.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPERL-TRIGGERS"
+>41.6. PL/Perlトリガ</A
+></H1
+><P
+>PL/Perlを使用してトリガ関数を作成することができます。
+トリガ関数では、<TT
+CLASS="VARNAME"
+>$_TD</TT
+>というハッシュへの参照に、現在のトリガイベントに関する情報が含まれています。
+<TT
+CLASS="VARNAME"
+>$_TD</TT
+>は大域変数であり、各トリガ呼び出しに対して局所的な値を別々に取り出します。
+以下に<TT
+CLASS="VARNAME"
+>$_TD</TT
+>というハッシュへの参照のフィールドを示します。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{new}{foo}</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>NEW</TT
+>の<TT
+CLASS="LITERAL"
+>foo</TT
+>列値。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{old}{foo}</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>OLD</TT
+>の<TT
+CLASS="LITERAL"
+>foo</TT
+>列値。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{name}</TT
+></DT
+><DD
+><P
+>呼び出されたトリガの名前。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{event}</TT
+></DT
+><DD
+><P
+>トリガイベント。
+<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>、もしくは<TT
+CLASS="LITERAL"
+>UNKNOWN</TT
+>。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{when}</TT
+></DT
+><DD
+><P
+>トリガがいつ呼び出されたか。
+<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>、<TT
+CLASS="LITERAL"
+>AFTER</TT
+>、<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>もしくは<TT
+CLASS="LITERAL"
+>UNKNOWN</TT
+>。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{level}</TT
+></DT
+><DD
+><P
+>トリガレベル。
+<TT
+CLASS="LITERAL"
+>ROW</TT
+>、<TT
+CLASS="LITERAL"
+>STATEMENT</TT
+>、もしくは<TT
+CLASS="LITERAL"
+>UNKNOWN</TT
+>。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{relid}</TT
+></DT
+><DD
+><P
+>トリガの発行元テーブルのOID。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{table_name}</TT
+></DT
+><DD
+><P
+>トリガの発行元テーブルの名前。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{relname}</TT
+></DT
+><DD
+><P
+>トリガの発行元テーブルの名前。
+これは廃止予定で、将来のリリースで削除される可能性があります。
+代わりに$_TD-&gt;{table_name}を使用してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{table_schema}</TT
+></DT
+><DD
+><P
+>トリガの発行元テーブルが存在するスキーマの名前。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>$_TD-&gt;{argc}</TT
+></DT
+><DD
+><P
+>トリガ関数の引数の数。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>@{$_TD-&gt;{args}}</TT
+></DT
+><DD
+><P
+>トリガ関数の引数。
+<TT
+CLASS="LITERAL"
+>$_TD-&gt;{argc}</TT
+>が0の場合は存在しません。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>行レベルトリガは以下のいずれかを返すことができます。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>return;</TT
+></DT
+><DD
+><P
+>操作を実行します。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>"SKIP"</TT
+></DT
+><DD
+><P
+>操作を実行しません。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>"MODIFY"</TT
+></DT
+><DD
+><P
+>トリガ関数によって<TT
+CLASS="LITERAL"
+>NEW</TT
+>行が変更されたことを示します。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>以下はトリガ関数の例で、ここまでの説明の一部を例証するものです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test (
+    i int,
+    v varchar
+);
+
+CREATE OR REPLACE FUNCTION valid_id() RETURNS trigger AS $$
+    if (($_TD-&gt;{new}{i} &gt;= 100) || ($_TD-&gt;{new}{i} &lt;= 0)) {
+        return "SKIP";    # INSERT/UPDATEコマンドを取消します。
+    } elsif ($_TD-&gt;{new}{v} ne "immortal") {
+        $_TD-&gt;{new}{v} .= "(modified by trigger)";
+        return "MODIFY";  # 行を変更し、INSERT/UPDATEコマンドを実行します。
+    } else {
+        return;           # INSERT/UPDATEコマンドを実行します。
+    }
+$$ LANGUAGE plperl;
+
+CREATE TRIGGER test_valid_id_trig
+    BEFORE INSERT OR UPDATE ON test
+    FOR EACH ROW EXECUTE PROCEDURE valid_id();</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plperl-trusted.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plperl-under-the-hood.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>信頼されたPL/Perlおよび信頼されないPL/Perl</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plperl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PL/Perlの内部</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

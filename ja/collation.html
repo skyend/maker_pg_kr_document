@@ -1,0 +1,603 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>照合サポート</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="多言語対応"
+HREF="charset.html"><LINK
+REL="PREVIOUS"
+TITLE="ロケールのサポート"
+HREF="locale.html"><LINK
+REL="NEXT"
+TITLE="文字セットサポート"
+HREF="multibyte.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ロケールのサポート"
+HREF="locale.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="多言語対応"
+HREF="charset.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 22&#31456;多言語対応</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="多言語対応"
+HREF="charset.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="文字セットサポート"
+HREF="multibyte.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="COLLATION"
+>22.2. 照合サポート</A
+></H1
+><P
+>照合機能は、ソート順番と列ごともしくは操作ごとのデータの文字区別の振る舞いを指定することを許可します。
+これは、作成後のデータベースの<TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>と<TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>の設定が変更できない制限を緩和します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN31517"
+>22.2.1. 概念</A
+></H2
+><P
+>概念的に照合可能なデータ型のそれぞれの式は、照合を保持しています
+(ビルトインされている照合可能なデータ型は<TT
+CLASS="TYPE"
+>text</TT
+>、<TT
+CLASS="TYPE"
+>varchar</TT
+>、 <TT
+CLASS="TYPE"
+>char</TT
+>です。
+ユーザ定義の基本型は照合可能とマーキングできます。もちろん照合可能なデータ型上のドメインは照合可能となります)。
+もし、式が列参照である場合は、式の照合は列の定義された照合となります。
+もし、式が定数である場合は、照合は定数のデータ型のデフォルトの照合となります。
+より複雑な式の照合は、下記に示すように、その入力の照合から引き出されます。
+   </P
+><P
+>式の照合は、<SPAN
+CLASS="QUOTE"
+>"default"</SPAN
+>照合となります。これはデータベースに対して定義されたロケール設定を意味しています。
+式の照合は非決定となることもあります。そのような場合に、照合が必要となるような順序操作や他の操作は失敗するでしょう。
+   </P
+><P
+>データベースシステムが並び変えや文字区別を行う場合、データベースは入力の照合を使用します。
+これは、たとえば<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句や<TT
+CLASS="LITERAL"
+>&lt;</TT
+>演算子や関数を使用する際に発生します。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句に適用する照合は、単純にソートキーの照合です。
+関数や演算子の呼び出しに対して適用される照合は、以下に述べるように引数により決まります。
+比較演算子に加えて、照合は
+<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>、<CODE
+CLASS="FUNCTION"
+>upper</CODE
+>、<CODE
+CLASS="FUNCTION"
+>initcap</CODE
+>といった小文字と大文字を変換する関数や
+パターンマッチングの演算子、<CODE
+CLASS="FUNCTION"
+>to_char</CODE
+>関連の関数で考慮されています。
+   </P
+><P
+>関数や演算子の呼び出しに対して、引数の照合検査により得られた照合は実行時に特定の操作を行うために使用されます。
+もし関数や演算子の呼び出しの結果が照合可能なデータ型であった場合、照合は関数もしくは演算子式の定義済みの照合として
+解析時にも試用されます。このとき照合の知識が必要となるような囲み式があります。
+   </P
+><P
+>式の<I
+CLASS="FIRSTTERM"
+>照合の導出</I
+>は暗黙でも明示的にでも可能です。
+この区別は、複数の異なる照合が式中に現れるときに照合がどのように組み合わされるか、に影響を与えます。
+明示的な照合の導出は、<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句が使用されたときに発生します。
+他の全ての照合は暗黙となります。例えば関数呼び出しの中では、次の規則が用いられます。
+
+    <P
+></P
+></P><OL
+TYPE="1"
+><LI
+><P
+>入力式に明示的な照合の導出がある場合、入力式の中の明示的に導出された全ての照合は同一でなくてはなりません。
+そうでない場合はエラーが発生します。もし明示的に導出された照合がある場合は、それは照合の組み合わせの結果となります。
+      </P
+></LI
+><LI
+><P
+>そうでない場合は、全ての入力式は同一の暗黙の照合の導出またはデフォルトの照合を持たなくてはなりません。
+もしデフォルトではない照合がある場合は、それは照合の組み合わせの結果となります。
+もしそうでない場合は、結果はデフォルトの照合となります。
+      </P
+></LI
+><LI
+><P
+>入力式内でデフォルトではない暗黙の照合が衝突している場合、決定不能な照合であるとみなされます。
+これは、もし呼び出された特定の関数が適用するべき照合を知っておく必要がないかぎりエラーの条件ではありません。
+もし知っておく必要がある場合は、実行時にエラーとなります。
+      </P
+></LI
+></OL
+><P>
+
+例えば、このテーブル定義を考えてみます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test1 (
+    a text COLLATE "de_DE",
+    b text COLLATE "es_ES",
+    ...
+);</PRE
+><P>
+
+このとき
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a &lt; 'foo' FROM test1;</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>&lt;</TT
+>の比較は<TT
+CLASS="LITERAL"
+>de_DE</TT
+>の規則により実行されます。
+というのも式は暗黙的に導出されたデフォルトの照合と組み合わせます。しかし、
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a &lt; ('foo' COLLATE "fr_FR") FROM test1;</PRE
+><P>
+このとき比較は、明示的な照合の導出は暗黙の照合をオーバライドするため<TT
+CLASS="LITERAL"
+>fr_FR</TT
+>規則が用いられます。
+さらに、次の例では
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a &lt; b FROM test1;</PRE
+><P>
+パーサはどの照合を適用するか決定できません。というのも<TT
+CLASS="STRUCTFIELD"
+>a</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>b</TT
+>列は
+暗黙の衝突する照合を持つためです。
+<TT
+CLASS="LITERAL"
+>&lt;</TT
+>演算子がどちらの照合を使用するか知る必要があるため、これはエラーとなります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a &lt; b COLLATE "de_DE" FROM test1;</PRE
+><P>
+もしくは同じく
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a COLLATE "de_DE" &lt; b FROM test1;</PRE
+><P>
+一方で、以下のように構造的に似たケースとして
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a || b FROM test1;</PRE
+><P>
+これはエラーとなりません。というのも<TT
+CLASS="LITERAL"
+>||</TT
+>演算子は、照合には関係がないためです。
+この結果は照合とは関係なく同じになります。
+   </P
+><P
+>もし関数や演算子が照合可能なデータ型の結果を出力する場合は、関数に割り当てられた照合、もしくは演算子の組み合わされた入力式は、関数もしくは演算子の結果に対しても
+適用されると考えられます。よって、以下の例では
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM test1 ORDER BY a || 'foo';</PRE
+><P>
+ 
+順序は<TT
+CLASS="LITERAL"
+>de_DE</TT
+>規則に基づき実行されますが、以下のクエリでは
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM test1 ORDER BY a || b;</PRE
+><P>
+エラーとなります。というのも<TT
+CLASS="LITERAL"
+>||</TT
+>演算子が照合を知る必要がなかったとしても
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句が照合を知る必要があるためです。
+以前と同様、この衝突は明示的に照合を指定することにより解決できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM test1 ORDER BY a || b COLLATE "fr_FR";</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN31565"
+>22.2.2. 照合の管理</A
+></H2
+><P
+>照合は、SQL名称とオペレーティングシステムのロケールをマッピングするSQLスキーマオブジェクトです。
+特に照合は<TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>と<TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>の組み合わせにマッピングします。
+(名称から推測されるように、照合の主な目的はソート順番を制御する<TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>を設定することです。
+しかし実際には<TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>の設定を<TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>と異なるようにする必要はほとんどありません。
+そのため、式ごとに<TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>を設定するような別の機構を作成するより、これらの設定を収集する方が、より便利です。)
+また、照合は文字エンコーディングと結びついています(<A
+HREF="multibyte.html"
+>&#38917;22.3</A
+>を参照下さい)。
+同一の照合名称は異なるエンコーディングに対して存在しています。
+
+   </P
+><P
+>すべてのプラットフォーム上で<TT
+CLASS="LITERAL"
+>default</TT
+>、<TT
+CLASS="LITERAL"
+>C</TT
+>そして<TT
+CLASS="LITERAL"
+>POSIX</TT
+>という名称の照合が
+利用できます。追加の照合はオペレーティングシステムにより利用可能となります。
+<TT
+CLASS="LITERAL"
+>default</TT
+>照合は、データベース作成時に<TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>値と<TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>値を
+選択します。<TT
+CLASS="LITERAL"
+>C</TT
+>と<TT
+CLASS="LITERAL"
+>POSIX</TT
+>照合は共に<SPAN
+CLASS="QUOTE"
+>"traditional C"</SPAN
+>の動作を指定します。
+これはASCII文字の<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>A</TT
+>"</SPAN
+>から<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>Z</TT
+>"</SPAN
+>を文字として扱い、文字コードのバイト値により
+厳密にソートします。
+   </P
+><P
+>もし、オペレーティングシステムが単一のプログラム内(<CODE
+CLASS="FUNCTION"
+>newlocale</CODE
+>や関連する関数)で複数のロケールを使用することをサポートしている場合、
+データベースクラスタが初期化されると<TT
+CLASS="COMMAND"
+>initdb</TT
+>は、オペレーティングシステム上で見つけた全てのロケールに基づく照合を
+システムカタログの<TT
+CLASS="LITERAL"
+>pg_collation</TT
+>に書き込みます。
+例えば、オペレーティングシステムが<TT
+CLASS="LITERAL"
+>de_DE.utf8</TT
+>の名称のロケールを提供した場合、
+<TT
+CLASS="COMMAND"
+>initdb</TT
+>は、<TT
+CLASS="LITERAL"
+>de_DE.utf8</TT
+>に設定された<TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>と<TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>の両方を
+持つ<TT
+CLASS="LITERAL"
+>UTF8</TT
+>エンコーディングの<TT
+CLASS="LITERAL"
+>de_DE.utf8</TT
+>という名称の照合を作成します。
+同時に照合の名称から<TT
+CLASS="LITERAL"
+>.utf8</TT
+>を削除した照合も作成します。これは手間を省き、名称がエンコーディングに依存しないようになります。
+いうまでもなく、照合名称の初期値はプラットフォーム依存となることに気をつけてください。
+   </P
+><P
+><TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>と<TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>に対して異なる値が必要な照合の場合のために、
+新規の照合が<A
+HREF="sql-createcollation.html"
+>CREATE COLLATION</A
+>コマンドにより作成されます。
+このコマンドは、既存の照合から新規の照合を作成するためにも使用されます。これはアプリケーションにおいて
+オペレーティングシステムに依存しない照合名を使用でき、便利です。
+   </P
+><P
+>特定のデータベース内でデータベースのエンコーディングを使用している照合のみが興味の対象となります。
+<TT
+CLASS="LITERAL"
+>pg_collation</TT
+>内の他のエントリは無視されます。
+よって<TT
+CLASS="LITERAL"
+>de_DE</TT
+>といったようなエンコーディング名が省かれた照合は、グローバルに一意でなくても
+データベース内で一意であるとみなされます。
+データベースのエンコーディングを変更するときに、変更すべきものを１つ減らすことになるため、
+エンコーディング名が省かれた照合を使用するようにしてください。
+<TT
+CLASS="LITERAL"
+>default</TT
+>、<TT
+CLASS="LITERAL"
+>C</TT
+>そして<TT
+CLASS="LITERAL"
+>POSIX</TT
+>照合は、データベースのエンコーディングに関係なく使用可能です。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、異なる照合オブジェクトは、それらが同じプロパティを持っていても
+互換性がないものとみなします。例えば、
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a COLLATE "C" &lt; b COLLATE "POSIX" FROM test1;</PRE
+><P>
+は、<TT
+CLASS="LITERAL"
+>C</TT
+>と<TT
+CLASS="LITERAL"
+>POSIX</TT
+>照合が同じ動作であってもエラーとなります。
+よってエンコーディング名が省かれた照合を混ぜて使用することは推奨されません。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="locale.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="multibyte.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ロケールのサポート</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="charset.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>文字セットサポート</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

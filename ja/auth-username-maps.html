@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ユーザ名マップ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="クライアント認証"
+HREF="client-authentication.html"><LINK
+REL="PREVIOUS"
+TITLE="pg_hba.confファイル"
+HREF="auth-pg-hba-conf.html"><LINK
+REL="NEXT"
+TITLE="認証方式"
+HREF="auth-methods.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pg_hba.confファイル"
+HREF="auth-pg-hba-conf.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="クライアント認証"
+HREF="client-authentication.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 19&#31456;クライアント認証</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="クライアント認証"
+HREF="client-authentication.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="認証方式"
+HREF="auth-methods.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AUTH-USERNAME-MAPS"
+>19.2. ユーザ名マップ</A
+></H1
+><P
+>IdentやGSSAPIといった外部の認証システムを使用する場合は、接続を開始したオペレーティングシステムのユーザ名がデータベースユーザ名と同じであるとは限りません。
+ユーザ名マップを使用するには、<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>内で<TT
+CLASS="LITERAL"
+>map</TT
+>=<TT
+CLASS="REPLACEABLE"
+><I
+>map-name</I
+></TT
+>オプションを指定してください。
+このオプションは、外部ユーザ名を受け取るすべての認証方式をサポートしています。
+異なる接続に対して、異なるマップが必要となる可能性があります。そのため、それぞれの接続に対して使用されるマップを指定するために、使用するマップの名称は
+<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>内の<TT
+CLASS="REPLACEABLE"
+><I
+>map-name</I
+></TT
+>パラメータで指定されます。
+  </P
+><P
+>ユーザ名マップはidentマップファイルに定義されています。デフォルトではファイル名は<TT
+CLASS="FILENAME"
+>pg_ident.conf</TT
+>で
+クラスタのデータディレクトリに保存されています。（他の場所にも保存できますが、詳細は<A
+HREF="runtime-config-file-locations.html#GUC-IDENT-FILE"
+>ident_file</A
+>設定パラメータを参照してください。）
+identマップファイルは一般的な形式の行を含んでいます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>map-name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>system-username</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>database-username</I
+></TT
+></PRE
+><P>
+コメントと空白は<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>と同様に扱われます。 <TT
+CLASS="REPLACEABLE"
+><I
+>map-name</I
+></TT
+>は
+<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>内で参照される任意の名称です。
+他の2つのフィールドは、どのオペレーティングシステムユーザが、どのデータベースユーザに接続することを許可されているかを指定しています。
+同じ<TT
+CLASS="REPLACEABLE"
+><I
+>map-name</I
+></TT
+>は、1つのマップ内でユーザをマップするために繰り返し使用されます。
+  </P
+><P
+>どれだけのデータベースユーザがオペレーティングシステムのユーザに対して一致しているか、またその逆に対しても制限はありません。
+よってマップ内のエントリは、それらが等しいというよりもむしろ
+<SPAN
+CLASS="QUOTE"
+>"このオペレーティングシステムのユーザはこのデータベースユーザとして接続する"</SPAN
+>という意味になります。
+もし外部の認証システムから得られたユーザ名と接続要求を行ったデータベースユーザ名が対となるエントリがマップ内にある場合は、接続は許可されます。
+  </P
+><P
+>もし<TT
+CLASS="REPLACEABLE"
+><I
+>system-username</I
+></TT
+>フィールドがスラッシュ（<TT
+CLASS="LITERAL"
+>/</TT
+>）で始まっている場合は、
+このフィールドの残りは正規表現として扱われます。
+（<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の正規表現構文の詳細については<A
+HREF="functions-matching.html#POSIX-SYNTAX-DETAILS"
+>&#38917;9.7.3.1</A
+>を参照してください。）
+正規表現は単一検索や括弧を使用した表現、<TT
+CLASS="REPLACEABLE"
+><I
+>database-username</I
+></TT
+>フィールドで<TT
+CLASS="LITERAL"
+>\1</TT
+>（バックスラッシュ）で参照されるような表現を含みます。
+これにより、1行で複数のユーザ名のマップが可能となり、簡単な構文で特に使いやすくなります。例を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mymap   /^(.*)@mydomain\.com$      \1
+mymap   /^(.*)@otherdomain\.com$   guest</PRE
+><P>
+上記のエントリでは、<TT
+CLASS="LITERAL"
+>@mydomain.com</TT
+>で終わるシステムユーザ名のドメイン部分を削除して、
+<TT
+CLASS="LITERAL"
+>@otherdomain.com</TT
+>で終わるシステムユーザ名が<TT
+CLASS="LITERAL"
+>guest</TT
+>としてログインすることを許可します。
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>デフォルトでは正規表現は、文字列の一部を一致させることに注意してください。
+上記の例で示したように、システムユーザ名全体を強制的に一致させるために<TT
+CLASS="LITERAL"
+>^</TT
+>や<TT
+CLASS="LITERAL"
+>$</TT
+>を使用すると有用です。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="FILENAME"
+>pg_ident.conf</TT
+>ファイルは起動時と、メインサーバのプロセスが
+<SPAN
+CLASS="SYSTEMITEM"
+>SIGHUP</SPAN
+>を受信したときに読み込まれます。
+起動しているシステムで編集した場合は、ファイルを再読み込みするために（<TT
+CLASS="LITERAL"
+>pg_ctl reload</TT
+>または<TT
+CLASS="LITERAL"
+>kill -HUP</TT
+>を使用して）
+postmasterにシグナルを送信する必要があります。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>pg_ident.conf</TT
+>ファイルは、<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイルと結合して使用されます。
+<A
+HREF="auth-username-maps.html#EXAMPLE-PG-IDENT.CONF"
+>&#20363;19-2</A
+>に<A
+HREF="auth-pg-hba-conf.html#EXAMPLE-PG-HBA.CONF"
+>&#20363;19-1</A
+>の例があります。
+この例では、192.168のネットワーク内のマシンにログインしている、
+オペレーティングシステムのユーザ名で<TT
+CLASS="LITERAL"
+>bryanh</TT
+>、<TT
+CLASS="LITERAL"
+>ann</TT
+>、<TT
+CLASS="LITERAL"
+>robert</TT
+>以外の誰もが、アクセスを許可されていません。
+Unixユーザ<TT
+CLASS="LITERAL"
+>robert</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザである<TT
+CLASS="LITERAL"
+>bob</TT
+>として接続しようとした時のみ
+アクセス可能で、 <TT
+CLASS="LITERAL"
+>robert</TT
+>や他の名前ではアクセスできません。
+<TT
+CLASS="LITERAL"
+>ann</TT
+>は<TT
+CLASS="LITERAL"
+>ann</TT
+>として接続した時のみ許可され、<TT
+CLASS="LITERAL"
+>bryanh</TT
+>は<TT
+CLASS="LITERAL"
+>bryanh</TT
+>自身もしくは<TT
+CLASS="LITERAL"
+>guest1</TT
+>として
+アクセスが可能となります。
+  </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="EXAMPLE-PG-IDENT.CONF"
+></A
+><P
+><B
+>&#20363; 19-2. <TT
+CLASS="FILENAME"
+>pg_ident.conf</TT
+>ファイルの例</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+># MAPNAME       SYSTEM-USERNAME         PG-USERNAME
+
+omicron         bryanh                  bryanh
+omicron         ann                     ann
+# bobはこれらのマシン内でrobertというユーザ名を持っています。
+omicron         robert                  bob
+# bryanhはguest1としても接続可能です。
+omicron         bryanh                  guest1</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="auth-pg-hba-conf.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="auth-methods.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイル</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="client-authentication.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>認証方式</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

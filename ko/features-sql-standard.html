@@ -1,0 +1,3757 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>지원 기능 </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \" SQL 지원\"\n
+HREF="features.html"><LINK
+REL="PREVIOUS"
+TITLE = \" SQL 지원\"\n
+HREF="features.html"><LINK
+REL="NEXT"
+TITLE = \" 지원되지 않는 기능 \"\n
+HREF="unsupported-features-sql-standard.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" SQL 지원\"\n
+HREF="features.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" SQL 지원\"\n
+HREF="features.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; D. SQLへの準拠</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLへの準拠"
+HREF="features.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 지원되지 않는 기능 \"\n
+HREF="unsupported-features-sql-standard.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FEATURES-SQL-STANDARD"
+>D.1. 지원 기능 </A
+></H1
+><P
+>    <DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><A
+NAME="AEN103290"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>식별자 </TH
+><TH
+>패키지 </TH
+><TH
+>설명 </TH
+><TH
+>상품평 </TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>B012</TD
+><TD
+>&nbsp;</TD
+><TD
+>포함된 C </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>B021</TD
+><TD
+>&nbsp;</TD
+><TD
+>직접 SQL </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E011</TD
+><TD
+>코어 </TD
+><TD
+>숫자 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E011-01</TD
+><TD
+>코어 </TD
+><TD
+>INTEGER 및 SMALLINT 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E011-02</TD
+><TD
+>코어 </TD
+><TD
+>REAL  DOUBLE PRECISION  FLOAT 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E011-03</TD
+><TD
+>코어 </TD
+><TD
+>DECIMAL 및 NUMERIC 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E011-04</TD
+><TD
+>코어 </TD
+><TD
+>산술 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E011-05</TD
+><TD
+>코어 </TD
+><TD
+>숫자 비교 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E011-06</TD
+><TD
+>코어 </TD
+><TD
+>숫자 데이터 형식 간의 암시적 캐스팅 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021</TD
+><TD
+>코어 </TD
+><TD
+>문자 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-01</TD
+><TD
+>코어 </TD
+><TD
+>CHARACTER 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-02</TD
+><TD
+>코어 </TD
+><TD
+>CHARACTER VARYING 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-03</TD
+><TD
+>코어 </TD
+><TD
+>문자 리터럴 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-04</TD
+><TD
+>코어 </TD
+><TD
+>CHARACTER_LENGTH 함수 </TD
+><TD
+>세기 전에 CHARACTER 값의 마지막 공백을 제거합니다. </TD
+></TR
+><TR
+><TD
+>E021-05</TD
+><TD
+>코어 </TD
+><TD
+>OCTET_LENGTH 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-06</TD
+><TD
+>코어 </TD
+><TD
+>SUBSTRING 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-07</TD
+><TD
+>코어 </TD
+><TD
+>문자 연결 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-08</TD
+><TD
+>코어 </TD
+><TD
+>UPPER 및 LOWER 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-09</TD
+><TD
+>코어 </TD
+><TD
+>TRIM 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-10</TD
+><TD
+>코어 </TD
+><TD
+>문자열 형식 간의 암시적 캐스팅 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-11</TD
+><TD
+>코어 </TD
+><TD
+>POSITION 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E021-12</TD
+><TD
+>코어 </TD
+><TD
+>문자 비교 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E031</TD
+><TD
+>코어 </TD
+><TD
+>식별자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E031-01</TD
+><TD
+>코어 </TD
+><TD
+>제한된 식별자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E031-02</TD
+><TD
+>코어 </TD
+><TD
+>소문자의 식별자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E031-03</TD
+><TD
+>코어 </TD
+><TD
+>마지막 밑줄 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051</TD
+><TD
+>코어 </TD
+><TD
+>기본 연락처 사양 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051-01</TD
+><TD
+>코어 </TD
+><TD
+>SELECT DISTINCT</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051-02</TD
+><TD
+>코어 </TD
+><TD
+>GROUP BY 절 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051-04</TD
+><TD
+>코어 </TD
+><TD
+>선택 목록에없는 절이있는 GROUP BY 가 가능 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051-05</TD
+><TD
+>코어 </TD
+><TD
+>선택 목록 항목의 이름 변경이 가능 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051-06</TD
+><TD
+>코어 </TD
+><TD
+>HAVING 절 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051-07</TD
+><TD
+>코어 </TD
+><TD
+>선택 목록에서 자격 있는 * </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051-08</TD
+><TD
+>코어 </TD
+><TD
+>FROM 절의 상관 이름 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E051-09</TD
+><TD
+>코어 </TD
+><TD
+>FROM 절의 열 이름 바꾸기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061</TD
+><TD
+>코어 </TD
+><TD
+>기본 술어 및 검색 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-01</TD
+><TD
+>코어 </TD
+><TD
+>비교 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-02</TD
+><TD
+>코어 </TD
+><TD
+>BETWEEN 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-03</TD
+><TD
+>코어 </TD
+><TD
+>값 목록과 함께 IN 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-04</TD
+><TD
+>코어 </TD
+><TD
+>LIKE 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-05</TD
+><TD
+>코어 </TD
+><TD
+>ESCAPE 절이 있는 LIKE 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-06</TD
+><TD
+>코어 </TD
+><TD
+>NULL 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-07</TD
+><TD
+>코어 </TD
+><TD
+>자격 있는 비교 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-08</TD
+><TD
+>코어 </TD
+><TD
+>EXISTS 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-09</TD
+><TD
+>코어 </TD
+><TD
+>비교 방법 내부 의 서브쿼리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-11</TD
+><TD
+>코어 </TD
+><TD
+>IN 술어 의 서브쿼리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-12</TD
+><TD
+>코어 </TD
+><TD
+>자격 있는 비교 술어 의 서브쿼리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-13</TD
+><TD
+>코어 </TD
+><TD
+>상관 서브쿼리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E061-14</TD
+><TD
+>코어 </TD
+><TD
+>검색 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E071</TD
+><TD
+>코어 </TD
+><TD
+>기본 쿼리 식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E071-01</TD
+><TD
+>코어 </TD
+><TD
+>UNION DISTINCT 테이블 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E071-02</TD
+><TD
+>코어 </TD
+><TD
+>UNION ALL 테이블 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E071-03</TD
+><TD
+>코어 </TD
+><TD
+>EXCEPT DISTINCT 테이블 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E071-05</TD
+><TD
+>코어 </TD
+><TD
+>정확하게 동일한 데이터 형식을 가질 필요가없는 테이블 연산자 를 통해 문자열 의 결합 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E071-06</TD
+><TD
+>코어 </TD
+><TD
+>서브쿼리 의 테이블 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-01</TD
+><TD
+>코어 </TD
+><TD
+>SELECT 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-02</TD
+><TD
+>코어 </TD
+><TD
+>DELETE 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-03</TD
+><TD
+>코어 </TD
+><TD
+>테이블 수준 INSERT 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-04</TD
+><TD
+>코어 </TD
+><TD
+>테이블 수준 UPDATE 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-05</TD
+><TD
+>코어 </TD
+><TD
+>열 수준 UPDATE 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-06</TD
+><TD
+>코어 </TD
+><TD
+>테이블 수준 REFERENCES 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-07</TD
+><TD
+>코어 </TD
+><TD
+>열 수준 REFERENCES 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-08</TD
+><TD
+>코어 </TD
+><TD
+>WITH GRANT OPTION</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E081-10</TD
+><TD
+>코어 </TD
+><TD
+>EXECUTE 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E091</TD
+><TD
+>코어 </TD
+><TD
+>집합 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E091-01</TD
+><TD
+>코어 </TD
+><TD
+>AVG</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E091-02</TD
+><TD
+>코어 </TD
+><TD
+>COUNT</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E091-03</TD
+><TD
+>코어 </TD
+><TD
+>MAX</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E091-04</TD
+><TD
+>코어 </TD
+><TD
+>MIN</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E091-05</TD
+><TD
+>코어 </TD
+><TD
+>SUM</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E091-06</TD
+><TD
+>코어 </TD
+><TD
+>ALL 한정자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E091-07</TD
+><TD
+>코어 </TD
+><TD
+>DISTINCT 한정자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E101</TD
+><TD
+>코어 </TD
+><TD
+>기본 데이터 조작 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E101-01</TD
+><TD
+>코어 </TD
+><TD
+>INSERT 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E101-03</TD
+><TD
+>코어 </TD
+><TD
+>Searched UPDATE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E101-04</TD
+><TD
+>코어 </TD
+><TD
+>Searched DELETE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E111</TD
+><TD
+>코어 </TD
+><TD
+>단일 행 SELECT 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121</TD
+><TD
+>코어 </TD
+><TD
+>기본 커서 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-01</TD
+><TD
+>코어 </TD
+><TD
+>DECLARE CURSOR</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-02</TD
+><TD
+>코어 </TD
+><TD
+>ORDER BY 열은 SELECT 목록에 불필요 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-03</TD
+><TD
+>코어 </TD
+><TD
+>ORDER BY 절의 값 식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-04</TD
+><TD
+>코어 </TD
+><TD
+>OPEN 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-06</TD
+><TD
+>코어 </TD
+><TD
+>위치 지정 UPDATE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-07</TD
+><TD
+>코어 </TD
+><TD
+>위치 지정 DELETE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-08</TD
+><TD
+>코어 </TD
+><TD
+>CLOSE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-10</TD
+><TD
+>코어 </TD
+><TD
+>FETCH 문은 암시적 NEXT </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E121-17</TD
+><TD
+>코어 </TD
+><TD
+>WITH HOLD 커서 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E131</TD
+><TD
+>코어 </TD
+><TD
+>NULL 값을 지원 ( 값 변경 되는 NULL) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141</TD
+><TD
+>코어 </TD
+><TD
+>기본 무결성 제약 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141-01</TD
+><TD
+>코어 </TD
+><TD
+>NOT NULL 제약 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141-02</TD
+><TD
+>코어 </TD
+><TD
+>NOT NULL 절을 대한 UNIQUE 제약 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141-03</TD
+><TD
+>코어 </TD
+><TD
+>PRIMARY KEY 제약 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141-04</TD
+><TD
+>코어 </TD
+><TD
+>참조 삭제 동작 참조 업데이트 동작을 모두 NO ACTION 을 기본적으로 가진 기본 FOREIGN KEY 제약 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141-06</TD
+><TD
+>코어 </TD
+><TD
+>CHECK 제약 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141-07</TD
+><TD
+>코어 </TD
+><TD
+>열 기본 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141-08</TD
+><TD
+>코어 </TD
+><TD
+>PRIMARY KEY 는 NOT NULL 을 의미하는 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E141-10</TD
+><TD
+>코어 </TD
+><TD
+>외래 키 이름을 지정 순서는 임의 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E151</TD
+><TD
+>코어 </TD
+><TD
+>트랜잭션 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E151-01</TD
+><TD
+>코어 </TD
+><TD
+>COMMIT 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E151-02</TD
+><TD
+>코어 </TD
+><TD
+>ROLLBACK 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E152</TD
+><TD
+>코어 </TD
+><TD
+>기본 SET TRANSACTION 문을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E152-01</TD
+><TD
+>코어 </TD
+><TD
+>SET TRANSACTION 글 : ISOLATION LEVEL SERIALIZABLE 어구 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E152-02</TD
+><TD
+>코어 </TD
+><TD
+>SET TRANSACTION 글 : READ ONLY and READ WRITE 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E161</TD
+><TD
+>코어 </TD
+><TD
+>이중 빼기 기호 로 시작 SQL 주석 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>E171</TD
+><TD
+>코어 </TD
+><TD
+>SQLSTATE 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F021</TD
+><TD
+>코어 </TD
+><TD
+>기본 정보 스키마 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F021-01</TD
+><TD
+>코어 </TD
+><TD
+>COLUMNS 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F021-02</TD
+><TD
+>코어 </TD
+><TD
+>TABLES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F021-03</TD
+><TD
+>코어 </TD
+><TD
+>VIEWS 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F021-04</TD
+><TD
+>코어 </TD
+><TD
+>TABLE_CONSTRAINTS 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F021-05</TD
+><TD
+>코어 </TD
+><TD
+>REFERENTIAL_CONSTRAINTS 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F021-06</TD
+><TD
+>코어 </TD
+><TD
+>CHECK_CONSTRAINTS 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F031</TD
+><TD
+>코어 </TD
+><TD
+>기본 스키마 작업 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F031-01</TD
+><TD
+>코어 </TD
+><TD
+>영구 기본 테이블을 만드는 CREATE TABLE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F031-02</TD
+><TD
+>코어 </TD
+><TD
+>CREATE VIEW 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F031-03</TD
+><TD
+>코어 </TD
+><TD
+>GRANT 글 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F031-04</TD
+><TD
+>코어 </TD
+><TD
+>ALTER TABLE 문장 : ADD COLUMN 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F031-13</TD
+><TD
+>코어 </TD
+><TD
+>DROP TABLE 문 : RESTRICT 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F031-16</TD
+><TD
+>코어 </TD
+><TD
+>DROP VIEW 글 : RESTRICT 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F031-19</TD
+><TD
+>코어 </TD
+><TD
+>REVOKE 글 : RESTRICT 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F032</TD
+><TD
+>&nbsp;</TD
+><TD
+>CASCADE 제거 작업 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F033</TD
+><TD
+>&nbsp;</TD
+><TD
+>ALTER TABLE 문 : DROP COLUMN 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F034</TD
+><TD
+>&nbsp;</TD
+><TD
+>확장 REVOKE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F034-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>스키마 개체의 소유자 가 아닌 사용자가 실행 하는 REVOKE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F034-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>REVOKE 글 : GRANT OPTION FOR 절 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F034-03</TD
+><TD
+>&nbsp;</TD
+><TD
+>당한 양여 가 WITH GRANT OPTION 을 가진 권한을 제거하려면 REVOKE 문을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F041</TD
+><TD
+>코어 </TD
+><TD
+>기본 조인 테이블 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F041-01</TD
+><TD
+>코어 </TD
+><TD
+>내부 조인 ( INNER 키워드 제외) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F041-02</TD
+><TD
+>코어 </TD
+><TD
+>INNER 키워드 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F041-03</TD
+><TD
+>코어 </TD
+><TD
+>LEFT OUTER JOIN</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F041-04</TD
+><TD
+>코어 </TD
+><TD
+>RIGHT OUTER JOIN</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F041-05</TD
+><TD
+>코어 </TD
+><TD
+>상자 에 있는 외부 조인 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F041-07</TD
+><TD
+>코어 </TD
+><TD
+>왼쪽 이나 오른쪽 외부 조인 의 내부 테이블은 내부 조인 에서도 사용 가능 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F041-08</TD
+><TD
+>코어 </TD
+><TD
+>모든 비교 연산자 지원 ( 단순한 = 제외) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051</TD
+><TD
+>코어 </TD
+><TD
+>기본 날짜 시간 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051-01</TD
+><TD
+>코어 </TD
+><TD
+>DATE 데이터 형식 ( DATE 리터럴 지원 포함) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051-02</TD
+><TD
+>코어 </TD
+><TD
+>적어도 0 초 정밀도를 가지는 TIME 데이터 형식 (TIME 리터럴 지원 포함) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051-03</TD
+><TD
+>코어 </TD
+><TD
+>적어도 0 6 초 정밀도를 가지는 TIMESTAMP 데이터 형식 ( TIMESTAMP 리터럴 지원 포함) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051-04</TD
+><TD
+>코어 </TD
+><TD
+>DATE TIME  TIMESTAMP 데이터 유형 에 대한 비교 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051-05</TD
+><TD
+>코어 </TD
+><TD
+>날짜 시간 형식과 문자열 형식 간의 명시적 캐스트 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051-06</TD
+><TD
+>코어 </TD
+><TD
+>CURRENT_DATE</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051-07</TD
+><TD
+>코어 </TD
+><TD
+>LOCALTIME</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F051-08</TD
+><TD
+>코어 </TD
+><TD
+>LOCALTIMESTAMP</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F052</TD
+><TD
+>확장 날짜 시간 기능 </TD
+><TD
+>시간 간격 및 날짜 시간 계산 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F053</TD
+><TD
+>&nbsp;</TD
+><TD
+>OVERLAPS 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F081</TD
+><TD
+>코어 </TD
+><TD
+>보기 UNION 및 EXCEPT </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F111</TD
+><TD
+>&nbsp;</TD
+><TD
+>SERIALIZABLE 이외 의 격리 레벨 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F111-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>READ UNCOMMITTED 격리 수준 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F111-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>READ COMMITTED 격리 수준 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F111-03</TD
+><TD
+>&nbsp;</TD
+><TD
+>REPEATABLE READ 격리 수준 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F131</TD
+><TD
+>코어 </TD
+><TD
+>그룹화 작업 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F131-01</TD
+><TD
+>코어 </TD
+><TD
+>그룹 화된 뷰를 사용하는 쿼리 의 WHERE GROUP BY HAVING 절이 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F131-02</TD
+><TD
+>코어 </TD
+><TD
+>그룹 화된 뷰를 사용하는 쿼리 에 여러 테이블을 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F131-03</TD
+><TD
+>코어 </TD
+><TD
+>그룹 화된 뷰를 사용하는 쿼리 의 집합 함수에 대한 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F131-04</TD
+><TD
+>코어 </TD
+><TD
+>GROUP BY HAVING 절 그룹 화된 뷰를 가지 부문 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F131-05</TD
+><TD
+>코어 </TD
+><TD
+>GROUP BY HAVING 절 그룹 화된 뷰를 가진 단일 행 SELECT </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F171</TD
+><TD
+>&nbsp;</TD
+><TD
+>사용자 마다 여러 스키마 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F191</TD
+><TD
+>확장 무결성 관리 </TD
+><TD
+>참조 삭제 동작 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F200</TD
+><TD
+>&nbsp;</TD
+><TD
+>TRUNCATE TABLE 문장 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F201</TD
+><TD
+>코어 </TD
+><TD
+>CAST 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F221</TD
+><TD
+>코어 </TD
+><TD
+>명시적으로 기본 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F222</TD
+><TD
+>&nbsp;</TD
+><TD
+>INSERT 문장 : DEFAULT VALUES 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F231</TD
+><TD
+>&nbsp;</TD
+><TD
+>권한 테이블 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F231-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>TABLE_PRIVILEGES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F231-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>COLUMN_PRIVILEGES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F231-03</TD
+><TD
+>&nbsp;</TD
+><TD
+>USAGE_PRIVILEGES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F251</TD
+><TD
+>&nbsp;</TD
+><TD
+>도메인 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F261</TD
+><TD
+>코어 </TD
+><TD
+>CASE 식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F261-01</TD
+><TD
+>코어 </TD
+><TD
+>간단한 CASE </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F261-02</TD
+><TD
+>코어 </TD
+><TD
+>검색 포함 CASE </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F261-03</TD
+><TD
+>코어 </TD
+><TD
+>NULLIF</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F261-04</TD
+><TD
+>코어 </TD
+><TD
+>COALESCE</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F262</TD
+><TD
+>&nbsp;</TD
+><TD
+>확장 CASE 식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F271</TD
+><TD
+>&nbsp;</TD
+><TD
+>복합 문자 리터럴 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F281</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 LIKE </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F302</TD
+><TD
+>&nbsp;</TD
+><TD
+>INTERSECT 테이블 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F302-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>INTERSECT DISTINCT 테이블 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F302-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>INTERSECT ALL 테이블 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F304</TD
+><TD
+>&nbsp;</TD
+><TD
+>EXCEPT ALL 테이블 연산자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F311-01</TD
+><TD
+>코어 </TD
+><TD
+>CREATE SCHEMA</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F311-02</TD
+><TD
+>코어 </TD
+><TD
+>영구 기본 테이블에 대한 CREATE TABLE </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F311-03</TD
+><TD
+>코어 </TD
+><TD
+>CREATE VIEW</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F311-05</TD
+><TD
+>코어 </TD
+><TD
+>GRANT 글 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F321</TD
+><TD
+>&nbsp;</TD
+><TD
+>사용자 인증 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F361</TD
+><TD
+>&nbsp;</TD
+><TD
+>서브 프로그램 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F381</TD
+><TD
+>&nbsp;</TD
+><TD
+>확장 스키마 작업 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F381-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>ALTER TABLE 문장 : ALTER COLUMN 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F381-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>ALTER TABLE 문장 : ADD CONSTRAINT 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F381-03</TD
+><TD
+>&nbsp;</TD
+><TD
+>ALTER TABLE 문 : DROP CONSTRAINT 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F382</TD
+><TD
+>&nbsp;</TD
+><TD
+>열 데이터 형식 변경 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F391</TD
+><TD
+>&nbsp;</TD
+><TD
+>긴 식별자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F392</TD
+><TD
+>&nbsp;</TD
+><TD
+>식별자에 Unicode 이스케이프 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F393</TD
+><TD
+>&nbsp;</TD
+><TD
+>리터럴의 Unicode 이스케이프 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F401</TD
+><TD
+>&nbsp;</TD
+><TD
+>확장 조인 테이블 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F401-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>NATURAL JOIN</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F401-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>FULL OUTER JOIN</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F401-04</TD
+><TD
+>&nbsp;</TD
+><TD
+>CROSS JOIN</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F402</TD
+><TD
+>&nbsp;</TD
+><TD
+>LOB  배열 다중 집합과 결합 하는 명명된 열 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F411</TD
+><TD
+>확장 날짜 시간 기능 </TD
+><TD
+>시간대 지정 </TD
+><TD
+>리터럴 해석에 관한 것임이 틀림 </TD
+></TR
+><TR
+><TD
+>F421</TD
+><TD
+>&nbsp;</TD
+><TD
+>각국 언어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F431</TD
+><TD
+>&nbsp;</TD
+><TD
+>읽기 전용 스크롤 가능한 커서 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F431-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>명시적 NEXT 있는 FETCH </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F431-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>FETCH FIRST</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F431-03</TD
+><TD
+>&nbsp;</TD
+><TD
+>FETCH LAST</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F431-04</TD
+><TD
+>&nbsp;</TD
+><TD
+>FETCH PRIOR</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F431-05</TD
+><TD
+>&nbsp;</TD
+><TD
+>FETCH ABSOLUTE</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F431-06</TD
+><TD
+>&nbsp;</TD
+><TD
+>FETCH RELATIVE</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F441</TD
+><TD
+>&nbsp;</TD
+><TD
+>확장 집합 함수에 대한 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F442</TD
+><TD
+>&nbsp;</TD
+><TD
+>set 함수의 혼합 열 참조 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F471</TD
+><TD
+>코어 </TD
+><TD
+>둥지에서 서브쿼리 값 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F481</TD
+><TD
+>코어 </TD
+><TD
+>확장 NULL 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F491</TD
+><TD
+>확장 무결성 관리 </TD
+><TD
+>제약 관리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F501</TD
+><TD
+>코어 </TD
+><TD
+>기능과 준수 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F501-01</TD
+><TD
+>코어 </TD
+><TD
+>SQL_FEATURES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F501-02</TD
+><TD
+>코어 </TD
+><TD
+>SQL_SIZING 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F501-03</TD
+><TD
+>코어 </TD
+><TD
+>SQL_LANGUAGES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F502</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 문서 테이블 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F502-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>SQL_SIZING_PROFILES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F502-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>SQL_IMPLEMENTATION_INFO 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F502-03</TD
+><TD
+>&nbsp;</TD
+><TD
+>SQL_PACKAGES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F531</TD
+><TD
+>&nbsp;</TD
+><TD
+>임시 테이블 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F555</TD
+><TD
+>확장 날짜 시간 기능 </TD
+><TD
+>고급 초 정도 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F561</TD
+><TD
+>&nbsp;</TD
+><TD
+>전체 가치 식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F571</TD
+><TD
+>&nbsp;</TD
+><TD
+>참값 시험 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F591</TD
+><TD
+>&nbsp;</TD
+><TD
+>파생 테이블 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F611</TD
+><TD
+>&nbsp;</TD
+><TD
+>지시자 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F641</TD
+><TD
+>&nbsp;</TD
+><TD
+>행 테이블 생성자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F651</TD
+><TD
+>&nbsp;</TD
+><TD
+>카탈로그 이름 한정자 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F661</TD
+><TD
+>&nbsp;</TD
+><TD
+>간단한 테이블 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F672</TD
+><TD
+>&nbsp;</TD
+><TD
+>소급 check 제약 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F690</TD
+><TD
+>&nbsp;</TD
+><TD
+>데이터 지원 </TD
+><TD
+>그러나 문자 집합 지원하지 않습니다 </TD
+></TR
+><TR
+><TD
+>F692</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 데이터 지원 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F701</TD
+><TD
+>확장 무결성 관리 </TD
+><TD
+>참조 업데이트 동작 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F711</TD
+><TD
+>&nbsp;</TD
+><TD
+>도메인 ALTER </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F731</TD
+><TD
+>&nbsp;</TD
+><TD
+>열 INSERT 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F761</TD
+><TD
+>&nbsp;</TD
+><TD
+>세션 관리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F762</TD
+><TD
+>&nbsp;</TD
+><TD
+>CURRENT_CATALOG</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F763</TD
+><TD
+>&nbsp;</TD
+><TD
+>CURRENT_SCHEMA</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F771</TD
+><TD
+>&nbsp;</TD
+><TD
+>연결 관리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F781</TD
+><TD
+>&nbsp;</TD
+><TD
+>자기 참조 작업 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F791</TD
+><TD
+>&nbsp;</TD
+><TD
+>비 sensitive 커서 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F801</TD
+><TD
+>&nbsp;</TD
+><TD
+>전체 집합 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F850</TD
+><TD
+>&nbsp;</TD
+><TD
+>&lt;問い合わせ式&gt;における最上位&lt;order by句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F851</TD
+><TD
+>&nbsp;</TD
+><TD
+>副問い合わせにおける&lt;order by 句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F852</TD
+><TD
+>&nbsp;</TD
+><TD
+>ビューにおける最上位&lt;order by句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F855</TD
+><TD
+>&nbsp;</TD
+><TD
+>&lt;問い合わせ式&gt;における入れ子状の&lt;order by句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F856</TD
+><TD
+>&nbsp;</TD
+><TD
+>&lt;問い合わせ式&gt;における入れ子状の&lt;fetch first句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F857</TD
+><TD
+>&nbsp;</TD
+><TD
+>&lt;問い合わせ式&gt;における最上位&lt;fetch first句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F858</TD
+><TD
+>&nbsp;</TD
+><TD
+>副問い合わせにおける&lt;fetch first句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F859</TD
+><TD
+>&nbsp;</TD
+><TD
+>ビューにおける最上位&lt;fetch first句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F860</TD
+><TD
+>&nbsp;</TD
+><TD
+>&lt;fetch first 句&gt;における&lt;fetch first row count&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F861</TD
+><TD
+>&nbsp;</TD
+><TD
+>&lt;問い合わせ式&gt;における最上位&lt;result offset句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F862</TD
+><TD
+>&nbsp;</TD
+><TD
+>副問い合わせにおける&lt;result offset句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F863</TD
+><TD
+>&nbsp;</TD
+><TD
+>&lt;問い合わせ式&gt;における入れ子状の&lt;result offset句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F864</TD
+><TD
+>&nbsp;</TD
+><TD
+>ビューにおける最上位&lt;result offset句&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>F865</TD
+><TD
+>&nbsp;</TD
+><TD
+>&lt;result offset 句&gt;における&lt;offset row count&gt;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S071</TD
+><TD
+>확장 객체 지원 </TD
+><TD
+>함수 의 SQL 경로 및 모델 이름 의 해결 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S092</TD
+><TD
+>&nbsp;</TD
+><TD
+>사용자 데이터 형식의 배열 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S095</TD
+><TD
+>&nbsp;</TD
+><TD
+>연락처 의 배열을 구축 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S096</TD
+><TD
+>&nbsp;</TD
+><TD
+>선택적 배열 경계 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S098</TD
+><TD
+>&nbsp;</TD
+><TD
+>ARRAY_AGG</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S111</TD
+><TD
+>확장 객체 지원 </TD
+><TD
+>문의 식에서 ONLY </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S201</TD
+><TD
+>&nbsp;</TD
+><TD
+>배열에 대한 SQL 에서 호출하는 루틴 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S201-01</TD
+><TD
+>&nbsp;</TD
+><TD
+>배열 매개 변수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S201-02</TD
+><TD
+>&nbsp;</TD
+><TD
+>함수의 결과 형식으로 배열 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>S211</TD
+><TD
+>확장 객체 지원 </TD
+><TD
+>사용자 정의 캐스트 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T031</TD
+><TD
+>&nbsp;</TD
+><TD
+>BOOLEAN 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T071</TD
+><TD
+>&nbsp;</TD
+><TD
+>BIGINT 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T121</TD
+><TD
+>&nbsp;</TD
+><TD
+>문의 식에서 WITH ( RECURSIVE 제외) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T122</TD
+><TD
+>&nbsp;</TD
+><TD
+>서브쿼리 의 WITH ( RECURSIVE 제외) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T131</TD
+><TD
+>&nbsp;</TD
+><TD
+>재귀 문의 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T132</TD
+><TD
+>&nbsp;</TD
+><TD
+>서브쿼리 의 재귀 문의 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T141</TD
+><TD
+>&nbsp;</TD
+><TD
+>SIMILAR 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T151</TD
+><TD
+>&nbsp;</TD
+><TD
+>DISTINCT 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T152</TD
+><TD
+>&nbsp;</TD
+><TD
+>부정 있는 DISTINCT 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T171</TD
+><TD
+>&nbsp;</TD
+><TD
+>테이블 정의에서 LIKE 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T172</TD
+><TD
+>&nbsp;</TD
+><TD
+>테이블 정의에서 AS 서브쿼리 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T173</TD
+><TD
+>&nbsp;</TD
+><TD
+>테이블 정의의 확장 LIKE 절을 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T191</TD
+><TD
+>확장 무결성 관리 </TD
+><TD
+>참조 동작 RESTRICT </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T201</TD
+><TD
+>확장 무결성 관리 </TD
+><TD
+>참조 제약 위한 비교 가능한 데이터 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T211-01</TD
+><TD
+>動的データベース, 拡張整合性管理</TD
+><TD
+>기본 테이블의 UPDATE INSERT DELETE 에 의해 구동되는 트리거 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T211-02</TD
+><TD
+>動的データベース, 拡張整合性管理</TD
+><TD
+>BEFORE 트리거 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T211-03</TD
+><TD
+>動的データベース, 拡張整合性管理</TD
+><TD
+>AFTER 트리거 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T211-04</TD
+><TD
+>動的データベース, 拡張整合性管理</TD
+><TD
+>FOR EACH ROW 트리거 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T211-05</TD
+><TD
+>動的データベース, 拡張整合性管理</TD
+><TD
+>트리거 호출하기 전에 참으로 검색 조건 지정 기능 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T211-07</TD
+><TD
+>動的データベース, 拡張整合性管理</TD
+><TD
+>TRIGGER 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T212</TD
+><TD
+>확장 무결성 관리 </TD
+><TD
+>고급 트리거 기능 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T213</TD
+><TD
+>&nbsp;</TD
+><TD
+>INSTEAD OF 트리거 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T231</TD
+><TD
+>&nbsp;</TD
+><TD
+>Sensitive 커서 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T241</TD
+><TD
+>&nbsp;</TD
+><TD
+>START TRANSACTION 글 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T271</TD
+><TD
+>&nbsp;</TD
+><TD
+>세이브 포인트 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T281</TD
+><TD
+>&nbsp;</TD
+><TD
+>열 세분 의 SELECT 권한 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T312</TD
+><TD
+>&nbsp;</TD
+><TD
+>OVERLAY 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T321-01</TD
+><TD
+>코어 </TD
+><TD
+>오버로드가 없는 사용자 정의 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T321-03</TD
+><TD
+>코어 </TD
+><TD
+>함수 호출 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T321-06</TD
+><TD
+>코어 </TD
+><TD
+>ROUTINES 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T321-07</TD
+><TD
+>코어 </TD
+><TD
+>PARAMETERS 보기 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T322</TD
+><TD
+>PSM</TD
+><TD
+>SQL 호출하는 함수 프로 시저 오버로드 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T323</TD
+><TD
+>&nbsp;</TD
+><TD
+>외부 루틴에 대한 명시 적인 보안 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T331</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 역할 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T351</TD
+><TD
+>&nbsp;</TD
+><TD
+>사이에있는 SQL 주석 (/ * ... * / 주석 ) </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T441</TD
+><TD
+>&nbsp;</TD
+><TD
+>ABS 및 MOD 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T461</TD
+><TD
+>&nbsp;</TD
+><TD
+>대칭 BETWEEN 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T501</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 EXISTS 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T551</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 구문 에 대한 선택적 키워드 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T581</TD
+><TD
+>&nbsp;</TD
+><TD
+>정규 표현식 부분 문자열 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T591</TD
+><TD
+>&nbsp;</TD
+><TD
+>NULL 열을 포함하는 UNIQUE 제약 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T614</TD
+><TD
+>&nbsp;</TD
+><TD
+>NTILE 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T615</TD
+><TD
+>&nbsp;</TD
+><TD
+>LEAD 와 LAG 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T617</TD
+><TD
+>&nbsp;</TD
+><TD
+>FIRST_VALUE 및 ​​LAST_VALUE 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T621</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 수학 함수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T631</TD
+><TD
+>Core</TD
+><TD
+>목록 요소의 IN 술어 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T651</TD
+><TD
+>&nbsp;</TD
+><TD
+>SQL 루틴 의 SQL 스키마 글 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>T655</TD
+><TD
+>&nbsp;</TD
+><TD
+>주기 에 의존 하는 루틴 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X010</TD
+><TD
+>&nbsp;</TD
+><TD
+>XML 형식 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X011</TD
+><TD
+>&nbsp;</TD
+><TD
+>XML 형식의 배열 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X016</TD
+><TD
+>&nbsp;</TD
+><TD
+>영구 XML 값 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X020</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLConcat</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X031</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLElement</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X032</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLForest</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X034</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLAgg</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X035</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLAgg : ORDER BY 옵션 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X036</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLComment</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X037</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLPI</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X040</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X041</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : NULL 이없는 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X042</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : NULL 을 nil 로 처리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X043</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : 테이블 포리 스트로 취급 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X044</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : 테이블을 요소로 취급 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X045</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : 대상 네임 스페이스를 가진 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X046</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : 데이터 매핑 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X047</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : 메타 데이터 매핑 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X048</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : 이진 열 BASE64 인코딩 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X049</TD
+><TD
+>&nbsp;</TD
+><TD
+>기본 테이블 매핑 : 이진 열 HEX 인코딩 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X050</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X051</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : NULL 이없는 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X052</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : NULL 을 nil 로 처리 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X053</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : 테이블 포리 스트로 취급 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X054</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : 테이블을 요소로 취급 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X055</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : 대상 네임 스페이스 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X056</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : 데이터 매핑 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X057</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : 메타 데이터 매핑 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X058</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : 이진 열 BASE64 인코딩 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X059</TD
+><TD
+>&nbsp;</TD
+><TD
+>고급 테이블 매핑 : 이진 열 HEX 인코딩 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X060</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLParse : 문자열 입력 및 CONTENT 옵션 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X061</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLParse : 문자열 입력 및 DOCUMENT 옵션 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X070</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLSerialize : 문자열 직렬화 및 CONTENT 옵션 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X071</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLSerialize : 문자열 직렬화 및 DOCUMENT 옵션 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X072</TD
+><TD
+>&nbsp;</TD
+><TD
+>XMLSerialize : 문자열 직렬화 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X090</TD
+><TD
+>&nbsp;</TD
+><TD
+>XML 문서 조건 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X120</TD
+><TD
+>&nbsp;</TD
+><TD
+>SQL 함수의 XML 매개 변수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X121</TD
+><TD
+>&nbsp;</TD
+><TD
+>외부 함수의 XML 매개 변수 </TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>X400</TD
+><TD
+>&nbsp;</TD
+><TD
+>이름과 식별자 매핑 </TD
+><TD
+>&nbsp;</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="features.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="unsupported-features-sql-standard.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SQL 준수 </TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="features.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>지원 되지 않는 기능 </TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

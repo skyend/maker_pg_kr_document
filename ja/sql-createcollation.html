@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE COLLATION</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE CAST"
+HREF="sql-createcast.html"><LINK
+REL="NEXT"
+TITLE="CREATE CONVERSION"
+HREF="sql-createconversion.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE CAST"
+HREF="sql-createcast.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE CAST"
+HREF="sql-createcast.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE CONVERSION"
+HREF="sql-createconversion.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE CONVERSION"
+HREF="sql-createconversion.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATECOLLATION"
+></A
+>CREATE COLLATION</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN64604"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE COLLATION&nbsp;--&nbsp;新しい照合順序を定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN64609"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE COLLATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> (
+    [ LOCALE = <TT
+CLASS="REPLACEABLE"
+><I
+>locale</I
+></TT
+>, ]
+    [ LC_COLLATE = <TT
+CLASS="REPLACEABLE"
+><I
+>lc_collate</I
+></TT
+>, ]
+    [ LC_CTYPE = <TT
+CLASS="REPLACEABLE"
+><I
+>lc_ctype</I
+></TT
+> ]
+)
+CREATE COLLATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> FROM <TT
+CLASS="REPLACEABLE"
+><I
+>existing_collation</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECOLLATION-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE COLLATION</TT
+>は指定したオペレーティングシステムのロケール設定または既存の照合順序をコピーすることで新しい照合順序を定義します。
+ </P
+><P
+>照合順序を新しく作成するためには、格納先のスキーマにおける<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限が必要です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64623"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>照合順序の名前です。
+照合順序の名前はスキーマ修飾することができます。
+スキーマ修飾されていない場合、照合順序は現在のスキーマ内で定義されます。
+照合順序の名前はそのスキーマ内で一意でなければなりません。
+（システムカタログでは異なる符号化方式に対して同じ名前の照合順序を含めることができます。
+しかしデータベース符号化方式が異なる場合には無視されます。）
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>locale</I
+></TT
+></DT
+><DD
+><P
+>これは同時に<TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>および<TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>を設定する省略形です。
+これを指定した場合、これらのパラメータのいずれかを指定することはできません。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>lc_collate</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="SYMBOL"
+>LC_COLLATE</TT
+>ロケールカテゴリに対して指定したオペレーティングシステムのロケールを使用します。
+このロケールは現在のデータベース符号化方式に適用可能なものでなければなりません。
+（正確な規則については<A
+HREF="sql-createdatabase.html"
+>CREATE DATABASE</A
+>を参照してください。）
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>lc_ctype</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="SYMBOL"
+>LC_CTYPE</TT
+>ロケールカテゴリに対して指定したオペレーティングシステムのロケールを使用します。
+このロケールは現在のデータベース符号化方式に適用可能なものでなければなりません。
+（正確な規則については<A
+HREF="sql-createdatabase.html"
+>CREATE DATABASE</A
+>を参照してください。）
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>existing_collation</I
+></TT
+></DT
+><DD
+><P
+>コピーする既存の照合順序の名前です。
+新しい照合順序は既存のものと同じ属性を持ちますが、独立したオブジェクトになります。
+      </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECOLLATION-NOTES"
+></A
+><H2
+>注意</H2
+><P
+>ユーザ定義の照合順序を削除するためには<TT
+CLASS="COMMAND"
+>DROP COLLATION</TT
+>を使用してください。
+  </P
+><P
+>PostgreSQLにおける照合順序サポートに関しては<A
+HREF="collation.html"
+>&#38917;22.2</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECOLLATION-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+>オペレーティングシステムの<TT
+CLASS="LITERAL"
+>fr_FR.utf8</TT
+>ロケールから照合順序を作成します。
+（現在のデータベース符号化方式が<TT
+CLASS="LITERAL"
+>UTF8</TT
+>であることが前提です。）
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE COLLATION french (LOCALE = 'fr_FR.utf8');</PRE
+><P>
+  </P
+><P
+>既存の照合順序から照合順序を作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE COLLATION german FROM "de_DE";</PRE
+><P>
+アプリケーションにおいてオペレーティングシステムに依存しない照合順序の名前を使用することができ、便利になるかもしれません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECOLLATION-COMPAT"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>CREATE COLLATION</TT
+>が存在しますが、既存の照合順序のコピーに限定されています。
+新しい照合順序を作成するための構文は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECOLLATION-SEEALSO"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-altercollation.html"
+>ALTER COLLATION</A
+>, <A
+HREF="sql-dropcollation.html"
+>DROP COLLATION</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createcast.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createconversion.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE CAST</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE CONVERSION</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

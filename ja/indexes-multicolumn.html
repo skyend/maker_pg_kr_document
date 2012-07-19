@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>複数列インデックス</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックス"
+HREF="indexes.html"><LINK
+REL="PREVIOUS"
+TITLE="インデックスの種類"
+HREF="indexes-types.html"><LINK
+REL="NEXT"
+TITLE="インデックスとORDER BY"
+HREF="indexes-ordering.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックスの種類"
+HREF="indexes-types.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 11&#31456;インデックス</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックスとORDER BY"
+HREF="indexes-ordering.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEXES-MULTICOLUMN"
+>11.3. 複数列インデックス</A
+></H1
+><P
+>インデックスは、テーブルの1つ以上の列に定義することができます。
+例えば、以下のようなテーブルがあるとします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test2 (
+  major int,
+  minor int,
+  name varchar
+);</PRE
+><P>
+（例えば、<TT
+CLASS="FILENAME"
+>/dev</TT
+>ディレクトリの内容をデータベースに保持していて）頻繁に下記のような問い合わせを発行するとします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT name FROM test2 WHERE major = <TT
+CLASS="REPLACEABLE"
+><I
+>constant</I
+></TT
+> AND minor = <TT
+CLASS="REPLACEABLE"
+><I
+>constant</I
+></TT
+>;</PRE
+><P>
+このような場合、<TT
+CLASS="STRUCTFIELD"
+>major</TT
+>および<TT
+CLASS="STRUCTFIELD"
+>minor</TT
+>という２つの列に1つのインデックスを定義する方が適切かもしれません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX test2_mm_idx ON test2 (major, minor);</PRE
+><P>
+  </P
+><P
+>現在、B-tree、GiST、およびGINインデックス型でのみ、複数列インデックスをサポートしています。
+最高32列まで指定可能です。
+（この上限は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を構築する際に変更可能です。
+<TT
+CLASS="FILENAME"
+>pg_config_manual.h</TT
+>ファイルを参照してください。）
+  </P
+><P
+>複数列に対するB-treeインデックスをインデックス対象列の任意の部分集合を含む問い合わせ条件で使用することができます。
+しかし、先頭側の（左側）列に制約がある場合に、このインデックスはもっとも効率的になります。
+正確な規則は、先頭側の列への等価制約、および、等価制約を持たない先頭列への不等号制約がスキャン対象のインデックス範囲を制限するために使用されます。
+これらの列の右側の列に対する制約は、このインデックス内から検査されます。
+ですので、テーブルアクセスを適切に抑えますが、スキャンされるインデックスの範囲を減らしません。
+例えば、<TT
+CLASS="LITERAL"
+>(a, b, c)</TT
+>に対するインデックスがあり、<TT
+CLASS="LITERAL"
+>WHERE a = 5 AND b &gt;= 42 AND c &lt; 77</TT
+>という問い合わせ条件があったとすると、
+<TT
+CLASS="LITERAL"
+>a</TT
+> = 5かつ<TT
+CLASS="LITERAL"
+>b</TT
+> = 42を持つ項目を先頭に、<TT
+CLASS="LITERAL"
+>a</TT
+> = 5となる最後の項目までのインデックスをスキャンしなければなりません。
+<TT
+CLASS="LITERAL"
+>c</TT
+> &gt;= 77を持つインデックス項目は飛ばされますが、スキャンを行わなければなりません。
+このインデックスは原理上、 <TT
+CLASS="LITERAL"
+>a</TT
+>に対する制約を持たない、<TT
+CLASS="LITERAL"
+>b</TT
+>および<TT
+CLASS="LITERAL"
+>c</TT
+>、あるいは、<TT
+CLASS="LITERAL"
+>b</TT
+>または<TT
+CLASS="LITERAL"
+>c</TT
+>を制約に持つ問い合わせで使用することができます。
+しかし、インデックス全体がスキャンされますので、ほとんどの場合、プランナはインデックスの使用よりもシーケンシャルテーブルスキャンを選択します。
+  </P
+><P
+>複数列GiSTインデックスは、インデックス対象列の任意の部分集合を含む問い合わせ条件で使用することができます。
+他の列に対する条件は、インデックスで返される項目を制限します。
+しかし、先頭列に対する条件が、インデックスのスキャン量を決定するもっとも重要なものです。
+先頭列の個別値がわずかな場合、他の列が多くの個別値を持っていたとしても、相対的にGiSTインデックスは非効率的になります。
+  </P
+><P
+>複数列GINインデックスは、インデックス対象列の任意の部分集合を含む問い合わせ条件で使用することができます。
+B-TreeやGiSTと異なり、インデックス検索の効果はどのインデックス列が問い合わせ条件で使用されているかに関係なく同じです。
+  </P
+><P
+>当然ながら、インデックス種類に対して適切な演算子を各列に使用しなければなりません。
+他の演算子を含む句は考慮されません。
+  </P
+><P
+>複数列インデックスは慎重に使用する必要があります。
+多くの場合、単一列のインデックスで十分であり、また、その方がディスク領域と時間を節約できます。
+テーブルの使用方法が極端に様式化されていない限り、3つ以上の列を使用しているインデックスは、ほぼ間違いなく不適切であると言えます。
+異なるインデックス構成の利点に関するこの他の説明について<A
+HREF="indexes-bitmap-scans.html"
+>&#38917;11.5</A
+>も参照してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="indexes-types.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="indexes-ordering.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インデックスの種類</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>インデックスと<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

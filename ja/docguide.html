@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ドキュメント作成</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="付録"
+HREF="appendixes.html"><LINK
+REL="PREVIOUS"
+TITLE="Gitを使ってソースを入手する"
+HREF="git.html"><LINK
+REL="NEXT"
+TITLE="DocBook"
+HREF="docguide-docbook.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="APPENDIX"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="Gitを使ってソースを入手する"
+HREF="git.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ソースコードリポジトリ"
+HREF="sourcerepo.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="頭字語"
+HREF="acronyms.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DocBook"
+HREF="docguide-docbook.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="APPENDIX"
+><H1
+><A
+NAME="DOCGUIDE"
+></A
+>&#20184;&#37682; I. ドキュメント作成</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>I.1. <A
+HREF="docguide-docbook.html"
+>DocBook</A
+></DT
+><DT
+>I.2. <A
+HREF="docguide-toolsets.html"
+>ツールセット</A
+></DT
+><DT
+>I.3. <A
+HREF="docguide-build.html"
+>文書の構築</A
+></DT
+><DT
+>I.4. <A
+HREF="docguide-authoring.html"
+>文書の起草</A
+></DT
+><DT
+>I.5. <A
+HREF="docguide-style.html"
+>スタイルガイド</A
+></DT
+></DL
+></DIV
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の文書には4つの主要なフォーマットがあります。
+
+
+  <P
+></P
+></P><UL
+><LI
+><P
+>平文：インストール前の情報
+    </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>：オンラインでの閲覧と参照
+    </P
+></LI
+><LI
+><P
+>PDFもしくはPostScript：印刷用
+    </P
+></LI
+><LI
+><P
+>マニュアルページ：すぐ知りたい時
+    </P
+></LI
+></UL
+><P>
+さらに、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ソースツリー全体にわたり、様々な実装に関する問題を記述した平文の<TT
+CLASS="FILENAME"
+>README</TT
+>ファイルが数多くあります。
+ </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>文書とマニュアルページは標準の配布物の一部でデフォルトでインストールされます。
+PDFとPostscript形式の文書は別途ダウンロードすることで入手できます。 
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="git.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="docguide-docbook.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>Git</SPAN
+>を使ってソースを入手する</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="appendixes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>DocBook</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

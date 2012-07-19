@@ -1,0 +1,400 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.0.8</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.0.9"
+HREF="release-8-0-9.html"><LINK
+REL="NEXT"
+TITLE="リリース8.0.7"
+HREF="release-8-0-7.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.0.9"
+HREF="release-8-0-9.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.0.7"
+HREF="release-8-0-7.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-0-8"
+>E.114. リリース8.0.8</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2006-05-23</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.0.7の各種不具合を修正したもので、非常に深刻なセキュリティ問題を解消するパッチを含みます。
+8.0メジャーリリースにおける新機能については<A
+HREF="release-8-0.html"
+>&#38917;E.122</A
+>を参照してください。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN123800"
+>E.114.1. バージョン8.0.8への移行</A
+></H2
+><P
+>8.0.Xからの移行ではダンプ/リストアは不要です。
+しかし、8.0.6より前のバージョンからアップグレードする場合は、8.0.6のリリースノートを参照してください。
+    </P
+><P
+>CVE-2006-2313およびCVE-2006-2314に示されたSQLインジェクション攻撃を完全に防ぐためには、アプリケーション側のコードの変更が必要となる場合があります。
+SQLコマンド内に信頼できない文字列を埋め込むアプリケーションでは、できる限り早く、その文字列が推奨するエスケープ技法を使用していることを確実に検証しなければなりません。
+ほとんどの場合、アプリケーションは文字列のエスケープ処理に、<I
+CLASS="FOREIGNPHRASE"
+>その場しのぎ</I
+>のコードではなく、ライブラリやドライバが提供する（<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の<CODE
+CLASS="FUNCTION"
+>PQescapeStringConn()</CODE
+>のような）関数を使用しなければなりません。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN123807"
+>E.114.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>すべての場合において、符号化が無効なマルチバイト文字を拒絶するようにサーバを変更しました。
+(Tatsuo, Tom)</P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は少し前からこのような方向に移行していましたが、この検査がすべての符号化方式とすべてのテキスト入力に対して統一的に適用されるようになりました。
+さらに、単なる警告ではなく常にエラーとなるようになりました。
+この変更はCVE-2006-2313で示されるような種類のSQLインジェクション攻撃から保護します。</P
+></LI
+><LI
+><P
+>文字列リテラル内の<TT
+CLASS="LITERAL"
+>\'</TT
+>の安全ではない使用を拒絶します。</P
+><P
+>CVE-2006-2314で示されるような種類のSQLインジェクション攻撃からのサーバ側の保護として、
+サーバは、SQL文字列リテラル内のASCII単一引用符の表現として、<TT
+CLASS="LITERAL"
+>''</TT
+>のみを受付け、<TT
+CLASS="LITERAL"
+>\'</TT
+>を受付けないようになりました。
+デフォルトでは、SQLインジェクションが可能となる状況である、<TT
+CLASS="VARNAME"
+>client_encoding</TT
+>がクライアント側のみの符号化方式（SJIS、BIG5、GBK、GB18030、UHC）に設定された場合にのみ<TT
+CLASS="LITERAL"
+>\'</TT
+>は拒絶されます。
+新しい設定パラメータ<TT
+CLASS="VARNAME"
+>backslash_quote</TT
+>により、必要な場合にこの動作を調整できます。
+CVE-2006-2314に対して完全に保護するには、クライアント側を変更する必要があるかもしれないことに注意してください。
+安全ではないクライアントを安全ではないものとして明らかにすることが、<TT
+CLASS="VARNAME"
+>backslash_quote</TT
+>の目的の一つです。</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の文字列エスケープルーチンを、符号化方式と<TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>を考慮するように変更しました。</P
+><P
+>これは、CVE-2006-2313およびCVE-2006-2314で示されるセキュリティ問題に対し、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>を使用したアプリケーションを修正します。
+また、将来予定されるSQL標準文字列リテラル構文への移行に対しても保護しています。
+同時に複数の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>接続を使用するアプリケーションは、各データベース接続において使用される設定に合わせてエスケープ処理が正しく行われるように、<CODE
+CLASS="FUNCTION"
+>PQescapeStringConn()</CODE
+>と<CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn()</CODE
+>に移行しなければなりません。
+<SPAN
+CLASS="QUOTE"
+>"独自に"</SPAN
+>文字列エスケープ処理を行うアプリケーションはライブラリルーチンを使用するように変更しなければなりません。</P
+></LI
+><LI
+><P
+>一部の不正な符号化方式変換関数を修正しました。</P
+><P
+><CODE
+CLASS="FUNCTION"
+>win1251_to_iso</CODE
+>、<CODE
+CLASS="FUNCTION"
+>win866_to_iso</CODE
+>、<CODE
+CLASS="FUNCTION"
+>euc_tw_to_big5</CODE
+>、<CODE
+CLASS="FUNCTION"
+>euc_tw_to_mic</CODE
+>、<CODE
+CLASS="FUNCTION"
+>mic_to_euc_tw</CODE
+>はすべて可変拡張に関して正しくありませんでした。</P
+></LI
+><LI
+><P
+>文字列における偶然残る<TT
+CLASS="LITERAL"
+>\'</TT
+>の使用を整理しました。
+(Bruce, Jan)</P
+></LI
+><LI
+><P
+>インデックススキャンの論理和が本来返すべき行を失う場合がある不具合を修正しました。</P
+></LI
+><LI
+><P
+>Btreeインデックスが消去された場合のWAL再生を修正しました。</P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>|</TT
+>を含むパターンに対する<TT
+CLASS="LITERAL"
+>SIMILAR TO</TT
+>を修正しました。(Tom)</P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>および<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>が基本ディレクトリではなくデフォルトのテーブル空間にテーブルを作成するように変更しました。(Kris Jurka)</P
+></LI
+><LI
+><P
+>独自のDH SSLパラメータを正しく使用するようにサーバを修正しました。(Michael Fuhr)</P
+></LI
+><LI
+><P
+>Intel MacでのBonjourを修正しました。(Ashley Clark)</P
+></LI
+><LI
+><P
+>さまざまな小規模のメモリリークを修正しました。</P
+></LI
+><LI
+><P
+>一部のWin32システムにおけるパスワードプロンプトに関する問題を修正しました。(Robert Kinberg)</P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-0-9.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-0-7.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.0.9</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.0.7</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

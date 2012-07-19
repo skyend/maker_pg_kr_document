@@ -1,0 +1,2326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>pgcrypto</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="pg_buffercache"
+HREF="pgbuffercache.html"><LINK
+REL="NEXT"
+TITLE="pg_freespacemap"
+HREF="pgfreespacemap.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pg_buffercache"
+HREF="pgbuffercache.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pg_freespacemap"
+HREF="pgfreespacemap.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PGCRYPTO"
+>F.28. pgcrypto</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>モジュールは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>用の暗号関数を提供します。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN135632"
+>F.28.1. 汎用ハッシュ関数</A
+></H2
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135634"
+>F.28.1.1. <CODE
+CLASS="FUNCTION"
+>digest()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>digest(data text, type text) returns bytea
+digest(data bytea, type text) returns bytea</PRE
+><P
+>与えられた<TT
+CLASS="PARAMETER"
+>data</TT
+>のバイナリハッシュを計算します。
+<TT
+CLASS="PARAMETER"
+>type</TT
+>は使用するアルゴリズムです。
+標準アルゴリズムは<TT
+CLASS="LITERAL"
+>md5</TT
+>、<TT
+CLASS="LITERAL"
+>sha1</TT
+>、<TT
+CLASS="LITERAL"
+>sha224</TT
+>、<TT
+CLASS="LITERAL"
+>sha256</TT
+>、<TT
+CLASS="LITERAL"
+>sha384</TT
+>、および<TT
+CLASS="LITERAL"
+>sha512</TT
+>です。
+<TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>がOpenSSL付きで構築された場合、<A
+HREF="pgcrypto.html#PGCRYPTO-WITH-WITHOUT-OPENSSL"
+>&#34920;F-18</A
+>で詳解する、より多くのアルゴリズムを利用することができます。
+   </P
+><P
+>ダイジェストを16進数表記の文字列としたい場合は、結果に対して<CODE
+CLASS="FUNCTION"
+>encode()</CODE
+>を使用してください。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION sha1(bytea) returns text AS $$
+    SELECT encode(digest($1, 'sha1'), 'hex')
+$$ LANGUAGE SQL STRICT IMMUTABLE;</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135652"
+>F.28.1.2. <CODE
+CLASS="FUNCTION"
+>hmac()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>hmac(data text, key text, type text) returns bytea
+hmac(data bytea, key text, type text) returns bytea</PRE
+><P
+><TT
+CLASS="PARAMETER"
+>key</TT
+>をキーとした<TT
+CLASS="PARAMETER"
+>data</TT
+>のハッシュ化MACを計算します。
+<TT
+CLASS="PARAMETER"
+>type</TT
+>は<CODE
+CLASS="FUNCTION"
+>digest()</CODE
+>の場合と同じです。
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>digest()</CODE
+>と似ていますが、ハッシュはキーを知った上で再計算されるだけです。
+これは、誰かがデータを変更し、同時に一致するようにハッシュを変更するという状況を防ぎます。
+   </P
+><P
+>キーがハッシュブロックサイズより大きい場合、まずハッシュ化され、その結果をキーとして使用します。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN135664"
+>F.28.2. パスワードハッシュ化関数</A
+></H2
+><P
+><CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>gen_salt()</CODE
+>関数は特にパスワードのハッシュ化のために設計されたものです。
+<CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>がハッシュ処理を行い、<CODE
+CLASS="FUNCTION"
+>gen_salt()</CODE
+>はハッシュ処理用のアルゴリズム上のパラメータを準備します。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>アルゴリズムは、以下の点でMD5やSHA1のような通常のハッシュ処理アルゴリズムと異なります。
+  </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>低速です。
+データ量が少ないためパスワード総当たり攻撃に対して頑健にする唯一の方法です。
+    </P
+></LI
+><LI
+><P
+>結果には<I
+CLASS="FIRSTTERM"
+>ソルト</I
+>というランダムな値が含まれます。
+このため同じパスワードのユーザでも異なった暗号化パスワードを持ちます。
+これはアルゴリズムの逆処理に対する追加の防御です。
+    </P
+></LI
+><LI
+><P
+>結果内にアルゴリズムの種類が含まれます。
+このため異なるアルゴリズムでハッシュ化したパスワードが混在可能です。
+    </P
+></LI
+><LI
+><P
+>一部は適応型です。
+つまり、コンピュータが高速になったとしても、既存のパスワードとの互換性を損なうことなくアルゴリズムを低速に調整することができます。
+    </P
+></LI
+></OL
+><P
+><CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>関数がサポートするアルゴリズムを<A
+HREF="pgcrypto.html#PGCRYPTO-CRYPT-ALGORITHMS"
+>&#34920;F-15</A
+>に列挙します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="PGCRYPTO-CRYPT-ALGORITHMS"
+></A
+><P
+><B
+>&#34920; F-15. <CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>がサポートするアルゴリズム</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>アルゴリズム</TH
+><TH
+>パスワード最大長</TH
+><TH
+>適応型かどうか</TH
+><TH
+>ソルトビット長</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>bf</TT
+></TD
+><TD
+>72</TD
+><TD
+>はい</TD
+><TD
+>128</TD
+><TD
+>Blowfishベース、2a版</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>md5</TT
+></TD
+><TD
+>無制限</TD
+><TD
+>いいえ</TD
+><TD
+>48</TD
+><TD
+>MD5ベースの暗号</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>xdes</TT
+></TD
+><TD
+>8</TD
+><TD
+>はい</TD
+><TD
+>24</TD
+><TD
+>拡張DES</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>des</TT
+></TD
+><TD
+>8</TD
+><TD
+>いいえ</TD
+><TD
+>12</TD
+><TD
+>元来のUNIX crypt</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135726"
+>F.28.2.1. <CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>crypt(password text, salt text) returns text</PRE
+><P
+><TT
+CLASS="PARAMETER"
+>password</TT
+>のcrypt(3)形式のハッシュを計算します。
+新しいパスワードを保管する時には、<CODE
+CLASS="FUNCTION"
+>gen_salt()</CODE
+>を使用して新しい<TT
+CLASS="PARAMETER"
+>salt</TT
+>を生成する必要があります。
+パスワードを検査する時、既存のハッシュ値を<TT
+CLASS="PARAMETER"
+>salt</TT
+>として渡し、結果が格納された値と一致するかどうかを確認します。
+   </P
+><P
+>新しいパスワードの設定例を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE ... SET pswhash = crypt('new password', gen_salt('md5'));</PRE
+><P>
+   </P
+><P
+>認証の例です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT pswhash = crypt('entered password', pswhash) FROM ... ;</PRE
+><P>
+入力パスワードが正しければ<TT
+CLASS="LITERAL"
+>true</TT
+>を返します。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135740"
+>F.28.2.2. <CODE
+CLASS="FUNCTION"
+>gen_salt()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>gen_salt(type text [, iter_count integer ]) returns text</PRE
+><P
+><CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>で使用するランダムなソルト文字列を新規に生成します。
+また、このソルト文字列は<CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>にどのアルゴリズムを使用するかを通知します。
+   </P
+><P
+><TT
+CLASS="PARAMETER"
+>type</TT
+>パラメータはハッシュ化アルゴリズムを指定します。
+受付可能な種類は、<TT
+CLASS="LITERAL"
+>des</TT
+>、<TT
+CLASS="LITERAL"
+>xdes</TT
+>、<TT
+CLASS="LITERAL"
+>md5</TT
+>、<TT
+CLASS="LITERAL"
+>bf</TT
+>です。
+   </P
+><P
+>繰り返し回数を持つアルゴリズムでは、ユーザは<TT
+CLASS="PARAMETER"
+>iter_count</TT
+>パラメータを使用して繰り返し回数を指定できます。
+指定する回数を高くすれば、パスワードのハッシュ化にかかる時間が長くなり、それを破るための時間も長くなります。
+しかし、あまりに多くの回数を指定すると、ハッシュ計算にかかる時間は数年に渡ってしまう可能性があります。
+これは実用的ではありません。
+<TT
+CLASS="PARAMETER"
+>iter_count</TT
+>パラメータを省略した場合、デフォルトの繰り返し回数が使用されます。
+<TT
+CLASS="PARAMETER"
+>iter_count</TT
+>で受け付けられる値はアルゴリズムに依存し、<A
+HREF="pgcrypto.html#PGCRYPTO-ICFC-TABLE"
+>&#34920;F-16</A
+>に示す通りです。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="PGCRYPTO-ICFC-TABLE"
+></A
+><P
+><B
+>&#34920; F-16. <CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>用の繰り返し回数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>アルゴリズム</TH
+><TH
+>デフォルト</TH
+><TH
+>最小</TH
+><TH
+>最大</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>xdes</TT
+></TD
+><TD
+>725</TD
+><TD
+>1</TD
+><TD
+>16777215</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>bf</TT
+></TD
+><TD
+>6</TD
+><TD
+>4</TD
+><TD
+>31</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>xdes</TT
+>の場合は他にも、回数が奇数でなければならないという制限があります。
+   </P
+><P
+>適切な繰り返し回数を選択するために、元々のDES暗号は当時のハードウェアで1秒あたり4個のハッシュを持つことができるように設計されたことを考えてください。
+毎秒4ハッシュより遅いと、おそらく使い勝手が悪いでしょう。
+毎秒100ハッシュより速いというのは、十中八九、あまりにも速すぎるでしょう。
+   </P
+><P
+>ハッシュ化アルゴリズム別に相対的な速度に関する概要を<A
+HREF="pgcrypto.html#PGCRYPTO-HASH-SPEED-TABLE"
+>&#34920;F-17</A
+>にまとめました。
+この表は、8文字のパスワード内のすべての文字の組合せを取るためにかかる時間を示します。
+また、すべて小文字の英字のみのパスワードである場合と大文字小文字が混在した英字と数字のパスワードの場合を仮定します。
+<TT
+CLASS="LITERAL"
+>crypt-bf</TT
+>の項では、スラッシュの後の数値は<CODE
+CLASS="FUNCTION"
+>gen_salt</CODE
+>の<TT
+CLASS="PARAMETER"
+>iter_count</TT
+>です。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="PGCRYPTO-HASH-SPEED-TABLE"
+></A
+><P
+><B
+>&#34920; F-17. ハッシュアルゴリズムの速度</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>アルゴリズム</TH
+><TH
+>1秒当たりのハッシュ数</TH
+><TH
+><TT
+CLASS="LITERAL"
+>[a-z]</TT
+>の場合</TH
+><TH
+><TT
+CLASS="LITERAL"
+>[A-Za-z0-9]</TT
+>の場合</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>crypt-bf/8</TT
+></TD
+><TD
+>28</TD
+><TD
+>246年</TD
+><TD
+>251322年</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>crypt-bf/7</TT
+></TD
+><TD
+>57</TD
+><TD
+>121年</TD
+><TD
+>123457年</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>crypt-bf/6</TT
+></TD
+><TD
+>112</TD
+><TD
+>62年</TD
+><TD
+>62831年</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>crypt-bf/5</TT
+></TD
+><TD
+>211</TD
+><TD
+>33年</TD
+><TD
+>33351年</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>crypt-md5</TT
+></TD
+><TD
+>2681</TD
+><TD
+>2.6年</TD
+><TD
+>2625年</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>crypt-des</TT
+></TD
+><TD
+>362837</TD
+><TD
+>7日</TD
+><TD
+>19年</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>sha1</TT
+></TD
+><TD
+>590223</TD
+><TD
+>4日</TD
+><TD
+>12年</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>md5</TT
+></TD
+><TD
+>2345086</TD
+><TD
+>1日</TD
+><TD
+>3年</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>注意：
+   </P
+><P
+></P
+><UL
+><LI
+><P
+>Pentium 4 1.5GHzのマシンを使用しました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>crypt-des</TT
+>および<TT
+CLASS="LITERAL"
+>crypt-md5</TT
+>アルゴリズムの数値はJohn the Ripper v1.6.38の<TT
+CLASS="LITERAL"
+>-test</TT
+>出力から得たものです。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>md5</TT
+>の数値はmdcrack 1.2のものです。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>sha1</TT
+>の数値はlcrack-20031130-betaのものです。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>crypt-bf</TT
+>の数は、1000個の8文字パスワードをループする単純なプログラムを使用して得たものです。
+こうして、異なる回数の速度を示すことができました。
+参考までに、<TT
+CLASS="LITERAL"
+>john -test</TT
+>は<TT
+CLASS="LITERAL"
+>crypt-bf/5</TT
+>で213 loops/secでした。
+（結果の差異が非常に小さいことは、<TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>における<TT
+CLASS="LITERAL"
+>crypt-bf</TT
+>実装がJohn the Ripperで使用されるものと同じであるという事実と一致します。）
+     </P
+></LI
+></UL
+><P
+><SPAN
+CLASS="QUOTE"
+>"すべての組み合わせを試行する"</SPAN
+>ことは現実的な行使ではありません。
+通常パスワード推定は、普通の単語とその変形の両方を含む辞書を使用して行われます。
+ですので、いささかなりとも言葉に似たパスワードは上で示した数値よりも速く推定されます。
+また6文字の単語に似ていないパスワードは推定を免れるかもしれませんし、免れないかもしれません
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN135873"
+>F.28.3. PGP暗号化関数</A
+></H2
+><P
+>ここで示す関数はOpenPGP（RFC 4880）標準の暗号処理部分を実装します。
+対称キーおよび公開キー暗号化がサポートされます。
+  </P
+><P
+>暗号化されたPGPメッセージは次の2つの部品（または<I
+CLASS="FIRSTTERM"
+>パケット</I
+>）から構成されます。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+>セッションキーを含むパケット。
+対称キーまたは公開キー暗号化の両方。
+    </P
+></LI
+><LI
+><P
+>セッションキーにより暗号化されたデータを含むパケット。
+    </P
+></LI
+></UL
+><P
+>対称キー（つまりパスワード）で暗号化する場合
+  </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>与えられたパスワードはString2Key(S2K)アルゴリズムでハッシュ化されます。
+これはどちらかというと<CODE
+CLASS="FUNCTION"
+>crypt()</CODE
+>アルゴリズムと似て、意図的に低速で、かつランダムなソルトを使用します。
+しかし、全長のバイナリキーを生成します。
+    </P
+></LI
+><LI
+><P
+>分離したセッションキーが要求された場合、新しいランダムなキーが生成されます。
+さもなくば、S2Kキーがそのままセッションキーとして使用されます。
+    </P
+></LI
+><LI
+><P
+>S2Kキーがそのまま使用される場合、S2K設定のみがセッションキーパケットに格納されます。
+さもなくば、セッションキーはS2Kキーで暗号化され、セッションキーパケットに格納されます。
+    </P
+></LI
+></OL
+><P
+>公開キーで暗号化する場合
+  </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>新しいランダムなセッションキーが生成されます。
+    </P
+></LI
+><LI
+><P
+>これは公開キーを使用して暗号化され、セッションキーパケットに格納されます。
+    </P
+></LI
+></OL
+><P
+>どちらの場合でもデータ暗号化は以下のように処理されます。
+  </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>省略可能なデータ操作として、圧縮、UTF-8への変換、改行の変換があります。
+    </P
+></LI
+><LI
+><P
+>データの前にはランダムなバイト数のブロックが付きます。
+これはrandom IVを使用する場合と同じです。
+    </P
+></LI
+><LI
+><P
+>ランダムな前置ブロックとデータのSHA1ハッシュが後に付けられます。
+    </P
+></LI
+><LI
+><P
+>これをすべてセッションキーで暗号化し、データパケットに格納します。
+    </P
+></LI
+></OL
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135908"
+>F.28.3.1. <CODE
+CLASS="FUNCTION"
+>pgp_sym_encrypt()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>pgp_sym_encrypt(data text, psw text [, options text ]) returns bytea
+pgp_sym_encrypt_bytea(data bytea, psw text [, options text ]) returns bytea</PRE
+><P
+>対称PGPキー<TT
+CLASS="PARAMETER"
+>psw</TT
+>で<TT
+CLASS="PARAMETER"
+>data</TT
+>を暗号化します。
+<TT
+CLASS="PARAMETER"
+>options</TT
+>パラメータには後述のオプション設定を含めることができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135916"
+>F.28.3.2. <CODE
+CLASS="FUNCTION"
+>pgp_sym_decrypt()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>pgp_sym_decrypt(msg bytea, psw text [, options text ]) returns text
+pgp_sym_decrypt_bytea(msg bytea, psw text [, options text ]) returns bytea</PRE
+><P
+>対称キーで暗号化されたPGPメッセージを復号化します。
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>pgp_sym_decrypt</CODE
+>で<TT
+CLASS="TYPE"
+>bytea</TT
+>型のデータを復号化することはできません。
+これは無効な文字データの出力を防止するためです。
+元のテキストのデータを<CODE
+CLASS="FUNCTION"
+>pgp_sym_decrypt_bytea</CODE
+>で復号化することが正しい方法です。
+   </P
+><P
+><TT
+CLASS="PARAMETER"
+>options</TT
+>パラメータには後述のオプション設定を含めることができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135927"
+>F.28.3.3. <CODE
+CLASS="FUNCTION"
+>pgp_pub_encrypt()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>pgp_pub_encrypt(data text, key bytea [, options text ]) returns bytea
+pgp_pub_encrypt_bytea(data bytea, key bytea [, options text ]) returns bytea</PRE
+><P
+>公開PGPキー<TT
+CLASS="PARAMETER"
+>key</TT
+>で<TT
+CLASS="PARAMETER"
+>data</TT
+>を暗号化します。
+この関数に秘密キーを与えるとエラーになります。
+   </P
+><P
+><TT
+CLASS="PARAMETER"
+>options</TT
+>パラメータには後述のオプション設定を含めることができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135936"
+>F.28.3.4. <CODE
+CLASS="FUNCTION"
+>pgp_pub_decrypt()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>pgp_pub_decrypt(msg bytea, key bytea [, psw text [, options text ]]) returns text
+pgp_pub_decrypt_bytea(msg bytea, key bytea [, psw text [, options text ]]) returns bytea</PRE
+><P
+>公開キーで暗号化されたメッセージを復号化します。
+<TT
+CLASS="PARAMETER"
+>key</TT
+>は、暗号化に使用した公開キーに対応する秘密キーでなければなりません。
+秘密キーがパスワードで保護されている場合は、そのパスワードを<TT
+CLASS="PARAMETER"
+>psw</TT
+>で指定しなければなりません。
+パスワードはないが、オプションを指定したい場合は空のパスワードを指定する必要があります。
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>pgp_pub_decrypt</CODE
+>で<TT
+CLASS="TYPE"
+>bytea</TT
+>型のデータを復号化することはできません。
+これは無効な文字データの出力を防止するためです。
+元のテキストのデータを<CODE
+CLASS="FUNCTION"
+>pgp_pub_decrypt_bytea</CODE
+>で復号化することが正しい方法です。
+   </P
+><P
+><TT
+CLASS="PARAMETER"
+>options</TT
+>パラメータには後述のオプション設定を含めることができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135949"
+>F.28.3.5. <CODE
+CLASS="FUNCTION"
+>pgp_key_id()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>pgp_key_id(bytea) returns text</PRE
+><P
+><CODE
+CLASS="FUNCTION"
+>pgp_key_id</CODE
+>はPGP公開キーまたは秘密キーのキーIDを取り出します。
+暗号化されたメッセージが指定された場合は、データの暗号化に使用されたキーIDを与えます。
+   </P
+><P
+>2つの特殊なキーIDを返すことがあります。
+   </P
+><P
+></P
+><UL
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+>SYMKEY</TT
+>
+     </P
+><P
+>メッセージは対称キーで暗号化されました。
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+>ANYKEY</TT
+>
+     </P
+><P
+>メッセージは公開キーで暗号化されましたが、キーIDが消去されていました。
+つまり、どれで復号化できるかを判定するためにはすべての秘密キーを試行しなければならないことを意味します。
+<TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>自身はこうしたメッセージを生成しません。
+     </P
+></LI
+></UL
+><P
+>異なるキーが同一IDを持つ場合があることに注意してください。
+これは稀ですが、正常なイベントです。
+この場合クライアントアプリケーションはどちらが当てはまるかを調べるために、<TT
+CLASS="LITERAL"
+>ANYKEY</TT
+>の場合と同様に、それぞれのキーで復号化を試行しなければなりません。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135968"
+>F.28.3.6. <CODE
+CLASS="FUNCTION"
+>armor()</CODE
+>, <CODE
+CLASS="FUNCTION"
+>dearmor()</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>armor(data bytea) returns text
+dearmor(data text) returns bytea</PRE
+><P
+>PGPのASCIIアーマー形式にデータを隠す、または、データを取り出します。
+ASCIIアーマーは基本的にCRC付きのBASE64という形式で、追加のフォーマットがあります。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN135974"
+>F.28.3.7. PGP関数用のオプション</A
+></H3
+><P
+>オプションはGnuPGに似せて命名しています。
+オプションの値は等号記号の後に指定しなければなりません。
+複数のオプションはカンマで区切ってください。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>pgp_sym_encrypt(data, psw, 'compress-algo=1, cipher-algo=aes256')</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>convert-crlf</TT
+>を除くすべてのオプションは暗号化関数にのみ適用可能です。
+復号化関数はPGPデータからこうしたパラメータを入手します。
+   </P
+><P
+>もっとも興味深いオプションはおそらく<TT
+CLASS="LITERAL"
+>compress-algo</TT
+>と<TT
+CLASS="LITERAL"
+>unicode-mode</TT
+>でしょう。
+残りはデフォルトで問題ないはずです。
+   </P
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN135983"
+>F.28.3.7.1. cipher-algo</A
+></H4
+><P
+>使用する暗号アルゴリズム。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:&nbsp;bf,&nbsp;aes128,&nbsp;aes192,&nbsp;aes256&nbsp;(OpenSSL-only:&nbsp;<TT
+CLASS="LITERAL"
+>3des</TT
+>,&nbsp;<TT
+CLASS="LITERAL"
+>cast5</TT
+>)<br>
+デフォルト:&nbsp;aes128<br>
+適用範囲:&nbsp;pgp_sym_encrypt,&nbsp;pgp_pub_encrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN135989"
+>F.28.3.7.2. compress-algo</A
+></H4
+><P
+>使用する圧縮アルゴリズム。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がzlib付きで構築されている場合のみ利用可能です。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:<br>
+&nbsp;0&nbsp;-&nbsp;非圧縮<br>
+&nbsp;1&nbsp;-&nbsp;ZIP圧縮<br>
+&nbsp;2&nbsp;-&nbsp;ZLIB圧縮&nbsp;(ZIPにメタデータとブロックCRCを加えたもの)<br>
+デフォルト:&nbsp;0<br>
+適用範囲:&nbsp;pgp_sym_encrypt,&nbsp;pgp_pub_encrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN135994"
+>F.28.3.7.3. compress-level</A
+></H4
+><P
+>どの程度圧縮するかです。
+レベルが大きい程小さくなりますが、低速になります。
+0は圧縮を無効にします。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:&nbsp;0,&nbsp;1-9<br>
+デフォルト:&nbsp;6<br>
+適用範囲:&nbsp;pgp_sym_encrypt,&nbsp;pgp_pub_encrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN135998"
+>F.28.3.7.4. convert-crlf</A
+></H4
+><P
+>暗号化の際に<TT
+CLASS="LITERAL"
+>\n</TT
+>を<TT
+CLASS="LITERAL"
+>\r\n</TT
+>に、復号化の際に<TT
+CLASS="LITERAL"
+>\r\n</TT
+> を<TT
+CLASS="LITERAL"
+>\n</TT
+> に変換するかどうか。
+RFC 4880では、テキストデータは改行コードとして<TT
+CLASS="LITERAL"
+>\r\n</TT
+> を使用して格納すべきであると規定されています。
+完全にRFC準拠の動作を行いたければ、これを使用してください。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:&nbsp;0,&nbsp;1<br>
+デフォルト:&nbsp;0<br>
+適用範囲:&nbsp;pgp_sym_encrypt,&nbsp;pgp_pub_encrypt,&nbsp;pgp_sym_decrypt,&nbsp;pgp_pub_decrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN136007"
+>F.28.3.7.5. disable-mdc</A
+></H4
+><P
+>データをSHA-1で保護しません。
+このオプションを使用することが良い唯一の理由は、SHA-1で保護されたパケットがRFC 4880に追加される前の、古いPGP製品との互換性を得るためです。
+最近のgnupg.orgおよびpgp.comのソフトウェアではこれを正しくサポートしています。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:&nbsp;0,&nbsp;1<br>
+デフォルト:&nbsp;0<br>
+適用範囲:&nbsp;pgp_sym_encrypt,&nbsp;pgp_pub_encrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN136011"
+>F.28.3.7.6. enable-session-key</A
+></H4
+><P
+>分離したセッションキーを使用します。
+公開キー暗号では常に分離したセッションキーを使用します。
+これは対称キー暗号向けのもので、デフォルトではS2Kをそのまま使用します。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:&nbsp;0,&nbsp;1<br>
+デフォルト:&nbsp;0<br>
+適用範囲:&nbsp;pgp_sym_encrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN136015"
+>F.28.3.7.7. s2k-mode</A
+></H4
+><P
+>使用するS2Kアルゴリズム。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:<br>
+&nbsp;&nbsp;0&nbsp;-&nbsp;ソルト無。危険です<br>
+&nbsp;&nbsp;1&nbsp;-&nbsp;ソルト有。固定繰り返し回数。<br>
+&nbsp;&nbsp;3&nbsp;-&nbsp;可変繰り返し回数<br>
+デフォルト:&nbsp;3<br>
+適用範囲:&nbsp;pgp_sym_encrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN136019"
+>F.28.3.7.8. s2k-digest-algo</A
+></H4
+><P
+>S2K計算で使用するダイジェストアルゴリズム。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:&nbsp;md5,&nbsp;sha1<br>
+デフォルト:&nbsp;sha1<br>
+適用範囲:&nbsp;pgp_sym_encrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN136023"
+>F.28.3.7.9. s2k-cipher-algo</A
+></H4
+><P
+>分離したセッションキーの暗号化に使用する暗号。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:&nbsp;bf,&nbsp;aes,&nbsp;aes128,&nbsp;aes192,&nbsp;aes256<br>
+デフォルト:&nbsp;cipher-algoを使用<br>
+適用範囲:&nbsp;pgp_sym_encrypt</P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN136027"
+>F.28.3.7.10. unicode-mode</A
+></H4
+><P
+>テキストデータをデータベース内部符号化方式からUTF-8に変換して戻すかどうかです。
+データベースがすでにUTF-8であれば、変換は起こらず、データにUTF-8としてタグが付くのみです。
+このオプションがないと、何も行われません。
+   </P
+><P
+CLASS="LITERALLAYOUT"
+>値:&nbsp;0,&nbsp;1<br>
+デフォルト:&nbsp;0<br>
+適用範囲:&nbsp;pgp_sym_encrypt,&nbsp;pgp_pub_encrypt</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN136031"
+>F.28.3.8. GnuPGを使用したキーの生成</A
+></H3
+><P
+>新しいキーを生成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gpg --gen-key</PRE
+><P>
+  </P
+><P
+>推奨するキー種類は<SPAN
+CLASS="QUOTE"
+>"DSA and Elgamal"</SPAN
+>です。
+  </P
+><P
+>RSA暗号化のためには、マスタとしてDSAまたはRSAで署名のみのキーを作成し、そして<TT
+CLASS="LITERAL"
+>gpg --edit-key</TT
+>を使用してRSAで暗号化された副キーを追加しなければなりません
+  </P
+><P
+>キーを列挙します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gpg --list-secret-keys</PRE
+><P>
+  </P
+><P
+>ASCIIアーマー形式で公開キーをエキスポートします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gpg -a --export KEYID &#62; public.key</PRE
+><P>
+  </P
+><P
+>ASCIIアーマー形式の秘密キーをエキスポートします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gpg -a --export-secret-keys KEYID &#62; secret.key</PRE
+><P>
+  </P
+><P
+>PGP関数にこれらのキーを渡す前に<CODE
+CLASS="FUNCTION"
+>dearmor()</CODE
+>`を使用する必要があります。
+バイナリデータを扱うことができる場合、gpgから<TT
+CLASS="LITERAL"
+>-a</TT
+>フラグを省略することができます。
+  </P
+><P
+>詳細は<TT
+CLASS="LITERAL"
+>man gpg</TT
+>、<A
+HREF="http://www.gnupg.org/gph/en/manual.html"
+TARGET="_top"
+>http://www.gnupg.org/gph/en/manual.html</A
+>The GNU Privacy Handbook、<A
+HREF="http://www.gnupg.org"
+TARGET="_top"
+>http://www.gnupg.org</A
+>サイトの各種文書を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN136052"
+>F.28.3.9. PGPコードの制限</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>署名に関するサポートはありません。
+これはまた、暗号化副キーがマスタキーに属しているかどうか検査しないことを意味します。
+    </P
+></LI
+><LI
+><P
+>マスタキーとして暗号化キーをサポートしません。
+一般的にこうした状況は現実的ではありませんので、問題にならないはずです。
+    </P
+></LI
+><LI
+><P
+>複数の副キーに関するサポートはありません。
+よくありますので、これは問題になりそうに見えます。
+一方、通常のGPG/PGPキーを<TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>で使用すべきではありません。
+使用する状況が多少異なりますので新しく作成してください。
+    </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136062"
+>F.28.4. 暗号化そのものを行う関数</A
+></H2
+><P
+>これらの関数はデータ全体を暗号化するためだけに実行します。
+PGP暗号化の持つ先端的な機能はありません。
+したがって、大きな問題がいくつか存在します。
+  </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>暗号キーとしてユーザキーをそのまま使用します。
+    </P
+></LI
+><LI
+><P
+>暗号化されたデータが変更されたかどうかを確認するための整合性検査をまったく提供しません。
+    </P
+></LI
+><LI
+><P
+>ユーザが、IVをも含め暗号化パラメータ自体をすべて管理していることを想定しています。
+    </P
+></LI
+><LI
+><P
+>テキストは扱いません。
+    </P
+></LI
+></OL
+><P
+>このため、PGP暗号化の導入もあり、暗号化のみの関数はあまり使用されません。
+  </P
+><PRE
+CLASS="SYNOPSIS"
+>encrypt(data bytea, key bytea, type text) returns bytea
+decrypt(data bytea, key bytea, type text) returns bytea
+
+encrypt_iv(data bytea, key bytea, iv bytea, type text) returns bytea
+decrypt_iv(data bytea, key bytea, iv bytea, type text) returns bytea</PRE
+><P
+><TT
+CLASS="PARAMETER"
+>type</TT
+>で指定した暗号方法を使用してデータの暗号化・復号化を行います。
+<TT
+CLASS="PARAMETER"
+>type</TT
+>文字列の構文は以下の通りです。
+
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>algorithm</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="LITERAL"
+>-</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>mode</I
+></TT
+> </SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="LITERAL"
+>/pad:</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>padding</I
+></TT
+> </SPAN
+>]</PRE
+><P>
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>algorithm</I
+></TT
+>は以下の1つです。
+
+  <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>bf</TT
+> &mdash; Blowfish</P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>aes</TT
+> &mdash; AES (Rijndael-128)</P
+></LI
+></UL
+><P>
+また<TT
+CLASS="REPLACEABLE"
+><I
+>mode</I
+></TT
+>は以下の1つです。
+  <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>cbc</TT
+> &mdash; 次のブロックは前ブロックに依存します（デフォルト）
+    </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ecb</TT
+> &mdash; 各ブロックは独自に暗号化されます（試験用途のみ）
+    </P
+></LI
+></UL
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>padding</I
+></TT
+>は以下の1つです。
+  <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>pkcs</TT
+> &mdash; データ長に制限はありません（デフォルト）
+    </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>none</TT
+> &mdash; データは暗号ブロックサイズの倍数でなければなりません
+    </P
+></LI
+></UL
+><P>
+  </P
+><P
+>このため、例えば以下は同じです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>encrypt(data, 'fooz', 'bf')
+encrypt(data, 'fooz', 'bf-cbc/pad:pkcs')</PRE
+><P>
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>encrypt_iv</CODE
+>および<CODE
+CLASS="FUNCTION"
+>decrypt_iv</CODE
+>では、<TT
+CLASS="PARAMETER"
+>iv</TT
+>パラメータはCBCモード用の初期値となります。
+ECBでは無視されます。
+正確にブロック長でない場合、切り抜かれるか、もしくはゼロで埋められます。
+このパラメータがない場合、関数のデフォルト値はすべてゼロです。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136117"
+>F.28.5. ランダムデータ関数</A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+>gen_random_bytes(count integer) returns bytea</PRE
+><P
+>暗号論的に強いランダムな<TT
+CLASS="PARAMETER"
+>count</TT
+>バイトを返します。
+一度に最大で1024バイトを抽出することができます。
+ランダム性ジェネレータプールを空にすることを防止するためのものです。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136122"
+>F.28.6. 注釈</A
+></H2
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN136124"
+>F.28.6.1. 構築</A
+></H3
+><P
+><TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>は自身で主PostgreSQLの<TT
+CLASS="LITERAL"
+>configure</TT
+>スクリプトの検出結果に従って構築します。
+構築に影響するオプションは<TT
+CLASS="LITERAL"
+>--with-zlib</TT
+>と<TT
+CLASS="LITERAL"
+>--with-openssl</TT
+>です。
+   </P
+><P
+>ZLIB付きでコンパイルされた場合、PGP暗号化関数は暗号化前にデータを圧縮することができます。
+   </P
+><P
+>OpenSSL付きでコンパイルされた場合、より多くのアルゴリズムが利用できるようになります。
+また、OpenSSLがより最適化されたBIGNUM関数を持つため、公開キー暗号化関数は高速になります。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="PGCRYPTO-WITH-WITHOUT-OPENSSL"
+></A
+><P
+><B
+>&#34920; F-18. OpenSSLの有無による機能のまとめ</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>機能</TH
+><TH
+>組込み</TH
+><TH
+>OpenSSL付き</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>MD5</TD
+><TD
+>○</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+>SHA1</TD
+><TD
+>○</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+>SHA224/256/384/512</TD
+><TD
+>○</TD
+><TD
+>○（注１）</TD
+></TR
+><TR
+><TD
+>この他のダイジェストアルゴリズム</TD
+><TD
+>×</TD
+><TD
+>○（注２）</TD
+></TR
+><TR
+><TD
+>Blowfish</TD
+><TD
+>○</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+>AES</TD
+><TD
+>○</TD
+><TD
+>○（注３）</TD
+></TR
+><TR
+><TD
+>DES/3DES/CAST5</TD
+><TD
+>×</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+>暗号化そのもの</TD
+><TD
+>○</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+>PGP対称暗号化</TD
+><TD
+>○</TD
+><TD
+>○</TD
+></TR
+><TR
+><TD
+>PGP公開キー暗号化</TD
+><TD
+>○</TD
+><TD
+>○</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>注
+   </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>SHA2はOpenSSLバージョン0.9.8から含まれています。
+これより古いバージョンでは、<TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>は組込みのコードを使用します。
+     </P
+></LI
+><LI
+><P
+>OpenSSLがサポートする任意のダイジェストアルゴリズムが自動的に選択されます。
+これは、明示的にサポートされなければならない暗号では使用できません。
+     </P
+></LI
+><LI
+><P
+>AESはOpenSSLバージョン0.9.7から含まれています。
+これより古いバージョンでは、<TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>は組込みのコードを使用します。
+     </P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN136192"
+>F.28.6.2. NULLの扱い</A
+></H3
+><P
+>標準SQLの通り、引数のいずれかがNULLの場合、すべての関数はNULLを返します。
+注意せずに使用すると、これがセキュリティ上の問題になるかもしれません。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN136195"
+>F.28.6.3. セキュリティ上の制限</A
+></H3
+><P
+><TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>の関数はすべてデータベースサーバ内部で実行されます。
+これは、<TT
+CLASS="FILENAME"
+>pgcrypto</TT
+>とクライアントアプリケーションとの間でやり取りされるデータはすべて平文であることを意味します。
+したがって、以下を行う必要があります。
+   </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>ローカルまたはSSL接続で接続</P
+></LI
+><LI
+><P
+>システム管理者およびデータベース管理者を信頼</P
+></LI
+></OL
+><P
+>これらが不可能であれば、クライアントアプリケーション内で暗号化する方が望まれます。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN136206"
+>F.28.6.4. 有用な文書</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="http://www.gnupg.org/gph/en/manual.html"
+TARGET="_top"
+>http://www.gnupg.org/gph/en/manual.html</A
+></P
+><P
+>GNUプライバシーハンドブック</P
+></LI
+><LI
+><P
+><A
+HREF="http://www.openwall.com/crypt/"
+TARGET="_top"
+>http://www.openwall.com/crypt/</A
+></P
+><P
+>blowfish暗号アルゴリズムの説明</P
+></LI
+><LI
+><P
+>      <A
+HREF="http://www.stack.nl/~galactus/remailers/passphrase-faq.html"
+TARGET="_top"
+>http://www.stack.nl/~galactus/remailers/passphrase-faq.html</A
+>
+     </P
+><P
+>優れたパスワードの選び方</P
+></LI
+><LI
+><P
+><A
+HREF="http://world.std.com/~reinhold/diceware.html"
+TARGET="_top"
+>http://world.std.com/~reinhold/diceware.html</A
+></P
+><P
+>パスワード決定に関する面白い考え</P
+></LI
+><LI
+><P
+>      <A
+HREF="http://www.interhack.net/people/cmcurtin/snake-oil-faq.html"
+TARGET="_top"
+>http://www.interhack.net/people/cmcurtin/snake-oil-faq.html</A
+>
+     </P
+><P
+>良い暗号、悪い暗号に関する説明</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN136229"
+>F.28.6.5. 技術的な参考情報</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="http://www.ietf.org/rfc/rfc4880.txt"
+TARGET="_top"
+>http://www.ietf.org/rfc/rfc4880.txt</A
+></P
+><P
+>OpenPGPメッセージフォーマット</P
+></LI
+><LI
+><P
+><A
+HREF="http://www.ietf.org/rfc/rfc1321.txt"
+TARGET="_top"
+>http://www.ietf.org/rfc/rfc1321.txt</A
+></P
+><P
+>MD5 メッセージダイジェストアルゴリズム</P
+></LI
+><LI
+><P
+><A
+HREF="http://www.ietf.org/rfc/rfc2104.txt"
+TARGET="_top"
+>http://www.ietf.org/rfc/rfc2104.txt</A
+></P
+><P
+>HMAC: Keyed-Hashing for Message Authentication.</P
+></LI
+><LI
+><P
+>      <A
+HREF="http://www.usenix.org/events/usenix99/provos.html"
+TARGET="_top"
+>http://www.usenix.org/events/usenix99/provos.html</A
+>
+     </P
+><P
+>DES暗号、MD5暗号、bcryptアルゴリズムの比較</P
+></LI
+><LI
+><P
+><A
+HREF="http://csrc.nist.gov/cryptval/des.htm"
+TARGET="_top"
+>http://csrc.nist.gov/cryptval/des.htm</A
+></P
+><P
+>DES、3DES、AES標準</P
+></LI
+><LI
+><P
+>      <A
+HREF="http://en.wikipedia.org/wiki/Fortuna_(PRNG)"
+TARGET="_top"
+>http://en.wikipedia.org/wiki/Fortuna_(PRNG)</A
+>
+     </P
+><P
+>Fortuna CSPRNGの説明</P
+></LI
+><LI
+><P
+><A
+HREF="http://jlcooke.ca/random/"
+TARGET="_top"
+>http://jlcooke.ca/random/</A
+></P
+><P
+>Linux用Jean-Luc Cooke Fortunaに基づく<TT
+CLASS="FILENAME"
+>/dev/random</TT
+>ドライバ</P
+></LI
+><LI
+><P
+><A
+HREF="http://research.cyber.ee/~lipmaa/crypto/"
+TARGET="_top"
+>http://research.cyber.ee/~lipmaa/crypto/</A
+></P
+><P
+>暗号学に関するリンク集</P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136265"
+>F.28.7. 作者</A
+></H2
+><P
+>   Marko Kreen <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:markokr@gmail.com"
+>markokr@gmail.com</A
+>&#62;</CODE
+>
+  </P
+><P
+>   <TT
+CLASS="LITERAL"
+>pgcrypto</TT
+>は以下のソースを使用しています。
+  </P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><A
+NAME="AEN136271"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+><P
+>アルゴリズム</P
+></TH
+><TH
+><P
+>作者</P
+></TH
+><TH
+><P
+>元ソース</P
+></TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>DES crypt</TD
+><TD
+>David Burren and others</TD
+><TD
+>FreeBSD libcrypt</TD
+></TR
+><TR
+><TD
+>MD5 crypt</TD
+><TD
+>Poul-Henning Kamp</TD
+><TD
+>FreeBSD libcrypt</TD
+></TR
+><TR
+><TD
+>Blowfish crypt</TD
+><TD
+>Solar Designer</TD
+><TD
+>www.openwall.com</TD
+></TR
+><TR
+><TD
+>Blowfish cipher</TD
+><TD
+>Simon Tatham</TD
+><TD
+>PuTTY</TD
+></TR
+><TR
+><TD
+>Rijndael cipher</TD
+><TD
+>Brian Gladman</TD
+><TD
+>OpenBSD sys/crypto</TD
+></TR
+><TR
+><TD
+>MD5 and SHA1</TD
+><TD
+>WIDE Project</TD
+><TD
+>KAME kame/sys/crypto</TD
+></TR
+><TR
+><TD
+>SHA256/384/512 </TD
+><TD
+>Aaron D. Gifford</TD
+><TD
+>OpenBSD sys/crypto</TD
+></TR
+><TR
+><TD
+>BIGNUM math</TD
+><TD
+>Michael J. Fromberger</TD
+><TD
+>dartmouth.edu/~sting/sw/imath</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="pgbuffercache.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pgfreespacemap.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>pg_buffercache</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>pg_freespacemap</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

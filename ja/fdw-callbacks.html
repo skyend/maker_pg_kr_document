@@ -1,0 +1,430 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>外部データラッパのコールバックルーチン</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="外部データラッパの作成"
+HREF="fdwhandler.html"><LINK
+REL="PREVIOUS"
+TITLE="Foreign Data Wrapper Functions"
+HREF="fdw-functions.html"><LINK
+REL="NEXT"
+TITLE="遺伝的問い合わせ最適化"
+HREF="geqo.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="Foreign Data Wrapper Functions"
+HREF="fdw-functions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="外部データラッパの作成"
+HREF="fdwhandler.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 50&#31456;外部データラッパの作成</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="外部データラッパの作成"
+HREF="fdwhandler.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="遺伝的問い合わせ最適化"
+HREF="geqo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FDW-CALLBACKS"
+>50.2. 外部データラッパのコールバックルーチン</A
+></H1
+><P
+>FDWハンドラ関数は、以下のコールバック関数へのポインタを含む、pallocされた<TT
+CLASS="STRUCTNAME"
+>FdwRoutine</TT
+>構造体を返します。
+    </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>FdwPlan *
+PlanForeignScan (Oid foreigntableid,
+                 PlannerInfo *root,
+                 RelOptInfo *baserel);</PRE
+><P>
+
+外部テーブルへのスキャンの実行計画を作成します。
+この関数はクエリの実行計画を作成するときに呼び出されます。
+<TT
+CLASS="LITERAL"
+>foreigntableid</TT
+>はその外部テーブルの<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>のOIDです。
+<TT
+CLASS="LITERAL"
+>root</TT
+>はそのクエリに関するプランナのグローバル情報で、<TT
+CLASS="LITERAL"
+>baserel</TT
+>はこのテーブルに関するプランナの情報です。
+この関数は、コストの見積もりに加えて、後で外部テーブルスキャンを実行するのに必要なFDWのプライベート情報を含む、pallocされた構造体を返さなければなりません。
+(プライベート情報は<CODE
+CLASS="FUNCTION"
+>copyObject</CODE
+>がコピー方法を知っている形式で表現されていなければならないことに注意してください。)
+    </P
+><P
+>&#13;<TT
+CLASS="LITERAL"
+>root</TT
+>と<TT
+CLASS="LITERAL"
+>baserel</TT
+>に含まれる情報は、外部テーブルから取り出す情報を減らすために(結果としてコスト見積もりを減らすことに)使うことができます。
+<TT
+CLASS="LITERAL"
+>baserel-&gt;baserestrictinfo</TT
+>は、取り出す行を選別するのに使用できる制約条件(<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句)を含んでおり、特に興味深いものです。
+(最終的な実行計画では制約条件を再度チェックするので、FDWでこれらの条件を適用しなければならないわけではありません。)
+<TT
+CLASS="LITERAL"
+>baserel-&gt;reltargetlist</TT
+>は取り出す必要があるカラムを決定するのに使用できます。
+    </P
+><P
+>この関数は、コスト見積もりを返すのに加えて、制約条件によるフィルタリングも考慮した、そのスキャンで返される想定行数に<TT
+CLASS="LITERAL"
+>baserel-&gt;rows</TT
+>を更新すべきです。
+<TT
+CLASS="LITERAL"
+>baserel-&gt;rows</TT
+>の初期値は単なるデフォルトの見積もりであり、可能であれば置き換えられるべきものです。
+平均行長のより良い見積もりを算出できるのであれば、この関数で<TT
+CLASS="LITERAL"
+>baserel-&gt;width</TT
+>を更新することを選択することもできます。
+    </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+ExplainForeignScan (ForeignScanState *node,
+                    ExplainState *es);</PRE
+><P>
+
+外部テーブルスキャンの追加の<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>出力を表示します。
+何も表示する必要がないのであれば、単にリターンすることもできます。
+もしくは、<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>出力にフィールドを追加するために<CODE
+CLASS="FUNCTION"
+>ExplainPropertyText</CODE
+>や関連する関数を呼び出すべきです。
+<TT
+CLASS="LITERAL"
+>es</TT
+>の中のフラグフィールドは何を表示するかを決めるのに使用できます。また、<TT
+CLASS="COMMAND"
+>EXPLAIN ANALYZE</TT
+>の場合には、実行時統計情報を提供するために<TT
+CLASS="STRUCTNAME"
+>ForeignScanState</TT
+>ノードの状態を調べることができます。
+    </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+BeginForeignScan (ForeignScanState *node,
+                  int eflags);</PRE
+><P>
+
+
+外部テーブルスキャンの実行を開始します。
+この関数はエグゼキュータのスタートアップ中に呼び出されます。
+スキャンを開始できるようになる前に、あらゆる必要な初期化を実行するべきですが、実際のスキャンの実行を始めるべきではありません(それは最初の<CODE
+CLASS="FUNCTION"
+>IterateForeignScan</CODE
+>呼び出しにおいて行われるべきです)。
+<TT
+CLASS="STRUCTNAME"
+>ForeignScanState</TT
+>ノードは作成されていますが、その<TT
+CLASS="STRUCTFIELD"
+>fdw_state</TT
+>フィールドはNULLのままです。
+スキャンするテーブルの情報は、<TT
+CLASS="STRUCTNAME"
+>ForeignScanState</TT
+>ノード(実際にはその先にある、<CODE
+CLASS="FUNCTION"
+>PlanForeignScan</CODE
+>から返された<TT
+CLASS="STRUCTNAME"
+>FdwPlan</TT
+>構造体へのポインタを含む、<TT
+CLASS="STRUCTNAME"
+>ForeignScan</TT
+>プランノード)を通じてアクセス可能です。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>(eflags &amp; EXEC_FLAG_EXPLAIN_ONLY)</TT
+>が真の場合、この関数は外部に見えるアクションを起こすべきではないことに注意してください。
+<CODE
+CLASS="FUNCTION"
+>ExplainForeignScan</CODE
+>や<CODE
+CLASS="FUNCTION"
+>EndForeignScan</CODE
+>用にノード状態を有効にするのに必要とされる最小限のことだけをすべきです。
+
+    </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>TupleTableSlot *
+IterateForeignScan (ForeignScanState *node);</PRE
+><P>
+
+外部ソースから一行を取り出して、それをタプルテーブルスロットに入れて返します(この用途にはノードの<TT
+CLASS="STRUCTFIELD"
+>ScanTupleSlot</TT
+>を使うべきです)。
+利用可能な行がない場合は、NULLを返します。
+タプルテーブルスロット機構を使うと、物理タプルと仮想タプルのどちらでも返せます。
+ほとんどの場合、パフォーマンスの観点から後者を選ぶのが良いでしょう。
+この関数は、呼出しごとにリセットされる短命なメモリコンテキスト内で呼び出されることに注意してください。
+より長命なストレージが必要な場合は、<CODE
+CLASS="FUNCTION"
+>BeginForeignScan</CODE
+>でメモリコンテキストを作成するか、ノードの<TT
+CLASS="STRUCTNAME"
+>EState</TT
+>に含まれる<TT
+CLASS="STRUCTFIELD"
+>es_query_cxt</TT
+>を使用してください。
+    </P
+><P
+>返される行はスキャンされている外部テーブルのカラムシグネチャと一致しなければなりません。
+不要なカラムを取り出さないように最適化することを選ぶなら、それらのカラム位置にNULLを入れるべきです。
+    </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のエグゼキュータは返された行が外部テーブルの列に定義された<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>制約に違反しているかどうかは気にしませんが、プランナはそれに関心を持ち、<TT
+CLASS="LITERAL"
+>NULL</TT
+>値を含まないと宣言された列に<TT
+CLASS="LITERAL"
+>NULL</TT
+>値が現れた場合に不正なクエリ最適化をしてしまう場合があることに注意してください。
+ユーザがあってはならないと宣言したのに<TT
+CLASS="LITERAL"
+>NULL</TT
+>値に遭遇した場合は(データ型が一致しなかった場合にする必要があるのと同様に)エラーを発生させるのが適切でしょう。
+    </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+ReScanForeignScan (ForeignScanState *node);</PRE
+><P>
+
+先頭からスキャンを再開します。
+スキャンが依存するいずれかのパラメータが値を変更しているかもしれないので、新しいスキャンが必ずしも厳密に同じ行を返すとは限らないことに注意してください。
+    </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+EndForeignScan (ForeignScanState *node);</PRE
+><P>
+
+スキャンを終了しリソースを解放します。
+通常、pallocされたメモリを解放することは重要ではありませんが、開いたファイルやリモートサーバへの接続などはクリーンアップするべきです。
+    </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>FdwRoutine</TT
+>と<TT
+CLASS="STRUCTNAME"
+>FdwPlan</TT
+>の構造体型は<TT
+CLASS="FILENAME"
+>src/include/foreign/fdwapi.h</TT
+>で宣言されているので、さらなる詳細はそちらを見て下さい。
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="fdw-functions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="geqo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Foreign Data Wrapper Functions</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="fdwhandler.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>遺伝的問い合わせ最適化</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

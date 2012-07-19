@@ -1,0 +1,294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>同時実行制御</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQL言語"
+HREF="sql.html"><LINK
+REL="PREVIOUS"
+TITLE="8.3以前のテキスト検索からの移行"
+HREF="textsearch-migration.html"><LINK
+REL="NEXT"
+TITLE="序文"
+HREF="mvcc-intro.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="8.3以前のテキスト検索からの移行"
+HREF="textsearch-migration.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="性能に関するヒント"
+HREF="performance-tips.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="序文"
+HREF="mvcc-intro.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="MVCC"
+></A
+>&#31532; 13&#31456;同時実行制御</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>13.1. <A
+HREF="mvcc-intro.html"
+>序文</A
+></DT
+><DT
+>13.2. <A
+HREF="transaction-iso.html"
+>トランザクションの分離</A
+></DT
+><DD
+><DL
+><DT
+>13.2.1. <A
+HREF="transaction-iso.html#XACT-READ-COMMITTED"
+>リードコミッティド分離レベル</A
+></DT
+><DT
+>13.2.2. <A
+HREF="transaction-iso.html#XACT-REPEATABLE-READ"
+>リピータブルリード分離レベル</A
+></DT
+><DT
+>13.2.3. <A
+HREF="transaction-iso.html#XACT-SERIALIZABLE"
+>シリアライザブル分離レベル</A
+></DT
+></DL
+></DD
+><DT
+>13.3. <A
+HREF="explicit-locking.html"
+>明示的ロック</A
+></DT
+><DD
+><DL
+><DT
+>13.3.1. <A
+HREF="explicit-locking.html#LOCKING-TABLES"
+>テーブルレベルロック</A
+></DT
+><DT
+>13.3.2. <A
+HREF="explicit-locking.html#LOCKING-ROWS"
+>行レベルロック</A
+></DT
+><DT
+>13.3.3. <A
+HREF="explicit-locking.html#LOCKING-DEADLOCKS"
+>デッドロック</A
+></DT
+><DT
+>13.3.4. <A
+HREF="explicit-locking.html#ADVISORY-LOCKS"
+>勧告的ロック</A
+></DT
+></DL
+></DD
+><DT
+>13.4. <A
+HREF="applevel-consistency.html"
+>アプリケーションレベルでのデータの一貫性チェック</A
+></DT
+><DD
+><DL
+><DT
+>13.4.1. <A
+HREF="applevel-consistency.html#SERIALIZABLE-CONSISTENCY"
+>シリアライザブルトランザクションを用いた一貫性の強化</A
+></DT
+><DT
+>13.4.2. <A
+HREF="applevel-consistency.html#NON-SERIALIZABLE-CONSISTENCY"
+>明示的なブロッキングロックを用いた一貫性の強化</A
+></DT
+></DL
+></DD
+><DT
+>13.5. <A
+HREF="locking-indexes.html"
+>ロックとインデックス</A
+></DT
+></DL
+></DIV
+><P
+>本章では同時に2つ以上のセッションが同じデータにアクセスしようとした場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースシステムがどう振舞うかについて説明します。
+このような状況でデータの整合性を確実に保つ一方、全てのセッションに対して効果的なアクセスを許可するようにすることが目的です。
+データベースアプリケーションを開発する方は、本章で扱われている内容を熟知していなければなりません。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="textsearch-migration.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="mvcc-intro.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>8.3以前のテキスト検索からの移行</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>序文</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

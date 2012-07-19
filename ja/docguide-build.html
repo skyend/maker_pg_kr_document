@@ -1,0 +1,935 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>文書の構築</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ドキュメント作成"
+HREF="docguide.html"><LINK
+REL="PREVIOUS"
+TITLE="ツールセット"
+HREF="docguide-toolsets.html"><LINK
+REL="NEXT"
+TITLE="文書の起草"
+HREF="docguide-authoring.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ツールセット"
+HREF="docguide-toolsets.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ドキュメント作成"
+HREF="docguide.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; I. ドキュメント作成</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ドキュメント作成"
+HREF="docguide.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="文書の起草"
+HREF="docguide-authoring.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DOCGUIDE-BUILD"
+>I.3. 文書の構築</A
+></H1
+><P
+>全ての設定が終了したら、<TT
+CLASS="FILENAME"
+>doc/src/sgml</TT
+>ディレクトリに移動して以下のコマンドの1つを実行してください
+（GNU makeを使うのを忘れずに）。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139505"
+>I.3.1. HTML</A
+></H2
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>形式の文書を作成するには次のようにします。
+
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake html</KBD
+></PRE
+><P>
+これはデフォルトでの対象です。
+出力は<TT
+CLASS="FILENAME"
+>html</TT
+>サブディレクトリに作成されます。
+   </P
+><P
+>適切なインデックスを作成するために、構築時何回か同一の処理を行う可能性があります。
+インデックスを考えず、出力の検証を行いたいだけであれば、以下のように<TT
+CLASS="LITERAL"
+>draft</TT
+>を使用してください。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake draft</KBD
+></PRE
+><P>
+   </P
+><P
+>1つのHTMLページとして文書を作成するためには以下を使用します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake postgres.html</KBD
+></PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139522"
+>I.3.2. マニュアルページ</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>DocBook</SPAN
+> <CODE
+CLASS="SGMLTAG"
+>refentry</CODE
+>ページをマニュアルページに対応した*roff形式に変換するには、DocBook XSLスタイルシートを使用します。
+manページも<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>形式と同じようにtarアーカイブで配布されています。
+マニュアルページを作成するには次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cd doc/src/sgml
+gmake man</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139529"
+>I.3.3. <SPAN
+CLASS="APPLICATION"
+>JadeTex</SPAN
+> からの印刷</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>JadeTex</SPAN
+>を使って印刷可能な文書を作成したい時は、以下のコマンドの中から1つを選んでください。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>A4サイズの<ACRONYM
+CLASS="ACRONYM"
+>DVI</ACRONYM
+>形式を作るには次のようにします。
+
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake postgres-A4.ps</KBD
+></PRE
+><P>
+U.S.レターサイズの場合は次のようにします。
+
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake postgres-US.ps</KBD
+></PRE
+><P>
+      </P
+></LI
+><LI
+><P
+>       <ACRONYM
+CLASS="ACRONYM"
+>PDF</ACRONYM
+>を作るには
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake postgres-A4.pdf</KBD
+></PRE
+><P>
+または、
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake postgres-US.pdf</KBD
+></PRE
+><P>
+のようにします。
+（もちろんPostscriptからも<ACRONYM
+CLASS="ACRONYM"
+>PDF</ACRONYM
+>バージョンを作成できますが、<ACRONYM
+CLASS="ACRONYM"
+>PDF</ACRONYM
+>を直接生成すれば、ハイパーリンクを含めた拡張機能を持たせるようにできます。）
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+>PostgreSQL文書の構築にJadeTeXを使用する場合、おそらくいくつかのTeXの内部用パラメータを増加させなければなりません。
+これらは<TT
+CLASS="FILENAME"
+>texmf.cnf</TT
+>ファイルで設定可能です。
+本書執筆時点では、以下の設定で動作します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>hash_extra.jadetex  = 200000
+hash_extra.pdfjadetex  = 200000
+pool_size.jadetex = 2000000
+pool_size.pdfjadetex = 2000000
+string_vacancies.jadetex = 150000
+string_vacancies.pdfjadetex = 150000
+max_strings.jadetex = 300000
+max_strings.pdfjadetex = 300000
+save_size.jadetex = 15000
+save_size.pdfjadetex = 15000</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139558"
+>I.3.4. テキストのはみ出し</A
+></H2
+><P
+>テキストが印刷マージンよりも広くなりすぎることがあります。
+さらに極端な場合、印刷ページよりも広くなりすぎることがあります。
+例えば、改行がテキストや幅広の表などです。
+過度に幅広のテキストは<SPAN
+CLASS="QUOTE"
+>"Overfull hbox"</SPAN
+>というメッセージをTeXのログファイル(<TT
+CLASS="FILENAME"
+>postgres-US.log</TT
+>または<TT
+CLASS="FILENAME"
+>postgres-A4.log</TT
+>)に残します。
+インチ単位で72ポイントありますので、72ポイントを超えた時におそらく幅が広すぎて印刷ページに合わないと何かしらに報告されます(1インチのマージンを仮定)。
+<ACRONYM
+CLASS="ACRONYM"
+>SGML</ACRONYM
+>テキストがはみ出す可能性があるかどうかを見つけるためには、上のはみ出しに関するメッセージで示されている先頭ページ番号(例えば<TT
+CLASS="LITERAL"
+>[50 ###]</TT
+> (page 50))を見つけ、<ACRONYM
+CLASS="ACRONYM"
+>PDF</ACRONYM
+>ファイル内の次のページ(例えばpage 51)以降を読み、はみ出したテキストを探します。
+それに合わせて<ACRONYM
+CLASS="ACRONYM"
+>SGML</ACRONYM
+>を調整します。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139568"
+>I.3.5. <ACRONYM
+CLASS="ACRONYM"
+>RTF</ACRONYM
+>からの印刷</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>文書の印刷できるバージョンを<ACRONYM
+CLASS="ACRONYM"
+>RTF</ACRONYM
+>に変換した後、ちょっとした修正をOffice Suiteで施すことで作成できます。
+特定のOffice Suiteによる機能で、文書を引き続き<ACRONYM
+CLASS="ACRONYM"
+>PDF</ACRONYM
+>のPostScriptに変換できます。
+以下に<SPAN
+CLASS="PRODUCTNAME"
+>Applixware</SPAN
+>を使ってこの手順を示します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>現バージョンの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>文書は、OpenJadeの大きさの限界とそれを超えた部分での不具合を引き起こすようです。
+もし<ACRONYM
+CLASS="ACRONYM"
+>RTF</ACRONYM
+>バージョンが構築過程で長時間にわたってハングアップし、かつ出力ファイルのサイズが0のままであるような場合は、この問題に遭遇したことになります。
+（とは言っても、通常の構築には5分から10分を要しますので、あせって中断しないように注意してください。）
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="PROCEDURE"
+><P
+><B
+><SPAN
+CLASS="PRODUCTNAME"
+>Applixware</SPAN
+> <ACRONYM
+CLASS="ACRONYM"
+>RTF</ACRONYM
+>の手入れ</B
+></P
+><P
+><SPAN
+CLASS="APPLICATION"
+>OpenJade</SPAN
+>は本文に対してデフォルトのスタイルシートの特定を省略します。
+過去においてはこの原因不明の問題によって、表内容を生成するまで長い過程を必要としました。
+しかし、<SPAN
+CLASS="PRODUCTNAME"
+>Applixware</SPAN
+>に関わっている仲間の助力でこの症状が判明し、しっくり行くようになりました。
+    </P
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+>      <ACRONYM
+CLASS="ACRONYM"
+>RTF</ACRONYM
+>バージョンを生成するためには次のように入力します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake postgres.rtf</KBD
+></PRE
+><P>
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>全てのスタイル（特にデフォルトスタイル）を正しく指定するようにRTFファイルを修正します。
+文書に<CODE
+CLASS="SGMLTAG"
+>refentry</CODE
+>節がある場合、前の段落を現在の段落に連結されるフォーマット指示を、現在の段落が次の段落に連結するように置き換えなければなりません。
+これらの修正を行ってくれる<SPAN
+CLASS="APPLICATION"
+>fixrtf</SPAN
+>ユーティリティは<TT
+CLASS="FILENAME"
+>doc/src/sgml</TT
+>にあります。
+
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>./fixrtf --refentry postgres.rtf</KBD
+></PRE
+><P>
+     </P
+><P
+>このスクリプトはその文書の中でのゼロ番目のスタイルとして<TT
+CLASS="LITERAL"
+>{\s0 Normal;}</TT
+>を付け加えます。
+<SPAN
+CLASS="PRODUCTNAME"
+>Applixware</SPAN
+>によるとRTF規格は明示的なゼロ番目のスタイルを追加することを禁じていますが、Microsoft Wordはたまたま扱えるようになっています。
+<CODE
+CLASS="SGMLTAG"
+>refentry</CODE
+>節を修正するためにスクリプトが<TT
+CLASS="LITERAL"
+>\keepn</TT
+>タグを<TT
+CLASS="LITERAL"
+>\keep</TT
+>に置き換えます。
+
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Applixware Words</SPAN
+>で新規文書を開き、<ACRONYM
+CLASS="ACRONYM"
+>RTF</ACRONYM
+>ファイルをインポートします。
+
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Applixware</SPAN
+>で新規目次（ToC）を生成します。
+     </P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>そこにあるToCの行の1行目の始めの文字から最終行の最後の文字までを選択します。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><SPAN
+CLASS="GUIMENU"
+>Tools</SPAN
+>-&gt;<SPAN
+CLASS="GUISUBMENU"
+>Book Building</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Create Table of Contents</SPAN
+>で新規ToCを構築します。
+ToCに含めるためヘッダの上から3レベルまでを選択します。 
+こうするとRTFからインポートされた既存の行が<SPAN
+CLASS="PRODUCTNAME"
+>Applixware</SPAN
+>本来のToCと入れ替わります。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><SPAN
+CLASS="GUIMENU"
+>Format</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Style</SPAN
+>を使ってToCのフォーマットを調整します。
+3つのToCスタイルのそれぞれを選択し、<TT
+CLASS="LITERAL"
+>First</TT
+>と<TT
+CLASS="LITERAL"
+>Left</TT
+>インデントを調整します。
+下記の値を使用します。
+
+        <DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><A
+NAME="AEN139631"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>Style</TH
+><TH
+>Firstインデント（インチ）</TH
+><TH
+>Leftインデント（インチ）</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>TOC-Heading 1</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>0.4</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>0.4</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>TOC-Heading 2</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>0.8</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>0.8</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>TOC-Heading 3</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>1.2</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>1.2</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+       </P
+></LI
+></OL
+></LI
+><LI
+CLASS="STEP"
+><P
+>     文書を通して下記に従って作業します。
+
+      <P
+></P
+></P><UL
+><LI
+><P
+>	 改ページの調整をします。
+
+        </P
+></LI
+><LI
+><P
+>	 表の列幅の調整をします。
+
+        </P
+></LI
+></UL
+><P>
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>ToCのExamplesとFigures部分の右寄せのページ番号を正しい値に修正します。
+ほんの数分しかかかりません。
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>      索引に何もない場合は削除します。
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>      目次の再生成と調整を行います。
+     </P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>ToCフィールドを選択します。
+        </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><SPAN
+CLASS="GUIMENU"
+>Tools</SPAN
+>-&gt;<SPAN
+CLASS="GUISUBMENU"
+>Book Building</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Create Table of Contents</SPAN
+>を選択します。
+
+        </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><SPAN
+CLASS="GUIMENU"
+>Tools</SPAN
+>-&gt;<SPAN
+CLASS="GUISUBMENU"
+>Field Editing</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Unprotect</SPAN
+>を選択してToCを解放します。
+        </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>ToCそのもののエントリであるToCの第1行目を削除します。
+        </P
+></LI
+></OL
+></LI
+><LI
+CLASS="STEP"
+><P
+>後での最終編集を容易にするため<SPAN
+CLASS="PRODUCTNAME"
+>Applixware Words</SPAN
+>固有のフォーマットで文書を保存します。
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>Postscriptフォーマットで文書をファイルに<SPAN
+CLASS="QUOTE"
+>"出力"</SPAN
+>します。
+     </P
+></LI
+></OL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139696"
+>I.3.6. 平文ファイル</A
+></H2
+><P
+>インストールする過程の参照用としていくつかの平文によるファイルが配布されています。
+<TT
+CLASS="FILENAME"
+>INSTALL</TT
+>ファイルは<A
+HREF="installation.html"
+>&#31532;15&#31456;</A
+>と連係していて、異なった内容を説明するためにちょっとした変更が加えられています。
+このファイルを生成するには、<TT
+CLASS="FILENAME"
+>doc/src/sgml</TT
+>ディレクトリに移動し<KBD
+CLASS="USERINPUT"
+>gmake INSTALL</KBD
+>と入力します。
+この操作で<SPAN
+CLASS="PRODUCTNAME"
+>Netscape Navigator</SPAN
+>用の平文<TT
+CLASS="FILENAME"
+>INSTALL.html</TT
+>が作成され、既存ファイルと同じ場所に置かれます。
+<SPAN
+CLASS="PRODUCTNAME"
+>Netscape</SPAN
+>は（<SPAN
+CLASS="APPLICATION"
+>lynx</SPAN
+>や<SPAN
+CLASS="APPLICATION"
+>w3m</SPAN
+>と比べて）<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>を平文に変換するのに最も品質の良い結果をもたらすようです。
+
+   </P
+><P
+><TT
+CLASS="FILENAME"
+>HISTORY</TT
+>ファイルも同じようにして<KBD
+CLASS="USERINPUT"
+>gmake HISTORY</KBD
+>コマンドで作成できます。
+<TT
+CLASS="FILENAME"
+>src/test/regress/README</TT
+>ファイルの場合は<KBD
+CLASS="USERINPUT"
+>gmake regress_README</KBD
+>です。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139714"
+>I.3.7. 構文検証</A
+></H2
+><P
+>文書の構築にはとても時間がかかります。
+でも文書ファイルの正しい構文だけを検証する方法があります。
+以下のように入力します。
+ほんの数秒しかかかりません。
+
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>doc/src/sgml$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake check</KBD
+></PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="docguide-toolsets.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="docguide-authoring.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ツールセット</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="docguide.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>文書の起草</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

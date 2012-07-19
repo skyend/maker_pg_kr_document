@@ -1,0 +1,504 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>XML型</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ型"
+HREF="datatype.html"><LINK
+REL="PREVIOUS"
+TITLE="UUID型"
+HREF="datatype-uuid.html"><LINK
+REL="NEXT"
+TITLE="配列"
+HREF="arrays.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="UUID型"
+HREF="datatype-uuid.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 8&#31456;データ型</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="配列"
+HREF="arrays.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DATATYPE-XML"
+>8.13. <ACRONYM
+CLASS="ACRONYM"
+>XML</ACRONYM
+>型</A
+></H1
+><P
+><TT
+CLASS="TYPE"
+>xml</TT
+>データ型を使用して、XMLデータを格納することができます。
+<TT
+CLASS="TYPE"
+>text</TT
+>型のフィールドにXMLデータを格納する方法より、入力された値が整形式かどうかを検査する利点があります。
+また、型を安全に操作するサポート関数があります。
+<A
+HREF="functions-xml.html"
+>&#38917;9.14</A
+>を参照してください。
+このデータ型を使用するためには、インストレーションが<TT
+CLASS="COMMAND"
+>configure --with-libxml</TT
+>で構築されていることが必要です。
+   </P
+><P
+><TT
+CLASS="TYPE"
+>xml</TT
+>型は、XML標準で定義された整形式の<SPAN
+CLASS="QUOTE"
+>"文書"</SPAN
+>およびXML標準による<TT
+CLASS="LITERAL"
+>XMLDecl? content</TT
+>生成規則で定義された<SPAN
+CLASS="QUOTE"
+>"コンテンツ"</SPAN
+>フラグメントを格納することができます。
+大雑把に言うと、これは、コンテンツフラグメントが1つ以上の最上位要素や文字ノードを持つことができることを意味します。
+<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>xmlvalue</I
+></TT
+> IS DOCUMENT</TT
+>という式を使用して、特定の<TT
+CLASS="TYPE"
+>xml</TT
+>が完全な文書か単なるコンテンツフラグメントか評価することができます。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6932"
+>8.13.1. XML値の作成</A
+></H2
+><P
+>文字データから<TT
+CLASS="TYPE"
+>xml</TT
+>型の値を生成するためには、<CODE
+CLASS="FUNCTION"
+>xmlparse</CODE
+>関数を使用してください。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>XMLPARSE ( { DOCUMENT | CONTENT } <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>)</PRE
+><P>
+例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>XMLPARSE (DOCUMENT '&#60;?xml version="1.0"?&#62;&#60;book&#62;&#60;title&#62;Manual&#60;/title&#62;&#60;chapter&#62;...&#60;/chapter&#62;&#60;/book&#62;')
+XMLPARSE (CONTENT 'abc&#60;foo&#62;bar&#60;/foo&#62;&#60;bar&#62;foo&#60;/bar&#62;')</PRE
+><P>
+標準SQLに従って文字列をXML値に変換するためにはこの方法しかありませんが、次のようなPostgreSQL固有の構文も使用することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>xml '&#60;foo&#62;bar&#60;/foo&#62;'
+'&#60;foo&#62;bar&#60;/foo&#62;'::xml</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="TYPE"
+>xml</TT
+>型では文書型定義（DTD）に対して入力値を検証することは、入力値がDTDを指定していたとしても、行いません。
+また同様に、現時点ではXML Schemaなどの他のXMLスキーマ言語に対する検証サポートも組み込まれていません。
+   </P
+><P
+><TT
+CLASS="TYPE"
+>xml</TT
+>から文字列値を生成するという逆の操作では<CODE
+CLASS="FUNCTION"
+>xmlserialize</CODE
+>関数を使用してください。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>XMLSERIALIZE ( { DOCUMENT | CONTENT } <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> AS <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+> )</PRE
+><P>
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+>は、<TT
+CLASS="TYPE"
+>character</TT
+>、<TT
+CLASS="TYPE"
+>character varying</TT
+>、<TT
+CLASS="TYPE"
+>text</TT
+>（またはこれらの別名）を取ることができます。
+繰り返しになりますが、標準SQLに従って<TT
+CLASS="TYPE"
+>xml</TT
+>と文字列型間の変換を行うためにはこの方法しかありません。
+PostgreSQLでは単に値をキャストすることが可能です。
+   </P
+><P
+><TT
+CLASS="TYPE"
+>XMLPARSE</TT
+>や<TT
+CLASS="TYPE"
+>XMLSERIALIZE</TT
+>を使わずに文字列値と<TT
+CLASS="TYPE"
+>xml</TT
+>との間をキャストした場合、<TT
+CLASS="LITERAL"
+>DOCUMENT</TT
+>か<TT
+CLASS="LITERAL"
+>CONTENT</TT
+>かという選択が<SPAN
+CLASS="QUOTE"
+>"XMLオプション"</SPAN
+>セッション設定パラメータによって決定されます。
+
+このパラメータは標準コマンド
+</P><PRE
+CLASS="SYNOPSIS"
+>SET XML OPTION { DOCUMENT | CONTENT };</PRE
+><P>
+または、よりPostgreSQLらしい構文
+</P><PRE
+CLASS="SYNOPSIS"
+>SET xmloption TO { DOCUMENT | CONTENT };</PRE
+><P>
+を使用して設定することができます。
+デフォルトは<TT
+CLASS="LITERAL"
+>CONTENT</TT
+>ですので、すべての書式のXMLデータを扱うことができます。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>デフォルトのXMLオプション設定では、文書型宣言を含む文字列を<TT
+CLASS="TYPE"
+>xml</TT
+>に直接キャストすることはできません。
+XMLコンテンツフラグメントの定義が受け付けないためです。
+この操作を行う必要がある場合、<TT
+CLASS="LITERAL"
+>XMLPARSE</TT
+>を使用するかXMLオプションを変更してください。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6974"
+>8.13.2. 符号化方式の取扱い</A
+></H2
+><P
+>クライアント側、サーバ側、および、これらを経由してやり取りされるXMLデータ内部で複数の文字符号化方式を扱う場合には注意が必要です。
+サーバへの問い合わせをテキストモードで渡す場合とクライアントへの問い合わせ結果をテキストモードで渡す場合（どちらも通常のモードです）、PostgreSQLは、クライアントからサーバ、サーバからクライアントでやり取りされるすべての文字データを受信側の文字符号化方式に変換します。
+<A
+HREF="multibyte.html"
+>&#38917;22.3</A
+>を参照してください。
+これには上の例のようなXML値の文字列表現も含まれます。
+これは通常、埋め込まれたencoding宣言は変更されずに、クライアント/サーバ間でやり取りされる間に文字データが他方の符号化方式に変換されてしまうので、XMLデータ内のencodingが無効になる可能性があることを意味します。
+この動作に対処するため、<TT
+CLASS="TYPE"
+>xml</TT
+>型の入力として表現された文字列に含まれているencoding宣言は無視され、その内容は常にサーバの現在の符号化方式になっているものと仮定されます。
+したがって、正しく処理するためには、XMLデータにおける文字列をクライアントの現在の符号化方式で送信しなければなりません。
+サーバに送信する前に文書を現在のクライアントの符号化方式に変換するか、クライアントの符号化方式を適切に調節するかは、クライアントの責任です。
+出力では<TT
+CLASS="TYPE"
+>xml</TT
+>型の値はencoding宣言を持ちません。
+クライアントはすべてのデータが現在のクライアントの符号化方式であることを前提としなければなりません。
+   </P
+><P
+>バイナリモードを使用して、問い合わせパラメータをサーバに渡す場合、および、問い合わせ結果をクライアントに返す場合、文字セットの変換は行われません。
+このため状況は異なります。
+この場合、XMLデータ内のencoding宣言が認識され、もし存在しなければ、データがUTF-8であると仮定されます。
+（XML標準の要求通りです。
+PostgreSQLはUTF-16をサポートしていないことに注意してください。）
+出力では、データはクライアントの符号化方式を指定したencoding宣言を持ちます。
+ただし、もしクライアントの符号化方式がUTF-8の場合はencoding宣言は省略されます。
+   </P
+><P
+>言うまでもありませんが、PostgreSQLを使用したXML処理では、XMLデータの符号化方式、クライアントの符号化方式、サーバの符号化方式が同じ場合にエラーが起こりづらく、より効率的です。
+XMLデータは内部的にUTF-8として処理されますので、サーバの符号化方式が同一のUTF-8である場合、最も効率が上がります。
+   </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>    
+サーバ符号化方式がUTF-8でない場合、いくつかのXMLに関係した関数は非ASCIIデータに対して全く機能しないことがあります。
+特に<CODE
+CLASS="FUNCTION"
+>xpath()</CODE
+>に対する問題として知られています。
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6985"
+>8.13.3. XML値へのアクセス</A
+></H2
+><P
+><TT
+CLASS="TYPE"
+>xml</TT
+>データ型は通常と異なり、比較演算子をまったく提供しません。
+これは、XMLデータに対し、よく定義され、誰にとっても有用な比較アルゴリズムが存在しないためです。
+この結果、<TT
+CLASS="TYPE"
+>xml</TT
+>列を検索値と比べて行を取り出すことはできません。
+したがって通常XML値には、IDなどの別のキーフィールドを一般的に付属させなければなりません。
+XML値の比較を行うもうひとつの方法は、文字列に一度変換することです。
+しかし、文字列比較は有用なXML比較方法といえないことに注意してください。
+   </P
+><P
+><TT
+CLASS="TYPE"
+>xml</TT
+>データ型用の比較演算子がありませんので、この型の列に直接インデックスを作成することはできません。
+XMLデータを高速に検索することが望まれるなら、その表現を文字列型にキャストし、それをインデックス付けするか、または、XPath式をインデックス付けするかという対策をとることができます。
+当然ながら、インデックス付けされた式で検索されるよう実際の問い合わせを調整する必要があります。
+   </P
+><P
+>PostgreSQLのテキスト検索機能を使用して、XMLデータの全文検索速度をあげることもできます。
+しかし、PostgreSQL配布物では必要な前処理を未だサポートしていません。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="datatype-uuid.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="arrays.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>UUID</ACRONYM
+>型</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="datatype.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>配列</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

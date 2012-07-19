@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/Tclにおけるグローバルデータ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/Tclにおけるデータの値"
+HREF="pltcl-data.html"><LINK
+REL="NEXT"
+TITLE="PL/Tclからのデータベースアクセス"
+HREF="pltcl-dbaccess.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Tclにおけるデータの値"
+HREF="pltcl-data.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 40&#31456;PL/Tcl - Tcl手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Tclからのデータベースアクセス"
+HREF="pltcl-dbaccess.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLTCL-GLOBAL"
+>40.4. PL/Tclにおけるグローバルデータ</A
+></H1
+><P
+>ある関数の複数の呼び出し間で保持される、もしくは、異なる関数間で共有されるような、いくつかのグローバルデータを持つことが有意な場合があります。
+これはPL/Tclで簡単に実現できますが、理解する必要がある制限がいくつかあります。
+    </P
+><P
+>セキュリティ上の理由のため、PL/Tclは、任意のSQLロールによって呼び出された関数をそのロール用の別のTclインタプリタで実行します。
+これにより、他のユーザのPL/Tcl関数の処理によってあるユーザへの事故または悪意の干渉を防止します。
+こうしたインタプリタはそれぞれ任意の<SPAN
+CLASS="QUOTE"
+>"グローバル"</SPAN
+>なTcl変数を持ちます。
+したがって、同じSQLロールにより実行されていれば、２つのPL/Tcl関数は同じグローバル変数を共有します。
+単一セッション内で（<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>関数または<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>などを通して）複数のSQLロールでコードを実行するアプリケーションでは、PL/Tcl関数が確実にデータを共有できるように明示的な処理を行う必要があるかもしれません。
+このためには、通信しなければならない関数が同一ユーザで所有されていること、および、それが<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>として印がついていることを確実にしてください。
+当然ながら、こうした関数が意図しない動作を行うために使用できないことに注意しなければなりません。
+    </P
+><P
+>セッション内で使用されるすべてのPL/TclU関数は、当然ながらPL/Tcl関数とは別のインタプリタですが、同一のTclインタプリタ内で実行されます。
+このためPL/TclU関数間ではグローバルデータは自動的に共有されます。
+すべてのPL/TclU関数は同じ信頼レベル、すなわちデータベーススーパーユーザで実行されますので、これはセキュリティ上危険とはみなされません。
+    </P
+><P
+>PL/Tcl関数が予期しない相互作用に巻き込まれないようにするために、<CODE
+CLASS="FUNCTION"
+>upvar</CODE
+>コマンドを使用することによって、各関数でアクセスできるグローバルな配列を作成することができます。
+この変数のグローバル名は関数の内部名で、ローカル名は<TT
+CLASS="LITERAL"
+>GD</TT
+>となります。
+関数の永続局所データでは<TT
+CLASS="LITERAL"
+>GD</TT
+>を使用することを推奨します。
+複数の関数で共用させる予定の値に対してのみ、通常のTclのグローバル変数を使用してください。
+（<TT
+CLASS="LITERAL"
+>GD</TT
+>配列が特定のインタプリタ内のみでグローバルであることに注意してください。
+このため、これらは上記のセキュリティ制限を迂回することはありません。）
+    </P
+><P
+>後述の<CODE
+CLASS="FUNCTION"
+>spi_execp</CODE
+>の例の中に<TT
+CLASS="LITERAL"
+>GD</TT
+>の使用例があります。
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="pltcl-data.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pltcl-dbaccess.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PL/Tclにおけるデータの値</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="pltcl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PL/Tclからのデータベースアクセス</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

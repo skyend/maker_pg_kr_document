@@ -1,0 +1,599 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CONNECT</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="埋め込みSQLコマンド"
+HREF="ecpg-sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALLOCATE DESCRIPTOR"
+HREF="ecpg-sql-allocate-descriptor.html"><LINK
+REL="NEXT"
+TITLE="DEALLOCATE DESCRIPTOR"
+HREF="ecpg-sql-deallocate-descriptor.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALLOCATE DESCRIPTOR"
+HREF="ecpg-sql-allocate-descriptor.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALLOCATE DESCRIPTOR"
+HREF="ecpg-sql-allocate-descriptor.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DEALLOCATE DESCRIPTOR"
+HREF="ecpg-sql-deallocate-descriptor.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DEALLOCATE DESCRIPTOR"
+HREF="ecpg-sql-deallocate-descriptor.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="ECPG-SQL-CONNECT"
+></A
+>CONNECT</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN42940"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CONNECT&nbsp;--&nbsp;データベース接続を確立します。</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN42943"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CONNECT TO <TT
+CLASS="REPLACEABLE"
+><I
+>connection_target</I
+></TT
+> [ AS <TT
+CLASS="REPLACEABLE"
+><I
+>connection_name</I
+></TT
+> ] [ USER <TT
+CLASS="REPLACEABLE"
+><I
+>connection_user_name</I
+></TT
+> ]
+CONNECT TO DEFAULT
+CONNECT <TT
+CLASS="REPLACEABLE"
+><I
+>connection_user_name</I
+></TT
+>
+DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>connection_target</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN42950"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CONNECT</TT
+>コマンドはクライアントとPostgreSQLサーバとの間の接続を確立します。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN42954"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>connection_target</I
+></TT
+></DT
+><DD
+><P
+>        <TT
+CLASS="REPLACEABLE"
+><I
+>connection_target</I
+></TT
+>
+以下の複数の形式の１つを使用して、接続する対象サーバを指定します。
+
+        <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>[ <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> ] [ <TT
+CLASS="LITERAL"
+>@</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+> ] [ <TT
+CLASS="LITERAL"
+>:</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+> ]</DT
+><DD
+><P
+>TCP/IPを介した接続。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>unix:postgresql://</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+> [ <TT
+CLASS="LITERAL"
+>:</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+> ] <TT
+CLASS="LITERAL"
+>/</TT
+> [ <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> ] [ <TT
+CLASS="LITERAL"
+>?</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>connection_option</I
+></TT
+> ]</DT
+><DD
+><P
+>Unixドメインソケットを介した接続。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>tcp:postgresql://</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+> [ <TT
+CLASS="LITERAL"
+>:</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+> ] <TT
+CLASS="LITERAL"
+>/</TT
+> [ <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> ] [ <TT
+CLASS="LITERAL"
+>?</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>connection_option</I
+></TT
+> ]</DT
+><DD
+><P
+>TCP/IPを介した接続。
+           </P
+></DD
+><DT
+>SQL文字列定数</DT
+><DD
+><P
+>上記形式のいずれかで記述された値を持ちます。
+           </P
+></DD
+><DT
+>ホスト変数</DT
+><DD
+><P
+>上記形式のいずれかで記述された値を持つ<TT
+CLASS="TYPE"
+>char[]</TT
+>または<TT
+CLASS="TYPE"
+>VARCHAR[]</TT
+>型のホスト変数。
+           </P
+></DD
+></DL
+></DIV
+><P>
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>connection_object</I
+></TT
+></DT
+><DD
+><P
+>他のコマンドで参照することができる、このデータベース接続の識別子です。省略可能です。
+これはSQL識別子またはホスト変数とすることができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>connection_user</I
+></TT
+></DT
+><DD
+><P
+>データベース接続用のユーザ名です。
+       </P
+><P
+>このパラメータは、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+>/<TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></TT
+>、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+> IDENTIFIED BY <TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></TT
+>、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></TT
+>のいずれかの形式を使用して、ユーザ名とパスワードを指定することができます。
+       </P
+><P
+>ユーザ名とパスワードは、SQL識別子、文字列定数、ホスト変数とすることができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DEFAULT</TT
+></DT
+><DD
+><P
+>libpqで定義された、デフォルトの接続パラメータすべてを使用します。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43033"
+></A
+><H2
+>例</H2
+><P
+>以下に接続パラメータを指定する複数の種類を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL CONNECT TO "connectdb" AS main;
+EXEC SQL CONNECT TO "connectdb" AS second;
+EXEC SQL CONNECT TO "unix:postgresql://200.46.204.71/connectdb" AS main USER connectuser;
+EXEC SQL CONNECT TO "unix:postgresql://localhost/connectdb" AS main USER connectuser;
+EXEC SQL CONNECT TO 'connectdb' AS main;
+EXEC SQL CONNECT TO 'unix:postgresql://localhost/connectdb' AS main USER :user;
+EXEC SQL CONNECT TO :db AS :id;
+EXEC SQL CONNECT TO :db USER connectuser USING :pw;
+EXEC SQL CONNECT TO @localhost AS main USER connectdb;
+EXEC SQL CONNECT TO REGRESSDB1 as main;
+EXEC SQL CONNECT TO AS main USER connectdb;
+EXEC SQL CONNECT TO connectdb AS :id;
+EXEC SQL CONNECT TO connectdb AS main USER connectuser/connectdb;
+EXEC SQL CONNECT TO connectdb AS main;
+EXEC SQL CONNECT TO connectdb@localhost AS main;
+EXEC SQL CONNECT TO tcp:postgresql://localhost/ USER connectdb;
+EXEC SQL CONNECT TO tcp:postgresql://localhost/connectdb USER connectuser IDENTIFIED BY connectpw;
+EXEC SQL CONNECT TO tcp:postgresql://localhost:20/connectdb USER connectuser IDENTIFIED BY connectpw;
+EXEC SQL CONNECT TO unix:postgresql://localhost/ AS main USER connectdb;
+EXEC SQL CONNECT TO unix:postgresql://localhost/connectdb AS main USER connectuser;
+EXEC SQL CONNECT TO unix:postgresql://localhost/connectdb USER connectuser IDENTIFIED BY "connectpw";
+EXEC SQL CONNECT TO unix:postgresql://localhost/connectdb USER connectuser USING "connectpw";
+EXEC SQL CONNECT TO unix:postgresql://localhost/connectdb?connect_timeout=14 USER connectuser;</PRE
+><P>
+    </P
+><P
+>以下にホスト変数を使用して接続パラメータを指定する方法を示すプログラム例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>int
+main(void)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+    char *dbname     = "testdb";    /* database name */
+    char *user       = "testuser";  /* connection user name */
+    char *connection = "tcp:postgresql://localhost:5432/testdb";
+                                    /* connection string */
+    char ver[256];                  /* buffer to store the version string */
+EXEC SQL END DECLARE SECTION;
+
+    ECPGdebug(1, stderr);
+
+    EXEC SQL CONNECT TO :dbname USER :user;
+    EXEC SQL SELECT version() INTO :ver;
+    EXEC SQL DISCONNECT;
+
+    printf("version: %s\n", ver);
+
+    EXEC SQL CONNECT TO :connection USER :user;
+    EXEC SQL SELECT version() INTO :ver;
+    EXEC SQL DISCONNECT;
+
+    printf("version: %s\n", ver);
+
+    return 0;
+}</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43039"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CONNECT</TT
+>は標準SQLで規定されていますが、接続パラメータの書式は実装に特化しています。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43043"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="ecpg-sql-disconnect.html"
+>DISCONNECT</A
+>, <A
+HREF="ecpg-sql-set-connection.html"
+>SET CONNECTION</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-sql-allocate-descriptor.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-sql-deallocate-descriptor.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALLOCATE DESCRIPTOR</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg-sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>DEALLOCATE DESCRIPTOR</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

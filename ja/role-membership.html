@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ロールのメンバ資格</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データベースロール"
+HREF="user-manag.html"><LINK
+REL="PREVIOUS"
+TITLE="ロールの属性"
+HREF="role-attributes.html"><LINK
+REL="NEXT"
+TITLE="関数とトリガのセキュリティ"
+HREF="perm-functions.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ロールの属性"
+HREF="role-attributes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベースロール"
+HREF="user-manag.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 20&#31456;データベースロール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベースロール"
+HREF="user-manag.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数とトリガのセキュリティ"
+HREF="perm-functions.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ROLE-MEMBERSHIP"
+>20.3. ロールのメンバ資格</A
+></H1
+><P
+>権限の管理を簡単にするために、ユーザをグループにまとめることはしばしば便利です。
+グループ全体に対して権限を与えることも、取り消すこともできます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、グループを表すロールを作成することで行われます。
+そして、そのグループロールに個々のユーザロールの<I
+CLASS="FIRSTTERM"
+>メンバ資格</I
+>を与えます。
+  </P
+><P
+>グループロールを設定するには、まずロールを作成します。
+</P><PRE
+CLASS="SYNOPSIS"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</PRE
+><P>
+通常、グループとして使用されるロールには<TT
+CLASS="LITERAL"
+>LOGIN</TT
+>属性を持たせません。
+しかし、そうしたければ持たせることもできます。
+  </P
+><P
+>グループロールをいったん作成すれば、<A
+HREF="sql-grant.html"
+>GRANT</A
+>および<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>コマンドを使用してメンバの追加と削除を行うことができます。
+</P><PRE
+CLASS="SYNOPSIS"
+>GRANT <TT
+CLASS="REPLACEABLE"
+><I
+>group_role</I
+></TT
+> TO <TT
+CLASS="REPLACEABLE"
+><I
+>role1</I
+></TT
+>, ... ;
+REVOKE <TT
+CLASS="REPLACEABLE"
+><I
+>group_role</I
+></TT
+> FROM <TT
+CLASS="REPLACEABLE"
+><I
+>role1</I
+></TT
+>, ... ;</PRE
+><P>
+他のグループロールへのメンバ資格を与えることもできます。
+（グループロールと非グループロールとの間には実際には区別がないからです。）
+データベースはグループのメンバ資格がループし、循環するような設定はさせません。
+また、ロール内のメンバ資格を<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>に付与することはできません。
+  </P
+><P
+>グループロールのメンバは、2つの方法でロールの権限を使用することができます。
+1つ目は、グループ内のすべてのメンバは明示的に、一時的にそのグループロールに<SPAN
+CLASS="QUOTE"
+>"なる"</SPAN
+>ために<A
+HREF="sql-set-role.html"
+>SET ROLE</A
+>を行うことができます。
+この状態では、データベースセッションは元々のログインロールの権限ではなくグループの権限でアクセスされます。
+そして、作成されたデータベースオブジェクトの所有者はログインロールではなくグループロールであるとみなされます。
+2つ目は、<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>属性を持つメンバロールは、それらがメンバとなるロールの権限を自動的に使用します。これには、ロールによって継承されるいかなる権限も含んでいます。
+例えば、以下の状態を想定します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE ROLE joe LOGIN INHERIT;
+CREATE ROLE admin NOINHERIT;
+CREATE ROLE wheel NOINHERIT;
+GRANT admin TO joe;
+GRANT wheel TO admin;</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>joe</TT
+>ロールで接続するとすぐに、<TT
+CLASS="LITERAL"
+>joe</TT
+>は<TT
+CLASS="LITERAL"
+>admin</TT
+>権限を<SPAN
+CLASS="QUOTE"
+>"継承"</SPAN
+>しますので、そのデータベースセッションでは<TT
+CLASS="LITERAL"
+>joe</TT
+>に直接与えられた権限に加えて、<TT
+CLASS="LITERAL"
+>admin</TT
+>に与えられた権限を使用することができます。
+しかし、<TT
+CLASS="LITERAL"
+>wheel</TT
+>に与えられた権限は利用できません。
+<TT
+CLASS="LITERAL"
+>joe</TT
+>は間接的に<TT
+CLASS="LITERAL"
+>wheel</TT
+>のメンバですが、<TT
+CLASS="LITERAL"
+>admin</TT
+>経由のメンバ資格は<TT
+CLASS="LITERAL"
+>NOINHERIT</TT
+>属性を持っているためです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET ROLE admin;</PRE
+><P>
+を行った後、セッションは<TT
+CLASS="LITERAL"
+>admin</TT
+>に与えられた権限のみを使用できるようになります。
+<TT
+CLASS="LITERAL"
+>joe</TT
+>に与えられた権限は使用できなくなります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET ROLE wheel;</PRE
+><P>
+を行った後、セッションは<TT
+CLASS="LITERAL"
+>wheel</TT
+>に与えられた権限のみを使用できるようになり、<TT
+CLASS="LITERAL"
+>joe</TT
+>や<TT
+CLASS="LITERAL"
+>admin</TT
+>に与えられた権限は使用できなくなります。
+元の状態の権限に戻すには、以下のいずれかを行います。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET ROLE joe;
+SET ROLE NONE;
+RESET ROLE;</PRE
+><P>
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>コマンドによりいつでも、元のログインロールが直接あるいは間接的にメンバ資格を持つすべてのロールを選ぶことができます。
+従って、上の例において、<TT
+CLASS="LITERAL"
+>wheel</TT
+>になる前に<TT
+CLASS="LITERAL"
+>admin</TT
+>になることは必要ありません。
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>標準SQLでは、ユーザとロールとの間に明確な違いがあり、ユーザはロールのように自動的に権限を継承することができません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でこの振舞いを実現させるには、SQLロールとして使用するロールには<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>属性を付与し、SQLユーザとして使用するロールには<TT
+CLASS="LITERAL"
+>NOINHERIT</TT
+>属性を付与します。
+しかし、8.1リリースより前との互換性を保持するために、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はデフォルトで、すべてのロールに<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>属性を付与します。
+以前は、ユーザは常にメンバとして属するグループに付与された権限を常に使用できました。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>LOGIN</TT
+>、<TT
+CLASS="LITERAL"
+>SUPERUSER</TT
+>、<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>、および<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>ロール属性は、特別な権限とみなすことができますが、データベースオブジェクトに対する通常の権限のように継承されません。
+こうした属性の1つを使用できるようにするためには、その属性を特定のロールに設定するように実際に<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>を行う必要があります。
+上の例を続けると、<TT
+CLASS="LITERAL"
+>admin</TT
+>ロールに<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限と<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を付与することを選ぶことができます。
+こうすると、<TT
+CLASS="LITERAL"
+>joe</TT
+>ロールとして接続するセッションでは、すぐさまこれらの権限を持ちません。
+<TT
+CLASS="COMMAND"
+>SET ROLE admin</TT
+>を行った後で、この権限を持ちます。
+  </P
+><P
+>  </P
+><P
+>グループロールを削除するには、<A
+HREF="sql-droprole.html"
+>DROP ROLE</A
+>を使用してください。
+</P><PRE
+CLASS="SYNOPSIS"
+>DROP ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</PRE
+><P>
+グループロール内のメンバ資格も自動的に取り上げられます。
+（しかし、メンバロールには何も影響ありません。）
+しかし、先にグループロールが所有するオブジェクトをすべて削除しておくか所有者を変更しておく必要があり、また、グループに付与された権限もすべて取り上げられることに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="role-attributes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="perm-functions.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ロールの属性</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="user-manag.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>関数とトリガのセキュリティ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

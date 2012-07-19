@@ -1,0 +1,413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SET ROLE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="SET CONSTRAINTS"
+HREF="sql-set-constraints.html"><LINK
+REL="NEXT"
+TITLE="SET SESSION AUTHORIZATION"
+HREF="sql-set-session-authorization.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SET CONSTRAINTS"
+HREF="sql-set-constraints.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SET CONSTRAINTS"
+HREF="sql-set-constraints.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SET SESSION AUTHORIZATION"
+HREF="sql-set-session-authorization.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SET SESSION AUTHORIZATION"
+HREF="sql-set-session-authorization.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-SET-ROLE"
+></A
+>SET ROLE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN75596"
+></A
+><H2
+>&#21517;&#21069;</H2
+>SET ROLE&nbsp;--&nbsp;現在のセッションにおける現在のユーザ識別子を設定する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN75601"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>SET [ SESSION | LOCAL ] ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+>
+SET [ SESSION | LOCAL ] ROLE NONE
+RESET ROLE</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75604"
+></A
+><H2
+>説明</H2
+><P
+>このコマンドは現在のSQLセッションにおける現在のユーザ識別子を<TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+>に設定します。
+ロール名は識別子あるいは文字列リテラルのどちらを使用しても記述することができます。
+<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>の後、SQLコマンドに対する権限検査は、指名されたロールで普通にログインした場合と同様に行われます。
+  </P
+><P
+>指定する<TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+>は、現在のセッションユーザがメンバとして属するロールでなければなりません。
+（セッションユーザがスーパーユーザであった場合、任意のロールを選択することができます。）
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>SESSION</TT
+>および<TT
+CLASS="LITERAL"
+>LOCAL</TT
+>修飾子は通常の<A
+HREF="sql-set.html"
+>SET</A
+>コマンドと同様に動作します。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>NONE</TT
+>および<TT
+CLASS="LITERAL"
+>RESET</TT
+>形式は、現在のユーザ識別子を現在のセッションユーザ識別子に戻します。
+この形式はすべてのユーザが実行することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75618"
+></A
+><H2
+>注釈</H2
+><P
+>このコマンドを使用して、権限を追加することも制限することもできます。
+セッションユーザのロールが<TT
+CLASS="LITERAL"
+>INHERITS</TT
+>属性を持つ場合、自動的に<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>で設定されたすべてのロールの権限を持ちます。
+この場合、<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>は実際、セッションユーザに直接割り当てられている権限、セッションユーザが属するロールに割り当てられている権限の内、指名されたロールで使用可能な権限を残し、他をすべて削除します。
+一方、セッションユーザのロールが<TT
+CLASS="LITERAL"
+>NOINHERITS</TT
+>属性を持つ場合、セッションユーザに直接割り当てられた権限をすべて削除し、指名されたロールで利用可能な権限を獲得します。
+  </P
+><P
+>特に、スーパーユーザが非特権ユーザへの<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>を行うと、スーパーユーザ権限を失うことになります。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>の影響は<A
+HREF="sql-set-session-authorization.html"
+>SET SESSION AUTHORIZATION</A
+>と似ていますが、行われる権限検査はかなり異なります。
+また、<TT
+CLASS="COMMAND"
+>SET SESSION AUTHORIZATION</TT
+>は、その後に実行する<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>コマンドでどのロールに変更できるかを決定しますが、<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>を使用してロールを変更した場合、その後に実行する<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>コマンドで変更可能なロール群は変更されません。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>はロールの<A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+>設定で指定されたセッション変数を処理しません。
+これはログイン時のみ適用されます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>を<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>関数で使用することはできません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75640"
+></A
+><H2
+>例</H2
+><PRE
+CLASS="PROGRAMLISTING"
+>SELECT SESSION_USER, CURRENT_USER;
+
+ session_user | current_user 
+--------------+--------------
+ peter        | peter
+
+SET ROLE 'paul';
+
+SELECT SESSION_USER, CURRENT_USER;
+
+ session_user | current_user 
+--------------+--------------
+ peter        | paul</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75643"
+></A
+><H2
+>互換性</H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、識別子構文（<TT
+CLASS="LITERAL"
+>"rolename"</TT
+>）を使用できます。
+しかし、標準SQLではロール名を文字列リテラルとして記述しなければなりません。
+SQLでは、トランザクション内でこのコマンドを実行することを許可していません。
+この制限の理由がありませんので、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではこの制限はありません。
+<TT
+CLASS="LITERAL"
+>SESSION</TT
+>、<TT
+CLASS="LITERAL"
+>LOCAL</TT
+>修飾子、および、<TT
+CLASS="LITERAL"
+>RESET</TT
+>構文は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75653"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-set-session-authorization.html"
+>SET SESSION AUTHORIZATION</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-set-constraints.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-set-session-authorization.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SET CONSTRAINTS</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SET SESSION AUTHORIZATION</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

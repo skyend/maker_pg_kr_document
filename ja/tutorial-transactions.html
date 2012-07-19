@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>トランザクション</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="高度な諸機能"
+HREF="tutorial-advanced.html"><LINK
+REL="PREVIOUS"
+TITLE="外部キー"
+HREF="tutorial-fk.html"><LINK
+REL="NEXT"
+TITLE="ウィンドウ関数"
+HREF="tutorial-window.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="外部キー"
+HREF="tutorial-fk.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="高度な諸機能"
+HREF="tutorial-advanced.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 3&#31456;高度な諸機能</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="高度な諸機能"
+HREF="tutorial-advanced.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ウィンドウ関数"
+HREF="tutorial-window.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-TRANSACTIONS"
+>3.4. トランザクション</A
+></H1
+><P
+><I
+CLASS="FIRSTTERM"
+>トランザクション</I
+>は全てのデータベースシステムで基礎となる概念です。トランザクションの基本的要点は複数の手順を単一の「全てかなしか」の操作にまとめ上げることです。手順の進行途中の状態は他の動いているトランザクションからは見えません。 そして、何らかのエラーが起こるとトランザクションは完結しません。ですからデータベースはエラーの原因となった手順によってまったく影響されることはありません。
+   </P
+><P
+>例を挙げましょう。ある銀行のデータベースでそこに多数の顧客の口座の残高と支店の総預金残高が記録されているとします。
+アリスの口座からボブの口座に$100.00の送金があったことを記録したいとします。
+ちょっと乱暴に単純化すると、このSQLは次のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+UPDATE branches SET balance = balance - 100.00
+    WHERE name = (SELECT branch_name FROM accounts WHERE name = 'Alice');
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Bob';
+UPDATE branches SET balance = balance + 100.00
+    WHERE name = (SELECT branch_name FROM accounts WHERE name = 'Bob');</PRE
+><P>
+   </P
+><P
+>書かれているSQLコマンドの詳しいことについて、ここでは重要でありません。重要な点は、この単純な操作の目的を果たすため、複数の独立した更新手続きが関わっていることです。銀行職員としてはこれら全ての更新が行われるかもしくはまったく行われないのかいずれかの確証が必要です。$100.00がアリスの口座から引き落とされずにボブの口座に振り込まれるようなシステムの不備があってはなりません。一方、$100.00がボブに振り込まれないでアリスの口座から引き落とされたとしたら、アリスはこの銀行のお得意様ではなくなるでしょうね。操作の途中で一部不都合が発生した場合、結果に影響を与えるいかなる手続きも実行されないという確証が必要です。更新手続きを<I
+CLASS="FIRSTTERM"
+>トランザクション</I
+>にグループ化すると、その確証が得られます。 あるトランザクションは他のトランザクションから見て完結するかまったく起こらなかったかという見方から<I
+CLASS="FIRSTTERM"
+>原子的</I
+>と呼ばれます。
+   </P
+><P
+>もう一方で、いったんトランザクションが完結しデータベースシステムに承認された場合は、確実に恒久的に保存され、たとえ直後にクラッシュが起こったとしても記録は失われないという確証も必要です。
+例えばボブが自分の口座から現金を引き落として店舗から立ち去った直後にボブの口座からの引き落とし記録がシステムのクラッシュで消えてしまうことは受け入れられません。
+トランザクションが実装されているデータベースでは、あるトランザクションによる全ての更新がそのトランザクションを完結したと通知を行う前に永続的記録装置（すなわちディスク上）にログを書き込むことで保証しています。
+   </P
+><P
+>他にもトランザクション実装のデータベースの重要な特性は、原子的更新という概念に深く関係しています
+。複数のトランザクションが同時に動作している時、それぞれのトランザクションは別のトランザクションが行っている未完了の変更を見ることができてはなりません。
+例えば、あるトランザクションがすべての支店の残高を集計する作業を行なう場合、アリスの口座がある支店からの引き落としを勘定に入れませんし、ボブの口座がある支店への振り込みも勘定に入れません。もしくは両方とも勘定に入れます。
+つまり、データベース上での恒久的効果という意味のみならず、一連の操作の過程で可視性ということにおいてもトランザクションは「すべて」か「なし」かでなければなりません。
+作業中のトランザクションによる更新は、他のトランザクションからはトランザクションが完結するまで不可視です。
+そのトランザクションが完結したその時点で、トランザクションが行った更新の全てが見えるようになります。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではトランザクションを構成するSQLコマンドを<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>と<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>で囲んで設定します。そうすると、この銀行取り引きのトランザクションの実際は次のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN;
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+-- etc etc
+COMMIT;</PRE
+><P>
+   </P
+><P
+>トランザクション処理の途中でコミットを行わない（アリスの口座残高が足りなかったような場合）と判断した場合は、<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>ではなく<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>を使用して行った全ての更新を破棄します。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は実際全てのSQL文をトランザクション内で実行するようになっています。<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>を発行しないでも、それぞれの文は暗黙的に<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>が付いているとみなし、（成功すれば）<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>で囲まれているものとします。<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>と<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>で囲まれた文のグループは<I
+CLASS="FIRSTTERM"
+>トランザクションブロック</I
+>と呼ばれることもあります。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>いくつかのクライアントライブラリは自動的に<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>と<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>コマンドを発行し、警告なしにトランザクションブロックが有効になります。使用しているインタフェースのドキュメントで確認してください。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+> 
+<I
+CLASS="FIRSTTERM"
+>セーブポイント</I
+>を使用することで、トランザクション内で文を、より粒度を細かく制御することが可能になります。セーブポイントは、トランザクションを構成するある部分を選択的に破棄する一方、破棄されない残りの部分をコミットします。<TT
+CLASS="COMMAND"
+>SAVEPOINT</TT
+>コマンドでセーブポイントを定義した後、必要であれば<TT
+CLASS="COMMAND"
+>ROLLBACK TO</TT
+>コマンドによりセーブポイントまでロールバックできます。
+定義されたセーブポイントとロールバックするポイントとの間の全てのトランザクションのデータベースの変更は破棄されますが、セーブポイント以前の変更は保持されます。
+   </P
+><P
+>セーブポイントまでロールバックした後でもセーブポイントは定義されたままです。このため何度でもそこにロールバックできます。
+逆に再度特定のセーブポイントにロールバックする必要がないのであれば、それを解除しシステムリソースを多少とも解放することができます。
+あるセーブポイントを解除したりセーブポイントにロールバックすることにより、自動的にその後に定義されたすべてのセーブポイントが解除されることに注意してください。
+   </P
+><P
+>これら全てはトランザクションブロック内で起こるので、他のデータベースセッションからは何も見えません。トランザクションブロックをコミットした場合、他のセッションからはコミットされた行為が1つの単位として見えるようになりますが、ロールバックの行為は決して可視になりません。
+   </P
+><P
+>銀行のデータベースを思い出してください。アリスの口座から$100.00を引き出してボブの口座に振り込むとします。後になってボブではなくウィリーの口座に振り込むべきだったと気が付きました。この場合セーブポイントを次のように使います。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN;
+UPDATE accounts SET balance = balance - 100.00
+    WHERE name = 'Alice';
+SAVEPOINT my_savepoint;
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Bob';
+-- おっと、忘れるところだった。ウィリーの口座を使わなければ。
+ROLLBACK TO my_savepoint;
+UPDATE accounts SET balance = balance + 100.00
+    WHERE name = 'Wally';
+COMMIT;</PRE
+><P>
+   </P
+><P
+>この例はもちろん極端に単純化していますが、セーブポイントの使用を通じてトランザクションブロック内で多くの可能な操作を行えることがわかります。
+さらには何らかのエラーでシステムがトランザクションブロックを中断した場合、完全にロールバックして再び開始するのを除いて、<TT
+CLASS="COMMAND"
+>ROLLBACK TO</TT
+>コマンドがトランザクションブロックの制御を取り戻す唯一の手段です。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-fk.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-window.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>外部キー</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-advanced.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ウィンドウ関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

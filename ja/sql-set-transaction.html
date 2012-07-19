@@ -1,0 +1,546 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SET TRANSACTION</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="SET SESSION AUTHORIZATION"
+HREF="sql-set-session-authorization.html"><LINK
+REL="NEXT"
+TITLE="SHOW"
+HREF="sql-show.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SET SESSION AUTHORIZATION"
+HREF="sql-set-session-authorization.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SET SESSION AUTHORIZATION"
+HREF="sql-set-session-authorization.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SHOW"
+HREF="sql-show.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SHOW"
+HREF="sql-show.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-SET-TRANSACTION"
+></A
+>SET TRANSACTION</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN75717"
+></A
+><H2
+>&#21517;&#21069;</H2
+>SET TRANSACTION&nbsp;--&nbsp;現在のトランザクションの特性を設定する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN75731"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>SET TRANSACTION <TT
+CLASS="REPLACEABLE"
+><I
+>transaction_mode</I
+></TT
+> [, ...]
+SET SESSION CHARACTERISTICS AS TRANSACTION <TT
+CLASS="REPLACEABLE"
+><I
+>transaction_mode</I
+></TT
+> [, ...]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>transaction_mode</I
+></TT
+>は以下のいずれかです。</SPAN
+></SPAN
+>
+
+    ISOLATION LEVEL { SERIALIZABLE | REPEATABLE READ | READ COMMITTED | READ UNCOMMITTED }
+    READ WRITE | READ ONLY
+    [ NOT ] DEFERRABLE</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75737"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>SET TRANSACTION</TT
+>は現在のトランザクションの特性を設定します。
+これはその後のトランザクションには影響を及ぼしません。
+<TT
+CLASS="COMMAND"
+>SET SESSION CHARACTERISTICS</TT
+>は、セッションにおけるそれ以後のトランザクションのデフォルトのトランザクション特性を設定します。
+<TT
+CLASS="COMMAND"
+>SET TRANSACTION</TT
+>により個々のトランザクションのデフォルト特性を上書きすることができます。
+  </P
+><P
+>利用可能なトランザクション特性はトランザクションの隔離レベル、トランザクションのアクセスモード（読み書きモードもしくは読み取りのみモード）、遅延モードです。
+  </P
+><P
+>トランザクションの隔離レベルは、並行して実行中の他のトランザクションが存在する場合、そのトランザクションが見ることができるデータを決定するものです。
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>READ COMMITTED</TT
+></DT
+><DD
+><P
+>1つひとつの文から見ることができるのは、その文が開始される前にコミットされた行のみです。
+これがデフォルトです。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>REPEATABLE READ</TT
+></DT
+><DD
+><P
+>現在のトランザクションにおける全ての文は、トランザクションで最初の問い合わせ文またはデータを変更する文が実行される前にコミットされた行だけを見ることができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+></DT
+><DD
+><P
+>現在のトランザクションにおける全ての文は、トランザクションで最初の問い合わせ文またはデータを変更する文が実行される前にコミットされた行だけを見ることができます。
+同時実行のシリアライザブルトランザクションの中で読み取りと書き込みのパターンによって、これらのトランザクションの実行を直列に(同時に一度)行うことができない状況になる場合、その内１つのトランザクションは<TT
+CLASS="LITERAL"
+>serialization_failure</TT
+> <TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>というエラーでロールバックされます。
+      </P
+></DD
+></DL
+></DIV
+><P>
+
+標準SQLでは、さらに<TT
+CLASS="LITERAL"
+>READ UNCOMMITTED</TT
+>という1つのレベルを定義しています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では<TT
+CLASS="LITERAL"
+>READ UNCOMMITTED</TT
+>は<TT
+CLASS="LITERAL"
+>READ COMMITTED</TT
+>として扱われます。
+  </P
+><P
+>トランザクション隔離レベルは、そのトランザクションにおける最初の問い合わせ文やデータ更新文（<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>FETCH</TT
+>、<TT
+CLASS="COMMAND"
+>COPY</TT
+>）が実行された後からは変更することができません。
+トランザクションの隔離や同時実行制御についての詳細情報は<A
+HREF="mvcc.html"
+>&#31532;13&#31456;</A
+>を参照してください。
+  </P
+><P
+>トランザクションのアクセスモードは、そのトランザクションが読み書き可能か読み取りのみかを決定します。
+デフォルトは読み書き可能です。
+読み取りのみのトランザクションでは、書き込み対象のテーブルが一時テーブルでない限り、<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、<TT
+CLASS="LITERAL"
+>COPY FROM</TT
+>などのSQLコマンドを実行できません。
+また、<TT
+CLASS="LITERAL"
+>CREATE</TT
+>、<TT
+CLASS="LITERAL"
+>ALTER</TT
+>、<TT
+CLASS="LITERAL"
+>DROP</TT
+>系の全てのSQLコマンド、<TT
+CLASS="LITERAL"
+>COMMENT</TT
+>、<TT
+CLASS="LITERAL"
+>GRANT</TT
+>、<TT
+CLASS="LITERAL"
+>REVOKE</TT
+>、<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>は、まったく実行できません。
+さらに、<TT
+CLASS="LITERAL"
+>EXPLAIN ANALYZE</TT
+>と<TT
+CLASS="LITERAL"
+>EXECUTE</TT
+>コマンドに上述のコマンドの実行が含まれている場合、これらのコマンドも実行できません。
+この方法ではディスクへの書き込み防止をまったく行わないので、読み取り専用を高レベルで実現する考え方と言えます。
+   
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>DEFERRABLE</TT
+>トランザクション属性は、トランザクションが<TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+>かつ<TT
+CLASS="LITERAL"
+>READ ONLY</TT
+>である場合のみ効果があります。
+あるトランザクションでこれらの属性がすべて設定されている場合、最初にスナップショットを獲得する時にブロックされる可能性があります。
+その後、そのトランザクションを<TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+>トランザクションの通常のオーバーヘッドを伴わず、またシリアライズ処理の失敗を引き起こす恐れやシリアライズ処理の失敗によりキャンセルされる恐れもなく実行することができます。
+これは時間がかかるレポート処理やバックアップによく適しています。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75794"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="COMMAND"
+>SET TRANSACTION</TT
+>を<TT
+CLASS="COMMAND"
+>START TRANSACTION</TT
+>や<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>の前に実行した場合、そのトランザクションは即座に終了するので、効果はまったく現れません。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>BEGIN</TT
+>あるいは<TT
+CLASS="COMMAND"
+>START TRANSACTION</TT
+>で目的の<TT
+CLASS="REPLACEABLE"
+><I
+>transaction_modes</I
+></TT
+>を指定すれば、<TT
+CLASS="COMMAND"
+>SET TRANSACTION</TT
+>は不要です。
+  </P
+><P
+>セッションのデフォルトのトランザクションモードは、設定パラメータ<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TRANSACTION-ISOLATION"
+>default_transaction_isolation</A
+>、<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TRANSACTION-READ-ONLY"
+>default_transaction_read_only</A
+>、<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TRANSACTION-DEFERRABLE"
+>default_transaction_deferrable</A
+>で設定することができます
+（実際、<TT
+CLASS="COMMAND"
+>SET SESSION CHARACTERISTICS</TT
+>は冗長な記述であり、これらの変数を<TT
+CLASS="COMMAND"
+>SET</TT
+>で設定するのと変わりありません）。
+したがって、トランザクションモードのデフォルトは設定ファイルや<TT
+CLASS="COMMAND"
+>ALTER DATABASE</TT
+>などで設定可能です。
+詳細は<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="R1-SQL-SET-TRANSACTION-3"
+></A
+><H2
+>互換性</H2
+><P
+>どちらのコマンドも標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>で定義されています。
+標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>ではデフォルトのトランザクションは<TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+>です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、通常、<TT
+CLASS="LITERAL"
+>READ COMMITTED</TT
+>がデフォルトですが、これは上述の通り変更可能です。
+  </P
+><P
+>標準SQLでは、もう1つ、診断領域の大きさというトランザクション特性があり、このコマンドで設定可能です。
+この概念は組み込みSQL固有のものなので、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバには実装されていません。
+   
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>DEFERRABLE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>transaction_mode</I
+></TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の言語拡張です。
+  </P
+><P
+>標準SQLでは、連続する<TT
+CLASS="REPLACEABLE"
+><I
+>transaction_modes</I
+></TT
+>の間にはカンマが必要です。
+歴史的な理由より<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではカンマを省略することができます。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-set-session-authorization.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-show.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SET SESSION AUTHORIZATION</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SHOW</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

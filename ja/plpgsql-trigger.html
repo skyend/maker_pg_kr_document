@@ -1,0 +1,973 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>トリガプロシージャ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="エラーとメッセージ"
+HREF="plpgsql-errors-and-messages.html"><LINK
+REL="NEXT"
+TITLE="PL/pgSQLの秘訣"
+HREF="plpgsql-implementation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="エラーとメッセージ"
+HREF="plpgsql-errors-and-messages.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQLの秘訣"
+HREF="plpgsql-implementation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-TRIGGER"
+>39.9. トリガプロシージャ</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>はトリガプロシージャの定義に使用できます。
+トリガプロシージャは、<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドを使って、<TT
+CLASS="TYPE"
+>trigger</TT
+>という戻り値の型を持った引数のない関数として作成されます。
+その関数は、たとえ、<TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>にて引数を取るものとしていたとしても、引数を持たないものと宣言しなければなりません。
+トリガの引数は、後述する通り、<TT
+CLASS="VARNAME"
+>TG_ARGV</TT
+>経由で渡されます。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数がトリガとして呼び出された場合、いくつかの特殊な変数が自動的に最上位レベルのブロックで作成されます。
+それらを以下に示します。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="VARNAME"
+>NEW</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>RECORD</TT
+>データ型。
+この変数は行レベルのトリガでの<TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>操作によって更新された、新しいデータベースの行を保持します。
+この変数は文レベルのトリガ、および<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作ではNULLです。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>OLD</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>RECORD</TT
+>データ型。
+この変数は、行レベルのトリガでの<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作によって更新される前のデータベースの行を保持します。
+この変数は文レベルのトリガ、および<TT
+CLASS="COMMAND"
+>INSERT</TT
+>操作ではNULLです。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_NAME</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>name</TT
+>データ型。
+実際に発行されたトリガの名前を持つ変数。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_WHEN</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>text</TT
+>データ型。
+トリガの定義に依存した<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>、<TT
+CLASS="LITERAL"
+>AFTER</TT
+>、または<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>という文字列。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_LEVEL</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>text</TT
+>データ型。
+トリガの定義に依存した<TT
+CLASS="LITERAL"
+>ROW</TT
+> または <TT
+CLASS="LITERAL"
+>STATEMENT</TT
+>という文字列。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_OP</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>text</TT
+>データ型。
+トリガを起動した操作を示す、<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、または<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>という文字列。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_RELID</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>oid</TT
+>データ型。
+このトリガの呼び出し元になるテーブルのオブジェクトID。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_RELNAME</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>name</TT
+>データ型。
+このトリガの呼び出し元になるテーブルの名前。
+将来これは廃止されそうです。
+代わりに<TT
+CLASS="LITERAL"
+>TG_TABLE_NAME</TT
+>を使用してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_TABLE_NAME</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>name</TT
+>データ型。
+このトリガの呼び出し元になるテーブルの名前。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_TABLE_SCHEMA</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>name</TT
+>データ型。
+このトリガの呼び出し元になるテーブルのスキーマ名。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_NARGS</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>integer</TT
+>型。
+<TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>文におけるトリガプロシージャに与えられる引数の数。
+      </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>TG_ARGV[]</TT
+></DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>text</TT
+>型の配列型。
+<TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>文での引数。
+このインデックスは0から始まります。
+無効なインデックス（0未満や<TT
+CLASS="VARNAME"
+>tg_nargs</TT
+>以上）は、NULL値という結果になります。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>トリガ関数はNULLまたは、トリガの発行元になったテーブルの構造を正確に持ったレコード/行を返さなければなりません。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>BEFORE</TT
+>として発行された行レベルトリガがNULLを返す場合には、トリガマネージャに実際の行への操作を取りやめるように通知します
+（つまり、その後にトリガが発行されず、その<TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>はその行に対して実行されません）。
+非NULL値を返す場合には、その操作はその行値で処理されます。
+元の<TT
+CLASS="VARNAME"
+>NEW</TT
+>の値と異なる行値を返すことは、挿入、更新される値を変更します。
+したがってトリガ関数が行値を変更せずにトリガ処理を普通に成功させたい場合は、<TT
+CLASS="VARNAME"
+>NEW</TT
+>(またはその等価な値)を返さなければなりません。
+格納する行を変更するために、<TT
+CLASS="VARNAME"
+>NEW</TT
+>の個々の値を直接置き換え、変更した<TT
+CLASS="VARNAME"
+>NEW</TT
+>を返すことも、新しいレコード/行を完全に作成して返すことも可能です。
+<TT
+CLASS="COMMAND"
+>DELETE</TT
+>に対するBEFOREトリガの場合、返される値は直接的な影響を与えませんが、トリガ動作を継続させるためには非NULLを返さなければなりません。
+<TT
+CLASS="COMMAND"
+>DELETE</TT
+>トリガでは<TT
+CLASS="VARNAME"
+>NEW</TT
+>がNULLであり、これを返すことは通常無意味であることに注意して下さい。
+<TT
+CLASS="COMMAND"
+>DELETE</TT
+>トリガにおける通常の慣例は<TT
+CLASS="VARNAME"
+>OLD</TT
+>を返すことです。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガ（これは常に行レベルトリガであり、ビューに対してのみ使用可能です）は、まったく更新を行わなかったためにこの行に対する残りの操作を飛ばさなければならない（つまり後続のトリガは発行されず、 トリガの発生元の<TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>において影響を受けた行数として数えられない）ことを通知するNULLを返すことができます。
+この他の場合は、トリガが要求された操作を実行したことを通知するために、非NULLの値を返さなければなりません。
+<TT
+CLASS="COMMAND"
+>INSERT</TT
+>および<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>操作では、戻り値は、トリガ関数が<TT
+CLASS="COMMAND"
+>INSERT RETURNING</TT
+>および<TT
+CLASS="COMMAND"
+>UPDATE RETURNING</TT
+>をサポートするために変更しているかもしれない、<TT
+CLASS="VARNAME"
+>NEW</TT
+>となるはずです（これは後続のトリガに渡される行値にも影響します）。
+<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作では、戻り値は<TT
+CLASS="VARNAME"
+>OLD</TT
+>となるはずです。
+   </P
+><P
+>行レベルの<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガ、文レベルの<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>または<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガの戻り値は常に無視されます。
+NULLとしても構いません。
+しかし、これらの種類のトリガでも、エラーを発生させることで操作全体を中断させることが可能です。
+   </P
+><P
+><A
+HREF="plpgsql-trigger.html#PLPGSQL-TRIGGER-EXAMPLE"
+>&#20363;39-3</A
+>に<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>のトリガプロシージャの例を示します。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PLPGSQL-TRIGGER-EXAMPLE"
+></A
+><P
+><B
+>&#20363; 39-3. <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>トリガプロシージャ</B
+></P
+><P
+>このトリガの例では、テーブルの行が挿入または更新された時には必ず、現在のユーザ名と時刻がその行に入っていることを確実にします。
+そして、従業員名が与えられていることとその給料が正の値であることを確認します。
+    </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE emp (
+    empname text,
+    salary integer,
+    last_date timestamp,
+    last_user text
+);
+
+CREATE FUNCTION emp_stamp() RETURNS trigger AS $emp_stamp$
+    BEGIN
+        -- empnameとsalaryが与えられていることをチェック
+        IF NEW.empname IS NULL THEN
+            RAISE EXCEPTION 'empname cannot be null';
+        END IF;
+        IF NEW.salary IS NULL THEN
+            RAISE EXCEPTION '% cannot have null salary', NEW.empname;
+        END IF;
+
+        -- 支払時に問題が起こらないように
+        IF NEW.salary &lt; 0 THEN
+            RAISE EXCEPTION '% cannot have a negative salary', NEW.empname;
+        END IF;
+
+        -- 誰がいつ変更したかを記録
+        NEW.last_date := current_timestamp;
+        NEW.last_user := current_user;
+        RETURN NEW;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+CREATE TRIGGER emp_stamp BEFORE INSERT OR UPDATE ON emp
+    FOR EACH ROW EXECUTE PROCEDURE emp_stamp();</PRE
+></DIV
+><P
+>テーブルにおける変更のログを取る他の方法は、挿入、更新または削除の各々に対する行を保有する新テーブルを作成することです。
+この方法はテーブルにおける変更の監査と考えることができます。
+   </P
+><P
+><A
+HREF="plpgsql-trigger.html#PLPGSQL-TRIGGER-AUDIT-EXAMPLE"
+>&#20363;39-4</A
+>は<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>による監査用トリガプロシージャの一例を示します。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PLPGSQL-TRIGGER-AUDIT-EXAMPLE"
+></A
+><P
+><B
+>&#20363; 39-4. <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>による監査用のトリガプロシージャ</B
+></P
+><P
+>このトリガの例では、<TT
+CLASS="LITERAL"
+>emp</TT
+>テーブルにおける行の挿入、更新または削除のどれもがemp_auditテーブルの中へ確実に記録（すなわち監査）されます。
+現在時刻とユーザ名は、行った操作の種類とともに<TT
+CLASS="LITERAL"
+>emp_audit</TT
+>の行の中に記録されます。
+    </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE emp (
+    empname           text NOT NULL,
+    salary            integer
+);
+
+CREATE TABLE emp_audit( 
+    operation         char(1)   NOT NULL,
+    stamp             timestamp NOT NULL,
+    userid            text      NOT NULL,
+    empname           text      NOT NULL,
+    salary integer
+);
+
+CREATE OR REPLACE FUNCTION process_emp_audit() RETURNS TRIGGER AS $emp_audit$
+    BEGIN
+        --
+        -- empで行った操作を反映する行をemp_auditに作成
+        -- 操作の種類を決定するために、特殊な変数TG_OPを活用
+        --
+        IF (TG_OP = 'DELETE') THEN
+            INSERT INTO emp_audit SELECT 'D', now(), user, OLD.*;
+            RETURN OLD;
+        ELSIF (TG_OP = 'UPDATE') THEN
+            INSERT INTO emp_audit SELECT 'U', now(), user, NEW.*;
+            RETURN NEW;
+        ELSIF (TG_OP = 'INSERT') THEN
+            INSERT INTO emp_audit SELECT 'I', now(), user, NEW.*;
+            RETURN NEW;
+        END IF;
+        RETURN NULL; -- AFTERトリガですので、結果は無視されます
+    END;
+$emp_audit$ LANGUAGE plpgsql;
+
+CREATE TRIGGER emp_audit
+AFTER INSERT OR UPDATE OR DELETE ON emp
+    FOR EACH ROW EXECUTE PROCEDURE process_emp_audit();</PRE
+></DIV
+><P
+>前例の変形では、各エントリが最終修正された時を表示するため、主テーブルを監査テーブルに結合したビューを使用します。
+この方法でもテーブルの変化の監査証跡を全て記録できますが、監査証跡から抽出した各エントリの最終修正のタイムスタンプ表示することにより、監査証跡の簡単なビューを表示することにもなります。
+<A
+HREF="plpgsql-trigger.html#PLPGSQL-VIEW-TRIGGER-AUDIT-EXAMPLE"
+>&#20363;39-5</A
+>で示すものは、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>を用いたビューの監査トリガの例です。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PLPGSQL-VIEW-TRIGGER-AUDIT-EXAMPLE"
+></A
+><P
+><B
+>&#20363; 39-5. 監査のための<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>ビュートリガプロシージャ</B
+></P
+><P
+>この例では、ビューを更新可能とし、その行の挿入、更新、削除を<TT
+CLASS="LITERAL"
+>emp_audit</TT
+>テーブルに確実に記録（つまり監査）するためにビューに対するトリガを使用します。
+現在時刻とユーザ名が実行された操作種類と一緒に記録されます。
+ビューは各行の最終更新時間を表示します。
+    </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE emp (
+    empname           text PRIMARY KEY,
+    salary            integer
+);
+
+CREATE TABLE emp_audit(
+    operation         char(1)   NOT NULL,
+    userid            text      NOT NULL,
+    empname           text      NOT NULL,
+    salary            integer,
+    stamp             timestamp NOT NULL
+);
+
+CREATE VIEW emp_view AS
+    SELECT e.empname,
+           e.salary,
+           max(ea.stamp) AS last_updated
+      FROM emp e
+      LEFT JOIN emp_audit ea ON ea.empname = e.empname
+     GROUP BY 1, 2;
+
+CREATE OR REPLACE FUNCTION update_emp_view() RETURNS TRIGGER AS $$
+    BEGIN
+        --
+        -- 要求された操作を emp に実行し
+        -- emp_audit に行を作成し
+        -- emp の変化を反映する
+        --
+        IF (TG_OP = 'DELETE') THEN
+            DELETE FROM emp WHERE empname = OLD.empname;
+            IF NOT FOUND THEN RETURN NULL; END IF;
+
+            OLD.last_updated = now();
+            INSERT INTO emp_audit VALUES('D', user, OLD.*);
+            RETURN OLD;
+        ELSIF (TG_OP = 'UPDATE') THEN
+            UPDATE emp SET salary = NEW.salary WHERE empname = OLD.empname;
+            IF NOT FOUND THEN RETURN NULL; END IF;
+
+            NEW.last_updated = now();
+            INSERT INTO emp_audit VALUES('U', user, NEW.*);
+            RETURN NEW;
+        ELSIF (TG_OP = 'INSERT') THEN
+            INSERT INTO emp VALUES(NEW.empname, NEW.salary);
+
+            NEW.last_updated = now();
+            INSERT INTO emp_audit VALUES('I', user, NEW.*);
+            RETURN NEW;
+        END IF;
+    END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER emp_audit
+INSTEAD OF INSERT OR UPDATE OR DELETE ON emp_view
+    FOR EACH ROW EXECUTE PROCEDURE update_emp_view();</PRE
+></DIV
+><P
+>トリガの使用目的の1つは、あるテーブルのサマリテーブルを維持することです。
+結果のサマリテーブルは、元のテーブルに代わって、ある種の問い合わせに対して使用でき、しばしば実行時間を大幅に縮小します。
+通常この手法は、計測または観測データ（ファクトテーブルと言います）を非常に大きくなるかもしれない、データウェアハウスに使用されます。
+データウェアハウス内のファクトテーブルに対してサマリテーブルを維持する<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>のトリガプロシージャの例を<A
+HREF="plpgsql-trigger.html#PLPGSQL-TRIGGER-SUMMARY-EXAMPLE"
+>&#20363;39-6</A
+>に示します。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PLPGSQL-TRIGGER-SUMMARY-EXAMPLE"
+></A
+><P
+><B
+>&#20363; 39-6. サマリテーブルを維持するための<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>トリガプロシージャ</B
+></P
+><P
+>ここに述べるスキーマの一部はRalph Kimballによる<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>The Data Warehouse Toolkit</I
+></SPAN
+>の<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Grocery Store</I
+></SPAN
+>の例に基づいています。
+    </P
+><PRE
+CLASS="PROGRAMLISTING"
+>--
+-- time dimensionとsales factの主テーブル
+--
+CREATE TABLE time_dimension (
+    time_key                    integer NOT NULL,
+    day_of_week                 integer NOT NULL,
+    day_of_month                integer NOT NULL,
+    month                       integer NOT NULL,
+    quarter                     integer NOT NULL,
+    year                        integer NOT NULL
+);
+CREATE UNIQUE INDEX time_dimension_key ON time_dimension(time_key);
+
+CREATE TABLE sales_fact (
+    time_key                    integer NOT NULL,
+    product_key                 integer NOT NULL,
+    store_key                   integer NOT NULL,
+    amount_sold                 numeric(12,2) NOT NULL,
+    units_sold                  integer NOT NULL,
+    amount_cost                 numeric(12,2) NOT NULL
+);
+CREATE INDEX sales_fact_time ON sales_fact(time_key);
+
+--
+-- sales by timeのサマリテーブル
+--
+CREATE TABLE sales_summary_bytime (
+    time_key                    integer NOT NULL,
+    amount_sold                 numeric(15,2) NOT NULL,
+    units_sold                  numeric(12) NOT NULL,
+    amount_cost                 numeric(15,2) NOT NULL
+);
+CREATE UNIQUE INDEX sales_summary_bytime_key ON sales_summary_bytime(time_key);
+
+--
+-- 更新、挿入および削除によりサマリテーブルの列を修正する関数とトリガ
+--
+CREATE OR REPLACE FUNCTION maint_sales_summary_bytime() RETURNS TRIGGER
+AS $maint_sales_summary_bytime$
+    DECLARE
+        delta_time_key          integer;
+        delta_amount_sold       numeric(15,2);
+        delta_units_sold        numeric(12);
+        delta_amount_cost       numeric(15,2);
+    BEGIN
+
+        -- 増加または減少量を算出
+        IF (TG_OP = 'DELETE') THEN
+
+            delta_time_key = OLD.time_key;
+            delta_amount_sold = -1 * OLD.amount_sold;
+            delta_units_sold = -1 * OLD.units_sold;
+            delta_amount_cost = -1 * OLD.amount_cost;
+
+        ELSIF (TG_OP = 'UPDATE') THEN
+
+            -- time_keyを変更する更新を禁止します
+            -- （削除 + 挿入の方法により大部分の変更を行うため
+            -- それほど厄介ではありません）。
+            IF ( OLD.time_key != NEW.time_key) THEN
+                RAISE EXCEPTION 'Update of time_key : % -&gt; % not allowed',
+                                                      OLD.time_key, NEW.time_key;
+            END IF;
+
+            delta_time_key = OLD.time_key;
+            delta_amount_sold = NEW.amount_sold - OLD.amount_sold;
+            delta_units_sold = NEW.units_sold - OLD.units_sold;
+            delta_amount_cost = NEW.amount_cost - OLD.amount_cost;
+
+        ELSIF (TG_OP = 'INSERT') THEN
+
+            delta_time_key = NEW.time_key;
+            delta_amount_sold = NEW.amount_sold;
+            delta_units_sold = NEW.units_sold;
+            delta_amount_cost = NEW.amount_cost;
+
+        END IF;
+
+
+        -- サマリテーブルの行を挿入または新しい値で更新します。
+        &lt;&lt;insert_update&gt;&gt;
+        LOOP
+            UPDATE sales_summary_bytime
+                SET amount_sold = amount_sold + delta_amount_sold,
+                    units_sold = units_sold + delta_units_sold,
+                    amount_cost = amount_cost + delta_amount_cost
+                WHERE time_key = delta_time_key;
+
+            EXIT insert_update WHEN found;
+
+            BEGIN
+                INSERT INTO sales_summary_bytime (
+                            time_key, 
+                            amount_sold, 
+                            units_sold, 
+                            amount_cost)
+                    VALUES ( 
+                            delta_time_key,
+                            delta_amount_sold,
+                            delta_units_sold,
+                            delta_amount_cost
+                           );
+
+                EXIT insert_update;
+
+            EXCEPTION
+
+                WHEN UNIQUE_VIOLATION THEN
+                    -- 何もしません
+            END;
+        END LOOP insert_update;
+
+        RETURN NULL;
+
+    END;
+$maint_sales_summary_bytime$ LANGUAGE plpgsql;
+
+CREATE TRIGGER maint_sales_summary_bytime
+AFTER INSERT OR UPDATE OR DELETE ON sales_fact
+    FOR EACH ROW EXECUTE PROCEDURE maint_sales_summary_bytime();
+
+INSERT INTO sales_fact VALUES(1,1,1,10,3,15);
+INSERT INTO sales_fact VALUES(1,2,1,20,5,35);
+INSERT INTO sales_fact VALUES(2,2,1,40,15,135);
+INSERT INTO sales_fact VALUES(2,3,1,10,1,13);
+SELECT * FROM sales_summary_bytime;
+DELETE FROM sales_fact WHERE product_key = 1;
+SELECT * FROM sales_summary_bytime;
+UPDATE sales_fact SET units_sold = units_sold * 2;
+SELECT * FROM sales_summary_bytime;</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-errors-and-messages.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-implementation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>エラーとメッセージ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の秘訣</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

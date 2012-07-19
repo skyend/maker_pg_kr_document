@@ -1,0 +1,317 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>序文</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックス"
+HREF="indexes.html"><LINK
+REL="PREVIOUS"
+TITLE="インデックス"
+HREF="indexes.html"><LINK
+REL="NEXT"
+TITLE="インデックスの種類"
+HREF="indexes-types.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 11&#31456;インデックス</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックスの種類"
+HREF="indexes-types.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEXES-INTRO"
+>11.1. 序文</A
+></H1
+><P
+>次のようなテーブルを考えてみましょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test1 (
+    id integer,
+    content varchar
+);</PRE
+><P>
+アプリケーションはこの形式の多くの問い合わせを発行します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT content FROM test1 WHERE id = <TT
+CLASS="REPLACEABLE"
+><I
+>constant</I
+></TT
+>;</PRE
+><P>
+高度な準備を行っていなければ、システムで一致する項目を全て検出するためには通常、<TT
+CLASS="STRUCTNAME"
+>test1</TT
+>テーブル全体を1行ごとにスキャンする必要があります。
+<TT
+CLASS="STRUCTNAME"
+>test1</TT
+>に数多くの行があり、その問い合わせで返されるのが数行（おそらく0行か1行）しかない場合、これは明らかに効率が悪い方法と言えます。
+システムがインデックスを<TT
+CLASS="STRUCTFIELD"
+>id</TT
+>列上で維持するように指示されていれば、一致する行を検出するのにより効率の良い方法を使うことができます。
+例えば、検索ツリーを数層分検索するだけで済む可能性もあります。
+  </P
+><P
+>ほとんどのノンフィクション小説で、同じような手法が使われています。
+読者が頻繁に調べる用語および概念は、その本の最後にアルファベット順に索引としてまとめられています。
+その本に興味を持った読者は、索引（インデックス）を調べ、比較的速く簡単に該当するページを開くことができるため、見たい場所を探すために本全部を読む必要はありません。
+読者がよく調べそうな項目を予想するのが著者の仕事であるように、どのインデックスが実用的であるかを予測するのはデータベースプログラマの仕事です。
+  </P
+><P
+>上述のように<TT
+CLASS="STRUCTFIELD"
+>id</TT
+>列にインデックスを作成する場合は、以下のようなコマンドが使用できます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX test1_id_index ON test1 (id);</PRE
+><P>
+<TT
+CLASS="STRUCTNAME"
+>test1_id_index</TT
+>というインデックス名には、何を選んでも構いませんが、そのインデックスを何のために作成したかを後で思い出せるような名前を選ぶべきです。
+  </P
+><P
+>インデックスを削除するには、<TT
+CLASS="COMMAND"
+>DROP INDEX</TT
+>コマンドを使用します。
+テーブルのインデックスは、いつでも追加および削除できます。
+  </P
+><P
+>いったんインデックスを作成すれば、それ以上の処理は必要はありません。
+システムは、テーブルが変更される時インデックスを更新し、シーケンシャルスキャンよりもインデックススキャンを行うことがより効率的と判断した場合、問い合わせでインデックスを使用します。
+しかし、問い合わせプランナで情報に基づいた判断をするためには、定期的に<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>コマンドを実行し、統計情報を更新する必要があるかもしれません。
+インデックスが使われているかどうか、およびプランナがインデックスを<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>使わない</I
+></SPAN
+>と判断した状況および理由を調べる方法については、<A
+HREF="performance-tips.html"
+>&#31532;14&#31456;</A
+>を参照してください。
+  </P
+><P
+>インデックスは、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>や<TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドの検索条件でも使用できます。
+インデックスは結合問い合わせでより多く使用されます。
+したがって、結合条件で記述されている列にインデックスを定義すれば、結合を伴った問い合わせにかかる時間もかなり短縮できます。
+  </P
+><P
+>大規模テーブルに対するインデックス作成が長期にわたる可能性があります。
+デフォルトで<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はインデックス作成と並行してテーブルを読み取る（<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文）ことができますが、書き込み（<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>）はインデックス作成が終わるまでブロックされます。
+これは多くの運用環境では受け入れられません。
+インデックス作成中でも並行して書き込みできるようにすることができますが、いくつか注意しなければならないことがあります。
+<A
+HREF="sql-createindex.html#SQL-CREATEINDEX-CONCURRENTLY"
+><I
+>インデックスの同時作成</I
+></A
+>の情報を参照してください。
+  </P
+><P
+>インデックスが作成された後、システムでは、テーブルとインデックスとの間で常に同期を取っておく必要があります。
+これにより、データ操作の処理にオーバーヘッドが加わります。
+したがって、めったに使用されないインデックスや、まったく使用されなくなったインデックスは、削除しておいた方が良いでしょう。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="indexes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="indexes-types.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インデックス</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>インデックスの種類</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

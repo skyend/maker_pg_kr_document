@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テーブルに行を挿入</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQL言語"
+HREF="tutorial-sql.html"><LINK
+REL="PREVIOUS"
+TITLE="新しいテーブルの作成"
+HREF="tutorial-table.html"><LINK
+REL="NEXT"
+TITLE="テーブルへの問い合わせ"
+HREF="tutorial-select.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="新しいテーブルの作成"
+HREF="tutorial-table.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 2&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="テーブルへの問い合わせ"
+HREF="tutorial-select.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-POPULATE"
+>2.4. テーブルに行を挿入</A
+></H1
+><P
+>以下のように、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>文を使用して、テーブルに行を挿入します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO weather VALUES ('San Francisco', 46, 50, 0.25, '1994-11-27');</PRE
+><P>
+
+全てのデータ型でどちらかといえばわかりやすい入力書式を使用していることに注意してください。
+通常、単純な数値以外の定数は、この例のように、単一引用符（<TT
+CLASS="LITERAL"
+>'</TT
+>）で括らなければなりません。
+<TT
+CLASS="TYPE"
+>date</TT
+>型で受け付けられるものは実際はかなり柔軟です。
+しかし、このチュートリアルの段階では、曖昧さがない書式にこだわることにします。
+   </P
+><P
+><TT
+CLASS="TYPE"
+>point</TT
+>型では、入力として次のような座標の組み合わせが必要です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO cities VALUES ('San Francisco', '(-194.0, 53.0)');</PRE
+><P>
+   </P
+><P
+>ここまでの構文では、列の順番を覚えておく必要がありました。
+以下に示す他の構文では、列のリストを明示的に与えることができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO weather (city, temp_lo, temp_hi, prcp, date)
+    VALUES ('San Francisco', 43, 57, 0.0, '1994-11-29');</PRE
+><P>
+リスト内の列は好きな順番で指定できます。 
+また、一部の列を省略することもできます。 
+例えば、降水量がわからない場合は以下のようにすることができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO weather (date, city, temp_hi, temp_lo)
+    VALUES ('1994-11-29', 'Hayward', 54, 37);</PRE
+><P>
+多くの開発者は、暗黙的な順番に依存するよりも、列のリストを明示的に指定する方を好んで使用します。
+   </P
+><P
+>次節でもデータを使用しますので、上のコマンドを全て入力してください。
+   </P
+><P
+>    
+
+また、<TT
+CLASS="COMMAND"
+>COPY</TT
+>を使用して大量のデータを平文テキストファイルからロードすることもできます。
+<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドは<TT
+CLASS="COMMAND"
+>INSERT</TT
+>よりも柔軟性はありませんが、この目的に特化していますので、通常、より高速になります。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>COPY weather FROM '/home/user/weather.txt';</PRE
+><P>
+
+ここで元となるファイルを表すファイル名は、クライアントではなく、バックエンドプロセスを動かしているマシンで利用できるものでなければなりません。
+バックエンドプロセスがこのファイルを直接読み込むからです。
+<A
+HREF="sql-copy.html"
+>COPY</A
+>には<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドについてのより詳しい説明があります。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-table.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-select.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>新しいテーブルの作成</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>テーブルへの問い合わせ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

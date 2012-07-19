@@ -1,0 +1,1727 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テキスト検索関数と演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="ネットワークアドレス関数と演算子"
+HREF="functions-net.html"><LINK
+REL="NEXT"
+TITLE="XML関数"
+HREF="functions-xml.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ネットワークアドレス関数と演算子"
+HREF="functions-net.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="XML関数"
+HREF="functions-xml.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-TEXTSEARCH"
+>9.13. テキスト検索関数と演算子</A
+></H1
+><P
+>  
+   <A
+HREF="functions-textsearch.html#TEXTSEARCH-OPERATORS-TABLE"
+>&#34920;9-36</A
+>、
+   <A
+HREF="functions-textsearch.html#TEXTSEARCH-FUNCTIONS-TABLE"
+>&#34920;9-37</A
+>および 
+   <A
+HREF="functions-textsearch.html#TEXTSEARCH-FUNCTIONS-DEBUG-TABLE"
+>&#34920;9-38</A
+>は全文検索用に提供されている関数と演算子を要約しています。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のテキスト検索機能の詳細は<A
+HREF="textsearch.html"
+>&#31532;12&#31456;</A
+>を参照してください。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="TEXTSEARCH-OPERATORS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-36. テキスト検索演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>@@</TT
+> </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>が<TT
+CLASS="TYPE"
+>tsquery</TT
+>に一致するか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>to_tsvector('fat cats ate rats') @@ to_tsquery('cat &amp; rat')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>t</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>@@@</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>@@</TT
+>に対する廃止予定の同義語</TD
+><TD
+><TT
+CLASS="LITERAL"
+>to_tsvector('fat cats ate rats') @@@ to_tsquery('cat &amp; rat')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>t</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>||</TT
+> </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>（複数）を連結</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'a:1 b:2'::tsvector || 'c:1 d:2 b:3'::tsvector</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'a':1 'b':2,5 'c':3 'd':4</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&amp;&amp;</TT
+> </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+>（複数）をともに積</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'fat | rat'::tsquery &amp;&amp; 'cat'::tsquery</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>( 'fat' | 'rat' ) &amp; 'cat'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>||</TT
+> </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+>（複数）をともに和</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'fat | rat'::tsquery || 'cat'::tsquery</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>( 'fat' | 'rat' ) | 'cat'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>!!</TT
+> </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+>を否定</TD
+><TD
+><TT
+CLASS="LITERAL"
+>!! 'cat'::tsquery</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>!'cat'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>@&gt;</TT
+> </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+>は他を包含するか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'cat'::tsquery @&gt; 'cat &amp; rat'::tsquery</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>f</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;@</TT
+> </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+>は包含されるか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'cat'::tsquery &lt;@ 'cat &amp; rat'::tsquery</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>t</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>     
+      <TT
+CLASS="TYPE"
+>tsquery</TT
+>格納演算子は結合された演算子を無視し、２つの問い合わせでリストされた語彙素のみを対象とします。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+>    
+     表に示された演算子に加え、通常のB-tree比較演算子（<TT
+CLASS="LITERAL"
+>=</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;</TT
+>など）が、型<TT
+CLASS="TYPE"
+>tsvector</TT
+>および<TT
+CLASS="TYPE"
+>tsquery</TT
+>に対して定義されます。これらはテキスト検索に対してそれほど有用ではありませんが、例えばこれらの型の列に一意インデックスを作成することを許可します。
+    </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="TEXTSEARCH-FUNCTIONS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-37. テキスト検索関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値型</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>get_current_ts_config()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>regconfig</TT
+></TD
+><TD
+>         デフォルトの全文検索設定の取得
+        </TD
+><TD
+><TT
+CLASS="LITERAL"
+>get_current_ts_config()</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>english</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>length(<TT
+CLASS="TYPE"
+>tsvector</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>integer</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>にある語彙素の数</TD
+><TD
+><TT
+CLASS="LITERAL"
+>length('fat:2,4 cat:3 rat:5A'::tsvector)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>3</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>numnode(<TT
+CLASS="TYPE"
+>tsquery</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>integer</TT
+></TD
+><TD
+>         <TT
+CLASS="TYPE"
+>tsquery</TT
+>にある語彙素の数と演算子の数
+        </TD
+><TD
+><TT
+CLASS="LITERAL"
+> numnode('(fat &amp; rat) | cat'::tsquery)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>5</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>plainto_tsquery([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+> , </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+></TD
+><TD
+>句読点を無視して、<TT
+CLASS="TYPE"
+>tsquery</TT
+>を作成</TD
+><TD
+><TT
+CLASS="LITERAL"
+>plainto_tsquery('english', 'The Fat Rats')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'fat' &amp; 'rat'</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>querytree(<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+>のインデックス付け可能部分の取得</TD
+><TD
+><TT
+CLASS="LITERAL"
+>querytree('foo &amp; ! bar'::tsquery)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'foo'</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>setweight(<TT
+CLASS="TYPE"
+>tsvector</TT
+>, <TT
+CLASS="TYPE"
+>"char"</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>のそれぞれの要素に重みを割り当て</TD
+><TD
+><TT
+CLASS="LITERAL"
+>setweight('fat:2,4 cat:3 rat:5B'::tsvector, 'A')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'cat':3A 'fat':2A,4A 'rat':5A</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>strip(<TT
+CLASS="TYPE"
+>tsvector</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>から位置と重みを削除</TD
+><TD
+><TT
+CLASS="LITERAL"
+>strip('fat:2,4 cat:3 rat:5A'::tsvector)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'cat' 'fat' 'rat'</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>to_tsquery([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+> , </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+></TD
+><TD
+>単語（複数）を正規化し<TT
+CLASS="TYPE"
+>tsquery</TT
+>に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>to_tsquery('english', 'The &amp; Fat &amp; Rats')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'fat' &amp; 'rat'</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>to_tsvector([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+> , </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>document</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+></TD
+><TD
+>ドキュメントテキストを<TT
+CLASS="TYPE"
+>tsvector</TT
+>に縮小</TD
+><TD
+><TT
+CLASS="LITERAL"
+>to_tsvector('english', 'The Fat Rats')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'fat':2 'rat':3</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_headline([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>document</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>options</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+> </SPAN
+>])</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>問い合わせによるマッチを表示</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_headline('x y z', 'z'::tsquery)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>x y &lt;b&gt;z&lt;/b&gt;</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_rank([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>weights</I
+></TT
+> <TT
+CLASS="TYPE"
+>float4[]</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>vector</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsvector</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>normalization</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+> </SPAN
+>])</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>float4</TT
+></TD
+><TD
+>問い合わせのためのドキュメント順位付け</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_rank(textsearch, query)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>0.818</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_rank_cd([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>weights</I
+></TT
+> <TT
+CLASS="TYPE"
+>float4[]</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>vector</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsvector</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>normalization</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+> </SPAN
+>])</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>float4</TT
+></TD
+><TD
+>cover densityを用いた問い合わせのためのドキュメント順位付け</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_rank_cd('{0.1, 0.2, 0.4, 1.0}', textsearch, query)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>2.01317</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_rewrite(<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>substitute</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+></TD
+><TD
+>問い合わせ内で対象を代替と置換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_rewrite('a &amp; b'::tsquery, 'a'::tsquery, 'foo|bar'::tsquery)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'b' &amp; ( 'foo' | 'bar' )</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_rewrite(<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>select</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>tsquery</TT
+></TD
+><TD
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>から対象と代替を使用して置換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>SELECT ts_rewrite('a &amp; b'::tsquery, 'SELECT t,s FROM aliases')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>'b' &amp; ( 'foo' | 'bar' )</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>tsvector_update_trigger()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>trigger</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>列自動更新のため関数をトリガ</TD
+><TD
+><TT
+CLASS="LITERAL"
+>CREATE TRIGGER ... tsvector_update_trigger(tsvcol, 'pg_catalog.swedish', title, body)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+></TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>tsvector_update_trigger_column()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>trigger</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>列自動更新のため関数をトリガ</TD
+><TD
+><TT
+CLASS="LITERAL"
+>CREATE TRIGGER ... tsvector_update_trigger_column(tsvcol, configcol, title, body)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+></TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>   
+    オプションの<TT
+CLASS="TYPE"
+>regconfig</TT
+>引数を受け付ける全てのテキスト検索関数は、その引数が省略された場合<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TEXT-SEARCH-CONFIG"
+>default_text_search_config</A
+>で指定された構成を使用します。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>  
+   <A
+HREF="functions-textsearch.html#TEXTSEARCH-FUNCTIONS-DEBUG-TABLE"
+>&#34920;9-38</A
+>の関数は、日常のテキスト検索操作では通常使用されないので、別途リストされます。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="TEXTSEARCH-FUNCTIONS-DEBUG-TABLE"
+></A
+><P
+><B
+>&#34920; 9-38. テキスト検索デバッグ関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値型</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_debug([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>document</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>description</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>token</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>dictionaries</I
+></TT
+> <TT
+CLASS="TYPE"
+>regdictionary[]</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>dictionary</I
+></TT
+> <TT
+CLASS="TYPE"
+>regdictionary</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>lexemes</I
+></TT
+> <TT
+CLASS="TYPE"
+>text[]</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>構成を検査</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_debug('english', 'The Brightest supernovaes')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>(asciiword,"Word, all ASCII",The,{english_stem},english_stem,{}) ...</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_lexize(<TT
+CLASS="REPLACEABLE"
+><I
+>dict</I
+></TT
+> <TT
+CLASS="TYPE"
+>regdictionary</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>token</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text[]</TT
+></TD
+><TD
+>辞書を検査</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_lexize('english_stem', 'stars')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>{star}</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_parse(<TT
+CLASS="REPLACEABLE"
+><I
+>parser_name</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>document</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>tokid</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>token</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>パーサを検査</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_parse('default', 'foo - bar')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>(1,foo) ...</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_parse(<TT
+CLASS="REPLACEABLE"
+><I
+>parser_oid</I
+></TT
+> <TT
+CLASS="TYPE"
+>oid</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>document</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>tokid</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>token</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>パーサを検査</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_parse(3722, 'foo - bar')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>(1,foo) ...</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_token_type(<TT
+CLASS="REPLACEABLE"
+><I
+>parser_name</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>tokid</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>description</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>パーサで定義されたトークンの型を入手</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_token_type('default')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>(1,asciiword,"Word, all ASCII") ...</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_token_type(<TT
+CLASS="REPLACEABLE"
+><I
+>parser_oid</I
+></TT
+> <TT
+CLASS="TYPE"
+>oid</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>tokid</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>description</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>パーサで定義されたトークンの型を入手</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_token_type(3722)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>(1,asciiword,"Word, all ASCII") ...</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>ts_stat(<TT
+CLASS="REPLACEABLE"
+><I
+>sqlquery</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>weights</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, </SPAN
+>] OUT <TT
+CLASS="REPLACEABLE"
+><I
+>word</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>ndoc</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>, OUT <TT
+CLASS="REPLACEABLE"
+><I
+>nentry</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>列の統計情報を入手</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ts_stat('SELECT vector from apod')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>(foo,10,15) ...</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-net.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-xml.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ネットワークアドレス関数と演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>XML関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

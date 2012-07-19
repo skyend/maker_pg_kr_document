@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース9.0.1</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース9.0.2"
+HREF="release-9-0-2.html"><LINK
+REL="NEXT"
+TITLE="リリース9.0"
+HREF="release-9-0.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース9.0.2"
+HREF="release-9-0-2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース9.0"
+HREF="release-9-0.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-9-0-1"
+>E.13. リリース9.0.1</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2010-10-04</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは9.0.0に対し、各種の不具合を修正したものです。
+9.0メジャーリリースにおける新機能については<A
+HREF="release-9-0.html"
+>&#38917;E.14</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN109651"
+>E.13.1. バージョン9.0.1への移行</A
+></H2
+><P
+>9.0.Xからの移行ではダンプ/リストアは不要です。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN109654"
+>E.13.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>PL/PerlおよびPL/Tclにおいて、呼び出し元のSQLユーザIDごとに別のインタプリタを使用します。(Tom Lane)
+     </P
+><P
+>この変更は、同じセッション内でその後に異なるSQLユーザIDにより実行されるPerlまたはTclコード（例えば<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>の内部）を破壊することで発生する可能性があるというセキュリティ問題を防止するものです。
+ほとんどのスクリプト用言語は、対象とする関数で呼び出される標準関数や演算子の再定義など、これを行うことができる多くの方法を提供します。
+この変更がないと、PerlまたはTcl言語の使用権限を持つ任意のSQLユーザは基本的に、対象の関数の所有者が持つSQL権限でできることを何でもできるようになります。
+     </P
+><P
+>この変更の欠点はPerlおよびTcl関数間の内部通信がより難しくなるという点です。
+逃げ道を提供するために、PL/PerlUおよびPL/TclU関数ではまだセッション当たり1つのインタプリタのみを使用します。
+これらのすべての関数は従来よりデータベーススーパーユーザの信頼レベルで実行されますので、これはセキュリティ問題とはみなされません。
+     </P
+><P
+>信頼された実行を提供することを主張するサードパーティ製の手続き言語は似たようなセキュリティ問題を持つ可能性が大きくあります。
+セキュリティが非常に重要な目的のために依存している手続き言語があれば、その作者に連絡を取ることを勧めます。
+     </P
+><P
+>この問題を指摘いただいたTim Bunceに感謝します(CVE-2010-3433)。
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_get_expr()</CODE
+>関数を副選択の出力に対して使用し続けられるように<CODE
+CLASS="FUNCTION"
+>pg_get_expr()</CODE
+>のセキュリティ修正を改良しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>不正なプレースホルダ位置の評価を修正しました。(Tom Lane)
+     </P
+><P
+>この不具合のため外部結合の内側が出力リスト内に制限がない式を持つ副選択であった場合など、問い合わせ出力がNULLであるべき時に非NULLの結果になるかもしれませんでした。
+     </P
+></LI
+><LI
+><P
+>結合除去におけるプレースホルダ式の扱いを修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>のメンバーリレーションの二重スキャンの可能性を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>監視中止後のProcessIncomingNotify()における無限ループを防止します。(Jeff Davis)
+     </P
+></LI
+><LI
+><P
+>自動バキューム処理中のクラッシュからshow_session_authorization()を防止します。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>0001-01-01 AD以前のユリウス日の入力を再度許します。(Tom Lane)
+     </P
+><P
+>8.4より前では<TT
+CLASS="LITERAL"
+>'J100000'::date</TT
+>などの入力が動作しました。
+しかし、エラー検査を加えたことで意図せず壊れていました。
+     </P
+></LI
+><LI
+><P
+>自動コミットモードが無効な場合、<TT
+CLASS="COMMAND"
+>DISCARD ALL</TT
+>をトランザクションブロック内に包むべきものではないコマンドとしてpsqlが認識するようにしました。(Itagaki Takahiro)
+     </P
+></LI
+><LI
+><P
+>構築手順や文書を更新して、ソースコードリポジトリがCVSからGitに変更されたことを反映しました。(Magnus Hagander他)
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-9-0-2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-9-0.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース9.0.2</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース9.0</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

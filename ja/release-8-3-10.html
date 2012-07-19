@@ -1,0 +1,551 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.3.10</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.3.11"
+HREF="release-8-3-11.html"><LINK
+REL="NEXT"
+TITLE="リリース8.3.9"
+HREF="release-8-3-9.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.3.11"
+HREF="release-8-3-11.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.3.9"
+HREF="release-8-3-9.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-3-10"
+>E.37. リリース8.3.10</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2010-03-15</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.3.9に対し、各種の不具合を修正したものです。
+8.3メジャーリリースにおける新機能については<A
+HREF="release-8-3.html"
+>&#38917;E.47</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115266"
+>E.37.1. バージョン8.3.10への移行</A
+></H2
+><P
+>8.3.Xからの移行ではダンプ/リストアは不要です。
+しかし8.3.8以前のバージョンからアップデートする場合は8.3.8のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115269"
+>E.37.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>SSL接続においてセッションキーの再調停をどの程度の頻度で行うかを制御する<TT
+CLASS="VARNAME"
+>ssl_renegotiation_limit</TT
+>設定パラメータを新しく追加しました。(Magnus)
+     </P
+><P
+>これをゼロに設定することで、再調停を完全に無効にすることができます。
+これは壊れたSSLライブラリを使用している場合に必要になる可能性があります。
+具体的には一部のベンダは再調停の試行を失敗させるCVE-2009-3555に対する一時しのぎのパッチを提供しています。
+     </P
+></LI
+><LI
+><P
+>バックエンド起動時のデッドロックの可能性を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>relcacheの再読み込みがきれいに行われている間にエラーを扱わないことが原因でクラッシュする可能性を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>保管された計画への宙ぶらりんのポインタを使用することが原因でクラッシュする可能性を修正しました。(Tatsuo)
+     </P
+></LI
+><LI
+><P
+>副トランザクション起動時における失敗からのリカバリを試行する時にクラッシュする可能性を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>セーブポイントの使用およびサーバの符号化方式と異なるクライアント符号化方式に関連したサーバのメモリリークを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>GiSTインデックスページ分割のリカバリ終了時の整理において生成される不正なWALデータを修正しました。(Yoichi Hirai)
+     </P
+><P
+>これはインデックスの破損という結果となり、WAL再生中にエラーが発生します。
+もし運が悪ければ、未完全のGiST挿入に成功した後にリカバリ終了時の整理が行われている時にクラッシュしてしまいます。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>bit</TT
+>型の<CODE
+CLASS="FUNCTION"
+>substring()</CODE
+>では、いかなる負の長さも<SPAN
+CLASS="QUOTE"
+>"文字列の残りすべて"</SPAN
+>を意味するようにしました。(Tom)
+     </P
+><P
+>これまでのコードでは-1のみを上のように扱い、他の負の値についてはクラッシュする可能性がある無効な結果値を生成しました。(CVE-2010-0442)
+     </P
+></LI
+><LI
+><P
+>出力ビット幅が指定された整数よりも広く、それが8ビットの倍数以外である場合、先頭の端数のバイトを正確に扱うように整数からビット列への変換を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>正規表現マッチが異常なまでに低速になる一部の状況を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>ずさんなメモリ管理によって引き起こる<TT
+CLASS="TYPE"
+>xml</TT
+>の雑多なクラッシュを修正しました。(Tom)
+     </P
+><P
+>これは先に8.4に適用された変更の後戻りのパッチです。
+8.3のコードは不具合が多いことが知られていましたが、何らかの実地試験を受けるまで後戻りのパッチをしようとは思わないほど新しいコードはかなり変更されていました。
+     </P
+></LI
+><LI
+><P
+>複合型の配列の列の要素フィールドを更新する場合の不具合を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>終了位置が正確にセグメント境界であった場合、次のWALセグメント名を報告するようにバックアップ履歴ファイル内の<TT
+CLASS="LITERAL"
+>STOP WAL LOCATION</TT
+>を修正しました。(Itagaki Takahiro)
+     </P
+></LI
+><LI
+><P
+>一時ファイルが漏洩する一部の状況を修正しました。(Heikki)
+     </P
+><P
+>これは前のマイナーリリースでもたらされた問題を修正します。
+失敗する状況の1つは集合を返すplpgsql関数が他の関数の例外ハンドラ内で呼び出された場合です。
+     </P
+></LI
+><LI
+><P
+>論理値変数の場合の制約による排他処理を改良しました。
+具体的には、<SPAN
+CLASS="QUOTE"
+>"bool_column = false"</SPAN
+>制約を持つパーティションを除外することができるようになりました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>とその関連ファイルを読み取る時、<TT
+CLASS="LITERAL"
+>@</TT
+>が引用符記号の内部にある場合に<TT
+CLASS="LITERAL"
+>@something</TT
+>をファイル包含要求と扱わないようにしました。
+また、<TT
+CLASS="LITERAL"
+>@</TT
+>自身をファイル含有要求として扱いません。(Tom)
+     </P
+><P
+>ロールまたはデータベース名が<TT
+CLASS="LITERAL"
+>@</TT
+>から始まる場合の一定しない動作を防止します。
+空白文字を含むパス名のファイルを包含する必要がある場合、まだ実現させることはできますが、式全体を引用符でくくるのではなく<TT
+CLASS="LITERAL"
+>@"/path to/file"</TT
+>と記述しなければなりません。
+     </P
+></LI
+><LI
+><P
+>ディレクトリが<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>とその関連ファイル内で含有対象と指定されていた場合の一部のプラットフォームにおける無限ループを防止します。(Tom)
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>SSL_read</CODE
+>または<CODE
+CLASS="FUNCTION"
+>SSL_write</CODE
+>が<TT
+CLASS="VARNAME"
+>errno</TT
+>を設定することなく失敗した場合に無限ループする可能性を修正しました。(Tom)
+     </P
+><P
+>一部の報告では<SPAN
+CLASS="APPLICATION"
+>openssl</SPAN
+>の一部のWindows版で発生する可能性がありました。
+     </P
+></LI
+><LI
+><P
+>正しく動作させるためにホスト名が必要ですので、ローカル接続では<ACRONYM
+CLASS="ACRONYM"
+>GSSAPI</ACRONYM
+>認証を許しません。(Magnus)
+     </P
+></LI
+><LI
+><P
+>接続が消失した場合<SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>に適切なSQLSTATEを報告させるようにしました。(Michael)
+     </P
+></LI
+><LI
+><P
+>latexおよびtroff出力書式では行うべきではない文字列の書式付けを行わないように<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="LITERAL"
+>numericlocale</TT
+>オプションを修正しました。(Heikki)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ON_ERROR_STOP</TT
+>と<TT
+CLASS="LITERAL"
+>--single-transaction</TT
+>の両方が指定され、かつ、暗黙的な<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>時にエラーが起きた場合に、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が正しい終了コード(3)を返すようにしました。(Bruce)
+     </P
+></LI
+><LI
+><P
+>複合列がNULLに設定される場合にplpgsqlが失敗することを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>PL/PerlUからのPL/Perl関数の呼び出し、およびその逆の場合において失敗する可能性を修正しました。(Tim Bunce)
+     </P
+></LI
+><LI
+><P
+>コンパイラ固有の誤動作が起こる可能性を防ぐためにPL/Python内に<TT
+CLASS="LITERAL"
+>volatile</TT
+>記号を追加しました。(Zdenek Kotala)
+     </P
+></LI
+><LI
+><P
+>PL/Tclは確実にTclインタプリタを完全に初期化します。(Tom)
+     </P
+><P
+>このミスの既知の兆候は、Tcl 8.5以降を使用している場合のTclの<TT
+CLASS="LITERAL"
+>clock</TT
+>コマンドの誤動作だけです。
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>dblink_build_sql_*</CODE
+>関数であまりに多くのキー列が指定された場合の<TT
+CLASS="FILENAME"
+>contrib/dblink</TT
+>のクラッシュを防止します。(Rushabh Lathia, Joe Conway)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/ltree</TT
+>操作においてゼロ次元の配列を許可します。(Tom)
+     </P
+><P
+>この状況は以前はエラーとして拒絶されました。
+しかしこれを要素ゼロの配列と同様に扱う方がより簡便です。
+特にこれは、<TT
+CLASS="TYPE"
+>ltree</TT
+>演算子が<TT
+CLASS="LITERAL"
+>ARRAY(SELECT ...)</TT
+>の結果に適用され、副問い合わせが行を返さない場合の不要な失敗を防止します。
+     </P
+></LI
+><LI
+><P
+>ずさんなメモリ管理によって引き起こる<TT
+CLASS="FILENAME"
+>contrib/xml2</TT
+>の雑多なクラッシュを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>Windowsにおいて<TT
+CLASS="FILENAME"
+>contrib/xml2</TT
+>の構築をより堅牢にしました。(Andrew)
+     </P
+></LI
+><LI
+><P
+>Widowsのシグナル処理における競合状態を修正しました。(Radu Ilie)
+     </P
+><P
+>この不具合の兆候として既知のものは、負荷が高い状況において<TT
+CLASS="STRUCTNAME"
+>pg_listener</TT
+>内の行が削除されることです。
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+> release 2010eに更新しました。
+バングラディッシュ、チリ、フィジー、メキシコ、パラグアイ、サモアにおける夏時間規則の変更が含まれます。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-3-11.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-3-9.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.3.11</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.3.9</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

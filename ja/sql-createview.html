@@ -1,0 +1,550 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE VIEW</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE USER MAPPING"
+HREF="sql-createusermapping.html"><LINK
+REL="NEXT"
+TITLE="DEALLOCATE"
+HREF="sql-deallocate.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE USER MAPPING"
+HREF="sql-createusermapping.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE USER MAPPING"
+HREF="sql-createusermapping.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DEALLOCATE"
+HREF="sql-deallocate.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DEALLOCATE"
+HREF="sql-deallocate.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATEVIEW"
+></A
+>CREATE VIEW</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN69390"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE VIEW&nbsp;--&nbsp;新しいビューを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN69395"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE [ OR REPLACE ] [ TEMP | TEMPORARY ] VIEW <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ...] ) ]
+    AS <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69400"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE VIEW</TT
+>は問い合わせによるビューを定義します。
+ビューは物理的な実体として存在するものではありません。
+その代わり、問い合わせでビューが参照される度に、指定された問い合わせが実行されます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE OR REPLACE VIEW</TT
+>も同様の働きをしますが、
+このコマンドでは、同じ名前のビューが既に存在している場合、そのビューを置き換えます。
+新しい問い合わせは、既存のビュー問い合わせが生成する列と同じ列(つまり、同じ順序の同じデータ型の同じ列名)を生成しなければなりません。
+しかし、そのリストの最後に列を追加しても構いません。
+出力列を生成する計算をまったく異なるものにしても構いません。
+  </P
+><P
+>スキーマ名が付けられている場合（例えば、<TT
+CLASS="LITERAL"
+>CREATE VIEW myschema.myview ...</TT
+>）、ビューは指定されたスキーマで作成されます。
+スキーマ名がなければ、そのビューは現在のスキーマで作成されます。
+一時ビューは特別なスキーマで作成されます。
+そのため、一時ビューを作成する時にはスキーマ名を付けることはできません。
+ビュー名は、同じスキーマ内の他のビュー、テーブル、シーケンス、インデックス、外部テーブルとは異なる名前である必要があります。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69408"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>TEMPORARY</TT
+> or <TT
+CLASS="LITERAL"
+>TEMP</TT
+></DT
+><DD
+><P
+>これが指定された場合、ビューは一時ビューとして作成されます。
+現在のセッションが終わった時、一時ビューは自動的に削除されます。
+一時ビューが存在する間、現在のセッションでは、これと同じ名前の永続リレーションはスキーマで修飾した名前で参照していない限り不可視です。
+     </P
+><P
+>ビューで参照されるテーブルの一部が一時テーブルであった場合、（<TT
+CLASS="LITERAL"
+>TEMPORARY</TT
+>の指定があってもなくても）ビューは一時ビューとして作成されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>作成するビューの名前です（スキーマ修飾名も可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+></DT
+><DD
+><P
+>ビューの列名として使用する名前のリストです。このパラメータは省略可能です。省略された場合、問い合わせに由来する名前が使用されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+></DT
+><DD
+><P
+>ビューの列と行を生成する<A
+HREF="sql-select.html"
+>SELECT</A
+>または<A
+HREF="sql-values.html"
+>VALUES</A
+>コマンドです。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69436"
+></A
+><H2
+>注釈</H2
+><P
+>現在のところ、ビューは読み取り専用です。
+システムは、ビューに対する挿入、更新、削除を許可しません。
+しかし、ビューに対する挿入などを他のテーブルに対する処理に書き換えるルールを作成することで、更新可能なビューと同じように扱うことができます。
+詳細については、<A
+HREF="sql-createrule.html"
+>CREATE RULE</A
+>を参照してください。
+   </P
+><P
+>ビューを削除するには、<A
+HREF="sql-dropview.html"
+>DROP VIEW</A
+>文を使用してください。
+
+   </P
+><P
+>ビューの列の名前と型は指定通りに割り当てられることに注意してください。
+例えば、次のコマンドを見てください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW vista AS SELECT 'Hello World';</PRE
+><P>
+この例は、次の2点から好ましくありません。
+まず、列の名前がデフォルトの<TT
+CLASS="LITERAL"
+>?column?</TT
+>になります。さらに、列のデータ型もデフォルトの<TT
+CLASS="TYPE"
+>unknown</TT
+>になってしまいます。
+ビューの結果として文字リテラルを返したい場合は、次のように指定してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW vista AS SELECT text 'Hello World' AS hello;</PRE
+><P>
+   </P
+><P
+>ビューが参照するテーブルにアクセスできるかどうかは、ビューの所有者の権限で決定されます。
+これは、場合によっては、背後のテーブルへのアクセスが制限されますが、安全性を提供するために使用することができます。
+しかしすべてのビューが不正な改変に対して安全ではありません。
+<A
+HREF="rules-privileges.html"
+>&#38917;37.4</A
+>を参照してください。
+ビュー内で実行される関数については、ビューを使用した問い合わせにおいて、その関数が直接呼び出された場合と同様に扱われます。
+したがって、ビューを使用するユーザには、ビュー内で使用される全ての関数を呼び出す権限が必要です。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE OR REPLACE VIEW</TT
+>が既存のビューに対して使用されると、ビューを定義するSELECTルールのみが変更されます。
+所有者情報、権限、SELECT以外のルールなど他のビューの属性はそのまま変更されません。
+置き換えるためにはビューの所有者（所有ロールのメンバである場合も含む）でなければなりません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69451"
+></A
+><H2
+>例</H2
+><P
+>全てのコメディ映画（Comedy films）からなるビューを作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW comedies AS
+    SELECT *
+    FROM films
+    WHERE kind = 'Comedy';</PRE
+><P>
+これはビューを作成した時点で<TT
+CLASS="LITERAL"
+>film</TT
+>テーブル内にある列を持つビューを作成します。
+ビューを作成するために<TT
+CLASS="LITERAL"
+>*</TT
+>が使用されていますが、その後にテーブルに追加された列はビューには含まれません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69457"
+></A
+><H2
+>互換性</H2
+><P
+>   標準SQLの<TT
+CLASS="COMMAND"
+>CREATE VIEW</TT
+>文には、さらにいくつかの機能が規定されています。
+</P><PRE
+CLASS="SYNOPSIS"
+>CREATE VIEW <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ...] ) ]
+    AS <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>
+    [ WITH [ CASCADED | LOCAL ] CHECK OPTION ]</PRE
+><P>
+  </P
+><P
+>このSQLコマンドの全てのオプション句について、次に説明します。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>CHECK OPTION</TT
+></DT
+><DD
+><P
+>更新される可能性のあるビューには、このオプションを使用しなければなりません。
+ビューに対する全ての<TT
+CLASS="COMMAND"
+>INSERT</TT
+>と<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドは、ビュー定義の条件を満足しているかどうか（新しいデータがビューを通して可視であるかどうか）検査されます。
+条件を満たしていない場合、その更新は拒否されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>LOCAL</TT
+></DT
+><DD
+><P
+>このビューの整合性を検査します。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CASCADED</TT
+></DT
+><DD
+><P
+>このビューと依存している全てのビューの整合性を検査します。
+<TT
+CLASS="LITERAL"
+>CASCADED</TT
+>または<TT
+CLASS="LITERAL"
+>LOCAL</TT
+>のいずれも指定されていない場合は、<TT
+CLASS="LITERAL"
+>CASCADED</TT
+>として扱われます。
+       </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE OR REPLACE VIEW</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の言語拡張です。
+つまり一時ビューという概念も言語拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69490"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-alterview.html"
+>ALTER VIEW</A
+>, <A
+HREF="sql-dropview.html"
+>DROP VIEW</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createusermapping.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-deallocate.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE USER MAPPING</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>DEALLOCATE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

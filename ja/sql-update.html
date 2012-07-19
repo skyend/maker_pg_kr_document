@@ -1,0 +1,867 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>UPDATE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="UNLISTEN"
+HREF="sql-unlisten.html"><LINK
+REL="NEXT"
+TITLE="VACUUM"
+HREF="sql-vacuum.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="UNLISTEN"
+HREF="sql-unlisten.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="UNLISTEN"
+HREF="sql-unlisten.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="VACUUM"
+HREF="sql-vacuum.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="VACUUM"
+HREF="sql-vacuum.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-UPDATE"
+></A
+>UPDATE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN76154"
+></A
+><H2
+>&#21517;&#21069;</H2
+>UPDATE&nbsp;--&nbsp;テーブルの行を更新する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN76159"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>[ WITH [ RECURSIVE ] <TT
+CLASS="REPLACEABLE"
+><I
+>with_query</I
+></TT
+> [, ...] ]
+UPDATE [ ONLY ] <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> ]
+    SET { <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> = { <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> | DEFAULT } |
+          ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) = ( { <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> | DEFAULT } [, ...] ) } [, ...]
+    [ FROM <TT
+CLASS="REPLACEABLE"
+><I
+>from_list</I
+></TT
+> ]
+    [ WHERE <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+> | WHERE CURRENT OF <TT
+CLASS="REPLACEABLE"
+><I
+>cursor_name</I
+></TT
+> ]
+    [ RETURNING * | <TT
+CLASS="REPLACEABLE"
+><I
+>output_expression</I
+></TT
+> [ [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>output_name</I
+></TT
+> ] [, ...] ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76173"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>UPDATE</TT
+>は、条件を満たす全ての行の指定した列の値を変更します。
+<TT
+CLASS="LITERAL"
+>SET</TT
+>句には、変更する列のみを指定する必要があります。
+<TT
+CLASS="LITERAL"
+>SET</TT
+>句にて明示的に指定されなかった列の値は変更されません。
+  </P
+><P
+>デフォルトでは、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>は指定したテーブルとその副テーブルの行を更新します。
+指定されたテーブルのみを更新したい場合は<TT
+CLASS="LITERAL"
+>ONLY</TT
+>句を使用してください。
+  </P
+><P
+>データベース内の他のテーブルの情報を使用してテーブルを変更するには、2つの方法があります。
+1つは副問い合わせを使用する方法、もう1つは<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で追加するテーブルを指定する方法です。
+どちらの方法が適切であるかは状況次第です。
+  </P
+><P
+>省略可能な<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句により、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>は実際に更新された各行に基づいて計算された値を返すようになります。
+そのテーブルの列、<TT
+CLASS="LITERAL"
+>FROM</TT
+>で指定された他のテーブルの列、あるいは、その両方を使用した式を計算することができます。
+テーブル列の新しい（更新された後の）値が使用されます。
+<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>リストの構文は<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の出力リストと同一です。
+  </P
+><P
+>更新を行うためには、そのテーブルまたは少なくとも対象の列上に<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>権限を持たなければなりません。
+また<TT
+CLASS="REPLACEABLE"
+><I
+>expressions</I
+></TT
+>や<TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+>で読み込むテーブルに対する<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限も必要になります。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76195"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>with_query</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>句により<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>問い合わせ内で名前で参照可能な１つ以上の副問い合わせを指定することができます。
+<A
+HREF="queries-with.html"
+>&#38917;7.8</A
+>と<A
+HREF="sql-select.html"
+>SELECT</A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+></DT
+><DD
+><P
+>	更新対象のテーブルの名前です（スキーマ修飾名でも可）。 
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+></DT
+><DD
+><P
+>対象テーブルの代替名です。
+別名が指定されると、テーブルの実際の名前は完全に隠蔽されます。
+たとえば、<TT
+CLASS="LITERAL"
+>UPDATE foo AS f</TT
+>では、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>文の残りの部分では<TT
+CLASS="LITERAL"
+>foo</TT
+>ではなく<TT
+CLASS="LITERAL"
+>f</TT
+>としてこのテーブルを参照しなければなりません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>内の列名です。
+必要に応じて、列名を副フィールド名や配列の指示子で修飾することも可能です。
+対象列の指定にはテーブル名を含めないでください。
+たとえば、<TT
+CLASS="LITERAL"
+>UPDATE tab SET tab.col = 1</TT
+>は無効です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+></DT
+><DD
+><P
+>列に代入する式です。
+この式では、テーブル内の対象列やその他の列の変更前の値を使用することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DEFAULT</TT
+></DT
+><DD
+><P
+>      列にデフォルト値を設定します
+      （デフォルト式が割り当てられていない場合はNULLになります）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>from_list</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>WHERE</TT
+>条件や更新用の式において、他のテーブルの列を指定するために使用するテーブル式の集合です。
+これは<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の<A
+HREF="sql-select.html#SQL-FROM"
+><I
+><I
+>FROM</I
+>句</I
+></A
+>で指定するテーブルのリストに似ています。
+自己結合を行う場合を除き、<TT
+CLASS="REPLACEABLE"
+><I
+>from_list</I
+></TT
+>に更新対象のテーブルを含める必要はありません
+（自己結合を行う場合は、<TT
+CLASS="REPLACEABLE"
+><I
+>from_list</I
+></TT
+>内で更新対象のテーブルとその別名を指定しておく必要があります）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+></DT
+><DD
+><P
+>      <TT
+CLASS="TYPE"
+>boolean</TT
+>型の値を返す式です。
+      この式が<TT
+CLASS="LITERAL"
+>true</TT
+>を返す行のみが更新されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>cursor_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>WHERE CURRENT OF</TT
+>条件で使用されるカーソルの名前です。
+更新対象の行は、そのカーソルからもっとも最近に取り出された行です。
+カーソルは<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>の対象テーブルに対するグループ化のない問い合わせでなければなりません。
+<TT
+CLASS="LITERAL"
+>WHERE CURRENT OF</TT
+>を論理条件といっしょに指定することはできません。
+<TT
+CLASS="LITERAL"
+>WHERE CURRENT OF</TT
+>付きのカーソル使用に関する情報については<A
+HREF="sql-declare.html"
+>DECLARE</A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>output_expression</I
+></TT
+></DT
+><DD
+><P
+>各行を更新した後に計算され、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>によって返される式です。
+この式には、<TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>または<TT
+CLASS="LITERAL"
+>FROM</TT
+>で指定したテーブル（複数可）の任意の列名を使用することができます。
+すべての列を返す場合は<TT
+CLASS="LITERAL"
+>*</TT
+>と記載してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>output_name</I
+></TT
+></DT
+><DD
+><P
+>返される列で使用される名前です。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76279"
+></A
+><H2
+>出力</H2
+><P
+>正常に処理が終わると、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドは以下の形式のコマンドタグを返します。
+</P><PRE
+CLASS="SCREEN"
+>UPDATE <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>は更新された行数を意味します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>が0の場合は<TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+>に一致する行がなかったことを意味します
+（これはエラーとはみなされません）。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドが<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を持つ場合、その結果は、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>リストで定義した列と値を持ち、そのコマンドで更新された行全体に対して計算を行う<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の結果と似たものになるでしょう。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76293"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句が存在する場合、基本的に、対象テーブルと<TT
+CLASS="REPLACEABLE"
+><I
+>from_list</I
+></TT
+>で指定されたテーブルが結合され、この結合の出力行が対象テーブルの更新操作の結果となります。
+<TT
+CLASS="LITERAL"
+>FROM</TT
+>句を使用する場合、更新対象テーブルの1行に対して、結合結果が複数行にならないように注意してください。
+言い換えると、対象テーブルの個々の行は、他テーブルの複数の行と結合すべきではありません。
+結合結果が複数行になった場合、対象行の更新には結合結果のいずれか1行のみが使用されますが、どの行が使用されるかは簡単には予測できません。
+  </P
+><P
+>このような問題があるため、他テーブルの参照は副問い合わせ内のみに留めておいた方がより安全です（ただし、結合よりも可読性や実行速度は低下します）。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76300"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="STRUCTNAME"
+>films</TT
+>テーブルの<TT
+CLASS="STRUCTFIELD"
+>kind</TT
+>列にある<TT
+CLASS="LITERAL"
+>Drama</TT
+>という単語を<TT
+CLASS="LITERAL"
+>Dramatic</TT
+>に変更します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE films SET kind = 'Dramatic' WHERE kind = 'Drama';</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>weather</TT
+>テーブルの特定の行に対し、気温という項目を調整し、降水量をデフォルト値に戻します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT
+  WHERE city = 'San Francisco' AND date = '2003-07-03';</PRE
+><P>
+  </P
+><P
+>同じ操作を行い、更新された項目を返します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = DEFAULT
+  WHERE city = 'San Francisco' AND date = '2003-07-03'
+  RETURNING temp_lo, temp_hi, prcp;</PRE
+><P>
+  </P
+><P
+>別の列リスト構文を使用して同様の更新を行います。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE weather SET (temp_lo, temp_hi, prcp) = (temp_lo+1, temp_lo+15, DEFAULT)
+  WHERE city = 'San Francisco' AND date = '2003-07-03';</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句構文を使用して、アクメ社を顧客とするセールスマンのセールスカウントを1増加させます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE employees SET sales_count = sales_count + 1 FROM accounts
+  WHERE accounts.name = 'Acme Corporation'
+  AND employees.id = accounts.sales_person;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>WHERE</TT
+>句で副問い合わせを使用して、同じ操作を行います。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE employees SET sales_count = sales_count + 1 WHERE id =
+  (SELECT sales_person FROM accounts WHERE name = 'Acme Corporation');</PRE
+><P>
+  </P
+><P
+>新しい商品とその在庫数を挿入します。
+既にその商品が存在している場合は、代わりに既存商品の在庫数を更新します。
+トランザクション全体が失敗することがないようにこの操作を行うには、セーブポイントを使用してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN;
+-- 何かしらの他の操作を行います。
+SAVEPOINT sp1;
+INSERT INTO wines VALUES('Chateau Lafite 2003', '24');
+-- 上記のコマンドが一意キー違反により失敗したとします。
+-- この場合、次のコマンドを実行します。
+ROLLBACK TO sp1;
+UPDATE wines SET stock = stock + 24 WHERE winename = 'Chateau Lafite 2003';
+-- 他の操作を続けた後、最後に次を実行します。
+COMMIT;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>films</TT
+>テーブルにおいて、<TT
+CLASS="LITERAL"
+>c_films</TT
+>カーソルが現在位置している行の<TT
+CLASS="STRUCTFIELD"
+>kind</TT
+>列を変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE films SET kind = 'Dramatic' WHERE CURRENT OF c_films;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76328"
+></A
+><H2
+>互換性</H2
+><P
+>このコマンドは標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>に準拠しています。
+ただし<TT
+CLASS="LITERAL"
+>FROM</TT
+>句および<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>で<TT
+CLASS="LITERAL"
+>WITH</TT
+>が使用可能であることも同様に拡張です。
+  </P
+><P
+>標準に従うと、列リスト構文は、副選択のような単一の行値式から代入される列のリストを許可しなければなりません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE accounts SET (contact_last_name, contact_first_name) =
+    (SELECT last_name, first_name FROM salesmen
+     WHERE salesmen.id = accounts.sales_id);</PRE
+><P>
+これは現時点ではサポートされていません。ソースは独立した式でなければなりません。
+  </P
+><P
+>他のデータベースシステムには、<TT
+CLASS="LITERAL"
+>FROM</TT
+>オプション内で、対象テーブルが再度指定されることを前提として動作するものもあります。
+これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>における<TT
+CLASS="LITERAL"
+>FROM</TT
+>の解釈方法とは異なります。
+<TT
+CLASS="LITERAL"
+>FROM</TT
+>拡張機能を使用するアプリケーションを移植する時は注意してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-unlisten.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-vacuum.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>UNLISTEN</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>VACUUM</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,676 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SQLの拡張</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバプログラミング"
+HREF="server-programming.html"><LINK
+REL="PREVIOUS"
+TITLE="サーバプログラミング"
+HREF="server-programming.html"><LINK
+REL="NEXT"
+TITLE="拡張の作用法"
+HREF="extend-how.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバプログラミング"
+HREF="server-programming.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE=""
+HREF="server-programming.html#AEN49488"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="トリガ"
+HREF="triggers.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="拡張の作用法"
+HREF="extend-how.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="EXTEND"
+></A
+>&#31532; 35&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の拡張</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>35.1. <A
+HREF="extend-how.html"
+>拡張の作用法</A
+></DT
+><DT
+>35.2. <A
+HREF="extend-type-system.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の型システム</A
+></DT
+><DD
+><DL
+><DT
+>35.2.1. <A
+HREF="extend-type-system.html#AEN49551"
+>基本型</A
+></DT
+><DT
+>35.2.2. <A
+HREF="extend-type-system.html#AEN49557"
+>複合型</A
+></DT
+><DT
+>35.2.3. <A
+HREF="extend-type-system.html#AEN49564"
+>ドメイン</A
+></DT
+><DT
+>35.2.4. <A
+HREF="extend-type-system.html#AEN49570"
+>疑似型</A
+></DT
+><DT
+>35.2.5. <A
+HREF="extend-type-system.html#EXTEND-TYPES-POLYMORPHIC"
+>多様型</A
+></DT
+></DL
+></DD
+><DT
+>35.3. <A
+HREF="xfunc.html"
+>ユーザ定義関数</A
+></DT
+><DT
+>35.4. <A
+HREF="xfunc-sql.html"
+>問い合わせ言語（<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>）関数</A
+></DT
+><DD
+><DL
+><DT
+>35.4.1. <A
+HREF="xfunc-sql.html#XFUNC-SQL-BASE-FUNCTIONS"
+>基本型を使用する<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.2. <A
+HREF="xfunc-sql.html#XFUNC-SQL-COMPOSITE-FUNCTIONS"
+>複合型を使用する<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.3. <A
+HREF="xfunc-sql.html#XFUNC-NAMED-PARAMETERS"
+>パラメータ名付きの<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.4. <A
+HREF="xfunc-sql.html#XFUNC-OUTPUT-PARAMETERS"
+>出力パラメータを持つ<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.5. <A
+HREF="xfunc-sql.html#XFUNC-SQL-VARIADIC-FUNCTIONS"
+>可変長引数を取る<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.6. <A
+HREF="xfunc-sql.html#XFUNC-SQL-PARAMETER-DEFAULTS"
+>引数にデフォルト値を持つ<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.7. <A
+HREF="xfunc-sql.html#XFUNC-SQL-TABLE-FUNCTIONS"
+>テーブルソースとしての<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.8. <A
+HREF="xfunc-sql.html#XFUNC-SQL-FUNCTIONS-RETURNING-SET"
+>集合を返す<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.9. <A
+HREF="xfunc-sql.html#XFUNC-SQL-FUNCTIONS-RETURNING-TABLE"
+><TT
+CLASS="LITERAL"
+>TABLE</TT
+>を返す<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.10. <A
+HREF="xfunc-sql.html#AEN49919"
+>多様<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+><DT
+>35.4.11. <A
+HREF="xfunc-sql.html#AEN49944"
+>照合順序を持つ<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数</A
+></DT
+></DL
+></DD
+><DT
+>35.5. <A
+HREF="xfunc-overload.html"
+>関数のオーバーロード</A
+></DT
+><DT
+>35.6. <A
+HREF="xfunc-volatility.html"
+>関数の変動性分類</A
+></DT
+><DT
+>35.7. <A
+HREF="xfunc-pl.html"
+>手続き型言語関数</A
+></DT
+><DT
+>35.8. <A
+HREF="xfunc-internal.html"
+>内部関数</A
+></DT
+><DT
+>35.9. <A
+HREF="xfunc-c.html"
+>C言語関数</A
+></DT
+><DD
+><DL
+><DT
+>35.9.1. <A
+HREF="xfunc-c.html#XFUNC-C-DYNLOAD"
+>動的ロード</A
+></DT
+><DT
+>35.9.2. <A
+HREF="xfunc-c.html#XFUNC-C-BASETYPE"
+>C言語関数における基本型</A
+></DT
+><DT
+>35.9.3. <A
+HREF="xfunc-c.html#AEN50455"
+>Version 0 呼び出し規約</A
+></DT
+><DT
+>35.9.4. <A
+HREF="xfunc-c.html#AEN50482"
+>Version 1 呼び出し規約</A
+></DT
+><DT
+>35.9.5. <A
+HREF="xfunc-c.html#AEN50540"
+>コードの作成</A
+></DT
+><DT
+>35.9.6. <A
+HREF="xfunc-c.html#DFUNC"
+>動的にロードされる関数のコンパイルとリンク</A
+></DT
+><DT
+>35.9.7. <A
+HREF="xfunc-c.html#AEN50781"
+>複合型引数</A
+></DT
+><DT
+>35.9.8. <A
+HREF="xfunc-c.html#AEN50805"
+>行（複合型）を返す</A
+></DT
+><DT
+>35.9.9. <A
+HREF="xfunc-c.html#XFUNC-C-RETURN-SET"
+>集合を返す</A
+></DT
+><DT
+>35.9.10. <A
+HREF="xfunc-c.html#AEN50930"
+>引数と戻り値の多様性</A
+></DT
+><DT
+>35.9.11. <A
+HREF="xfunc-c.html#AEN50960"
+>共有メモリとLWLocks</A
+></DT
+><DT
+>35.9.12. <A
+HREF="xfunc-c.html#EXTEND-CPP"
+>拡張へのC++の利用</A
+></DT
+></DL
+></DD
+><DT
+>35.10. <A
+HREF="xaggr.html"
+>ユーザ定義の集約</A
+></DT
+><DT
+>35.11. <A
+HREF="xtypes.html"
+>ユーザ定義の型</A
+></DT
+><DT
+>35.12. <A
+HREF="xoper.html"
+>ユーザ定義の演算子</A
+></DT
+><DT
+>35.13. <A
+HREF="xoper-optimization.html"
+>演算子最適化に関する情報</A
+></DT
+><DD
+><DL
+><DT
+>35.13.1. <A
+HREF="xoper-optimization.html#AEN51165"
+><TT
+CLASS="LITERAL"
+>COMMUTATOR</TT
+></A
+></DT
+><DT
+>35.13.2. <A
+HREF="xoper-optimization.html#AEN51201"
+><TT
+CLASS="LITERAL"
+>NEGATOR</TT
+></A
+></DT
+><DT
+>35.13.3. <A
+HREF="xoper-optimization.html#AEN51216"
+><TT
+CLASS="LITERAL"
+>RESTRICT</TT
+></A
+></DT
+><DT
+>35.13.4. <A
+HREF="xoper-optimization.html#AEN51266"
+><TT
+CLASS="LITERAL"
+>JOIN</TT
+></A
+></DT
+><DT
+>35.13.5. <A
+HREF="xoper-optimization.html#AEN51298"
+><TT
+CLASS="LITERAL"
+>HASHES</TT
+></A
+></DT
+><DT
+>35.13.6. <A
+HREF="xoper-optimization.html#AEN51320"
+><TT
+CLASS="LITERAL"
+>MERGES</TT
+></A
+></DT
+></DL
+></DD
+><DT
+>35.14. <A
+HREF="xindex.html"
+>インデックス拡張機能へのインタフェース</A
+></DT
+><DD
+><DL
+><DT
+>35.14.1. <A
+HREF="xindex.html#XINDEX-OPCLASS"
+>インデックスメソッドと演算子クラス</A
+></DT
+><DT
+>35.14.2. <A
+HREF="xindex.html#XINDEX-STRATEGIES"
+>インデックスメソッドのストラテジ</A
+></DT
+><DT
+>35.14.3. <A
+HREF="xindex.html#XINDEX-SUPPORT"
+>インデックスメソッドのサポートルーチン</A
+></DT
+><DT
+>35.14.4. <A
+HREF="xindex.html#XINDEX-EXAMPLE"
+>例</A
+></DT
+><DT
+>35.14.5. <A
+HREF="xindex.html#XINDEX-OPFAMILY"
+>演算子クラスと演算子族</A
+></DT
+><DT
+>35.14.6. <A
+HREF="xindex.html#XINDEX-OPCLASS-DEPENDENCIES"
+>システムの演算子クラスに対する依存性</A
+></DT
+><DT
+>35.14.7. <A
+HREF="xindex.html#XINDEX-ORDERING-OPS"
+>順序付け演算子</A
+></DT
+><DT
+>35.14.8. <A
+HREF="xindex.html#XINDEX-OPCLASS-FEATURES"
+>演算子クラスの特殊な機能</A
+></DT
+></DL
+></DD
+><DT
+>35.15. <A
+HREF="extend-extensions.html"
+>関連するオブジェクトを拡張としてパッケージ化</A
+></DT
+><DD
+><DL
+><DT
+>35.15.1. <A
+HREF="extend-extensions.html#AEN51796"
+>拡張のファイル</A
+></DT
+><DT
+>35.15.2. <A
+HREF="extend-extensions.html#AEN51914"
+>拡張の再配置性</A
+></DT
+><DT
+>35.15.3. <A
+HREF="extend-extensions.html#AEN51955"
+>拡張設定テーブル</A
+></DT
+><DT
+>35.15.4. <A
+HREF="extend-extensions.html#AEN51971"
+>拡張の更新</A
+></DT
+><DT
+>35.15.5. <A
+HREF="extend-extensions.html#AEN52026"
+>拡張の例</A
+></DT
+></DL
+></DD
+><DT
+>35.16. <A
+HREF="extend-pgxs.html"
+>拡張構築基盤</A
+></DT
+></DL
+></DIV
+><P
+>本節では以下を追加することで<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>問い合わせ言語をどのように拡張できるかを説明します。
+
+   <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>関数（<A
+HREF="xfunc.html"
+>&#38917;35.3</A
+>から）。
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>集約（<A
+HREF="xaggr.html"
+>&#38917;35.10</A
+>から）。
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>データ型（<A
+HREF="xtypes.html"
+>&#38917;35.11</A
+>から）。
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>演算子（<A
+HREF="xoper.html"
+>&#38917;35.12</A
+>から）。
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>インデックス用演算子クラス（<A
+HREF="xindex.html"
+>&#38917;35.14</A
+>から）。
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>      関連オブジェクトのパッケージ（<A
+HREF="extend-extensions.html"
+>&#38917;35.15</A
+>から）。
+     </P
+></LI
+></UL
+><P>
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="server-programming.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="extend-how.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>サーバプログラミング</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="server-programming.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>拡張の作用法</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

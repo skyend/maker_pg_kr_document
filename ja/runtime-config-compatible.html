@@ -1,0 +1,724 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>バージョンとプラットフォーム互換性</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="ロック管理"
+HREF="runtime-config-locks.html"><LINK
+REL="NEXT"
+TITLE="エラー処理"
+HREF="runtime-config-error-handling.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ロック管理"
+HREF="runtime-config-locks.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="エラー処理"
+HREF="runtime-config-error-handling.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-COMPATIBLE"
+>18.13. バージョンとプラットフォーム互換性</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-COMPATIBLE-VERSION"
+>18.13.1. 以前のPostgreSQLバージョン</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-ARRAY-NULLS"
+></A
+><TT
+CLASS="VARNAME"
+>array_nulls</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	これは、配列入力パーサが引用符のない<TT
+CLASS="LITERAL"
+>NULL</TT
+>をNULL配列要素として認識するかどうかを制御します。
+デフォルトでは、これは<TT
+CLASS="LITERAL"
+>on</TT
+>で、NULL値を持つ配列値を入力することができます。
+しかし、8.2より前のバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、配列内のNULL値をサポートしておらず、<TT
+CLASS="LITERAL"
+>NULL</TT
+>を<SPAN
+CLASS="QUOTE"
+>"NULL"</SPAN
+>という値の文字列を持つ通常の配列要素として扱っていました。
+古い動作を必要とするアプリケーションの後方互換性のため、この変数を<TT
+CLASS="LITERAL"
+>off</TT
+>にすることができます。
+       </P
+><P
+>       
+	この変数が<TT
+CLASS="LITERAL"
+>off</TT
+>であっても、NULL値を含む配列値を作成することができることに注意してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-BACKSLASH-QUOTE"
+></A
+><TT
+CLASS="VARNAME"
+>backslash_quote</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	文字列リテラルの中で引用符が<TT
+CLASS="LITERAL"
+>\'</TT
+>で表現されるかどうかを管理します。
+	引用符の表現としてSQL準拠の方式では二重化（<TT
+CLASS="LITERAL"
+>''</TT
+>）ですが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は歴史的に<TT
+CLASS="LITERAL"
+>\'</TT
+>も受け付けます。
+	とは言っても、いくつかのクライアント文字集合符号化方式において、最終バイトが数値的にASCIIの<TT
+CLASS="LITERAL"
+>\</TT
+>に等しいマルチバイト文字があり、<TT
+CLASS="LITERAL"
+>\'</TT
+>を使用するとセキュリティ上問題を引き起こす可能性があります。
+	クライアント側のコードが事実上エスケープを正しく扱わない場合、SQLインジェクション攻撃が可能になります。この危険性の回避は、サーバが逆スラッシュでエスケープされた引用符を含む問い合わせを拒絶するようにします。
+	許可される<TT
+CLASS="VARNAME"
+>backslash_quote</TT
+>の値は、
+　　　　<TT
+CLASS="LITERAL"
+>on</TT
+> （常に <TT
+CLASS="LITERAL"
+>\'</TT
+> を許可）,
+        <TT
+CLASS="LITERAL"
+>off</TT
+> （常に拒否）、および
+        <TT
+CLASS="LITERAL"
+>safe_encoding</TT
+> （クライアント符号化方式がASCIIの<TT
+CLASS="LITERAL"
+>\</TT
+>を許可しないときのみ、マルチバイト文字内で許可）。
+        <TT
+CLASS="LITERAL"
+>safe_encoding</TT
+> がデフォルトの設定。
+       </P
+><P
+>       
+	標準に従った文字列リテラルでは、<TT
+CLASS="LITERAL"
+>\</TT
+>は単に<TT
+CLASS="LITERAL"
+>\</TT
+>を意味するものです。
+このパラメータのみが、エスケープ文字列構文（<TT
+CLASS="LITERAL"
+>E'...'</TT
+>）を含む標準に従わないリテラルの取り扱いに影響します。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-DEFAULT-WITH-OIDS"
+></A
+><TT
+CLASS="VARNAME"
+>default_with_oids</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	もし<TT
+CLASS="LITERAL"
+>WITH OIDS</TT
+>もしくは<TT
+CLASS="LITERAL"
+>WITHOUT OIDS</TT
+>のいずれも指定されていない場合、<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>および<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>がオブジェクト識別子（OID）列を新規作成のテーブルに含めるか否かを管理します。
+同時に<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>で作成されたテーブルにOIDが含まれるか否かも決定します。
+このパラメータはデフォルトで<TT
+CLASS="LITERAL"
+>off</TT
+>です。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.0およびそれ以前ではデフォルトでonでした。
+       </P
+><P
+>       
+	ユーザテーブルでのOID使用は良くないと考えらるため、ほとんどのインストレーションはこの変数を無効にしたままになっています。
+	特定のテーブルに対してOIDを必要とするアプリケーションは、テーブル作成にあたって<TT
+CLASS="LITERAL"
+>WITH OIDS</TT
+>を指定しなければなりません。
+	この変数は、この動作を行わない古いアプリケーションとの互換性を有効にします。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ESCAPE-STRING-WARNING"
+></A
+><TT
+CLASS="VARNAME"
+>escape_string_warning</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	有効の場合、通常の文字列リテラル（<TT
+CLASS="LITERAL"
+>'...'</TT
+>構文）にバックスラッシュ（<TT
+CLASS="LITERAL"
+>\</TT
+>）があり、<TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>が無効な場合、、警告が発せられます。
+デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+><P
+>       
+	通常文字列のデフォルトの振る舞いは、SQL標準ではバックスラッシュを通常文字として取り扱うため、バックスラッシュをエスケープとして使用したいアプリケーションは、エスケープ文字列構文(<TT
+CLASS="LITERAL"
+>E'...'</TT
+>)を使用するように変更すべきです。
+        この変数は変更すべきコードを突き止めるのに役立つよう、有効にすることができます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LO-COMPAT-PRIVILEGES"
+></A
+><TT
+CLASS="VARNAME"
+>lo_compat_privileges</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	9.0以前の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リリースでは、ラージオブジェクトはアクセス権限が無く、そしてその結果、全てのユーザが読み込み、書き込みが可能でした。
+	この変数を<TT
+CLASS="LITERAL"
+>on</TT
+>にすると、以前のリリースとの互換性のため、新規の権限チェックが無効になります。
+	デフォルトは<TT
+CLASS="LITERAL"
+>off</TT
+>です。
+       </P
+><P
+>       
+	この変数を設定してもラージオブジェクトに関連した全ての安全性チェックを無効にしません。
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.0.で変更されたデフォルトの動きに対してのみです。
+	例えば、<TT
+CLASS="LITERAL"
+>lo_import()</TT
+>と<TT
+CLASS="LITERAL"
+>lo_export()</TT
+>はこの設定とは別にスーパユーザの権限を必要とします。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-QUOTE-ALL-IDENTIFIERS"
+></A
+><TT
+CLASS="VARNAME"
+>quote_all_identifiers</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	データベースがSQLを生成する時、たとえ（現在）キーワードになっていなくても、全ての識別子を引用符で囲むことを強制します。
+	これは <TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>の出力に影響を与えるのみならず、<CODE
+CLASS="FUNCTION"
+>pg_get_viewdef</CODE
+>のような関数の結果にも影響します。
+	<A
+HREF="app-pgdump.html"
+>pg_dump</A
+> および <A
+HREF="app-pg-dumpall.html"
+><SPAN
+CLASS="APPLICATION"
+>pg_dumpall</SPAN
+></A
+>の<TT
+CLASS="OPTION"
+>--quote-all-identifiers</TT
+>オプションも参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SQL-INHERITANCE"
+></A
+><TT
+CLASS="VARNAME"
+>sql_inheritance</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	これは継承の意味を制御します。
+<TT
+CLASS="LITERAL"
+>off</TT
+>にすると、デフォルトで子テーブルが各種コマンドでアクセスできなくなります。
+基本的には暗黙的な<TT
+CLASS="LITERAL"
+>ONLY</TT
+>キーワードです。
+これは7.1以前のリリースとの互換性のために追加されました。
+詳細は<A
+HREF="ddl-inherit.html"
+>&#38917;5.8</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-STANDARD-CONFORMING-STRINGS"
+></A
+><TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	標準SQLで規定されたように、通常の文字列リテラル（<TT
+CLASS="LITERAL"
+>'...'</TT
+>）がバックスラッシュをそのまま取り扱うか否かを制御します。
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.1の初期においてデフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です（それ以前のリリースではデフォルトとして<TT
+CLASS="LITERAL"
+>off</TT
+>でした）。
+       どのように文字列リテラルが処理されるかを決めるこのパラメータを、アプリケーションで検査することができます。
+このパラメータの存在は、エスケープ文字列構文（<TT
+CLASS="LITERAL"
+>E'...'</TT
+>）がサポートされているかどうかを示すものとも考えられます。
+エスケープ文字列構文 (<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE"
+>&#38917;4.1.2.2</A
+>)は、アプリケーションでバックスラッシュをエスケープ文字として扱いたい場合に使用すべきです。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SYNCHRONIZE-SEQSCANS"
+></A
+><TT
+CLASS="VARNAME"
+>synchronize_seqscans</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	これにより、同時実行スキャンがほぼ同じ時間に同じブロックを読み取り、I/Oへの負荷を分散できるように、互いに同期して、大規模テーブルをシーケンシャルスキャンすることができます。
+これが有効な場合、スキャンはテーブルの途中から始まり、進行中のスキャンの活動と同期するように、行全体を覆うように終端を<SPAN
+CLASS="QUOTE"
+>"巻き上げる"</SPAN
+>可能性があります。
+これにより、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句を持たない問い合わせが返す行の順序は予想できない程変わってしまいます。
+このパラメータを<TT
+CLASS="LITERAL"
+>off</TT
+>にすることで、シーケンシャルスキャンが常にテーブルの先頭から始まるという、8.3より前の動作を保証します。
+デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-COMPATIBLE-CLIENTS"
+>18.13.2. プラットホームとクライアント互換性</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-TRANSFORM-NULL-EQUALS"
+></A
+><TT
+CLASS="VARNAME"
+>transform_null_equals</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	有効の場合、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expr</I
+></TT
+> = NULL</TT
+>（もしくは<TT
+CLASS="LITERAL"
+>NULL = <TT
+CLASS="REPLACEABLE"
+><I
+>expr</I
+></TT
+></TT
+>）形式の式は<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expr</I
+></TT
+> IS NULL</TT
+>として取り扱われ、それは、もし<TT
+CLASS="REPLACEABLE"
+><I
+>expr</I
+></TT
+>がNULL値と評価すれば真を返し、そうでなければ偽を返します。
+<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expr</I
+></TT
+> = NULL</TT
+>の正しいSQL仕様準拠の動作は常にNULL（判らない）を返すことです。
+従って、このパラメータのデフォルトは<TT
+CLASS="LITERAL"
+>off</TT
+>になっています。
+       </P
+><P
+>       
+	しかし、<SPAN
+CLASS="PRODUCTNAME"
+>Microsoft Access</SPAN
+>のフィルタ形式はNULL値を検査するために<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expr</I
+></TT
+> = NULL</TT
+>を使用する問い合わせを生成しますので、そのインタフェースを使用してデータベースにアクセスする場合は、このオプションを有効にする方が良いでしょう。
+<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expr</I
+></TT
+> = NULL</TT
+>という形の式は（SQL標準解釈を使用した結果）常にNULL値を返しますので、通常のアプリケーションでは意味がほとんどなく、滅多に使用されません。
+ですので、このオプションは実際は害はありません。
+しかし、慣れていないユーザはしばしばNULL値に関する式の意味に戸惑いますので、デフォルトでこのオプションはoffです。
+       </P
+><P
+>       
+	このオプションは<TT
+CLASS="LITERAL"
+>= NULL</TT
+>という形式にのみ影響することに注意してください。 
+他の比較演算子や等価演算子を呼び出す他の（<TT
+CLASS="LITERAL"
+>IN</TT
+>のような）式と計算する上で等価となる式には影響を与えません。
+したがって、このオプションは間違ったプログラミングの汎用的な問題解決を行いません。
+       </P
+><P
+>       
+	関連する情報は<A
+HREF="functions-comparison.html"
+>&#38917;9.2</A
+>を参照してください。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-locks.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-error-handling.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ロック管理</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>エラー処理</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

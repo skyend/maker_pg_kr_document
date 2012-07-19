@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="NEXT"
+TITLE = \"소개\"\n
+HREF="preface.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="LEGALNOTICE"
+><A
+NAME="LEGALNOTICE"
+></A
+><P
+><B
+>법적 고지 </B\n
+></P
+><P
+>Copyright &copy; 1996-2011 <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>는 PostgreSQL 글로벌 개발 팀이 저작권을 가지고 다음 의 캘리포니아 대학의 라이센스하에 배포 되고 있습니다.
+ </P
+><P
+>Copyright &copy; 1994-1995 <SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>는 캘리포니아 대학 평의원 이 저작권을 가지고 있습니다.
+ </P
+><P
+>  Permission to use, copy, modify, and distribute this software and
+  its documentation for any purpose, without fee, and without a
+  written agreement is hereby granted, provided that the above
+  copyright notice and this paragraph and the following two paragraphs
+  appear in all copies.
+  
+  [訳注：日本語は参考程度と解釈してください。]
+  위의 저작권 표시 및\n  
+  이 단락 다음 두 단락을 모든 복사본에 포함시키는 조건으로 무료 이고\n  
+  서면 승인없이 이 소프트웨어 및 설명서 의 사용 복제 변경\n  
+  재배포를 어떤 목적 이라도 허용합니다.
+ </P
+><P
+>  IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY
+  PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS
+  SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA
+  HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  캘리포니아 대학 은 어떠한 당사자 에 대해서도 이익 괴실을\n  
+  포함한 직접적 간접적 특별 우연히 혹은 필연적에 관계 없이 생겼다\n  
+  손해에 대해서 비록 캘리포니아 대학이 이러한 손해에 대해 소추\n  
+  를 받았다 하더라도 책임을 지지 않습니다.
+ </P
+><P
+>  THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE
+  PROVIDED HEREUNDER IS ON AN <SPAN
+CLASS="QUOTE"
+>"AS-IS"</SPAN
+> BASIS, AND THE UNIVERSITY OF
+  CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT,
+  UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+  캘리포니아 대학은 상업적인 목적 의 묵시적 보증 및 특정 목적\n  
+  대한 적합성 은 물론 이에 한정하지 않고 어떠한 보증도 포기해야\n  
+  있음을 선언합니다. 아래 제공되는 소프트웨어는 \"있는 그대로\" 를
+  기본 원리로  캘리포니아 대학은 그것을 유지 지원 업데이트 개선 아\n  
+  혹은 수정할 의무를 지지 않습니다.
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

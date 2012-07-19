@@ -1,0 +1,3128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>日付/時刻関数と演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="データ型書式設定関数"
+HREF="functions-formatting.html"><LINK
+REL="NEXT"
+TITLE="列挙型サポート関数"
+HREF="functions-enum.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ型書式設定関数"
+HREF="functions-formatting.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="列挙型サポート関数"
+HREF="functions-enum.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-DATETIME"
+>9.9. 日付/時刻関数と演算子</A
+></H1
+><P
+>  
+   <A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-TABLE"
+>&#34920;9-27</A
+>は、日付/時刻型の値の処理で使用可能な関数を示しています。詳細は、以下の副節で説明します。<A
+HREF="functions-datetime.html#OPERATORS-DATETIME-TABLE"
+>&#34920;9-26</A
+>は、（<TT
+CLASS="LITERAL"
+>+</TT
+>、<TT
+CLASS="LITERAL"
+>*</TT
+>等の）基本的な算術演算子の振舞いを説明しています。書式設定関数については<A
+HREF="functions-formatting.html"
+>&#38917;9.8</A
+>を参照してください。<A
+HREF="datatype-datetime.html"
+>&#38917;8.5</A
+>を参照して、日付/時刻データ型についての背景となっている情報に精通していなければなりません。
+  </P
+><P
+>  
+   後述の<TT
+CLASS="TYPE"
+>time</TT
+>もしくは<TT
+CLASS="TYPE"
+>timestamp</TT
+>型の入力を受け取る関数および演算子は全て、実際には2つの種類があります。1つは<TT
+CLASS="TYPE"
+>time with time zone</TT
+>型または<TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+>型を取るもので、もう1つは<TT
+CLASS="TYPE"
+>time without time zone</TT
+>型もしくは<TT
+CLASS="TYPE"
+>timestamp without time zone</TT
+>型を取るものです。省略のため、これらの種類の違いは個別に示していません。また、<TT
+CLASS="LITERAL"
+>+</TT
+>と<TT
+CLASS="LITERAL"
+>*</TT
+>演算子は交代演算子を持ちます（例えばdate + integerとinteger + date）。こうした組み合わせは片方のみ示します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="OPERATORS-DATETIME-TABLE"
+></A
+><P
+><B
+>&#34920; 9-26. 日付/時刻演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>演算子名</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>date '2001-09-28' + integer '7'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>date '2001-10-05'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>date '2001-09-28' + interval '1 hour'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>timestamp '2001-09-28 01:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>date '2001-09-28' + time '03:00'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>timestamp '2001-09-28 03:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '1 day' + interval '1 hour'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '1 day 01:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>timestamp '2001-09-28 01:00' + interval '23 hours'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>timestamp '2001-09-29 00:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>time '01:00' + interval '3 hours'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>time '04:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>- interval '23 hours'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '-23:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>date '2001-10-01' - date '2001-09-28'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>integer '3'</TT
+>（日付）</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>date '2001-10-01' - integer '7'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>date '2001-09-24'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>date '2001-09-28' - interval '1 hour'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>timestamp '2001-09-27 23:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>time '05:00' - time '03:00'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '02:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>time '05:00' - interval '2 hours'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>time '03:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>timestamp '2001-09-28 23:00' - interval '23 hours'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>timestamp '2001-09-28 00:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '1 day' - interval '1 hour'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '1 day -01:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>timestamp '2001-09-29 03:00' - timestamp '2001-09-27 12:00'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '1 day 15:00:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>*</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>900 * interval '1 second'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '00:15:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>*</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>21 * interval '1 day'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '21 days'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>*</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>double precision '3.5' * interval '1 hour'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '03:30:00'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>/</TT
+> </TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '1 hour' / double precision '1.5'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>interval '00:40:00'</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-DATETIME-TABLE"
+></A
+><P
+><B
+>&#34920; 9-27. 日付/時刻関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数名</TH
+><TH
+>戻り値型</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>age(<TT
+CLASS="TYPE"
+>timestamp</TT
+>, <TT
+CLASS="TYPE"
+>timestamp</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>interval</TT
+></TD
+><TD
+>引数間の減算。年と月を使用した<SPAN
+CLASS="QUOTE"
+>"シンボルによる"</SPAN
+>結果を生成</TD
+><TD
+><TT
+CLASS="LITERAL"
+>age(timestamp '2001-04-10', timestamp '1957-06-13')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>43 years 9 mons 27 days</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>age(<TT
+CLASS="TYPE"
+>timestamp</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>interval</TT
+></TD
+><TD
+><CODE
+CLASS="FUNCTION"
+>current_date</CODE
+>（午前零時）から減算</TD
+><TD
+><TT
+CLASS="LITERAL"
+>age(timestamp '1957-06-13')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>43 years 8 mons 3 days</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>clock_timestamp()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+></TD
+><TD
+>現在の日付と時刻です。（文実行時に変わります。）<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>current_date</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>date</TT
+></TD
+><TD
+>現在の日付。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>current_time</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>time with time zone</TT
+></TD
+><TD
+>現在の時刻。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>current_timestamp</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+></TD
+><TD
+>現在の日付と時刻（現在のトランザクションの開始日付時刻）。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>date_part(<TT
+CLASS="TYPE"
+>text</TT
+>, <TT
+CLASS="TYPE"
+>timestamp</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>部分フィールドの取得（<CODE
+CLASS="FUNCTION"
+>extract</CODE
+>と同じ）。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT"
+>&#38917;9.9.1</A
+>を参照。
+        </TD
+><TD
+><TT
+CLASS="LITERAL"
+>date_part('hour', timestamp '2001-02-16 20:38:40')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>20</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>date_part(<TT
+CLASS="TYPE"
+>text</TT
+>, <TT
+CLASS="TYPE"
+>interval</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>部分フィールドの取得（<CODE
+CLASS="FUNCTION"
+>extract</CODE
+>と同じ）。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT"
+>&#38917;9.9.1</A
+>を参照。
+	</TD
+><TD
+><TT
+CLASS="LITERAL"
+>date_part('month', interval '2 years 3 months')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>3</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>date_trunc(<TT
+CLASS="TYPE"
+>text</TT
+>, <TT
+CLASS="TYPE"
+>timestamp</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp</TT
+></TD
+><TD
+>指定された精度で切り捨て。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-TRUNC"
+>&#38917;9.9.2</A
+>も参照。
+        </TD
+><TD
+><TT
+CLASS="LITERAL"
+>date_trunc('hour', timestamp '2001-02-16 20:38:40')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>2001-02-16 20:00:00</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>extract</CODE
+>(<TT
+CLASS="PARAMETER"
+>field</TT
+> from
+         <TT
+CLASS="TYPE"
+>timestamp</TT
+>)</TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>部分フィールドの取得。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT"
+>&#38917;9.9.1</A
+>を参照。
+        </TD
+><TD
+><TT
+CLASS="LITERAL"
+>extract(hour from timestamp '2001-02-16 20:38:40')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>20</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>extract</CODE
+>(<TT
+CLASS="PARAMETER"
+>field</TT
+> from
+         <TT
+CLASS="TYPE"
+>interval</TT
+>)</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>部分フィールドの取得。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT"
+>&#38917;9.9.1</A
+>を参照。
+        </TD
+><TD
+><TT
+CLASS="LITERAL"
+>extract(month from interval '2 years 3 months')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>3</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>isfinite(<TT
+CLASS="TYPE"
+>date</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>日付が有限（+/-無限と等しくない）かどうかの検査</TD
+><TD
+><TT
+CLASS="LITERAL"
+>isfinite(date '2001-02-16')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>true</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>isfinite(<TT
+CLASS="TYPE"
+>timestamp</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>タイムスタンプが有限（+/-無限でない）かどうかの検査</TD
+><TD
+><TT
+CLASS="LITERAL"
+>isfinite(timestamp '2001-02-16 21:28:30')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>true</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>isfinite(<TT
+CLASS="TYPE"
+>interval</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>時間間隔が有限かどうかの検査</TD
+><TD
+><TT
+CLASS="LITERAL"
+>isfinite(interval '4 hours')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>true</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>justify_days(<TT
+CLASS="TYPE"
+>interval</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>interval</TT
+></TD
+><TD
+>30日周期が1月を表すように時間間隔を調整</TD
+><TD
+><TT
+CLASS="LITERAL"
+>justify_days(interval '35 days')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>1 mon 5 days</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>justify_hours(<TT
+CLASS="TYPE"
+>interval</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>interval</TT
+></TD
+><TD
+>24時間を1日とする時間間隔の調整</TD
+><TD
+><TT
+CLASS="LITERAL"
+>justify_hours(interval '27 hours')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>1 day 03:00:00</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>justify_interval(<TT
+CLASS="TYPE"
+>interval</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>interval</TT
+></TD
+><TD
+><CODE
+CLASS="FUNCTION"
+>justify_days</CODE
+>および<CODE
+CLASS="FUNCTION"
+>justify_hours</CODE
+>を使用し、さらに符号による調整を行っての時間間隔の調整</TD
+><TD
+><TT
+CLASS="LITERAL"
+>justify_interval(interval '1 mon -1 hour')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>29 days 23:00:00</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>localtime</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>time</TT
+></TD
+><TD
+>現在の時刻。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>localtimestamp</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp</TT
+></TD
+><TD
+>現在の日付と時刻（現在のトランザクションの開始）。
+<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>now()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+></TD
+><TD
+>現在の日付と時刻（現在のトランザクションの開始）。
+<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>statement_timestamp()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+></TD
+><TD
+>現在の日付と時刻（現在の文の開始）。
+<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>timeofday()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>現在の日付と時刻。（<CODE
+CLASS="FUNCTION"
+>clock_timestamp</CODE
+>と似ていますが、<TT
+CLASS="TYPE"
+>text</TT
+>型文字列として返す。）<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>transaction_timestamp()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+></TD
+><TD
+>現在の日付と時刻（現在のトランザクションの開始）。
+<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>&#38917;9.9.4</A
+>を参照。
+        </TD
+><TD
+>&nbsp;</TD
+><TD
+>&nbsp;</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    これらの関数に加え、<TT
+CLASS="LITERAL"
+>OVERLAPS</TT
+> SQL演算子がサポートされています。
+</P><PRE
+CLASS="SYNOPSIS"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>start1</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>end1</I
+></TT
+>) OVERLAPS (<TT
+CLASS="REPLACEABLE"
+><I
+>start2</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>end2</I
+></TT
+>)
+(<TT
+CLASS="REPLACEABLE"
+><I
+>start1</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>length1</I
+></TT
+>) OVERLAPS (<TT
+CLASS="REPLACEABLE"
+><I
+>start2</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>length2</I
+></TT
+>)</PRE
+><P>
+    
+    この式は、2つの時間間隔が重なる（その終端で定義されます）時に真を返します。重ならない場合は偽を返します。終端は日付、時刻、タイムスタンプ、もしくは、日付/時刻/タイムスタンプに続く時間間隔で指定されます。値の組み合わせが与えられた際、開始と終了のいずれを先に記述しても構いません。<TT
+CLASS="LITERAL"
+>OVERLAPS</TT
+>は与えられた値の内、若いものを開始として扱います。各時間間隔は、<TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+> <TT
+CLASS="LITERAL"
+>&lt;=</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>time</I
+></TT
+> <TT
+CLASS="LITERAL"
+>&lt;</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>end</I
+></TT
+>といった半開区間として見なされます。ただし、<TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>end</I
+></TT
+>が同じ値の場合には単一の時間点となります。これは、例えば終了点のみが同じである2つの時間間隔は、必ずしも重ならないことを意味します。
+   </P
+><PRE
+CLASS="SCREEN"
+>SELECT (DATE '2001-02-16', DATE '2001-12-21') OVERLAPS
+       (DATE '2001-10-30', DATE '2002-10-30');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>true</SAMP
+>
+SELECT (DATE '2001-02-16', INTERVAL '100 days') OVERLAPS
+       (DATE '2001-10-30', DATE '2002-10-30');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>false</SAMP
+>
+SELECT (DATE '2001-10-29', DATE '2001-10-30') OVERLAPS
+       (DATE '2001-10-30', DATE '2001-10-31');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>false</SAMP
+>
+SELECT (DATE '2001-10-30', DATE '2001-10-30') OVERLAPS
+       (DATE '2001-10-30', DATE '2001-10-31');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>true</SAMP
+></PRE
+><P
+>  
+   <TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+>の値に<TT
+CLASS="TYPE"
+>interval</TT
+>の値を加える時（または<TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+>の値から<TT
+CLASS="TYPE"
+>interval</TT
+>の値を差し引く時）日にちの部分は、日にちの数で示された <TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+>の日付を先に進めます（もしくは後に戻します）。夏時間への移行に跨っての変更に関しては（セッションの時間帯がDSTを認識するようになっていれば）、<TT
+CLASS="LITERAL"
+>interval '1 day'</TT
+>が<TT
+CLASS="LITERAL"
+>interval '24 hours'</TT
+>に等しい必要はありません。例えば、セッションの時間帯が <TT
+CLASS="LITERAL"
+>CST7CDT</TT
+>に設定されている時に、 <TT
+CLASS="LITERAL"
+>timestamp with time zone '2005-04-02 12:00-07' + interval '1 day' </TT
+>は、<TT
+CLASS="LITERAL"
+>timestamp with time zone '2005-04-03 12:00-06'</TT
+>をもたらします。一方同じ初期<TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+>に<TT
+CLASS="LITERAL"
+>interval '24 hours'</TT
+>を加えると、<TT
+CLASS="LITERAL"
+>timestamp with time zone '2005-04-03 13:00-06'</TT
+>という結果になります。その理由は<TT
+CLASS="LITERAL"
+>CST7CDT</TT
+>時間帯で<TT
+CLASS="LITERAL"
+>2005-04-03 02:00</TT
+>に夏時間への変更があるからです。
+  </P
+><P
+>  
+   異なる月では日数が異なりますので<CODE
+CLASS="FUNCTION"
+>age</CODE
+>で返される<TT
+CLASS="LITERAL"
+>months</TT
+>にはあいまいさがあります。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のやり方は月にまたがる２つの日付の計算において、日付の早いほうの月を使用します。例えば、<TT
+CLASS="LITERAL"
+>age('2004-06-01', '2004-04-30')</TT
+>は4月を使用して<TT
+CLASS="LITERAL"
+>1 mon 1 day</TT
+>を得ます。一方５月を使用すると、5月は31日あり、4月は30日のため、結果は<TT
+CLASS="LITERAL"
+>1 mon 2 days</TT
+>です。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-DATETIME-EXTRACT"
+>9.9.1. <CODE
+CLASS="FUNCTION"
+>EXTRACT</CODE
+>, <CODE
+CLASS="FUNCTION"
+>date_part</CODE
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+>EXTRACT(<TT
+CLASS="REPLACEABLE"
+><I
+>field</I
+></TT
+> FROM <TT
+CLASS="REPLACEABLE"
+><I
+>source</I
+></TT
+>)</PRE
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>extract</CODE
+>関数は、日付/時刻の値から年や時などの部分フィールドを抽出します。<TT
+CLASS="REPLACEABLE"
+><I
+>source</I
+></TT
+>は<TT
+CLASS="TYPE"
+>timestamp</TT
+>型、<TT
+CLASS="TYPE"
+>time</TT
+>型、または<TT
+CLASS="TYPE"
+>interval</TT
+>型の評価式でなければなりません（<TT
+CLASS="TYPE"
+>date</TT
+>型の式は<TT
+CLASS="TYPE"
+>timestamp</TT
+>型にキャストされますので、同様に使用可能です）。<TT
+CLASS="REPLACEABLE"
+><I
+>field</I
+></TT
+>はsourceの値からどのフィールドを抽出するかを選択する識別子もしくは文字列です。<CODE
+CLASS="FUNCTION"
+>extract</CODE
+>関数は<TT
+CLASS="TYPE"
+>double precision</TT
+>型の値を返します。以下に有効なフィールド名を示します。
+
+    
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>century</TT
+></DT
+><DD
+><P
+>       
+	世紀
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(CENTURY FROM TIMESTAMP '2000-12-16 12:21:13');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>20</SAMP
+>
+SELECT EXTRACT(CENTURY FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>21</SAMP
+></PRE
+><P
+>       
+	当時の人々にはそのような意識はありませんでしたが、最初の世紀は0001-01-01 00:00:00 ADから始まります。この定義は全てのグレゴリアン暦を使用する国で適用されています。0という値の世紀はありません。-1世紀の次は1世紀です。
+
+この定義に納得できなければ、苦情をバチカンローマ聖パウロ大聖堂のローマ法王に伝えてください。
+       </P
+><P
+>       
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リリース8.0以前では、世紀の番号付けの慣習に従っていませんでした。単に年を100で除算したものを返していました。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>day</TT
+></DT
+><DD
+><P
+>       
+      <TT
+CLASS="TYPE"
+>timestamp</TT
+>値については、(月内の）日付フィールド（1〜31)。<TT
+CLASS="TYPE"
+>interval</TT
+>値については日付。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>16</SAMP
+>
+
+SELECT EXTRACT(DAY FROM INTERVAL '40 days 1 minute');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>40</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>decade</TT
+></DT
+><DD
+><P
+>       
+	年フィールドを10で割ったもの
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(DECADE FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>200</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>dow</TT
+></DT
+><DD
+><P
+>       
+	日曜日（<TT
+CLASS="LITERAL"
+>0</TT
+>）から土曜日（<TT
+CLASS="LITERAL"
+>6</TT
+>）までの曜日
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(DOW FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>5</SAMP
+></PRE
+><P
+>       
+	<CODE
+CLASS="FUNCTION"
+>extract</CODE
+>関数の曜日指定番号は<CODE
+CLASS="FUNCTION"
+>to_char(...,'D')</CODE
+>関数のそれとは異なる点に注意してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>doy</TT
+></DT
+><DD
+><P
+>       
+	年内での通算日数（1〜365/366）
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(DOY FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>47</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>epoch</TT
+></DT
+><DD
+><P
+>       
+	<TT
+CLASS="TYPE"
+>date</TT
+>型と<TT
+CLASS="TYPE"
+>timestamp</TT
+>型の値において、1970-01-01 00:00:00 UTCからの秒数（負の数の場合もあり）。<TT
+CLASS="TYPE"
+>interval</TT
+>型の値ではその時間間隔における秒の合計。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(EPOCH FROM TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40.12-08');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>982384720.12</SAMP
+>
+
+SELECT EXTRACT(EPOCH FROM INTERVAL '5 days 3 hours');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>442800</SAMP
+></PRE
+><P
+>       
+	以下に、この経過秒数をタイムスタンプ値に変換する方法を示します。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT TIMESTAMP WITH TIME ZONE 'epoch' + 982384720.12 * INTERVAL '1 second';</PRE
+><P
+>       
+        (<CODE
+CLASS="FUNCTION"
+>to_timestamp</CODE
+>関数は上記の変換をカプセル化します。)
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>hour</TT
+></DT
+><DD
+><P
+>       
+	時のフィールド（0〜23）
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>20</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>isodow</TT
+></DT
+><DD
+><P
+>       
+	月曜日（<TT
+CLASS="LITERAL"
+>1</TT
+>）から日曜日（<TT
+CLASS="LITERAL"
+>7</TT
+>）までの曜日
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(ISODOW FROM TIMESTAMP '2001-02-18 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>7</SAMP
+></PRE
+><P
+>       
+	日曜日を除き<TT
+CLASS="LITERAL"
+>dow</TT
+>と同一。<ACRONYM
+CLASS="ACRONYM"
+>ISO</ACRONYM
+> 8601曜日番号付けに一致。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>isoyear</TT
+></DT
+><DD
+><P
+>       
+	日付が同期する<ACRONYM
+CLASS="ACRONYM"
+>ISO</ACRONYM
+> 8601年（intervalには対応しない）。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(ISOYEAR FROM DATE '2006-01-01');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2005</SAMP
+>
+SELECT EXTRACT(ISOYEAR FROM DATE '2006-01-02');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2006</SAMP
+></PRE
+><P
+>       
+	全ての<ACRONYM
+CLASS="ACRONYM"
+>ISO</ACRONYM
+>年は１月４日を含む週の月曜日から開始されます。従って、１月上旬、または１２月下旬で<ACRONYM
+CLASS="ACRONYM"
+>ISO</ACRONYM
+>年がグレゴリオ年と異なる可能性があります。より詳細は<TT
+CLASS="LITERAL"
+>week</TT
+>フィールドを参照してください。
+       </P
+><P
+>       
+	このフィールドは8.3以前のPostgreSQLリリースでは有効でありません。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>microseconds</TT
+></DT
+><DD
+><P
+>       
+	端数部分も含み、1,000,000を乗じられた秒フィールド。全ての秒を含むことに注意。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(MICROSECONDS FROM TIME '17:12:28.5');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>28500000</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>millennium</TT
+></DT
+><DD
+><P
+>       
+	ミレニアム（1千年期間）
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(MILLENNIUM FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>3</SAMP
+></PRE
+><P
+>       
+	1900年代の年は第2ミレニアムです。第3ミレニアムは2001年1月1日から始まりました。
+       </P
+><P
+>       
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リリース8.0以前では、ミレニアムの番号付けの慣習に従っていませんでした。単に年フィールドを1000で割った値を返していました。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>milliseconds</TT
+></DT
+><DD
+><P
+>       
+	端数部分も含み、1000を乗じられた秒フィールド。全ての秒を含むことに注意してください。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(MILLISECONDS FROM TIME '17:12:28.5');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>28500</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>minute</TT
+></DT
+><DD
+><P
+>       
+	分フィールド（0〜59）
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>38</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>month</TT
+></DT
+><DD
+><P
+>       
+	<TT
+CLASS="TYPE"
+>timestamp</TT
+>型の値に対しては年内の月番号（1〜12）。<TT
+CLASS="TYPE"
+>interval</TT
+>型の値に対しては月番号で、12の剰余（0〜11）。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2</SAMP
+>
+
+SELECT EXTRACT(MONTH FROM INTERVAL '2 years 3 months');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>3</SAMP
+>
+
+SELECT EXTRACT(MONTH FROM INTERVAL '2 years 13 months');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>1</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>quarter</TT
+></DT
+><DD
+><P
+>       
+	その日付が含まれる年の四半期（1〜4）。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(QUARTER FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>1</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>second</TT
+></DT
+><DD
+><P
+>       
+	端数を含んだ秒フィールド（0〜59、<A
+NAME="AEN13614"
+HREF="#FTN.AEN13614"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+>）。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>40</SAMP
+>
+
+SELECT EXTRACT(SECOND FROM TIME '17:12:28.5');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>28.5</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>timezone</TT
+></DT
+><DD
+><P
+>       
+	秒単位のUTCからの時間帯オフセット。正の値はUTCより東の時間帯に対応し、負の値はUTCより西の時間帯に対応。
+	(技術的には、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はうるう秒を制御しないため<ACRONYM
+CLASS="ACRONYM"
+>UT1</ACRONYM
+>を使用。)
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>timezone_hour</TT
+></DT
+><DD
+><P
+>       
+	時間帯オフセットの時の成分。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>timezone_minute</TT
+></DT
+><DD
+><P
+>       
+	時間帯オフセットの分の成分。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>week</TT
+></DT
+><DD
+><P
+>       
+	その日の年間通算での週を計算します。（<ACRONYM
+CLASS="ACRONYM"
+>ISO</ACRONYM
+> 8601の）定義では、その年の1月4日の週を第1週とします（<ACRONYM
+CLASS="ACRONYM"
+>ISO</ACRONYM
+> 8601では、週は月曜日から始まるとしています）。つまり、年の最初の木曜日がある週がその年の第1週となる。
+       </P
+><P
+>       
+	このことによって、1月の早い日にちは前年の第52週もしくは第53週となることがあります。例えば、<TT
+CLASS="LITERAL"
+>2005-01-01</TT
+>は2004年の第53週であり、<TT
+CLASS="LITERAL"
+>2006-01-01</TT
+>は2005年の第52週の一部です。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(WEEK FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>7</SAMP
+></PRE
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>year</TT
+></DT
+><DD
+><P
+>       
+	年フィールド。<TT
+CLASS="LITERAL"
+>AD零年</TT
+>が存在しないことは忘れないでください。このため<TT
+CLASS="LITERAL"
+>AD</TT
+>の年から<TT
+CLASS="LITERAL"
+>BC</TT
+>の年を減する時には注意が必要です。
+       </P
+><PRE
+CLASS="SCREEN"
+>SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001</SAMP
+></PRE
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>extract</CODE
+>関数は元々演算処理の目的でした。日付/時刻の値を表示する目的での書式については<A
+HREF="functions-formatting.html"
+>&#38917;9.8</A
+>を参照してください。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>date_part</CODE
+>関数は伝統的な<SPAN
+CLASS="PRODUCTNAME"
+>Ingres</SPAN
+>上で設計されたもので、標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の<CODE
+CLASS="FUNCTION"
+>extract</CODE
+>関数と等価です。
+</P><PRE
+CLASS="SYNOPSIS"
+>date_part('<TT
+CLASS="REPLACEABLE"
+><I
+>field</I
+></TT
+>', <TT
+CLASS="REPLACEABLE"
+><I
+>source</I
+></TT
+>)</PRE
+><P>
+   ここで<TT
+CLASS="REPLACEABLE"
+><I
+>field</I
+></TT
+>パラメータが名前ではなく文字列値である必要があることに注意してください。<CODE
+CLASS="FUNCTION"
+>date_part</CODE
+>で有効なフィールド名は<CODE
+CLASS="FUNCTION"
+>extract</CODE
+>と同じです。
+   </P
+><PRE
+CLASS="SCREEN"
+>SELECT date_part('day', TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>16</SAMP
+>
+
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>4</SAMP
+></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-DATETIME-TRUNC"
+>9.9.2. <CODE
+CLASS="FUNCTION"
+>date_trunc</CODE
+></A
+></H2
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>date_trunc</CODE
+>関数は概念的に数値に対する<CODE
+CLASS="FUNCTION"
+>trunc</CODE
+>関数と類似しています。
+   </P
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>date_trunc('<TT
+CLASS="REPLACEABLE"
+><I
+>field</I
+></TT
+>', <TT
+CLASS="REPLACEABLE"
+><I
+>source</I
+></TT
+>)</PRE
+><P>
+    <TT
+CLASS="REPLACEABLE"
+><I
+>source</I
+></TT
+>は、データ型<TT
+CLASS="TYPE"
+>timestamp</TT
+>もしくは<TT
+CLASS="TYPE"
+>interval</TT
+>の評価式です（データ型<TT
+CLASS="TYPE"
+>date</TT
+>と<TT
+CLASS="TYPE"
+>time</TT
+>はそれぞれ自動的に<TT
+CLASS="TYPE"
+>timestamp</TT
+>もしくは<TT
+CLASS="TYPE"
+>interval</TT
+>にキャストされます）。<TT
+CLASS="REPLACEABLE"
+><I
+>field</I
+></TT
+>は、入力値の値をどの精度で切り捨てるかを選択します。戻り値の値は、選択されたもの以下をゼロに設定（日と月の場合は1に設定）した、全てのフィールドを持つ<TT
+CLASS="TYPE"
+>timestamp</TT
+>もしくは<TT
+CLASS="TYPE"
+>interval</TT
+>型です。
+   </P
+><P
+>   
+    <TT
+CLASS="REPLACEABLE"
+><I
+>field</I
+></TT
+>の有効値には次のものがあります。
+    <P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>microseconds</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>milliseconds</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>second</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>minute</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>hour</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>day</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>week</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>month</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>quarter</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>year</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>decade</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>century</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>millennium</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+>
+   </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT date_trunc('hour', TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001-02-16 20:00:00</SAMP
+>
+
+SELECT date_trunc('year', TIMESTAMP '2001-02-16 20:38:40');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001-01-01 00:00:00</SAMP
+></PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-DATETIME-ZONECONVERT"
+>9.9.3. <TT
+CLASS="LITERAL"
+>AT TIME ZONE</TT
+></A
+></H2
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>AT TIME ZONE</CODE
+>構文を使用することにより、タイムスタンプを異なる時間帯に変換することができます。<A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT-TABLE"
+>&#34920;9-28</A
+>にその種類を示します。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-DATETIME-ZONECONVERT-TABLE"
+></A
+><P
+><B
+>&#34920; 9-28. <TT
+CLASS="LITERAL"
+>AT TIME ZONE</TT
+> Variants</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>式</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>         <TT
+CLASS="LITERAL"
+><TT
+CLASS="TYPE"
+>timestamp without time zone</TT
+> AT TIME ZONE <TT
+CLASS="REPLACEABLE"
+><I
+>zone</I
+></TT
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+></TD
+><TD
+>与えられた<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>時間帯なし</I
+></SPAN
+>タイムスタンプを指定された時間帯にあるとして取り扱います。</TD
+></TR
+><TR
+><TD
+>         <TT
+CLASS="LITERAL"
+><TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+> AT TIME ZONE <TT
+CLASS="REPLACEABLE"
+><I
+>zone</I
+></TT
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp without time zone</TT
+></TD
+><TD
+>与えられた<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>時間帯付き</I
+></SPAN
+>タイムスタンプを新規の時間帯に、時間帯の指定なく変換します。</TD
+></TR
+><TR
+><TD
+>         <TT
+CLASS="LITERAL"
+><TT
+CLASS="TYPE"
+>time with time zone</TT
+> AT TIME ZONE <TT
+CLASS="REPLACEABLE"
+><I
+>zone</I
+></TT
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>time with time zone</TT
+></TD
+><TD
+>与えられた時刻<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>with time zone</I
+></SPAN
+>を新らしい時間帯に変換します。</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    これらの式では、設定する時間帯<TT
+CLASS="REPLACEABLE"
+><I
+>zone</I
+></TT
+>は、（<TT
+CLASS="LITERAL"
+>'PST'</TT
+>のような）テキスト文字列、または（<TT
+CLASS="LITERAL"
+>INTERVAL '-08:00'</TT
+>のような）時間間隔で指定することができます。
+テキストの場合、<A
+HREF="datatype-datetime.html#DATATYPE-TIMEZONES"
+>&#38917;8.5.3</A
+>に示した方法で時間帯名称を指定することができます。
+   </P
+><P
+>   
+    以下に例を示します（ローカル時間帯を<TT
+CLASS="LITERAL"
+>PST8PDT</TT
+>と想定しています）。
+</P><PRE
+CLASS="SCREEN"
+>SELECT TIMESTAMP '2001-02-16 20:38:40' AT TIME ZONE 'MST';
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001-02-16 19:38:40-08</SAMP
+>
+
+SELECT TIMESTAMP WITH TIME ZONE '2001-02-16 20:38:40-05' AT TIME ZONE 'MST';
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001-02-16 18:38:40</SAMP
+></PRE
+><P>
+    最初の例は、時間帯のないタイプスタンプを使用し、それをMST時間（UTC-7）として解釈し、UTCタイムスタンプを生成します。それから、UTCタイムスタンプが、表示用にPST（UTC-7）に置き換えられます。2番目の例は、EST（UTC-5）で指定されたタイムスタンプを使用し、MST（UTC-7）でのローカル時間に変換しています。
+   </P
+><P
+>   
+    関数<CODE
+CLASS="FUNCTION"
+>timezone</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>zone</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>timestamp</I
+></TT
+>)は、SQL準拠の構文<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>timestamp</I
+></TT
+> AT TIME ZONE <TT
+CLASS="REPLACEABLE"
+><I
+>zone</I
+></TT
+></TT
+>と等価です。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-DATETIME-CURRENT"
+>9.9.4. Current Date/Time</A
+></H2
+><P
+>   
+    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、現在の日付時刻に関した値を返す多くの関数を提供します。
+これらの標準SQL関数はすべて、現在のトランザクションの開始時刻に基づいた値を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>CURRENT_DATE
+CURRENT_TIME
+CURRENT_TIMESTAMP
+CURRENT_TIME(<TT
+CLASS="REPLACEABLE"
+><I
+>precision</I
+></TT
+>)
+CURRENT_TIMESTAMP(<TT
+CLASS="REPLACEABLE"
+><I
+>precision</I
+></TT
+>)
+LOCALTIME
+LOCALTIMESTAMP
+LOCALTIME(<TT
+CLASS="REPLACEABLE"
+><I
+>precision</I
+></TT
+>)
+LOCALTIMESTAMP(<TT
+CLASS="REPLACEABLE"
+><I
+>precision</I
+></TT
+>)</PRE
+><P>
+    </P
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>CURRENT_TIME</CODE
+>および<CODE
+CLASS="FUNCTION"
+>CURRENT_TIMESTAMP</CODE
+>関数では、時間帯を伴う値を扱います。一方、<CODE
+CLASS="FUNCTION"
+>LOCALTIME</CODE
+>および<CODE
+CLASS="FUNCTION"
+>LOCALTIMESTAMP</CODE
+>関数では、時間帯を伴わない値を扱います。
+    </P
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>CURRENT_TIME</CODE
+>、<CODE
+CLASS="FUNCTION"
+>CURRENT_TIMESTAMP</CODE
+>、<CODE
+CLASS="FUNCTION"
+>LOCALTIME</CODE
+>、および<CODE
+CLASS="FUNCTION"
+>LOCALTIMESTAMP</CODE
+>関数では、精度のパラメータをオプションで取ることができ、それに合わせて秒フィールドの端数桁を丸める結果をもたらします。精度のパラメータがない場合、結果は使用可能な最大精度で出力されます。
+    </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT CURRENT_TIME;
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>14:39:53.662522-05</SAMP
+>
+
+SELECT CURRENT_DATE;
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001-12-23</SAMP
+>
+
+SELECT CURRENT_TIMESTAMP;
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001-12-23 14:39:53.662522-05</SAMP
+>
+
+SELECT CURRENT_TIMESTAMP(2);
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001-12-23 14:39:53.66-05</SAMP
+>
+
+SELECT LOCALTIMESTAMP;
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>2001-12-23 14:39:53.662522</SAMP
+></PRE
+><P>
+   </P
+><P
+>   
+    これらの関数は、現在のトランザクションの開始時刻を返します。
+この値は、トランザクションが実行されている間は変化しません。
+これは、次の機能を検討した結果です。
+単一トランザクションで、<SPAN
+CLASS="QUOTE"
+>"current"</SPAN
+>時間を一貫性を持った表現を行うことができるようにすることを目的とし、このため、同一トランザクションで何回変更を行っても同一のタイムスタンプを生成します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     他のデータベースシステムでは、これらの値をより頻繁に増加させることがあります。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>   
+    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はまた、関数を呼び出した時の実際の現在時刻や現在の文の開始時刻を返す関数も提供します。非標準SQLの関数の全一覧を以下に示します。
+</P><PRE
+CLASS="SYNOPSIS"
+>transaction_timestamp()
+statement_timestamp()
+clock_timestamp()
+timeofday()
+now()</PRE
+><P>
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>transaction_timestamp()</CODE
+>は<CODE
+CLASS="FUNCTION"
+>CURRENT_TIMESTAMP</CODE
+>と等価ですが、明確に何を返すかを反映する名前になっています。
+<CODE
+CLASS="FUNCTION"
+>statement_timestamp()</CODE
+>は現在の文の実行開始時刻を返すものです（より具体的にいうと、直前のコマンドメッセージをクライアントから受け取った時刻です）。
+<CODE
+CLASS="FUNCTION"
+>statement_timestamp()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>transaction_timestamp()</CODE
+>はトランザクションの最初のコマンドでは同じ値を返しますが、その後に引き続くコマンドでは異なる可能性があります。
+<CODE
+CLASS="FUNCTION"
+>clock_timestamp()</CODE
+>は実際の現在時刻を返しますので、その値は単一のSQLコマンドであっても異なります。
+ <CODE
+CLASS="FUNCTION"
+>timeofday()</CODE
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の歴史的な関数です。
+<CODE
+CLASS="FUNCTION"
+>clock_timestamp()</CODE
+>同様、実際の現在時刻を返しますが、<TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+>型の値ではなく、整形された<TT
+CLASS="TYPE"
+>text</TT
+>文字列を返します。<CODE
+CLASS="FUNCTION"
+>now()</CODE
+>は<CODE
+CLASS="FUNCTION"
+>transaction_timestamp()</CODE
+>と同じもので、伝統的な<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>関数です。
+   </P
+><P
+>   
+    すべての日付/時刻型はまた、現在の日付と時刻（繰り返しますがトランザクションの開始時刻として解釈されます）を表す特殊なリテラル値 <TT
+CLASS="LITERAL"
+>now</TT
+>を受け付けます。
+したがって、下記の３つの実行結果は全て同じものとなります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT CURRENT_TIMESTAMP;
+SELECT now();
+SELECT TIMESTAMP 'now';  -- incorrect for use with DEFAULT</PRE
+><P>
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>     
+      テーブルを作成する時、<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句を指定するのに3番目の形式を使おうとは思わないでしょう。定数が解析された時、システムが<TT
+CLASS="LITERAL"
+>now</TT
+>を<TT
+CLASS="TYPE"
+>timestamp</TT
+>に変換するので、デフォルト値としてテーブルが作成された時刻が使われます。最初の2つの形式は関数呼び出しのためデフォルト値が使用されるまで評価されません。ですから、これらの関数は列の挿入時間をデフォルトとする、望ましい振舞いをします。
+     </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-DATETIME-DELAY"
+>9.9.5. 遅延実行</A
+></H2
+><P
+>   
+    以下の関数は、サーバプロセスの実行を遅延させるために使用可能です。
+</P><PRE
+CLASS="SYNOPSIS"
+>pg_sleep(<TT
+CLASS="REPLACEABLE"
+><I
+>seconds</I
+></TT
+>)</PRE
+><P>
+
+    <CODE
+CLASS="FUNCTION"
+>pg_sleep</CODE
+>は、<TT
+CLASS="REPLACEABLE"
+><I
+>seconds</I
+></TT
+>秒経過するまで、現在のセッションのプロセスを休止させます。<TT
+CLASS="REPLACEABLE"
+><I
+>seconds</I
+></TT
+>は<TT
+CLASS="TYPE"
+>double precision</TT
+>型の値です。
+そのため、小数単位で休止秒数を指定することができます。以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT pg_sleep(1.5);</PRE
+><P>
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>     
+      休止時間の有効な分解能はプラットフォームに依存します。0.01秒が一般的な値です。遅延は少なくとも指定した通り行われます。サーバの負荷が要因となり、より長くなる可能性があります。
+     </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#35686;&#21578;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>     
+      <CODE
+CLASS="FUNCTION"
+>pg_sleep</CODE
+>を呼び出す時、セッションが必要以上のロックを保持していないことを確実にしてください。さもないと、他のセッションが休止中のプロセスを待機しなければならないかもしれません。そのためシステム全体の速度が低下することになるかもしれません。
+     </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>&#27880;&#24847;</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN13614"
+HREF="functions-datetime.html#AEN13614"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>オペレーティングシステムでうるう秒が実装されている場合は60まで。</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-formatting.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-enum.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データ型書式設定関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>列挙型サポート関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

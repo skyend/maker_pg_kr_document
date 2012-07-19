@@ -1,0 +1,395 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リカバリ対象の設定</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リカバリの設定"
+HREF="recovery-config.html"><LINK
+REL="PREVIOUS"
+TITLE="アーカイブリカバリの設定"
+HREF="archive-recovery-settings.html"><LINK
+REL="NEXT"
+TITLE="スタンバイサーバの設定"
+HREF="standby-settings.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="アーカイブリカバリの設定"
+HREF="archive-recovery-settings.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リカバリの設定"
+HREF="recovery-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 26&#31456;リカバリの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リカバリの設定"
+HREF="recovery-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="スタンバイサーバの設定"
+HREF="standby-settings.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RECOVERY-TARGET-SETTINGS"
+>26.2. リカバリ対象の設定</A
+></H1
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="RECOVERY-TARGET-NAME"
+></A
+><TT
+CLASS="VARNAME"
+>recovery_target_name</TT
+>
+           (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>このパラメータは、リカバリを実施するために<CODE
+CLASS="FUNCTION"
+>pg_create_restore_point()</CODE
+> により作成され、リストアポイントとして指定されたものを定義します。
+<TT
+CLASS="VARNAME"
+>recovery_target_name</TT
+>、<A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-TIME"
+>recovery_target_time</A
+> または <A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-XID"
+>recovery_target_xid</A
+> のいずれかひとつを指定することができます。デフォルトではWALログの最後までリカバリします。
+       </P
+></DD
+><DT
+><A
+NAME="RECOVERY-TARGET-TIME"
+></A
+><TT
+CLASS="VARNAME"
+>recovery_target_time</TT
+>
+           (<TT
+CLASS="TYPE"
+>timestamp</TT
+>)</DT
+><DD
+><P
+>        このパラメータは、リカバリを実施するタイムスタンプの上限を指定します。
+        <TT
+CLASS="VARNAME"
+>recovery_target_time</TT
+>、<A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-NAME"
+>recovery_target_name</A
+> または、<A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-XID"
+>recovery_target_xid</A
+>のいずれかを指定できます。
+        デフォルトでは、WALログの最後までリカバリを実施します。
+        厳密な停止ポイントは、<A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-INCLUSIVE"
+>recovery_target_inclusive</A
+> によっても影響を受けます。
+       </P
+></DD
+><DT
+><A
+NAME="RECOVERY-TARGET-XID"
+></A
+><TT
+CLASS="VARNAME"
+>recovery_target_xid</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>このパラメータは、リカバリを進行させるトランザクションIDの上限を指定します。
+トランザクションIDはトランザクションの開始時に順番に割り振られ、トランザクションはそれとは異なる順番で完了し得るということを理解しておいてください。
+リカバリされるトランザクションは、指定されたものよりも前 (オプションによっては指定されたものも含まれる) にコミットされたものになります。
+<TT
+CLASS="VARNAME"
+>recovery_target_xid</TT
+>、<A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-NAME"
+>recovery_target_name</A
+> または、<A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-TIME"
+>recovery_target_time</A
+>のいずれかを指定できます。
+デフォルトでは、WALログの最後までリカバリを実施します。
+厳密な停止ポイントは、<A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-INCLUSIVE"
+>recovery_target_inclusive</A
+> によっても影響を受けます。
+       </P
+></DD
+><DT
+><A
+NAME="RECOVERY-TARGET-INCLUSIVE"
+></A
+><TT
+CLASS="VARNAME"
+>recovery_target_inclusive</TT
+>
+        (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>        
+        指定したリカバリターゲットの後に停止するか (<TT
+CLASS="LITERAL"
+>true</TT
+>) 、その前に停止するか (<TT
+CLASS="LITERAL"
+>false</TT
+>) を指定します。
+        <A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-TIME"
+>recovery_target_time</A
+> と <A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-XID"
+>recovery_target_xid</A
+> のどちらが指定されているかに関係なく、双方に適用されます。
+        この設定は、指定したターゲットコミット時間あるいはトランザクションIDのトランザクションが、それぞれリカバリに含まれるかどうかを指定します。
+        デフォルトは <TT
+CLASS="LITERAL"
+>true</TT
+> です。
+       </P
+></DD
+><DT
+><A
+NAME="RECOVERY-TARGET-TIMELINE"
+></A
+><TT
+CLASS="VARNAME"
+>recovery_target_timeline</TT
+>
+        (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>リカバリが作成する個別のタイムラインを指定します。
+デフォルトでは、ベースバックアップが取得された際のものと同じタイムラインに沿ってリカバリされます。
+これを<TT
+CLASS="LITERAL"
+>latest</TT
+>に設定すると、アーカイブ時に見つけた最新のタイムラインに回復します。スタンバイサーバで役立つものです。
+この他にこのパラメータが必要となるのは、ポイントインタイムリカバリの実施後に到達したような状態に戻す場合など、複数回に渡ってリカバリするような複雑なリカバリのシチュエーションのみです。
+この議論については <A
+HREF="continuous-archiving.html#BACKUP-TIMELINES"
+>&#38917;24.3.4</A
+> を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="PAUSE-AT-RECOVERY-TARGET"
+></A
+><TT
+CLASS="VARNAME"
+>pause_at_recovery_target</TT
+>
+        (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>リカバリ対象に到達した場合、リカバリを休止すべきかどうかを指定します。
+デフォルトは真です。
+これは、このリカバリ対象がリカバリのための最も望ましいポイントかどうかチェックするデータベースに対して、問い合わせが実行されることを可能にするよう仮定されます。
+休止された状態は、<CODE
+CLASS="FUNCTION"
+>pg_xlog_replay_resume()</CODE
+>(<A
+HREF="functions-admin.html#FUNCTIONS-RECOVERY-CONTROL-TABLE"
+>&#34920;9-58</A
+>参照)の使用により再開することができます。
+その後、それは回復を終了させます。
+このリカバリ対象はその後希望の止まるポイントでなければ、サーバをシャットダウンし、リカバリを継続するため、後の対象とリカバリを続けるための再起動のために、リカバリ対象の設定を変更します。
+       </P
+><P
+>この設定は<A
+HREF="runtime-config-replication.html#GUC-HOT-STANDBY"
+>hot_standby</A
+>が有効になっていない場合、リカバリ対象が設定されていない場合には効果がありません。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="archive-recovery-settings.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="standby-settings.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>アーカイブリカバリの設定</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="recovery-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>スタンバイサーバの設定</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,1057 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE ROLE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE OPERATOR FAMILY"
+HREF="sql-createopfamily.html"><LINK
+REL="NEXT"
+TITLE="CREATE RULE"
+HREF="sql-createrule.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE OPERATOR FAMILY"
+HREF="sql-createopfamily.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE OPERATOR FAMILY"
+HREF="sql-createopfamily.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE RULE"
+HREF="sql-createrule.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE RULE"
+HREF="sql-createrule.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATEROLE"
+></A
+>CREATE ROLE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN66530"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE ROLE&nbsp;--&nbsp;新しいデータベースロールを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN66535"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ [ WITH ] <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> [ ... ] ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>は以下の通りです。</SPAN
+></SPAN
+>
+    
+      SUPERUSER | NOSUPERUSER
+    | CREATEDB | NOCREATEDB
+    | CREATEROLE | NOCREATEROLE
+    | CREATEUSER | NOCREATEUSER
+    | INHERIT | NOINHERIT
+    | LOGIN | NOLOGIN
+    | REPLICATION | NOREPLICATION
+    | CONNECTION LIMIT <TT
+CLASS="REPLACEABLE"
+><I
+>connlimit</I
+></TT
+>
+    | [ ENCRYPTED | UNENCRYPTED ] PASSWORD '<TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+>'
+    | VALID UNTIL '<TT
+CLASS="REPLACEABLE"
+><I
+>timestamp</I
+></TT
+>'
+    | IN ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...]
+    | IN GROUP <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...]
+    | ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...]
+    | ADMIN <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...]
+    | USER <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...]
+    | SYSID <TT
+CLASS="REPLACEABLE"
+><I
+>uid</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66550"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースクラスタに新しいロールを加えます。
+ロールとは、自身でデータベースオブジェクトを所有することができ、データベース権限を持つことができる実体のことです。
+ロールは、使用状況に応じて<SPAN
+CLASS="QUOTE"
+>"ユーザ"</SPAN
+>、<SPAN
+CLASS="QUOTE"
+>"グループ"</SPAN
+>、もしくは、その両方であるとみなすことができます。
+ユーザの管理と認証に関する情報については、<A
+HREF="user-manag.html"
+>&#31532;20&#31456;</A
+>と<A
+HREF="client-authentication.html"
+>&#31532;19&#31456;</A
+>を参照してください。
+このコマンドを使用するには、<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つか、データベースのスーパーユーザでなければなりません。
+
+  </P
+><P
+>ロールはデータベースクラスタのレベルで定義されるため、クラスタ内のすべてのデータベースで有効となることに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66561"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>新しいロールの名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SUPERUSER</TT
+><BR><TT
+CLASS="LITERAL"
+>NOSUPERUSER</TT
+></DT
+><DD
+><P
+>これらの句によって、新しいロールが<SPAN
+CLASS="QUOTE"
+>"スーパーユーザ"</SPAN
+>となるかどうかが決まります。
+<SPAN
+CLASS="QUOTE"
+>"スーパーユーザ"</SPAN
+>はデータベース内のアクセス制限をすべて変更することができます。
+スーパーユーザという状態は危険ですので、本当に必要な場合にのみ使用しなければなりません。
+新しくスーパーユーザを作成するには、スーパーユーザでなければなりません。
+指定されなかった場合のデフォルトは<TT
+CLASS="LITERAL"
+>NOSUPERUSER</TT
+>です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CREATEDB</TT
+><BR><TT
+CLASS="LITERAL"
+>NOCREATEDB</TT
+></DT
+><DD
+><P
+>これらの句はロールのデータベースの作成に関する権限を定義します。
+<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>が指定された場合、新しくデータベースを作成することができるように、ロールが作成されます。
+<TT
+CLASS="LITERAL"
+>NOCREATEDB</TT
+>を使用した場合、そのロールにはデータベースを作成する権限が与えられません。
+指定されなかった場合のデフォルトは<TT
+CLASS="LITERAL"
+>NOCREATEDB</TT
+>です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+><BR><TT
+CLASS="LITERAL"
+>NOCREATEROLE</TT
+></DT
+><DD
+><P
+>これらの句は、ロールが新しいロールを作成（つまり<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>を実行）できるかどうかを決定します。
+<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つロールはロールを変更することも削除することもできます。
+指定されなかった場合のデフォルトは<TT
+CLASS="LITERAL"
+>NOCREATEROLE</TT
+>です。
+
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CREATEUSER</TT
+><BR><TT
+CLASS="LITERAL"
+>NOCREATEUSER</TT
+></DT
+><DD
+><P
+>これらの句は廃止予定ですが、<TT
+CLASS="LITERAL"
+>SUPERUSER</TT
+>と<TT
+CLASS="LITERAL"
+>NOSUPERUSER</TT
+>の別名として、まだ受け付けられます。
+単純に<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>と同じであると考えるかもしれませんが、実際には<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>異なる</I
+></SPAN
+>ことに注意してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>INHERIT</TT
+><BR><TT
+CLASS="LITERAL"
+>NOINHERIT</TT
+></DT
+><DD
+><P
+>これらの句は、ロールがそのロールが属するロールの権限を<SPAN
+CLASS="QUOTE"
+>"継承"</SPAN
+>するかどうかを決定します。
+<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>属性を持つロールは自動的に、直接またはメンバとして間接的に割り当てられたすべてのデータベース権限を使用します。
+<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>がないと、他のロール内のメンバ資格により得られる能力はそのロールへの<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>だけです。
+他のロールの持つ権限は、<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>を行った後にのみ利用可能です。
+指定されなかった場合のデフォルトは<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>LOGIN</TT
+><BR><TT
+CLASS="LITERAL"
+>NOLOGIN</TT
+></DT
+><DD
+><P
+>これらの句により、ロールがログイン可能かどうか、つまり、そのロールをクライアント接続時にセッションを認証するための名前として使用することができるかどうかが決まります。
+<TT
+CLASS="LITERAL"
+>LOGIN</TT
+>属性を持つロールはユーザとみなすことができます。
+この属性を持たないロールは、データベース権限を管理する際に有用ですが、普通の意味ではユーザとはいえません。
+指定されなかった場合のデフォルトは<TT
+CLASS="LITERAL"
+>NOLOGIN</TT
+>です。
+ただし、<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>が別名の<TT
+CLASS="COMMAND"
+>CREATE USER</TT
+>で呼び出された場合は例外です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>REPLICATION</TT
+><BR><TT
+CLASS="LITERAL"
+>NOREPLICATION</TT
+></DT
+><DD
+><P
+>これらの句は、ロールがストリーミングレプリケーションを初期化でき、システムをバックアップモードとの遷移が可能かどうかを決定します。
+<TT
+CLASS="LITERAL"
+>REPLICATION</TT
+>属性を持つロールは、非常に高度な権限を持つものです。
+このため実際にレプリケーションで使用するロールでのみ使用しなければなりません。
+スーパーユーザを除くすべてのユーザで、指定されない場合のデフォルトは<TT
+CLASS="LITERAL"
+>NOREPLICATION</TT
+>
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CONNECTION LIMIT</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>connlimit</I
+></TT
+></DT
+><DD
+><P
+>ロールがログイン可能である場合、これは、ロールが確立できる最大同時接続数を指定します。
+-1（デフォルト）は無制限を意味します。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>PASSWORD</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></DT
+><DD
+><P
+>ロールのパスワードを設定します。
+（パスワードは<TT
+CLASS="LITERAL"
+>LOGIN</TT
+>属性を持つロールでのみ意味がありますが、この属性を持たないロールにも定義することができます。）
+パスワード認証を行う予定がなければ、このオプションを省略することができます。
+パスワードの指定がなければ、パスワードがNULLに設定され、そのアカウントでのパスワード認証は常に失敗します。
+オプションとして、NULLというパスワードを明示的に<TT
+CLASS="LITERAL"
+>PASSWORD NULL</TT
+>と記述することができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ENCRYPTED</TT
+><BR><TT
+CLASS="LITERAL"
+>UNENCRYPTED</TT
+></DT
+><DD
+><P
+>これらのキーワードを使用すると、パスワードを暗号化してシステムカタログに格納するかどうかを制御できます
+（指定されていない場合のデフォルトの動作は、<A
+HREF="runtime-config-connection.html#GUC-PASSWORD-ENCRYPTION"
+>password_encryption</A
+>設定パラメータによって決まります）。
+指定された文字列が既にMD5暗号化書式である場合は、<TT
+CLASS="LITERAL"
+>ENCRYPTED</TT
+>、<TT
+CLASS="LITERAL"
+>UNENCRYPTED</TT
+>のどちらが指定されているかに関係なく、そのまま保存されます
+（システムでは、暗号化されたパスワードを復号できないからです）。
+これにより、ダンプ/リストア時に暗号化パスワードを再読み込みすることができます。
+       </P
+><P
+>古めのクライアントでは、暗号化して保存されたパスワードを使用するために必要なMD5認証機構をサポートしていない場合があることに注意してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>VALID UNTIL</TT
+> '<TT
+CLASS="REPLACEABLE"
+><I
+>timestamp</I
+></TT
+>'</DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>VALID UNTIL</TT
+>句は、ロールのパスワードが無効になるまでの日時を設定します。
+この句が省略された場合、パスワードは永遠に有効になります。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>IN ROLE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>IN ROLE</TT
+>句には、新しく作成するロールを新規にメンバとして追加する既存の1つ以上のロールを列挙します。
+（新しく作成するロールを管理者として追加するオプションがないことに注意してください。このためには別途<TT
+CLASS="COMMAND"
+>GRANT</TT
+>コマンドを使用してください。）
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>IN GROUP</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>IN GROUP</TT
+>は<TT
+CLASS="LITERAL"
+>IN ROLE</TT
+>の別名で、廃止予定です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ROLE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>ROLE</TT
+>には、新しく作成するロールのメンバとして自動的に追加する既存の1つ以上のロールを列挙します。
+（これは新しく作成したロールを<SPAN
+CLASS="QUOTE"
+>"グループ"</SPAN
+>とします。）
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ADMIN</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>ADMIN</TT
+>句は<TT
+CLASS="LITERAL"
+>ROLE</TT
+>と似ていますが、新しく作成されるロールに指定されたロールが<TT
+CLASS="LITERAL"
+>WITH ADMIN OPTION</TT
+>として追加される点が異なります。
+つまり、新しく作成されるロールのメンバ資格を他者に与えることができる権利を、指定されたロールに与えます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>USER</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>USER</TT
+>句は<TT
+CLASS="LITERAL"
+>ROLE</TT
+>句の別名で廃止予定です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SYSID</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>uid</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>SYSID</TT
+>句は無視されます。後方互換性を維持するために受け付けられます。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66723"
+></A
+><H2
+>注釈</H2
+><P
+>ロールの属性を変更するには<A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+>を、ユーザを削除するには<A
+HREF="sql-droprole.html"
+>DROP ROLE</A
+>を使用してください。
+<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>で指定したすべての属性は、後で<TT
+CLASS="COMMAND"
+>ALTER ROLE</TT
+>コマンドで変更可能です。
+  </P
+><P
+>グループとして使用しているロールのメンバの追加、および、削除についての推奨方法は、<A
+HREF="sql-grant.html"
+>GRANT</A
+>と<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>を使用することです。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>VALID UNTIL</TT
+>句は、パスワードのみの有効期限を定義します。
+ユーザアカウントの有効期限ではありません。
+特に、パスワードを元にしない認証方式でログインを行う場合には、この有効期限は強制されません。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>INHERIT</TT
+>属性は、許可可能な権限（つまり、データベースオブジェクトに対するアクセス権限とロールのメンバ資格）の継承を管理します。
+これは、<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>や<TT
+CLASS="COMMAND"
+>ALTER ROLE</TT
+>で設定される特別なロール属性には適用されません。
+<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>が設定されていたとしても、例えば、<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限を持つロールのメンバであっても、データベース作成権限は即座に付与されません。
+データベースを作成する前に<A
+HREF="sql-set-role.html"
+>SET ROLE</A
+>を使用してそのロールにならなければなりません。
+  </P
+><P
+>後方互換性を維持するため、<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>属性はデフォルトです。
+以前のリリースの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、ユーザは常にメンバとなっているすべてのグループの権限でアクセスできました。
+しかし、<TT
+CLASS="LITERAL"
+>NOINHERIT</TT
+>の方が標準SQLの規定の意味により合ったものを提供します。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限には注意が必要です。
+<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+> ロールという権限には継承という概念がありません。
+あるロールが特定の権限を持っていなくても、別のロールを作成できることを意味します。つまり、簡単に自身の持つ権限と異なる権限（スーパーユーザ権限を持つロールは除きます）を持つ別のロールを作成できてしまいます。
+たとえば、<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持ち、<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限を持たない<SPAN
+CLASS="QUOTE"
+>"user"</SPAN
+>というロールが、<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限を持つロールを新規に作成することができます。
+したがって、<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つロールは、ほとんどスーパーユーザ権限を持つロールと同じであるものと考えてください。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には、<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>と同じ機能を持つ（実際にこのコマンドを呼び出しています）<A
+HREF="app-createuser.html"
+><SPAN
+CLASS="APPLICATION"
+>createuser</SPAN
+></A
+>プログラムがあり、コマンドシェルから実行することができます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>CONNECTION LIMIT</TT
+>オプションが加える制限は厳密ではありません。
+もしそのロールに1つだけ接続<SPAN
+CLASS="QUOTE"
+>"スロット"</SPAN
+>が残っていた時に、ほぼ同時に2つのセッションが新しく始まった場合、両方とも失敗する可能性があります。
+また、この制限はスーパーユーザには適用されません。
+  </P
+><P
+>このコマンドで暗号化しないパスワードを指定するときには注意しなければなりません。
+パスワードはサーバに平文で送信されます。
+クライアントのコマンド履歴やサーバのログにこれが残ってしまうかもしれません。
+しかし、<A
+HREF="app-createuser.html"
+><SPAN
+CLASS="APPLICATION"
+>createuser</SPAN
+></A
+>コマンドはパスワードを暗号化して送信します。
+また、<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>には<TT
+CLASS="COMMAND"
+>\password</TT
+>コマンドがあります。これを使用して後でパスワードを安全に変更することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66765"
+></A
+><H2
+>例</H2
+><P
+>ログイン可能なロールを作成します。ただし、パスワードはありません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE ROLE jonathan LOGIN;</PRE
+><P>
+  </P
+><P
+>パスワード付きのロールを作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE USER davide WITH PASSWORD 'jw8s0F4';</PRE
+><P>
+<TT
+CLASS="COMMAND"
+>CREATE USER</TT
+>は<TT
+CLASS="LITERAL"
+>LOGIN</TT
+>を意味する点を除き、<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>と同一です。
+  </P
+><P
+>2004年まで有効なパスワードを持つロールを作成します。
+2005年に1秒でも入った時点でパスワードは無効になります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE ROLE miriam WITH LOGIN PASSWORD 'jw8s0F4' VALID UNTIL '2005-01-01';</PRE
+><P>
+  </P
+><P
+>データベースを作成でき、かつ、ロールを管理できるロールを作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE ROLE admin WITH CREATEDB CREATEROLE;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66778"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>文は標準SQLで規定されています。
+しかしSQLでは以下の構文のみを要求しています。
+</P><PRE
+CLASS="SYNOPSIS"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ WITH ADMIN <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> ]</PRE
+><P>
+複数の初期管理者やそのほかの<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>のオプションは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+><P
+>標準SQLでは、ユーザとロールという概念を定義し、それらを別の概念としてみなしています。
+また、ユーザを定義するコマンドはすべて、各データベース実装で規定するものとしています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、ユーザとロールを単一の実体に統一することを選択しています。
+したがって、ロールは標準よりも非常に多くの省略可能な属性を持っています。
+  </P
+><P
+>ユーザは<TT
+CLASS="LITERAL"
+>NOINHERIT</TT
+>属性を与えること、ロールは<TT
+CLASS="LITERAL"
+>INHERIT</TT
+> 属性を与えることで、標準SQLで規定された振舞いをほぼ完全に行うことができます。
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66792"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-set-role.html"
+>SET ROLE</A
+>, <A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+>, <A
+HREF="sql-droprole.html"
+>DROP ROLE</A
+>, <A
+HREF="sql-grant.html"
+>GRANT</A
+>, <A
+HREF="sql-revoke.html"
+>REVOKE</A
+>, <A
+HREF="app-createuser.html"
+><SPAN
+CLASS="APPLICATION"
+>createuser</SPAN
+></A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createopfamily.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createrule.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE OPERATOR FAMILY</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE RULE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

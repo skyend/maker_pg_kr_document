@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SECURITY LABEL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="SAVEPOINT"
+HREF="sql-savepoint.html"><LINK
+REL="NEXT"
+TITLE="SELECT"
+HREF="sql-select.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SAVEPOINT"
+HREF="sql-savepoint.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SAVEPOINT"
+HREF="sql-savepoint.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SELECT"
+HREF="sql-select.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SELECT"
+HREF="sql-select.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-SECURITY-LABEL"
+></A
+>SECURITY LABEL</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN74124"
+></A
+><H2
+>&#21517;&#21069;</H2
+>SECURITY LABEL&nbsp;--&nbsp;オブジェクトに適用するセキュリティラベルを定義または変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN74129"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>SECURITY LABEL [ FOR <TT
+CLASS="REPLACEABLE"
+><I
+>provider</I
+></TT
+> ] ON
+{
+  TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+> |
+  COLUMN <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> |
+  AGGREGATE <TT
+CLASS="REPLACEABLE"
+><I
+>agg_name</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>agg_type</I
+></TT
+> [, ...] ) |
+  DOMAIN <TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+> |
+  FOREIGN TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+>
+  FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( [ [ <TT
+CLASS="REPLACEABLE"
+><I
+>argmode</I
+></TT
+> ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>argname</I
+></TT
+> ] <TT
+CLASS="REPLACEABLE"
+><I
+>argtype</I
+></TT
+> [, ...] ] ) |
+  LARGE OBJECT <TT
+CLASS="REPLACEABLE"
+><I
+>large_object_oid</I
+></TT
+> |
+  [ PROCEDURAL ] LANGUAGE <TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+> |
+  SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+> |
+  SEQUENCE <TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+> |
+  TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+> |
+  VIEW <TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+>
+} IS '<TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+>'</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN74150"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>SECURITY LABEL</TT
+>はセキュリティラベルをデータベースオブジェクトに適用します。
+ラベルプロバイダごとに１つの、任意の数のセキュリティラベルを指定したデータベースオブジェクトに関連付けることができます。
+ラベルプロバイダは、<CODE
+CLASS="FUNCTION"
+>register_label_provider</CODE
+>関数を使用して自身を登録する、ロード可能なモジュールです。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><CODE
+CLASS="FUNCTION"
+>register_label_provider</CODE
+>はSQL関数ではありません。
+バックエンドにロードされたCコードからのみ呼び出すことができます。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>ラベルプロバイダは、指定されたラベルが有効かどうか、および指定されたオブジェクトにラベルを割り当てることが許されているかどうかを決定します。
+また、ラベルプロバイダは指定されたラベルの意味の決定権を持ちます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、ラベルプロバイダがセキュリティラベルを解釈するかしないか、どのように解釈するかに関して制限を持ちません。
+単にこれらを格納するための機構を提供するだけです。
+実際には、この機能は<SPAN
+CLASS="PRODUCTNAME"
+>SE-Linux</SPAN
+>などのラベルベースの強制アクセス制御（MAC）システムと統合できるようにすることを意図したものです。
+こうしたシステムにより、すべてのアクセス制御の決定は、ユーザとグループなどの伝統的な任意アクセス制御（DAC）という考えではなく、オブジェクトラベルに基づいて行われます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN74161"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>object_name</I
+></TT
+><BR><TT
+CLASS="REPLACEABLE"
+><I
+>table_name.column_name</I
+></TT
+><BR><TT
+CLASS="REPLACEABLE"
+><I
+>agg_name</I
+></TT
+><BR><TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+></DT
+><DD
+><P
+>ラベル付けされるオブジェクトの名前です。
+テーブル、集約、ドメイン、外部テーブル、関数、シーケンス、型、ビューの名前はスキーマで修飾可能です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>provider</I
+></TT
+></DT
+><DD
+><P
+>このラベルが関連するプロバイダの名前です。
+指定されたプロバイダはロードされていなければならず、かつ、提供されるラベル付け操作と一致しなければなりません。
+プロバイダが１つだけロードされていた場合、プロバイダの名前を省略して簡略化することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>arg_type</I
+></TT
+></DT
+><DD
+><P
+>集約関数が操作する入力データ型です。
+引数を持たない集約関数を参照する場合は入力データ型のリストには<TT
+CLASS="LITERAL"
+>*</TT
+>と記述してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>argmode</I
+></TT
+></DT
+><DD
+><P
+>関数引数のモードです。
+<TT
+CLASS="LITERAL"
+>IN</TT
+>、<TT
+CLASS="LITERAL"
+>OUT</TT
+>、<TT
+CLASS="LITERAL"
+>INOUT</TT
+>、<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+>のいずれかです。
+省略された場合のデフォルトは<TT
+CLASS="LITERAL"
+>IN</TT
+>です。
+入力引数のみが関数の識別を決定するために必要ですので、実際には<TT
+CLASS="COMMAND"
+>SECURITY LABEL ON FUNCTION</TT
+>は<TT
+CLASS="LITERAL"
+>OUT</TT
+>をまったく考慮しないことに注意してください。
+このため<TT
+CLASS="LITERAL"
+>IN</TT
+>、<TT
+CLASS="LITERAL"
+>INOUT</TT
+>、<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+>のリストで十分です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>argname</I
+></TT
+></DT
+><DD
+><P
+>関数引数の名前です。
+引数のデータ型のみが関数の識別を決定するために必要ですので、実際には<TT
+CLASS="COMMAND"
+>SECURITY LABEL ON FUNCTION</TT
+>は引数名をまったく考慮しないことに注意してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>argtype</I
+></TT
+></DT
+><DD
+><P
+>関数引数があればそのデータ型です（スキーマ修飾可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>large_object_oid</I
+></TT
+></DT
+><DD
+><P
+>ラージオブジェクトのOIDです。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>PROCEDURAL</TT
+></DT
+><DD
+><P
+>これは意味がない単語です。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+></DT
+><DD
+><P
+>文字列リテラルで記述された新しいセキュリティラベルです。
+セキュリティラベルを削除するためには<TT
+CLASS="LITERAL"
+>NULL</TT
+>と記述します。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN74228"
+></A
+><H2
+>例</H2
+><P
+>以下の例はテーブルのセキュリティラベルを変更する方法を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SECURITY LABEL FOR selinux ON TABLE mytable IS 'system_u:object_r:sepgsql_table_t:s0';</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN74232"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>SECURITY LABEL</TT
+>コマンドはありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN74236"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sepgsql.html"
+>sepgsql</A
+>, <A
+HREF="dummy-seclabel.html"
+>dummy_seclabel</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-savepoint.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-select.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SAVEPOINT</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SELECT</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

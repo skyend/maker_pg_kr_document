@@ -1,0 +1,715 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>必要条件</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="  ソースコードからインストール"
+HREF="installation.html"><LINK
+REL="PREVIOUS"
+TITLE="簡易版"
+HREF="install-short.html"><LINK
+REL="NEXT"
+TITLE="ソースの入手"
+HREF="install-getsource.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="簡易版"
+HREF="install-short.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="  ソースコードからインストール"
+HREF="installation.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 15&#31456;ソースコードからインストール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="  ソースコードからインストール"
+HREF="installation.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ソースの入手"
+HREF="install-getsource.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INSTALL-REQUIREMENTS"
+>15.2. 必要条件</A
+></H1
+><P
+>通常、最近のUnix互換プラットフォームならば<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を動作させることができるはずです。
+リリース時に明示的なテストを受けたプラットフォームの一覧を<A
+HREF="supported-platforms.html"
+>&#38917;15.6</A
+>に示します。
+配布物の<TT
+CLASS="FILENAME"
+>doc</TT
+>サブディレクトリには、プラットフォーム固有の<ACRONYM
+CLASS="ACRONYM"
+>FAQ</ACRONYM
+>文書がいくつかありますので、問題が発生した場合は参照してください。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を構築するには、以下のソフトウェアパッケージが必要です。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>      
+
+<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> <SPAN
+CLASS="APPLICATION"
+>make</SPAN
+>のバージョン3.80以上が必要です。
+他の<SPAN
+CLASS="APPLICATION"
+>make</SPAN
+>や古い<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> <SPAN
+CLASS="APPLICATION"
+>make</SPAN
+>では<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>動作しません</I
+></SPAN
+>。
+<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> <SPAN
+CLASS="APPLICATION"
+>make</SPAN
+>はよく<TT
+CLASS="FILENAME"
+>gmake</TT
+>という名前でインストールされます。
+本書では常にその名前を使用します
+（システムによって、<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> <SPAN
+CLASS="APPLICATION"
+>make</SPAN
+>がデフォルトのツールになっているものもあります。）
+<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> <SPAN
+CLASS="APPLICATION"
+>make</SPAN
+>の試験を行うためには以下を実行してください。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>gmake --version</KBD
+></PRE
+><P>
+バージョン3.79.1以降を使用することを推奨します。
+     </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>ISO</ACRONYM
+>/<ACRONYM
+CLASS="ACRONYM"
+>ANSI</ACRONYM
+> Cコンパイラ（最低限C89-準拠）が必要です。
+<SPAN
+CLASS="PRODUCTNAME"
+>GCC</SPAN
+> の最近のバージョンをお勧めしますが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は異なるベンダの、様々なコンパイラを使用して構築できることで知られています。
+     </P
+></LI
+><LI
+><P
+>配布物を展開するために、<SPAN
+CLASS="APPLICATION"
+>tar</SPAN
+>および<SPAN
+CLASS="APPLICATION"
+>gzip</SPAN
+>か<SPAN
+CLASS="APPLICATION"
+>bzip2</SPAN
+>のどちらかが必要です。
+     </P
+></LI
+><LI
+><P
+>      
+      
+
+<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> <SPAN
+CLASS="PRODUCTNAME"
+>Readline</SPAN
+>ライブラリは、デフォルトで使用されます。
+
+これにより<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>（PostgreSQLコマンドラインSQLインタプリタ）は入力したコマンドの記憶、さらに、カーソルキーを使用した過去のコマンドの再実行や編集ができるようになります。
+これは非常に役に立ちますので、強く推奨します。
+使用したくない場合は、<TT
+CLASS="FILENAME"
+>configure</TT
+>に<TT
+CLASS="OPTION"
+>--without-readline</TT
+>オプションを指定する必要があります。
+その代わりとして、BSDライセンスの<TT
+CLASS="FILENAME"
+>libedit</TT
+>ライブラリを使用することもできます。
+このライブラリは元々<SPAN
+CLASS="PRODUCTNAME"
+>NetBSD</SPAN
+>で開発されていました。
+<TT
+CLASS="FILENAME"
+>libedit</TT
+>ライブラリはGNUの<SPAN
+CLASS="PRODUCTNAME"
+>Readline</SPAN
+>と互換性があり、<TT
+CLASS="FILENAME"
+>libreadline</TT
+>を認識できなかった場合や<TT
+CLASS="FILENAME"
+>configure</TT
+>のオプションに<TT
+CLASS="OPTION"
+>--with-libedit-preferred</TT
+>が使用された場合に使用されます。
+パッケージベースのLinuxディストリビューションを使用し、そのディストリビューションの中で<TT
+CLASS="LITERAL"
+>readline</TT
+>と<TT
+CLASS="LITERAL"
+>readline-devel</TT
+>パッケージが別個に存在していた場合、両方とも必要ですので注意してください。
+     </P
+></LI
+><LI
+><P
+>      
+
+<SPAN
+CLASS="PRODUCTNAME"
+>zlib</SPAN
+>圧縮ライブラリはデフォルトで使用されます。
+これを使用したくなければ、<TT
+CLASS="FILENAME"
+>configure</TT
+>に対し<TT
+CLASS="OPTION"
+>--without-zlib</TT
+>を指定しなければなりません。
+このオプションを使用すると、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>および<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>内の圧縮アーカイブサポートが無効になります。
+
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+>以下のパッケージはオプションです。
+これらはデフォルトの設定では必要ありませんが、下記のように特定の構築オプションを有効とする場合に必要となります。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>サーバプログラム言語である<SPAN
+CLASS="APPLICATION"
+>PL/Perl</SPAN
+>を構築するには、<TT
+CLASS="FILENAME"
+>libperl</TT
+>ライブラリとヘッダファイルを含む完全な<SPAN
+CLASS="PRODUCTNAME"
+>Perl</SPAN
+>のインストレーションが必要です。 
+<SPAN
+CLASS="APPLICATION"
+>PL/Perl</SPAN
+>は共有ライブラリですので、ほとんどのプラットフォームにおいて<TT
+CLASS="FILENAME"
+>libperl</TT
+>ライブラリも共有ライブラリでなければなりません。  
+これは最近のバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>Perl</SPAN
+>ではデフォルトのようですが、以前のバージョンではデフォルトではありませんでした。
+とにかく、これはPerlをサイトにインストールした人により決定されます。
+もし、<SPAN
+CLASS="APPLICATION"
+>PL/Perl</SPAN
+>を意図的に使用するつもりであるのなら、<SPAN
+CLASS="PRODUCTNAME"
+>Perl</SPAN
+>のインストレーションが<TT
+CLASS="LITERAL"
+>usemultiplicity</TT
+>オプションを有効にして実施されているかを確認すべきです。(<TT
+CLASS="LITERAL"
+>perl -V</TT
+>により有効かどうかを確認できます。)
+     </P
+><P
+>必要な共有ライブラリが存在しない場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>構築中に表示される次のようなメッセージにより、そのことが指摘されます。
+</P><PRE
+CLASS="SCREEN"
+>*** Cannot build PL/Perl because libperl is not a shared library.
+*** You might have to rebuild your Perl installation.  Refer to
+*** the documentation for details.</PRE
+><P>
+（画面上の指示に従わない場合は、単に<SPAN
+CLASS="APPLICATION"
+>PL/Perl</SPAN
+>ライブラリオブジェクト<TT
+CLASS="FILENAME"
+>plperl.so</TT
+>または類似のものがインストールされないだけです。）
+このメッセージが表示された場合、<SPAN
+CLASS="APPLICATION"
+>PL/Perl</SPAN
+>を構築できるようにするために、<SPAN
+CLASS="PRODUCTNAME"
+>Perl</SPAN
+>を手動で再構築し、インストールする必要があります。
+<SPAN
+CLASS="PRODUCTNAME"
+>Perl</SPAN
+> の構築処理で、共有ライブラリとするように指定してください。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/Python</SPAN
+>サーバプログラム言語を構築するには、ヘッダファイルと<SPAN
+CLASS="APPLICATION"
+>distutils</SPAN
+>モジュールを含む<SPAN
+CLASS="PRODUCTNAME"
+>Python</SPAN
+>のインストレーションが必要です。
+<SPAN
+CLASS="PRODUCTNAME"
+>Python</SPAN
+>バージョン2.2が最低でも必要です。バージョン3.1以降であれば<SPAN
+CLASS="PRODUCTNAME"
+>Python 3</SPAN
+>もサポートされます。しかしPython 3を使用する場合は<A
+HREF="plpython-python23.html"
+>&#38917;42.1</A
+>を参照してください。
+
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/Python</SPAN
+>は共有ライブラリになりますので、ほとんどのプラットフォームでは、<TT
+CLASS="FILENAME"
+>libpython</TT
+>もまた共有ライブラリである必要があります。
+これは、<SPAN
+CLASS="PRODUCTNAME"
+>Python</SPAN
+>のインストレーションではデフォルトではありません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を構築し、インストールした後に、（他の拡張子かもしれませんが）<TT
+CLASS="FILENAME"
+>plpython.so</TT
+>という名前のファイルがあれば、全てが成功しています。
+さもなくば、以下のような警告が表示されたはずです。
+</P><PRE
+CLASS="SCREEN"
+>*** Cannot build PL/Python because libpython is not a shared library.
+*** You might have to rebuild your Python installation.  Refer to
+*** the documentation for details.</PRE
+><P>
+これは、この共有ライブラリを作成するためには<SPAN
+CLASS="PRODUCTNAME"
+>Python</SPAN
+>インストレーション（の一部）を再構築する必要があることを意味しています。
+     </P
+><P
+>問題があった場合は、<SPAN
+CLASS="PRODUCTNAME"
+>Python</SPAN
+> 2.3以降のconfigureを<TT
+CLASS="LITERAL"
+>--enable-shared</TT
+>を付けて実行してください。
+オペレーティングシステムの中には、共有ライブラリの構築が必要ないものもあります。
+しかし、その場合は <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>構築システムにそのことを確認・指定する必要があります。
+詳しくは<TT
+CLASS="FILENAME"
+>src/pl/plpython</TT
+>ディレクトリの<TT
+CLASS="FILENAME"
+>Makefile</TT
+>を参照してください。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/Tcl</SPAN
+>手続き言語の構築には、もちろん<SPAN
+CLASS="PRODUCTNAME"
+>Tcl</SPAN
+>のインストレーションが必要です。
+8.4より前のリリースの<SPAN
+CLASS="PRODUCTNAME"
+>Tcl</SPAN
+>を使用している場合は、マルチスレッドのサポートなしで構築していることを確認してください。
+     </P
+></LI
+><LI
+><P
+>各国語サポート（<ACRONYM
+CLASS="ACRONYM"
+>NLS</ACRONYM
+>）、つまり、英語以外の言語によるプログラムメッセージの表示機能を有効にするには、<SPAN
+CLASS="APPLICATION"
+>Gettext</SPAN
+> <ACRONYM
+CLASS="ACRONYM"
+>API</ACRONYM
+>の実装が必要です。
+オペレーティングシステムの中には（例えば、<SPAN
+CLASS="SYSTEMITEM"
+>Linux</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>NetBSD</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>Solaris</SPAN
+>など）、組み込み済みのものがあります。
+他のシステムでは、追加パッケージを<A
+HREF="http://www.gnu.org/software/gettext/"
+TARGET="_top"
+>http://www.gnu.org/software/gettext/</A
+>からダウンロードすることができます。 
+<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> Cライブラリの<SPAN
+CLASS="APPLICATION"
+>gettext</SPAN
+>の実装を使用する場合、さらにいくつかのユーティリティプログラムのために<SPAN
+CLASS="PRODUCTNAME"
+>GNU Gettext</SPAN
+>パッケージが必要となります。
+他の実装の場合には必要ありません。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>Kerberos</SPAN
+>、<SPAN
+CLASS="PRODUCTNAME"
+>OpenSSL</SPAN
+>、<SPAN
+CLASS="PRODUCTNAME"
+>OpenLDAP</SPAN
+>、<SPAN
+CLASS="APPLICATION"
+>PAM</SPAN
+>、または、この全ても、そのサービスを使用した認証や暗号化をサポートする場合には必要となります。
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+>リリースされたソースパッケージではなく<SPAN
+CLASS="PRODUCTNAME"
+>Git</SPAN
+>ツリーからの構築の場合、またはサーバ開発を行いたい場合には、以下のパッケージも必要となります。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>      
+      
+      
+      
+
+GNUの<SPAN
+CLASS="APPLICATION"
+>Flex</SPAN
+>および<SPAN
+CLASS="APPLICATION"
+>Bison</SPAN
+>は、Gitチェックアウトから構築する場合や、実際のスキャナとパーサの定義ファイルを変更した場合に必要となります。
+それらが必要な場合は、<SPAN
+CLASS="APPLICATION"
+>Flex</SPAN
+> 2.5.31以降と<SPAN
+CLASS="APPLICATION"
+>Bison</SPAN
+> 1.875以降を使うようにしてください。
+他の<SPAN
+CLASS="APPLICATION"
+>lex</SPAN
+>と<SPAN
+CLASS="APPLICATION"
+>yacc</SPAN
+>プログラムは使用できません。
+     </P
+></LI
+><LI
+><P
+>      
+
+     
+      Gitからチェックアウトしたものから構築する場合や、構築時にPerlスクリプトを使用して作成されるファイルの入力となるファイルを変更する場合には<SPAN
+CLASS="APPLICATION"
+>Perl</SPAN
+>5.8以降が必要です。
+      Windows上で構築する場合、いずれにしても<SPAN
+CLASS="APPLICATION"
+>Perl</SPAN
+>は必要です。
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+>パッケージの入手が必要な場合、近くの<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+>ミラーサイトから探してください（ミラーサイトの一覧は<A
+HREF="http://www.gnu.org/order/ftp.html"
+TARGET="_top"
+>http://www.gnu.org/order/ftp.html</A
+>にあります）。
+または、<A
+HREF="ftp://ftp.gnu.org/gnu/"
+TARGET="_top"
+>ftp://ftp.gnu.org/gnu/</A
+>から探してください。
+  </P
+><P
+>また、十分なディスク領域があることも確認してください。
+コンパイル中、ソースツリーのために100メガバイト、インストールディレクトリに20メガバイトほど必要となります。
+空のデータベースクラスタだけでも約35メガバイト必要です。データベースは、同じデータのフラットテキストファイルと比べて5倍ほどの領域が必要になります。
+リグレッションテストを実行する場合は、一時的に最大で150メガバイトの領域がさらに必要になります。
+ディスクの空き容量を確認するためには<TT
+CLASS="COMMAND"
+>df</TT
+>コマンドを使います。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="install-short.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="install-getsource.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>簡易版</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="installation.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ソースの入手</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

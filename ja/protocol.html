@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>フロントエンド/バックエンドプロトコル</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="内部情報"
+HREF="internals.html"><LINK
+REL="PREVIOUS"
+TITLE="pg_views"
+HREF="view-pg-views.html"><LINK
+REL="NEXT"
+TITLE="概要"
+HREF="protocol-overview.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pg_views"
+HREF="view-pg-views.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="システムカタログ"
+HREF="catalogs.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="概要"
+HREF="protocol-overview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PROTOCOL"
+></A
+>&#31532; 46&#31456;フロントエンド/バックエンドプロトコル</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>46.1. <A
+HREF="protocol-overview.html"
+>概要</A
+></DT
+><DD
+><DL
+><DT
+>46.1.1. <A
+HREF="protocol-overview.html#PROTOCOL-MESSAGE-CONCEPTS"
+>メッセージ処理の概要</A
+></DT
+><DT
+>46.1.2. <A
+HREF="protocol-overview.html#PROTOCOL-QUERY-CONCEPTS"
+>拡張問い合わせの概要</A
+></DT
+><DT
+>46.1.3. <A
+HREF="protocol-overview.html#PROTOCOL-FORMAT-CODES"
+>書式と書式コード</A
+></DT
+></DL
+></DD
+><DT
+>46.2. <A
+HREF="protocol-flow.html"
+>メッセージの流れ</A
+></DT
+><DD
+><DL
+><DT
+>46.2.1. <A
+HREF="protocol-flow.html#AEN91419"
+>開始</A
+></DT
+><DT
+>46.2.2. <A
+HREF="protocol-flow.html#AEN91492"
+>簡易問い合わせ</A
+></DT
+><DT
+>46.2.3. <A
+HREF="protocol-flow.html#PROTOCOL-FLOW-EXT-QUERY"
+>拡張問い合わせ</A
+></DT
+><DT
+>46.2.4. <A
+HREF="protocol-flow.html#AEN91607"
+>関数呼び出し</A
+></DT
+><DT
+>46.2.5. <A
+HREF="protocol-flow.html#PROTOCOL-COPY"
+>COPY操作</A
+></DT
+><DT
+>46.2.6. <A
+HREF="protocol-flow.html#PROTOCOL-ASYNC"
+>非同期操作</A
+></DT
+><DT
+>46.2.7. <A
+HREF="protocol-flow.html#AEN91693"
+>処理中のリクエストの取り消し</A
+></DT
+><DT
+>46.2.8. <A
+HREF="protocol-flow.html#AEN91701"
+>終了</A
+></DT
+><DT
+>46.2.9. <A
+HREF="protocol-flow.html#AEN91710"
+><ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>セッション暗号化</A
+></DT
+></DL
+></DD
+><DT
+>46.3. <A
+HREF="protocol-replication.html"
+>ストリーミングレプリケーションプロトコル</A
+></DT
+><DT
+>46.4. <A
+HREF="protocol-message-types.html"
+>メッセージのデータ型</A
+></DT
+><DT
+>46.5. <A
+HREF="protocol-message-formats.html"
+>メッセージの書式</A
+></DT
+><DT
+>46.6. <A
+HREF="protocol-error-fields.html"
+>エラーおよび警報メッセージフィールド</A
+></DT
+><DT
+>46.7. <A
+HREF="protocol-changes.html"
+>プロトコル2.0からの変更点の要約</A
+></DT
+></DL
+></DIV
+><P
+><SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+>はフロントエンドとバックエンド（クライアントとサーバ）の通信にメッセージベースのプロトコルを使用します。
+このプロトコルは<ACRONYM
+CLASS="ACRONYM"
+>TCP/IP</ACRONYM
+>に加え、Unixドメインソケットをサポートします。
+ポート番号5432は、このプロトコルをサポートするサーバ用のTCPポートとしてIANAに登録されています。
+しかし、実際には任意の非特権ポート番号を使用することができます。
+ </P
+><P
+>この文書は<SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+> 7.4以降で実装されたプロトコル3.0バージョンについて記載します。
+以前のプロトコルバージョンについての説明は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の以前のリリースの文書を参照してください。
+初めの開始要求メッセージは、サーバに対し、クライアントが使用する予定のプロトコルバージョンを通知します。
+その後、サーバは可能であればそのプロトコルに従います。
+ </P
+><P
+>複数のクライアントにサービスを効率的に提供するために、サーバは各クライアント毎に新規の<SPAN
+CLASS="QUOTE"
+>"バックエンド"</SPAN
+>プロセスを起動します。
+現在の実装では、サーバに接続が届いたことを検知すると即座に新しい子プロセスが生成されます。
+しかし、これはプロトコルに対して透過的です。
+プロトコルという意味では、<SPAN
+CLASS="QUOTE"
+>"バックエンド"</SPAN
+>と<SPAN
+CLASS="QUOTE"
+>"サーバ"</SPAN
+>という用語は相互交換可能です。
+同様に<SPAN
+CLASS="QUOTE"
+>"フロントエンド"</SPAN
+>と<SPAN
+CLASS="QUOTE"
+>"クライアント"</SPAN
+>も相互交換可能です。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="view-pg-views.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="protocol-overview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="STRUCTNAME"
+>pg_views</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="internals.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>概要</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

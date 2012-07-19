@@ -1,0 +1,1584 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>プラットフォーム特有の覚書</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="  ソースコードからインストール"
+HREF="installation.html"><LINK
+REL="PREVIOUS"
+TITLE="サポートされるプラットフォーム"
+HREF="supported-platforms.html"><LINK
+REL="NEXT"
+TITLE="Windowsにおけるソースコードからのインストール"
+HREF="install-windows.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サポートされるプラットフォーム"
+HREF="supported-platforms.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="  ソースコードからインストール"
+HREF="installation.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 15&#31456;ソースコードからインストール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="  ソースコードからインストール"
+HREF="installation.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="Windowsにおけるソースコードからのインストール"
+HREF="install-windows.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INSTALLATION-PLATFORM-NOTES"
+>15.7. プラットフォーム特有の覚書</A
+></H1
+><P
+>  
+   本節はPostgreSQLのインストールと設定に関する追加のプラットフォーム固有の問題について説明します。
+インストール手順、特に<A
+HREF="install-requirements.html"
+>&#38917;15.2</A
+>を注意して読んでください。
+またリグレッション試験結果の解釈については<A
+HREF="regress.html"
+>&#31532;30&#31456;</A
+>を確認してください。
+  </P
+><P
+>  
+   ここで触れられていないプラットフォームは、インストールに関してプラットフォーム特有の問題がありません。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INSTALLATION-NOTES-AIX"
+>15.7.1. AIX</A
+></H2
+><P
+>   
+    AIX上でPostgreSQLは動作しますが、適切にインストールをやり遂げるのは挑戦でもあります。AIXバージョン4.3.3から6.1はサポートされていると考えられます。GCCまたは在来のIBMコンパイラ<TT
+CLASS="COMMAND"
+>xlc</TT
+>が使用できます。一般的に、最新のAIXとPostgreSQLバージョンを使用することが手助けになります。どのバージョンのAIXが動くと知られているかについての最新情報をビルドファームで見てください。
+   </P
+><P
+>   
+    サポートされるAIXバージョンに対する最低限推奨される修正レベルを示します。
+   </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>AIX 4.3.3</DT
+><DD
+><P
+>保守レベル 11 + ML11 バンドル以降</P
+></DD
+><DT
+>AIX 5.1</DT
+><DD
+><P
+>保守レベル 9 + ML9 バンドル以降</P
+></DD
+><DT
+>AIX 5.2</DT
+><DD
+><P
+>技術レベル 10 サービスパック 3</P
+></DD
+><DT
+>AIX 5.3</DT
+><DD
+><P
+>技術レベル 7</P
+></DD
+><DT
+>AIX 6.1</DT
+><DD
+><P
+>基本レベル</P
+></DD
+></DL
+></DIV
+><P
+>   
+    使用している修正レベルをチェックするには、AIX 4.3.3 から AIX 5.2 ML 7 までは<TT
+CLASS="COMMAND"
+>oslevel -r</TT
+>、またはそれ以降のバージョンでは<TT
+CLASS="COMMAND"
+>oslevel -s</TT
+>を使用します。
+   </P
+><P
+>   
+    もし、<TT
+CLASS="LITERAL"
+>/usr/local</TT
+>にインストール済のreadlineやライブラリがある場合は、次の<TT
+CLASS="COMMAND"
+>configure</TT
+>フラグを加えて下さい。
+    <TT
+CLASS="LITERAL"
+>--with-includes=/usr/local/include
+    --with-libraries=/usr/local/lib</TT
+>
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24272"
+>15.7.1.1. GCCの問題</A
+></H3
+><P
+>    
+     AIX 5.3でGCCを使ってPostgreSQLがコンパイルし実行するためには幾つかの問題点があります。
+    </P
+><P
+>    
+     特にパッケージ版を使用している場合、3.3.2以降のバージョンのGCCの使用が望まれるかもしれません。4.0.1ではうまくいきます。より早期のバージョンによる諸問題は、GCC自体の問題というよりもIBMがGCCをパッケージした方法に関連があるように見えます。従い、GCCを自身でコンパイルしている場合は、早期のバージョンのGCCを使用しても成功するかもしれません。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24276"
+>15.7.1.2. Unixドメインソケット破損</A
+></H3
+><P
+>    
+     AIX 5.3には<TT
+CLASS="STRUCTNAME"
+>sockaddr_storage</TT
+>が十分大きく定義されていないという問題があります。
+バージョン5.3でIBMはUnixドメインソケットのアドレス構造体である<TT
+CLASS="STRUCTNAME"
+>sockaddr_un</TT
+>のサイズを増やしましたが、対応する<TT
+CLASS="STRUCTNAME"
+>sockaddr_storage</TT
+>のサイズを増やしませんでした。
+この結果、PostgreSQLでUnixドメインソケットを使用しようとすると、libpqでデータ構造体がオーバーフローするようになります。
+Unixドメインソケットを除くTCP/IP接続の動作は正常です。
+これはリグレッションテストの動作を妨害します。
+    </P
+><P
+>    
+     この問題はIBMに報告済みでバグ報告PMR29657として記録されています。
+メンテナンスレベル5300-03以降に更新していれば、この修正が含まれています。
+すぐに解決させたければ、<TT
+CLASS="FILENAME"
+>/usr/include/sys/socket.h</TT
+>内で<TT
+CLASS="SYMBOL"
+>_SS_MAXSIZE</TT
+>を1025に変更してください。
+どちらの場合でも、ヘッダファイルを修正した後でPostgreSQLを再コンパイルしてください。
+     
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24285"
+>15.7.1.3. インターネットアドレス問題</A
+></H3
+><P
+>    
+     PostgreSQLは<TT
+CLASS="VARNAME"
+>listen_addresses</TT
+>、<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>、その他の中のIPアドレスを構文解釈するのにシステムの<CODE
+CLASS="FUNCTION"
+>getaddrinfo</CODE
+>関数に頼ります。旧バージョンのAIXにはこの関数にさまざまなバグがあります。これら設定に関係した問題に遭遇した場合、上記に示されている適切な修正レベルへ更新することが問題解決になります。
+    </P
+><P
+>    
+     あるユーザの報告です。
+    </P
+><P
+>    
+     PostgreSQLバージョン8.1をAIX 5.3で実装している時、統計情報コレクタが<SPAN
+CLASS="QUOTE"
+>"不思議なことに"</SPAN
+>正常に起動しないという問題が周期的に起こりました。これは、IPv6の実装における想定外の動作という結果で出現します。そのため、AIX5.3上ではPostgreSQLとIPv6が一緒にはうまく動作しないように見えました。
+    </P
+><P
+>    
+     以下のいずれかの対応でこの問題が<SPAN
+CLASS="QUOTE"
+>"解決できます"</SPAN
+>。
+     <P
+></P
+></P><UL
+><LI
+><P
+>       
+	localhostに対するIPv6アドレスを削除します。
+</P><PRE
+CLASS="SCREEN"
+>(as root)
+# ifconfig lo0 inet6 ::1/0 delete</PRE
+><P>
+       </P
+></LI
+><LI
+><P
+>       
+	ネットサービスからIPv6を削除します。AIXの<TT
+CLASS="FILENAME"
+>/etc/netsvc.conf</TT
+>ファイルは大まかに言ってSolaris/Linuxの<TT
+CLASS="FILENAME"
+>/etc/nsswitch.conf</TT
+>と同等です。AIXのデフォルトは、以下のようになっています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>hosts=local,bind</PRE
+><P>
+	これを次で置き換えます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>hosts=local4,bind4</PRE
+><P>
+	そうすると、IPv6アドレスの検索が解除されます。
+       </P
+></LI
+></UL
+><P>
+    </P
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#35686;&#21578;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>    
+     これは、実際には未熟なIPv6サポートに関連する問題の回避策です。AIX5.3のリリースから、IPv6サポートが目に見えて改善されています。この回避策はAIX5.3上で動きはしますが、この問題に対しての良い解決方法ではありません。AIX6.1ではIPv6サポートがさらに改善されたため、この対策は不必要になっただけでなく、問題を引き起こすことが報告されています。
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24308"
+>15.7.1.4. メモリ管理</A
+></H3
+><P
+>    
+     AIXはメモリ管理手法の観点から見ると多少独特です。
+     ギガバイト単位のRAMが空いているサーバがあっても、アプリケーションを実行している時にメモリ不足やアドレス空間エラーが発生することがあります。
+こうした例の1つが、見慣れないエラーによる<TT
+CLASS="COMMAND"
+>createlang</TT
+>の失敗です。
+例えば、PostgreSQLインストレーションの所有者として実行してみます。
+</P><PRE
+CLASS="SCREEN"
+>-bash-3.00$ createlang plperl template1
+createlang: language installation failed: ERROR:  could not load library "/opt/dbs/pgsql748/lib/plperl.so": A memory address is not in the address space for the process.</PRE
+><P>
+    PostgreSQLインストレーションの処理グループ内の所有者以外として実行してみます。
+</P><PRE
+CLASS="SCREEN"
+>-bash-3.00$ createlang plperl template1
+createlang: language installation failed: ERROR:  could not load library "/opt/dbs/pgsql748/lib/plperl.so": Bad address</PRE
+><P>
+     他の実例は、PostgreSQLサーバログ中のメモリ不足エラーで、256 MB以上もしくはその近辺で全てのメモリ割り当てが失敗します。
+    </P
+><P
+>    
+     これら問題のすべての総合原因は、サーバプロセスで使用されるデフォルトのビット割当とメモリモデルです。
+デフォルトでは、AIXで構築されたすべてのバイナリは32ビットです。
+これは使用中のハードウェアの種類やカーネルに依存しません。
+これらの32ビットプロセスは、数個のモデルの1つを使用して256メガバイトのセグメントで割りつけられた4ギガバイトメモリに制限されます。
+デフォルトでは、スタックで1つのセグメントとして共有されるものとしてヒープ内の256メガバイト未満の領域が許されます。
+    </P
+><P
+>    
+     上記、<TT
+CLASS="COMMAND"
+>createlang</TT
+>例の場合において、PostgreSQLインストレーションにおけるバイナリのumaskとパーミッションをチェックしてください。例に関与したバイナリは32-ビットであり、755ではなく750モードでインストールされました。このような形式で設定されたパーミッションのため、所有者もしくはグループ所有のメンバーのみライブラリを読み込めます。それは誰もが読み取り可能ではないため、ローダは、そうでない場合に配置される共有ライブラリセグメントにではなく、オブジェクトをプロセスのヒープに配置します。
+    </P
+><P
+>    
+     これに対しての<SPAN
+CLASS="QUOTE"
+>"理想的な"</SPAN
+>解決策はPostgreSQLの64-ビットビルドを使うことですが、32-ビットプロセッサのシステムでは64-ビットバイナリをビルドできますが実行できないので、常に実務的ではありません。
+    </P
+><P
+>    
+     32-ビットバイナリを要求する場合、PostgreSQLサーバを起動する前に<TT
+CLASS="SYMBOL"
+>LDR_CNTRL</TT
+>を<TT
+CLASS="LITERAL"
+>MAXDATA=0x<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>0000000</TT
+>に設定します。ここで、1 &lt;= n &lt;= 8です。そして異なる値と<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>設定で満足に稼動する構成を見つけ出します。
+     
+     この<TT
+CLASS="SYMBOL"
+>LDR_CNTRL</TT
+>使用するとAIXに対して、サーバがヒープにかかわらず、256 MBセグメントに割り当てられた<TT
+CLASS="SYMBOL"
+>MAXDATA</TT
+>バイトセットを持つようにさせたい意図を表明します。稼動する構成を見つけたとき、意図したヒープ容量をデフォルトで使用するように<TT
+CLASS="COMMAND"
+>ldedit</TT
+>を使用してバイナリを変更することができます。同じ効果を得るため、PostgreSQLは<TT
+CLASS="LITERAL"
+>configure
+     LDFLAGS="-Wl,-bmaxdata:0x<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>0000000"</TT
+>を渡して再構築することもできます。
+     
+    </P
+><P
+>    
+    64-ビット構築に対し、<TT
+CLASS="ENVAR"
+>OBJECT_MODE</TT
+>を64に設定し、<TT
+CLASS="COMMAND"
+>configure</TT
+>に<TT
+CLASS="LITERAL"
+>CC="gcc -maix64"</TT
+>
+     と<TT
+CLASS="LITERAL"
+>LDFLAGS="-Wl,-bbigtoc"</TT
+>を渡します。（<TT
+CLASS="COMMAND"
+>xlc</TT
+>に対するオプションは異なるかもしれません。）<TT
+CLASS="ENVAR"
+>OBJECT_MODE</TT
+>のexportを省略すると、構築はリンカエラーで失敗することがあります。<TT
+CLASS="ENVAR"
+>OBJECT_MODE</TT
+>が設定された場合、<TT
+CLASS="COMMAND"
+>ar</TT
+>、<TT
+CLASS="COMMAND"
+>as</TT
+>、および<TT
+CLASS="COMMAND"
+>ld</TT
+>のようなAIXの構築ユーティリティにどの種類のオブジェクトがデフォルトで対応されるのかを伝えます。
+    </P
+><P
+>    
+     デフォルトで、ページングスペースのオーバーコミットが起こることがあります。これが起こることを経験したことはありませんが、AIXはメモリを使い切って、オーバーコミットがアクセスされたときにプロセスをkillします。システムが別のプロセスに対する十分なメモリがないことを判断したためにフォークが失敗するという、これとよく似たことは経験したことがあります。多くの他のAIX部分のように、ページングスペース割り当て方式とメモリ不足によるプロセス停止は、これが問題となるのであれば、システム全体またはプロセス全体を基準として設定可能です。
+    </P
+><H3
+><A
+NAME="AEN24341"
+>参照とリソース</A
+></H3
+><DIV
+CLASS="BIBLIOENTRY"
+><A
+NAME="AEN24343"
+></A
+><P
+>"<A
+HREF="http://publib.boulder.ibm.com/infocenter/pseries/topic/com.ibm.aix.doc/aixprggd/genprogc/lrg_prg_support.htm"
+TARGET="_top"
+>Large Program Support</A
+>", <I
+>AIX Documentation: General Programming Concepts: Writing and Debugging Programs</I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left: 0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="BIBLIOENTRY"
+><A
+NAME="AEN24349"
+></A
+><P
+>"<A
+HREF="http://publib.boulder.ibm.com/infocenter/pseries/topic/com.ibm.aix.doc/aixprggd/genprogc/address_space.htm"
+TARGET="_top"
+>Program Address Space Overview</A
+>", <I
+>AIX Documentation: General Programming Concepts: Writing and Debugging Programs</I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left: 0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="BIBLIOENTRY"
+><A
+NAME="AEN24355"
+></A
+><P
+>"<A
+HREF="http://publib.boulder.ibm.com/infocenter/pseries/v5r3/topic/com.ibm.aix.doc/aixbman/prftungd/resmgmt2.htm"
+TARGET="_top"
+>Performance Overview of the Virtual Memory Manager (VMM)</A
+>", <I
+>AIX Documentation: Performance Management Guide</I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left: 0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="BIBLIOENTRY"
+><A
+NAME="AEN24361"
+></A
+><P
+>"<A
+HREF="http://publib.boulder.ibm.com/infocenter/pseries/v5r3/topic/com.ibm.aix.doc/aixbman/prftungd/memperf7.htm"
+TARGET="_top"
+>Page Space Allocation</A
+>", <I
+>AIX Documentation: Performance Management Guide</I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left: 0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="BIBLIOENTRY"
+><A
+NAME="AEN24367"
+></A
+><P
+>"<A
+HREF="http://publib.boulder.ibm.com/infocenter/pseries/v5r3/topic/com.ibm.aix.doc/aixbman/prftungd/memperf6.htm"
+TARGET="_top"
+>Paging-space thresholds tuning</A
+>", <I
+>AIX Documentation: Performance Management Guide</I
+>.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left: 0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="BIBLIOENTRY"
+><A
+NAME="AEN24373"
+></A
+><P
+><I
+><A
+HREF="  http://www.redbooks.ibm.com/abstracts/sg245674.html?Open"
+TARGET="_top"
+>Developing and Porting C and C++ Applications on AIX</A
+></I
+>, IBM Redbook.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left: 0.5in"
+></DIV
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INSTALLATION-NOTES-CYGWIN"
+>15.7.2. Cygwin</A
+></H2
+><P
+>   
+    Windowsに対するLinux的環境である、Cygwinを使ってPostgreSQLを構築することが可能です。しかし、この手法はWindowsネイティブビルド(<A
+HREF="install-windows.html"
+>&#31532;16&#31456;</A
+>を参照)には及ばないので、もはや推奨されません。
+   </P
+><P
+>   
+    ソースから構築する場合、以下のCygwin特有の差異に注意し、通常のインストール手順に従って進めます（つまり、<TT
+CLASS="LITERAL"
+>./configure;
+    make</TT
+>; など）。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>      
+       Windowsユーティリティの前に使用するCygwinのbinディレクトリのパスを設定します。コンパイルにおける問題を回避する助けになります。
+      </P
+></LI
+><LI
+><P
+>      
+       GNU make コマンドは<TT
+CLASS="COMMAND"
+>gmake</TT
+>ではなく、<TT
+CLASS="COMMAND"
+>make</TT
+>と呼ばれます。
+      </P
+></LI
+><LI
+><P
+>      
+       <TT
+CLASS="COMMAND"
+>adduser</TT
+>コマンドはサポートされていません。Windows NT、2000、またはXP上の適切なユーザ管理アプリケーションを使用してください。そうでなければ、この手順を飛ばします。
+      </P
+></LI
+><LI
+><P
+>      
+       <TT
+CLASS="COMMAND"
+>su</TT
+>コマンドはサポートされていません。Windows NT、2000、またはXP上でsuをシミュレートするため、sshを使用します。そうでなければ、この手順を飛ばします。
+      </P
+></LI
+><LI
+><P
+>      
+       OpenSSLはサポートされていません。
+      </P
+></LI
+><LI
+><P
+>      
+       共有メモリサポートのために<TT
+CLASS="COMMAND"
+>cygserver</TT
+>を開始します。行うためには、コマンド<TT
+CLASS="LITERAL"
+>/usr/sbin/cygserver
+       &amp;</TT
+>を入力します。このプログラムはPostgreSQLサーバを起動するとき、または（<TT
+CLASS="COMMAND"
+>initdb</TT
+>で）データベースクラスタを初期化するときときはいつでも必要です。システム資源が欠けていることによるPostgreSQLの失敗を避けるため、デフォルトの<TT
+CLASS="COMMAND"
+>cygserver</TT
+>設定は（例えば<TT
+CLASS="SYMBOL"
+>SEMMNS</TT
+>を増加させることで）変更される必要があります。
+      </P
+></LI
+><LI
+><P
+>      
+        いくつかのシステムでは、Cロケール以外を使っている場合に構築が失敗するかもしれません。
+        これに対処するためには、構築前に<TT
+CLASS="COMMAND"
+>export LANG=C.utf8</TT
+>を実施してロケールをCに設定し、PostgreSQLのインストール後に以前の設定に戻してください。
+      </P
+></LI
+><LI
+><P
+>      
+       並行リグレッションテスト（<TT
+CLASS="LITERAL"
+>make check</TT
+>）は、接続拒絶エラーやハングアップを引き起こす<CODE
+CLASS="FUNCTION"
+>listen()</CODE
+>バックログキューのオーバーフローにより、誤ったリグレッションテストの失敗を生成する可能性があります。make 変数<TT
+CLASS="VARNAME"
+>MAX_CONNECTIONS</TT
+>を使用して、最大接続数を制限できます。つまり次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>make MAX_CONNECTIONS=5 check</PRE
+><P>
+       （いくつかのシステムでは、同時接続を10まで広げられます。）
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+>   
+    Windows NTサービスとして<TT
+CLASS="COMMAND"
+>cygserver</TT
+>とPostgreSQLサーバをインストールすることができます。これを実現する方法は、CygwinのPostgreSQLバイナリパッケージに含まれる<TT
+CLASS="FILENAME"
+>README</TT
+>文書を参照してください。それは<TT
+CLASS="FILENAME"
+>/usr/share/doc/Cygwin</TT
+>ディレクトリにインストールされます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INSTALLATION-NOTES-HPUX"
+>15.7.3. HP-UX</A
+></H2
+><P
+>   
+    PostgreSQL 7.3以上は、適切なシステムパッチレベルと構築ツールが与えられているとして、HP-UX 10.Xまたは11.Xが稼動するSeries 700/800 PA-RISCコンピュータで動作します。少なくとも１つの開発者が定期的にHP-UX10.20で試験を行っており、HP-UX11.00と11.11上へのインストールが成功していることの報告を受けています。
+   </P
+><P
+>   
+    PostgreSQLのソース配布物は別として、GNU make（HPのmakeは通りません）と、GCCもしくはHPのANSI Cコンパイラの全部いずれかが必要です。配布物tarボールではなくGitソースから構築を行う時は、Flex（GNU lex）とBison（GNU yacc）も必要です。同時に、正確に最新のHPパッチが当たっていることの確認を推奨します。HP-UX 11.11上で64ビット構築を行うのであれば最小限、PHSS_30966 (11.11)またはその後継パッチが必要です。さもないと、<TT
+CLASS="COMMAND"
+>initdb</TT
+>がハングアップします。以下を参考にしてください。
+<P
+CLASS="LITERALLAYOUT"
+>PHSS_30966&nbsp;&nbsp;s700_800&nbsp;ld(1)&nbsp;and&nbsp;linker&nbsp;tools&nbsp;cumulative&nbsp;patch</P
+>
+
+    一般原則として、HPのCコンパイラを使用する場合、libcとld/dldパッチとコンパイラパッチが最新版でなければなりません。それらの最新パッチの無償コピーについては、<A
+HREF="http://itrc.hp.com"
+TARGET="_top"
+>http://itrc.hp.com</A
+>および
+    <A
+HREF="ftp://us-ffs.external.hp.com/"
+TARGET="_top"
+>ftp://us-ffs.external.hp.com/</A
+>のHPサポートサイトを見てください。
+   </P
+><P
+>   
+    PA-RISC 2.0マシン上でGCCを使用して64-ビットバイナリを構築したい場合、GCC 64-ビット版を使用しなければなりません。HP-UX PA-RISCとItanium用のバイナリは<A
+HREF="http://www.hp.com/go/gcc"
+TARGET="_top"
+>http://www.hp.com/go/gcc</A
+>から入手できます。同時にbinutilsも入手しインストールすることを忘れないでください。
+   </P
+><P
+>   
+    PA-RISC 2.0装置上での構築で、PA-RISC 1.1装置で稼動するコンパイル済みのバイナリが必要な場合、<TT
+CLASS="ENVAR"
+>CFLAGS</TT
+>で<TT
+CLASS="OPTION"
+>+DAportable</TT
+>を指定する必要があります。
+   </P
+><P
+>   
+    HP-UX Itaniumマシン上で構築するのであれば、依存するパッチまたはその後継のパッチが当たった最新のHP ANSI Cコンパイラが必要です。以下です。
+<P
+CLASS="LITERALLAYOUT"
+>PHSS_30848&nbsp;&nbsp;s700_800&nbsp;HP&nbsp;C&nbsp;Compiler&nbsp;(A.05.57)<br>
+PHSS_30849&nbsp;&nbsp;s700_800&nbsp;u2comp/be/plugin&nbsp;library&nbsp;Patch</P
+>
+   </P
+><P
+>   
+    HPのCコンパイラとGCCの２つが存在するとき、<TT
+CLASS="COMMAND"
+>configure</TT
+>実行時に明示的に使用するコンパイラを指定したい場合、HPのCコンパイラでは、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>./configure CC=cc</PRE
+><P>
+    GCCの場合は、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>./configure CC=gcc</PRE
+><P>
+    のようにします。この設定を省略すると、選択できる場合にはconfigureは<TT
+CLASS="COMMAND"
+>gcc</TT
+>を選びます。
+   </P
+><P
+>   
+    デフォルトのインストール対象配置場所は<TT
+CLASS="FILENAME"
+>/usr/local/pgsql</TT
+>で、<TT
+CLASS="FILENAME"
+>/opt</TT
+>のような場所に変更したい場合もあります。そのような時は、<TT
+CLASS="COMMAND"
+>configure</TT
+>で<TT
+CLASS="OPTION"
+>--prefix</TT
+>スイッチを使用します。
+   </P
+><P
+>   
+    リグレッションテストにおいて、幾何試験で下位ビット桁の差異があるかもしれません。これはどのコンパイラを使用しているか、使用している数学ライブラリのバージョンは何かに依存し、変化します。その他のエラーは原因を疑ってください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INSTALLATION-NOTES-IRIX"
+>15.7.4. IRIX</A
+></H2
+><P
+>   
+    PostgreSQLは無事に、MIPSProコンパイラのバージョン 7.30、7.3.1.2m、7.3、および7.4.4mが有効なIRIX 6.5.5m、6.5.12、6.5.13、および6.5.26が稼動するMIPS r8000、r10000（ip25とip27の双方)、およびr12000（ip35）プロセッサでの実行が報告されています。
+   </P
+><P
+>   
+    MIPSProの完全なANSI C コンパイラが必要です。GCCで構築しようとするとき問題があります。それは、ある種類の構造を返す関数の使用に関連した、知られているGCCのバグ（バージョン3.0時点で修正されていない）です。バグは<CODE
+CLASS="FUNCTION"
+>inet_ntoa</CODE
+>、<CODE
+CLASS="FUNCTION"
+>inet_lnaof</CODE
+>、<CODE
+CLASS="FUNCTION"
+>inet_netof</CODE
+>、<CODE
+CLASS="FUNCTION"
+>inet_makeaddr</CODE
+>、および<CODE
+CLASS="FUNCTION"
+>semctl</CODE
+>のような関数に影響します。libgccでのそれらの関数にコードのリンクを強制して修正ができそうですが、未だ検証されていません。
+   </P
+><P
+>   
+    MIPSProコンパイラのバージョン7.4.1mは不正なコードを生成することが知られています。症状はデータベースを開始する際、<SPAN
+CLASS="QUOTE"
+>"invalid primary checkpoint
+    record（無効な主チェックポイントレコード）"</SPAN
+>となることです。バージョン7.4.4mは大丈夫ですが、その中間にあるバージョンは不明確です。
+   </P
+><P
+>   
+    次のようなコンパイル問題があるかもしれません。
+</P><PRE
+CLASS="SCREEN"
+>cc-1020 cc: ERROR File = pqcomm.c, Line = 427
+  The identifier "TCP_NODELAY" is undefined.
+
+                if (setsockopt(port-&#62;sock, IPPROTO_TCP, TCP_NODELAY,</PRE
+><P>
+    幾つかのバージョンはTCP定義を<TT
+CLASS="FILENAME"
+>sys/xti.h</TT
+>に含みますので、<TT
+CLASS="FILENAME"
+>src/backend/libpq/pqcomm.c</TT
+>と<TT
+CLASS="FILENAME"
+>src/interfaces/libpq/fe-connect.c</TT
+>に<TT
+CLASS="LITERAL"
+>#include &lt;sys/xti.h&gt;</TT
+>を加える必要があります。これに遭遇した場合、報告してもらえると適切な修正を開発できます。
+   </P
+><P
+>   
+    リグレッションテストの中で、これは使用しているFPUに依存し、幾何試験で下位ビット桁の差異があるかもしれません。その他のエラーは原因を疑ってください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INSTALLATION-NOTES-MINGW"
+>15.7.5. MinGW/ネイティブWindows</A
+></H2
+><P
+>   
+    Windows用PostgreSQLは、Microsoftオペレーティングシステム用のUnixに似た構築環境であるMinGW、またはMicrosoftの<SPAN
+CLASS="PRODUCTNAME"
+>Visual C++</SPAN
+>コンパイラ一式を使って構築できます。MinGW版の構築は本章で記述されている通常の構築システムを使用します。Visual C++構築は、<A
+HREF="install-windows.html"
+>&#31532;16&#31456;</A
+>で記述するようにまったく異なった動作をします。それは完全にネイティブな構築で、MinGWのような追加ソフトウェアを使用しません。既製のインストーラがPostgreSQLのメインウェブサイトから入手できます。
+   </P
+><P
+>   
+    ネイティブに移植されたWindows版ではWindows 2000以降の32ビットまたは64ビット版が必要です。これより前のオペレーティングシステムには充分な構造基盤がありません（ただし、Cygwinはそれら上で使える可能性があります）。Unixに似た構築ツールであるMinGWと、<TT
+CLASS="COMMAND"
+>configure</TT
+>のようなシェルスクリプトを実行するために必要なUnixツール群であるMSYSは、<A
+HREF="http://www.mingw.org/"
+TARGET="_top"
+>http://www.mingw.org/</A
+>からダウンロード可能です。作成されたバイナリの実行にはいずれも必要ありません。バイナリの作成のためのみ必要です。
+   </P
+><P
+>   
+    MinGWを使って64ビット版バイナリをビルドするためには、<A
+HREF="http://mingw-w64.sourceforge.net/"
+TARGET="_top"
+>http://mingw-w64.sourceforge.net/</A
+>から64ビット用のツールを入手してインストールし、<TT
+CLASS="ENVAR"
+>PATH</TT
+>にあるbinディレクトリへそれらを入れ、そして<TT
+CLASS="COMMAND"
+>--host=x86_64-w64-mingw</TT
+>オプション付きで<TT
+CLASS="COMMAND"
+>configure</TT
+>を実施します。
+   </P
+><P
+>   
+    MSYSコンソールはバッファリングに問題があるので、すべてをインストールした後に<TT
+CLASS="COMMAND"
+>CMD.EXE</TT
+>下で<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を実行することを推奨します。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="WINDOWS-CRASH-DUMPS"
+>15.7.5.1. Windows上でのクラッシュダンプの収集</A
+></H3
+><P
+>    
+     もしWindows上のPostgreSQLがクラッシュした場合、Unixにおけるコアダンプと似た、クラッシュの原因を追跡するために使用できる<SPAN
+CLASS="PRODUCTNAME"
+>minidumps</SPAN
+>を生成することができます。
+     このダンプは<SPAN
+CLASS="PRODUCTNAME"
+>Windows Debugger Tools</SPAN
+>や<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio</SPAN
+>を使うことで解析できます。Windowsにてダンプを生成できるように、<TT
+CLASS="FILENAME"
+>crashdumps</TT
+>という名前のサブディレクトリをデータベースクラスタディレクトリの中に作成します。
+     ダンプは、クラッシュ時の現在時間と原因となったプロセスの識別子を元にした一意な名前としてこのディレクトリの中に生成されます。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INSTALLATION-NOTES-SCO"
+>15.7.6. SCO OpenServer と SCO UnixWare</A
+></H2
+><P
+>   
+    PostgreSQLはSCO UnixWare 7 と SCO OpenServer 5上で構築できます。OpenServerについて、OpenServer Development Kit
+    または the Universal Development Kitのいずれかが使用できます。しかし、以下に記載するような微調整が必要です。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24507"
+>15.7.6.1. Skunkware</A
+></H3
+><P
+>    
+     SCO Skunkware CDのコピーがどこにあるかを知る必要があります。Skunkware CDはUnixWare 7と現在バージョンのOpenServer 5に含まれています。Skunkwareには、インターネットから入手可能な数多くのよく知られたプログラムをすぐインストールできるように準備したバージョンが含まれます。例えば、gzip、gunzip、GNU Make、FlexおよびBisonはすべて含まれています。UnixWare 7.1では、このCDは現在"Open License Software Supplement"のように名称付けられています。このCDを持っていない場合、その中にあるソフトウェアは<A
+HREF="http://www.sco.com/skunkware/"
+TARGET="_top"
+>http://www.sco.com/skunkware/</A
+>から入手できます。
+    </P
+><P
+>    
+     SkunkwareはUnixWare と OpenServer用に異なったバージョンがあります。以下に注意書きされている点を除き、オペレーティングシステムに対して適切なバージョンをインストールしたことを確認してください。
+    </P
+><P
+>    
+     UnixWare 7.1.3以降では、UDK CDの中にGCCコンパイラとGNU Makeが含まれます。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24513"
+>15.7.6.2. GNU Make</A
+></H3
+><P
+>    
+     GNU Makeプログラムを使用する必要があり、それはSkunkware CDの中にあります。デフォルトでは<TT
+CLASS="FILENAME"
+>/usr/local/bin/make</TT
+>としてインストールします。SCO <TT
+CLASS="FILENAME"
+>make</TT
+>プログラムとの混乱を避けるため、GNU <TT
+CLASS="FILENAME"
+>make</TT
+>を<TT
+CLASS="FILENAME"
+>gmake</TT
+>と名称変更した方が便利かもしれません。
+    </P
+><P
+>    
+     UnixWare 7.1.3およびそれ以上で、GNU MakeプログラムはUDK CDのOSTK部分で、<TT
+CLASS="FILENAME"
+>/usr/gnu/bin/gmake</TT
+>にあります。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24522"
+>15.7.6.3. Readline</A
+></H3
+><P
+>    
+     ReadlineライブラリはSkunkware CDにあります。しかし、UnixWare 7.1 Skunkware CDにはありません。もしUnixWare 7.0.0 または 7.0.1 Skunkware CDを所有していれば、そこからインストールできます。そうでない場合、<A
+HREF="http://www.sco.com/skunkware/"
+TARGET="_top"
+>http://www.sco.com/skunkware/</A
+>を試してください。
+    </P
+><P
+>    
+     デフォルトでReadlineは<TT
+CLASS="FILENAME"
+>/usr/local/lib</TT
+> と
+     <TT
+CLASS="FILENAME"
+>/usr/local/include</TT
+>にインストールされます。しかし、PostgreSQL の<TT
+CLASS="COMMAND"
+>configure</TT
+>プログラムは援助無しにそこにあることを見つけません。Readlineをインストールしたなら、<TT
+CLASS="COMMAND"
+>configure</TT
+>で以下のオプションを使ってください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>./configure --with-libraries=/usr/local/lib --with-includes=/usr/local/include</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24532"
+>15.7.6.4. OpenServer上でUDKを使用</A
+></H3
+><P
+>    
+     もしOpenServer上で新規のUniversal Development Kit (UDK) コンパイラを使用しているのであれば、以下のようにUDKライブラリの場所を指定する必要があります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>./configure --with-libraries=/udk/usr/lib --with-includes=/udk/usr/include</PRE
+><P>
+     Putting these together with the Readline options from above:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>./configure --with-libraries="/udk/usr/lib /usr/local/lib" --with-includes="/udk/usr/include /usr/local/include"</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24537"
+>15.7.6.5. PostgreSQLマニュアルページを読む</A
+></H3
+><P
+>    
+     デフォルトで、PostgreSQLマニュアルページは<TT
+CLASS="FILENAME"
+>/usr/local/pgsql/man</TT
+>にインストールされます。デフォルトで、UnixWareはマニュアルページとしてその場所を見ません。マニュアルページを読めるようにするには、以下の例のように、<TT
+CLASS="FILENAME"
+>/etc/default/man</TT
+>の<TT
+CLASS="VARNAME"
+>MANPATH</TT
+>変数を変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>MANPATH=/usr/lib/scohelp/%L/man:/usr/dt/man:/usr/man:/usr/share/man:scohelp:/usr/local/man:/usr/local/pgsql/man</PRE
+><P>
+    </P
+><P
+>    
+     OpenServerについてマニュアルページが使用できるようにするため幾つかの追加研究が注ぎ込まれる必要があります。その理由はマニュアルシステムは他のプラットフォームとは多少異なるからです。現在、PostgreSQLはそれら全てをインストールしません。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24545"
+>15.7.6.6. 7.1.1b機能追加でのC99問題</A
+></H3
+><P
+>    
+     7.1.1b機能追加を含む、OpenUNIX 8.0.0（UnixWare 7.1.2）と共にリリースされたものより早期のコンパイラでは、<TT
+CLASS="VARNAME"
+>CFLAGS</TT
+>または<TT
+CLASS="VARNAME"
+>CC</TT
+>環境変数で<TT
+CLASS="OPTION"
+>-Xb</TT
+>を指定する必要があります。この兆候は、インライン関数を参照する<TT
+CLASS="FILENAME"
+>tuplesort.c</TT
+>をコンパイルするエラーです。明らかに、これは7.1.2(8.0.0)とそれ以降のコンパイラで変更されています。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24552"
+>15.7.6.7. UnixWare上のスレッド</A
+></H3
+><P
+>    
+     スレッド処理のためには<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>すべての</I
+></SPAN
+>libpqを使用するプログラムにて<TT
+CLASS="OPTION"
+>-Kpthread</TT
+>を使用する<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必要があります</I
+></SPAN
+>。libpqは<CODE
+CLASS="FUNCTION"
+>pthread_*</CODE
+>呼び出しを使用しますが、<TT
+CLASS="OPTION"
+>-Kpthread</TT
+>/<TT
+CLASS="OPTION"
+>-Kthread</TT
+>フラグを伴わないと有効ではありません。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INSTALLATION-NOTES-SOLARIS"
+>15.7.7. Solaris</A
+></H2
+><P
+>   
+    PostgreSQLはSolaris上でとても良くサポートされています。オペレーティングシステムが更新されればされる程、問題点の遭遇は少なくなります。以下に詳細を示します。
+   </P
+><P
+>   
+    PostgreSQLはSolaris 10（update 2から）に組み込まれています。公式パッケージは同時に<A
+HREF="http://pgfoundry.org/projects/solarispackages/"
+TARGET="_top"
+>http://pgfoundry.org/projects/solarispackages/</A
+>から入手できます。より古いバージョン（8、9）のSolarisのパッケージは<A
+HREF="http://www.sunfreeware.com/"
+TARGET="_top"
+>http://www.sunfreeware.com/</A
+>もしくは<A
+HREF="http://www.blastwave.org/"
+TARGET="_top"
+>http://www.blastwave.org/</A
+>から入手できます。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24571"
+>15.7.7.1. 必要なツール</A
+></H3
+><P
+>    
+     GCCもしくはSunのコンパイラ一式により構築できます。より良いコード最適化のため、SunのコンパイラはSPARC構造上においては、強く推奨されます。GCC 2.95.1を使用する場合に問題があったと報告を受けています。GCC 2.95.3以降を勧めます。Sunのコンパイラを使用するのであれば、<TT
+CLASS="FILENAME"
+>/usr/ucb/cc</TT
+>を選択せず、<TT
+CLASS="FILENAME"
+>/opt/SUNWspro/bin/cc</TT
+>を使用するように注意してください。
+    </P
+><P
+>    
+     <A
+HREF="http://developers.sun.com/sunstudio/downloads/"
+TARGET="_top"
+>http://developers.sun.com/sunstudio/downloads/</A
+>からSun Studioをダウンロードできます。数多くのGNUツールがSolaris 10に統合、もしくはSolaris companion CDの中にあります。Solarisのより古いバージョンに対するパッケージを好むのであれば、それらのツールは<A
+HREF="http://www.sunfreeware.com"
+TARGET="_top"
+>http://www.sunfreeware.com</A
+>、もしくは<A
+HREF="http://www.blastwave.org"
+TARGET="_top"
+>http://www.blastwave.org</A
+>にあります。ソースの方が良いという方は<A
+HREF="http://www.gnu.org/order/ftp.html"
+TARGET="_top"
+>http://www.gnu.org/order/ftp.html</A
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24581"
+>15.7.7.2. OpenSSLでの問題点</A
+></H3
+><P
+>    
+     OpenSSLサポート付きでPostgreSQLを構築するとき、以下に示したファイルでコンパイルエラーを受け取ることがあります。
+     <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>src/backend/libpq/crypt.c</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>src/backend/libpq/password.c</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>src/interfaces/libpq/fe-auth.c</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>src/interfaces/libpq/fe-connect.c</TT
+></P
+></LI
+></UL
+><P>
+
+     
+     これは標準<TT
+CLASS="FILENAME"
+>/usr/include/crypt.h</TT
+>ヘッダファイルとOpenSSLから供給されるヘッダファイル間での名前空間衝突によるものです。
+    </P
+><P
+>    
+     OpenSSLインストレーションを0.9.6aに更新することでこの問題は解決されます。Solaris 9とそれ以降のバージョンは、より新しいOpenSSLバージョンを持っています。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24599"
+>15.7.7.3. 失敗したテストプログラムについてconfigureが出すエラー</A
+></H3
+><P
+>    
+     もし<TT
+CLASS="COMMAND"
+>configure</TT
+>が失敗したテストプログラムについてエラーを出す場合、おそらく実行時のリンカがlibz、libreadline、またはlibsslのような非標準のライブラリを見つけ出せないことによります。それを正しい場所に指し示すため、<TT
+CLASS="COMMAND"
+>configure</TT
+>コマンドラインで<TT
+CLASS="ENVAR"
+>LDFLAGS</TT
+>環境変数を以下のように設定します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>configure ... LDFLAGS="-R /usr/sfw/lib:/opt/sfw/lib:/usr/local/lib"</PRE
+><P>
+     より詳細な情報は<SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ld</SPAN
+></SPAN
+>マニュアルページを参照ください。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24609"
+>15.7.7.4. 時折クラッシュする64-ビット構築</A
+></H3
+><P
+>    
+     Solaris 7以前の64bit版のlibcには不具合のある<CODE
+CLASS="FUNCTION"
+>vsnprintf</CODE
+>ルーチンがあり、それはPostgreSQLのエラーコアダンプに繋がります。既知の最も単純な回避策は、ライブラリのコピーではなく、自身の<CODE
+CLASS="FUNCTION"
+>vsnprintf</CODE
+>バージョンを使うように仕向けることです。これを行うためには、<TT
+CLASS="COMMAND"
+>configure</TT
+>を実行した後、<TT
+CLASS="COMMAND"
+>configure</TT
+>で生成されたファイルを編集します。
+つまり、<TT
+CLASS="FILENAME"
+>src/Makefile.global</TT
+>の以下の行
+</P><PRE
+CLASS="PROGRAMLISTING"
+>LIBOBJS =</PRE
+><P>
+     を次のように変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>LIBOBJS = snprintf.o</PRE
+><P>
+     （この変数に既に他のファイルが列挙されているかもしれません。その順序は関係ありません。）その後、通常通りに構築してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24619"
+>15.7.7.5. 最適性能を得るためのコンパイル</A
+></H3
+><P
+>    
+     SPARCアーキテクチャにおけるコンパイルでは、Sun Studioを強く推奨します。特筆するような速さのバイナリを生成するため、<TT
+CLASS="OPTION"
+>-xO5</TT
+>最適化フラグを使用してみてください。浮動小数点演算と、（<TT
+CLASS="OPTION"
+>-fast</TT
+>のような）<TT
+CLASS="VARNAME"
+>errno</TT
+>演算を修正するようなフラグはすべて使ってはいけません。それらのフラグは、例えばdate/time演算において、PostgreSQLの標準ではない動作をさせることがあります。
+    </P
+><P
+>    
+     SPARCで64ビットバイナリを使用する理由がないのであれば、32ビット版を選択してください。64ビット操作はより遅く、64ビットバイナリは32ビット版より遅いのです。一方で、AMD64 CPUファミリ上の32ビットコードはネイティブではありません。これが、このCPUファミリで32ビットコードが非常に低速な理由です
+    </P
+><P
+>    
+     性能に関してPostgreSQLとSolarisを調整する秘訣がいくつか<A
+HREF="http://www.sun.com/servers/coolthreads/tnb/applications_postgresql.jsp"
+TARGET="_top"
+>http://www.sun.com/servers/coolthreads/tnb/applications_postgresql.jsp</A
+>にあります。この論文はT2000プラットフォームに主として焦点が当てられていますが、Solarisを使用するその他のハードウェア上でも同様に有用なアドバイスになるでしょう。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN24628"
+>15.7.7.6. PostgreSQLをトレースするためのDTrace使用</A
+></H3
+><P
+>    
+     そのとおりです。DTraceを使うことができます。より詳細な情報は
+     <A
+HREF="dynamic-trace.html"
+>&#38917;27.4</A
+>を参照してください。より多くの情報が<A
+HREF="http://blogs.sun.com/robertlor/entry/user_level_dtrace_probes_in"
+TARGET="_top"
+>http://blogs.sun.com/robertlor/entry/user_level_dtrace_probes_in</A
+>文書にあります。
+    </P
+><P
+>    
+     以下のようなエラーメッセージで<TT
+CLASS="COMMAND"
+>postgres</TT
+>実行形式のリンクが中断することを体験した場合、そのDTraceインストールが静的関数におけるプローブを扱うには古すぎると言うことです。Solaris 10u4もしくはそれより新しいものが必要です。
+</P><PRE
+CLASS="SCREEN"
+>Undefined                       first referenced
+ symbol                             in file
+AbortTransaction                    utils/probes.o
+CommitTransaction                   utils/probes.o
+ld: fatal: Symbol referencing errors. No output written to postgres
+collect2: ld returned 1 exit status
+gmake: *** [postgres] Error 1</PRE
+><P>
+    </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="supported-platforms.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="install-windows.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>サポートされるプラットフォーム</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="installation.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>におけるソースコードからのインストール</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

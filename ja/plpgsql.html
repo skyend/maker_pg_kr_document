@@ -1,0 +1,464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/pgSQL - SQL手続き言語</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバプログラミング"
+HREF="server-programming.html"><LINK
+REL="PREVIOUS"
+TITLE="手続き言語のインストール"
+HREF="xplang-install.html"><LINK
+REL="NEXT"
+TITLE="概要"
+HREF="plpgsql-overview.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="手続き言語のインストール"
+HREF="xplang-install.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="手続き言語"
+HREF="xplang.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="概要"
+HREF="plpgsql-overview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLPGSQL"
+></A
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>39.1. <A
+HREF="plpgsql-overview.html"
+>概要</A
+></DT
+><DD
+><DL
+><DT
+>39.1.1. <A
+HREF="plpgsql-overview.html#PLPGSQL-ADVANTAGES"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>を使用することの利点</A
+></DT
+><DT
+>39.1.2. <A
+HREF="plpgsql-overview.html#PLPGSQL-ARGS-RESULTS"
+>引数と結果データ型のサポート</A
+></DT
+></DL
+></DD
+><DT
+>39.2. <A
+HREF="plpgsql-structure.html"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の構造</A
+></DT
+><DT
+>39.3. <A
+HREF="plpgsql-declarations.html"
+>宣言</A
+></DT
+><DD
+><DL
+><DT
+>39.3.1. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-PARAMETERS"
+>関数引数の宣言</A
+></DT
+><DT
+>39.3.2. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-ALIAS"
+><TT
+CLASS="LITERAL"
+>ALIAS</TT
+></A
+></DT
+><DT
+>39.3.3. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-TYPE"
+>型のコピー</A
+></DT
+><DT
+>39.3.4. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-ROWTYPES"
+>行型</A
+></DT
+><DT
+>39.3.5. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-RECORDS"
+>レコード型</A
+></DT
+><DT
+>39.3.6. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-COLLATION"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数の照合</A
+></DT
+></DL
+></DD
+><DT
+>39.4. <A
+HREF="plpgsql-expressions.html"
+>式</A
+></DT
+><DT
+>39.5. <A
+HREF="plpgsql-statements.html"
+>基本的な文</A
+></DT
+><DD
+><DL
+><DT
+>39.5.1. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-ASSIGNMENT"
+>代入</A
+></DT
+><DT
+>39.5.2. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-SQL-NORESULT"
+>結果を伴わないコマンドの実行</A
+></DT
+><DT
+>39.5.3. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-SQL-ONEROW"
+>1行の結果を返す問い合わせの実行</A
+></DT
+><DT
+>39.5.4. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN"
+>動的コマンドの実行</A
+></DT
+><DT
+>39.5.5. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-DIAGNOSTICS"
+>結果ステータスの取得</A
+></DT
+><DT
+>39.5.6. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-NULL"
+>まったく何もしない</A
+></DT
+></DL
+></DD
+><DT
+>39.6. <A
+HREF="plpgsql-control-structures.html"
+>制御構造</A
+></DT
+><DD
+><DL
+><DT
+>39.6.1. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-STATEMENTS-RETURNING"
+>関数からの復帰</A
+></DT
+><DT
+>39.6.2. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-CONDITIONALS"
+>条件分岐</A
+></DT
+><DT
+>39.6.3. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-CONTROL-STRUCTURES-LOOPS"
+>単純なループ</A
+></DT
+><DT
+>39.6.4. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-RECORDS-ITERATING"
+>問い合わせ結果による繰り返し</A
+></DT
+><DT
+>39.6.5. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-FOREACH-ARRAY"
+>配列を巡回</A
+></DT
+><DT
+>39.6.6. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-ERROR-TRAPPING"
+>エラーの捕捉</A
+></DT
+></DL
+></DD
+><DT
+>39.7. <A
+HREF="plpgsql-cursors.html"
+>カーソル</A
+></DT
+><DD
+><DL
+><DT
+>39.7.1. <A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-DECLARATIONS"
+>カーソル変数の宣言</A
+></DT
+><DT
+>39.7.2. <A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-OPENING"
+>カーソルを開く</A
+></DT
+><DT
+>39.7.3. <A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-USING"
+>カーソルの使用</A
+></DT
+><DT
+>39.7.4. <A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-FOR-LOOP"
+>カーソル結果に対するループ</A
+></DT
+></DL
+></DD
+><DT
+>39.8. <A
+HREF="plpgsql-errors-and-messages.html"
+>エラーとメッセージ</A
+></DT
+><DT
+>39.9. <A
+HREF="plpgsql-trigger.html"
+>トリガプロシージャ</A
+></DT
+><DT
+>39.10. <A
+HREF="plpgsql-implementation.html"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の秘訣</A
+></DT
+><DD
+><DL
+><DT
+>39.10.1. <A
+HREF="plpgsql-implementation.html#PLPGSQL-VAR-SUBST"
+>変数置換</A
+></DT
+><DT
+>39.10.2. <A
+HREF="plpgsql-implementation.html#PLPGSQL-PLAN-CACHING"
+>計画のキャッシュ</A
+></DT
+></DL
+></DD
+><DT
+>39.11. <A
+HREF="plpgsql-development-tips.html"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>による開発向けのヒント</A
+></DT
+><DT
+>39.12. <A
+HREF="plpgsql-porting.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+> PL/SQLからの移植</A
+></DT
+><DD
+><DL
+><DT
+>39.12.1. <A
+HREF="plpgsql-porting.html#AEN55373"
+>移植例</A
+></DT
+><DT
+>39.12.2. <A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-OTHER"
+>その他の注意事項</A
+></DT
+><DT
+>39.12.3. <A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-APPENDIX"
+>付録</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="xplang-install.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-overview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>手続き言語のインストール</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="server-programming.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>概要</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,408 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>日付/時刻入力の解釈</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="日付/時刻のサポート"
+HREF="datetime-appendix.html"><LINK
+REL="PREVIOUS"
+TITLE="日付/時刻のサポート"
+HREF="datetime-appendix.html"><LINK
+REL="NEXT"
+TITLE="日付/時刻キーワード"
+HREF="datetime-keywords.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="日付/時刻のサポート"
+HREF="datetime-appendix.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="日付/時刻のサポート"
+HREF="datetime-appendix.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; B. 日付/時刻のサポート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="日付/時刻のサポート"
+HREF="datetime-appendix.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="日付/時刻キーワード"
+HREF="datetime-keywords.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DATETIME-INPUT-RULES"
+>B.1. 日付/時刻入力の解釈</A
+></H1
+><P
+>日付/時刻データ型は全て以下の手順で解読されます。
+   </P
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+>入力文字列をトークンに分割し、そしてそれぞれのトークンを文字列、時刻、時間帯、または数値というように分類します。
+     </P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>数値トークンにコロン（<TT
+CLASS="LITERAL"
+>:</TT
+>）が含まれている場合は、時刻文字列です。
+そこに続く全ての数字とコロンを含みます。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>数値トークンにハイフン（<TT
+CLASS="LITERAL"
+>-</TT
+>）、スラッシュ（<TT
+CLASS="LITERAL"
+>/</TT
+>）、または2つ以上のドット（<TT
+CLASS="LITERAL"
+>.</TT
+>）が含まれている場合は、テキストの月名がある日付文字列です。
+日付トークンがすでに現れている場合は代わりに、時間帯名として解釈されます（例えば<TT
+CLASS="LITERAL"
+>America/New_York</TT
+>）。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>トークンが数値だけの場合、それは単項、もしくはISO 8601の連結形式の日付（例：1999年1月13日を示す<TT
+CLASS="LITERAL"
+>19990113</TT
+>）、あるいは時刻（例：14:15:16を示す<TT
+CLASS="LITERAL"
+>141516</TT
+>）のいずれかです。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>トークンがプラス記号（<TT
+CLASS="LITERAL"
+>+</TT
+>）あるいはマイナス記号（<TT
+CLASS="LITERAL"
+>-</TT
+>）で始まっている場合は、数値形式の時間帯フィールドか特殊なフィールドです。
+       </P
+></LI
+></OL
+></LI
+><LI
+CLASS="STEP"
+><P
+>もしトークンがテキスト文字列の場合、以下のように可能性のある文字列と照合されます。
+     </P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>時間帯短縮形としてトークンをテーブルからバイナリ検索します。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>探索できなかった場合は同様にそのトークンに対し特殊文字（たとえば<TT
+CLASS="LITERAL"
+>today</TT
+>）、日（たとえば<TT
+CLASS="LITERAL"
+>Thursday</TT
+>）、月（たとえば<TT
+CLASS="LITERAL"
+>January</TT
+>）、ノイズ（たとえば<TT
+CLASS="LITERAL"
+>at</TT
+>、<TT
+CLASS="LITERAL"
+>on</TT
+>）に一致するかどうか、参照テーブルにバイナリ検索をかけます。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>それでも探し出せなかった場合、エラーを返します。
+       </P
+></LI
+></OL
+></LI
+><LI
+CLASS="STEP"
+><P
+>トークンが数値あるいは数値フィールドの場合を以下に示します。
+     </P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>トークンが8桁または6桁、かつ、以前に他のどのような日付フィールドも読まれていない場合は、<SPAN
+CLASS="QUOTE"
+>"連結された日付"</SPAN
+>（例えば、<TT
+CLASS="LITERAL"
+>19990118</TT
+>または<TT
+CLASS="LITERAL"
+>990118</TT
+>）として解釈されます。
+その解釈方法は<TT
+CLASS="LITERAL"
+>YYYYMMDD</TT
+>または<TT
+CLASS="LITERAL"
+>YYMMDD</TT
+>です。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>もしトークンが3桁で年が既に読み込まれている場合は年内の経過日数と解釈されます。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>4桁または6桁の場合で年が既に読み込まれている時は時刻（<TT
+CLASS="LITERAL"
+>HHMM</TT
+>または<TT
+CLASS="LITERAL"
+>HHMMSS</TT
+>）と解釈されます。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>3桁以上の場合、かつ、どの日付フィールドもまだ見つかっていない場合は年と解釈されます
+（この場合、残る日付フィールドの順序は強制的にyy-mm-ddと解釈されます）。
+       </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>さもなければ、日付フィールドの順序は、<TT
+CLASS="VARNAME"
+>DateStyle</TT
+>の設定mm-dd-yy、dd-mm-yy、yy-mm-ddに従うものと仮定されます。
+月や月内の日のフィールドが範囲外であれば、エラーになります。
+       </P
+></LI
+></OL
+></LI
+><LI
+CLASS="STEP"
+><P
+>もしBCが指定された場合は内部格納用に年を負の数にして1を加えます
+（グレゴリオ暦にはゼロ年がないので、数値的には1BC（紀元前1年）がゼロ年になります）。
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>BCが指定されず年フィールドの長さが2桁の場合、年は4桁になるよう調整されます。
+そのフィールドが70未満の場合は2000が加えられますが、その他の場合には1900が加えられます。
+
+      <DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>（例えば、西暦99年を<TT
+CLASS="LITERAL"
+>0099</TT
+>のように）グレゴリオ暦の西暦元年から99年までは、ゼロを前に付加して4桁入力することができます。
+       </P
+></BLOCKQUOTE
+></DIV
+>
+     </P
+></LI
+></OL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="datetime-appendix.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="datetime-keywords.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>日付/時刻のサポート</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="datetime-appendix.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>日付/時刻キーワード</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

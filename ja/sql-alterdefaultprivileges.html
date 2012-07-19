@@ -1,0 +1,526 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER DEFAULT PRIVILEGES</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER DATABASE"
+HREF="sql-alterdatabase.html"><LINK
+REL="NEXT"
+TITLE="ALTER DOMAIN"
+HREF="sql-alterdomain.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER DATABASE"
+HREF="sql-alterdatabase.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER DATABASE"
+HREF="sql-alterdatabase.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER DOMAIN"
+HREF="sql-alterdomain.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER DOMAIN"
+HREF="sql-alterdomain.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERDEFAULTPRIVILEGES"
+></A
+>ALTER DEFAULT PRIVILEGES</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN59803"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER DEFAULT PRIVILEGES&nbsp;--&nbsp;デフォルトのアクセス権限を定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN59808"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER DEFAULT PRIVILEGES
+    [ FOR { ROLE | USER } <TT
+CLASS="REPLACEABLE"
+><I
+>target_role</I
+></TT
+> [, ...] ]
+    [ IN SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...] ]
+    <TT
+CLASS="REPLACEABLE"
+><I
+>abbreviated_grant_or_revoke</I
+></TT
+>
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>abbreviated_grant_or_revoke</I
+></TT
+>は以下のいずれかです。</SPAN
+></SPAN
+>
+
+GRANT { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON TABLES
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { { USAGE | SELECT | UPDATE }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON SEQUENCES
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { EXECUTE | ALL [ PRIVILEGES ] }
+    ON FUNCTIONS
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON TABLES
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { USAGE | SELECT | UPDATE }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON SEQUENCES
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { EXECUTE | ALL [ PRIVILEGES ] }
+    ON FUNCTIONS
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-ALTERDEFAULTPRIVILEGES-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER DEFAULT PRIVILEGES</TT
+>により今後作成されるオブジェクトに適用される権限を設定することができます。
+（既存のオブジェクトに割り当てられている権限には影響しません。）
+現時点ではテーブル（ビュー、外部テーブルを含む）、シーケンス、関数用の権限のみを変更可能です。
+  </P
+><P
+>ユーザ自身、ユーザがメンバとして属するロールにより作成されるオブジェクト向けのデフォルト権限を変更することができます。
+権限は大域的に（つまり現在のデータベース内に作成されるすべてのオブジェクトに対して）設定することも、指定したスキーマ内に作成されるオブジェクトのみに対して設定することもできます。
+スキーマ単位で指定されるデフォルト権限は、大域的な個々の種類のオブジェクト用のデフォルト権限に追加されます。
+  </P
+><P
+><A
+HREF="sql-grant.html"
+>GRANT</A
+>の説明通り、任意の種類のオブジェクトのデフォルト権限は通常、オブジェクト所有者に対して付与可能な権限すべてを付与します。
+また、同様に<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>に対して一部の権限を付与することもできます。
+しかしこの動作は<TT
+CLASS="COMMAND"
+>ALTER DEFAULT PRIVILEGES</TT
+>を用いて大域デフォルト権限により変更可能です。
+  </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN59830"
+></A
+><H3
+>パラメータ</H3
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>target_role</I
+></TT
+></DT
+><DD
+><P
+>現在のロールがメンバとして属する、既存のロールの名前です。
+<TT
+CLASS="LITERAL"
+>FOR ROLE</TT
+>を省略した場合、現在のロールと仮定されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+></DT
+><DD
+><P
+>既存のスキーマの名前です。
+各<TT
+CLASS="REPLACEABLE"
+><I
+>target_role</I
+></TT
+>は指定したスキーマそれぞれに対して<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限を持つ必要があります。
+<TT
+CLASS="LITERAL"
+>IN SCHEMA</TT
+>を省略した場合、大域的なデフォルト権限が変更されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+></DT
+><DD
+><P
+>権限を付与または取り上げる、既存のロールの名前です。
+このパラメータ、および<TT
+CLASS="REPLACEABLE"
+><I
+>abbreviated_grant_or_revoke</I
+></TT
+>内の他のパラメータは、 <A
+HREF="sql-grant.html"
+>GRANT</A
+>や<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>の説明通りに動作します。
+ただし、指名したオブジェクトではなくオブジェクトクラス全体に対して権限を設定する点が異なります。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-ALTERDEFAULTPRIVILEGES-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+>デフォルト権限としてすでに割り当てられている情報を入手するためには<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>の<TT
+CLASS="COMMAND"
+>\ddp</TT
+>コマンドを使用してください。
+権限の値の意味は、<A
+HREF="sql-grant.html"
+>GRANT</A
+>の<TT
+CLASS="COMMAND"
+>\dp</TT
+>の説明と同じです。
+  </P
+><P
+>デフォルト権限を変更したロールを削除したい場合、デフォルト権限の項目を取り除くために、そのデフォルト権限の変更を元に戻すか<TT
+CLASS="COMMAND"
+>DROP OWNED BY</TT
+>を使用する必要があります。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-ALTERDEFAULTPRIVILEGES-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>myschema</TT
+>スキーマ内に今後作成されるすべてのテーブル（およびビュー）に対して、全員にSELECT権限を付与します。
+また、<TT
+CLASS="LITERAL"
+>webuser</TT
+>ロールにはそれらに挿入できるようにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER DEFAULT PRIVILEGES IN SCHEMA myschema GRANT SELECT ON TABLES TO PUBLIC;
+ALTER DEFAULT PRIVILEGES IN SCHEMA myschema GRANT INSERT ON TABLES TO webuser;</PRE
+><P>
+  </P
+><P
+>今後作成されるテーブルが通常以外の権限を持たないように、上を元に戻します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER DEFAULT PRIVILEGES IN SCHEMA myschema REVOKE SELECT ON TABLES FROM PUBLIC;
+ALTER DEFAULT PRIVILEGES IN SCHEMA myschema REVOKE INSERT ON TABLES FROM webuser;</PRE
+><P>
+  </P
+><P
+>今後<TT
+CLASS="LITERAL"
+>admin</TT
+>ロールにより作成されるすべての関数について、通常関数に付与される、全員に対するEXECUTE権限を取り除きます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER DEFAULT PRIVILEGES FOR ROLE admin REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN59875"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>ALTER DEFAULT PRIVILEGES</TT
+>文はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN59879"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-grant.html"
+>GRANT</A
+>, <A
+HREF="sql-revoke.html"
+>REVOKE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alterdatabase.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alterdomain.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER DATABASE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER DOMAIN</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

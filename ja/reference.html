@@ -1,0 +1,1237 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リファレンス</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="例"
+HREF="spi-examples.html"><LINK
+REL="NEXT"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="PART"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="例"
+HREF="spi-examples.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバプログラミング"
+HREF="server-programming.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="内部情報"
+HREF="internals.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLコマンド"
+HREF="sql-commands.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="REFERENCE"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+>VI. リファレンス</H1
+><DIV
+CLASS="PARTINTRO"
+><A
+NAME="AEN59397"
+></A
+><P
+>このリファレンス内の項目では、対応する主題に関する信頼できる、完全な、形式の整った要約を、適切な長さで提供することが意図されています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の使用に関する詳細は、物語、チュートリアル、例形式として、本書の他の部分にて説明されています。
+各リファレンスページで挙げたクロスリファレンスを参照してください。
+  </P
+><P
+>このリファレンスは伝統的な<SPAN
+CLASS="QUOTE"
+>"man"</SPAN
+>ページとしても入手できます。
+  </P
+></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>I. <A
+HREF="sql-commands.html"
+>SQLコマンド</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="sql-abort.html"
+>ABORT</A
+>&nbsp;--&nbsp;現在のトランザクションをアボートする</DT
+><DT
+><A
+HREF="sql-alteraggregate.html"
+>ALTER AGGREGATE</A
+>&nbsp;--&nbsp;集約関数定義を変更する</DT
+><DT
+><A
+HREF="sql-altercollation.html"
+>ALTER COLLATION</A
+>&nbsp;--&nbsp;照合順の定義を変更する</DT
+><DT
+><A
+HREF="sql-alterconversion.html"
+>ALTER CONVERSION</A
+>&nbsp;--&nbsp;変換の定義を変更する</DT
+><DT
+><A
+HREF="sql-alterdatabase.html"
+>ALTER DATABASE</A
+>&nbsp;--&nbsp;データベースを変更する</DT
+><DT
+><A
+HREF="sql-alterdefaultprivileges.html"
+>ALTER DEFAULT PRIVILEGES</A
+>&nbsp;--&nbsp;デフォルトのアクセス権限を定義する</DT
+><DT
+><A
+HREF="sql-alterdomain.html"
+>ALTER DOMAIN</A
+>&nbsp;--&nbsp;ドメイン定義を変更する
+  </DT
+><DT
+><A
+HREF="sql-alterextension.html"
+>ALTER EXTENSION</A
+>&nbsp;--&nbsp;拡張の定義を変更する
+  </DT
+><DT
+><A
+HREF="sql-alterforeigndatawrapper.html"
+>ALTER FOREIGN DATA WRAPPER</A
+>&nbsp;--&nbsp;外部データラッパの定義を変更する</DT
+><DT
+><A
+HREF="sql-alterforeigntable.html"
+>ALTER FOREIGN TABLE</A
+>&nbsp;--&nbsp;外部テーブルの定義を変更</DT
+><DT
+><A
+HREF="sql-alterfunction.html"
+>ALTER FUNCTION</A
+>&nbsp;--&nbsp;関数定義を変更する</DT
+><DT
+><A
+HREF="sql-altergroup.html"
+>ALTER GROUP</A
+>&nbsp;--&nbsp;ロールの名前またはメンバ資格を変更する</DT
+><DT
+><A
+HREF="sql-alterindex.html"
+>ALTER INDEX</A
+>&nbsp;--&nbsp;インデックス定義を変更する</DT
+><DT
+><A
+HREF="sql-alterlanguage.html"
+>ALTER LANGUAGE</A
+>&nbsp;--&nbsp;手続き言語の定義を変更する</DT
+><DT
+><A
+HREF="sql-alterlargeobject.html"
+>ALTER LARGE OBJECT</A
+>&nbsp;--&nbsp;ラージオブジェクトの定義を変更する</DT
+><DT
+><A
+HREF="sql-alteroperator.html"
+>ALTER OPERATOR</A
+>&nbsp;--&nbsp;演算子の定義を変更する</DT
+><DT
+><A
+HREF="sql-alteropclass.html"
+>ALTER OPERATOR CLASS</A
+>&nbsp;--&nbsp;演算子クラスの定義を変更する</DT
+><DT
+><A
+HREF="sql-alteropfamily.html"
+>ALTER OPERATOR FAMILY</A
+>&nbsp;--&nbsp;演算子族の定義を変更する</DT
+><DT
+><A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+>&nbsp;--&nbsp;データベースロールを変更する</DT
+><DT
+><A
+HREF="sql-alterschema.html"
+>ALTER SCHEMA</A
+>&nbsp;--&nbsp;スキーマ定義を変更する</DT
+><DT
+><A
+HREF="sql-altersequence.html"
+>ALTER SEQUENCE</A
+>&nbsp;--&nbsp;   シーケンスジェネレータの定義を変更する
+  </DT
+><DT
+><A
+HREF="sql-alterserver.html"
+>ALTER SERVER</A
+>&nbsp;--&nbsp;外部サーバの定義を変更する</DT
+><DT
+><A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>&nbsp;--&nbsp;テーブル定義を変更する</DT
+><DT
+><A
+HREF="sql-altertablespace.html"
+>ALTER TABLESPACE</A
+>&nbsp;--&nbsp;テーブル空間の定義を変更する</DT
+><DT
+><A
+HREF="sql-altertsconfig.html"
+>ALTER TEXT SEARCH CONFIGURATION</A
+>&nbsp;--&nbsp;テキスト検索設定の定義を変更する</DT
+><DT
+><A
+HREF="sql-altertsdictionary.html"
+>ALTER TEXT SEARCH DICTIONARY</A
+>&nbsp;--&nbsp;テキスト検索辞書の定義を変更する</DT
+><DT
+><A
+HREF="sql-altertsparser.html"
+>ALTER TEXT SEARCH PARSER</A
+>&nbsp;--&nbsp;テキスト検索パーサの定義を変更する</DT
+><DT
+><A
+HREF="sql-altertstemplate.html"
+>ALTER TEXT SEARCH TEMPLATE</A
+>&nbsp;--&nbsp;テキスト検索テンプレートの定義を変更する</DT
+><DT
+><A
+HREF="sql-altertrigger.html"
+>ALTER TRIGGER</A
+>&nbsp;--&nbsp;トリガ定義を変更する</DT
+><DT
+><A
+HREF="sql-altertype.html"
+>ALTER TYPE</A
+>&nbsp;--&nbsp;型定義を変更する
+  </DT
+><DT
+><A
+HREF="sql-alteruser.html"
+>ALTER USER</A
+>&nbsp;--&nbsp;データベースロールを変更する</DT
+><DT
+><A
+HREF="sql-alterusermapping.html"
+>ALTER USER MAPPING</A
+>&nbsp;--&nbsp;ユーザマップの定義を変更する</DT
+><DT
+><A
+HREF="sql-alterview.html"
+>ALTER VIEW</A
+>&nbsp;--&nbsp;ビュー定義を変更する</DT
+><DT
+><A
+HREF="sql-analyze.html"
+>ANALYZE</A
+>&nbsp;--&nbsp;データベースに関する統計を集計する</DT
+><DT
+><A
+HREF="sql-begin.html"
+>BEGIN</A
+>&nbsp;--&nbsp;トランザクションブロックを開始する</DT
+><DT
+><A
+HREF="sql-checkpoint.html"
+>CHECKPOINT</A
+>&nbsp;--&nbsp;トランザクションログのチェックポイントを強制的に実行する</DT
+><DT
+><A
+HREF="sql-close.html"
+>CLOSE</A
+>&nbsp;--&nbsp;カーソルを閉じる</DT
+><DT
+><A
+HREF="sql-cluster.html"
+>CLUSTER</A
+>&nbsp;--&nbsp;インデックスに従ってテーブルをクラスタ化する</DT
+><DT
+><A
+HREF="sql-comment.html"
+>COMMENT</A
+>&nbsp;--&nbsp;オブジェクトのコメントを定義する、または変更する</DT
+><DT
+><A
+HREF="sql-commit.html"
+>COMMIT</A
+>&nbsp;--&nbsp;現在のトランザクションをコミットする</DT
+><DT
+><A
+HREF="sql-commit-prepared.html"
+>COMMIT PREPARED</A
+>&nbsp;--&nbsp;二相コミット用に事前に準備されたトランザクションをコミットする</DT
+><DT
+><A
+HREF="sql-copy.html"
+>COPY</A
+>&nbsp;--&nbsp;ファイルとテーブルの間でデータをコピーする</DT
+><DT
+><A
+HREF="sql-createaggregate.html"
+>CREATE AGGREGATE</A
+>&nbsp;--&nbsp;新しい集約関数を定義する</DT
+><DT
+><A
+HREF="sql-createcast.html"
+>CREATE CAST</A
+>&nbsp;--&nbsp;新しいキャストを定義する</DT
+><DT
+><A
+HREF="sql-createcollation.html"
+>CREATE COLLATION</A
+>&nbsp;--&nbsp;新しい照合順序を定義する</DT
+><DT
+><A
+HREF="sql-createconversion.html"
+>CREATE CONVERSION</A
+>&nbsp;--&nbsp;新しい符号化方式変換の定義</DT
+><DT
+><A
+HREF="sql-createdatabase.html"
+>CREATE DATABASE</A
+>&nbsp;--&nbsp;新しいデータベースを作成する</DT
+><DT
+><A
+HREF="sql-createdomain.html"
+>CREATE DOMAIN</A
+>&nbsp;--&nbsp;新しいドメインを定義する</DT
+><DT
+><A
+HREF="sql-createextension.html"
+>CREATE EXTENSION</A
+>&nbsp;--&nbsp;拡張をインストールする</DT
+><DT
+><A
+HREF="sql-createforeigndatawrapper.html"
+>CREATE FOREIGN DATA WRAPPER</A
+>&nbsp;--&nbsp;新しい外部データラッパを定義する</DT
+><DT
+><A
+HREF="sql-createforeigntable.html"
+>CREATE FOREIGN TABLE</A
+>&nbsp;--&nbsp;新しい外部テーブルを定義する</DT
+><DT
+><A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>&nbsp;--&nbsp;新しい関数を定義する</DT
+><DT
+><A
+HREF="sql-creategroup.html"
+>CREATE GROUP</A
+>&nbsp;--&nbsp;新しいデータベースロールを定義する</DT
+><DT
+><A
+HREF="sql-createindex.html"
+>CREATE INDEX</A
+>&nbsp;--&nbsp;新しいインデックスを定義する
+  </DT
+><DT
+><A
+HREF="sql-createlanguage.html"
+>CREATE LANGUAGE</A
+>&nbsp;--&nbsp;新しい手続き言語を定義する</DT
+><DT
+><A
+HREF="sql-createoperator.html"
+>CREATE OPERATOR</A
+>&nbsp;--&nbsp;新しい演算子を定義する
+  </DT
+><DT
+><A
+HREF="sql-createopclass.html"
+>CREATE OPERATOR CLASS</A
+>&nbsp;--&nbsp;   新しい演算子クラスを定義する
+  </DT
+><DT
+><A
+HREF="sql-createopfamily.html"
+>CREATE OPERATOR FAMILY</A
+>&nbsp;--&nbsp;新しい演算子族を定義する</DT
+><DT
+><A
+HREF="sql-createrole.html"
+>CREATE ROLE</A
+>&nbsp;--&nbsp;新しいデータベースロールを定義する</DT
+><DT
+><A
+HREF="sql-createrule.html"
+>CREATE RULE</A
+>&nbsp;--&nbsp;新しい書き換えルールを定義する
+  </DT
+><DT
+><A
+HREF="sql-createschema.html"
+>CREATE SCHEMA</A
+>&nbsp;--&nbsp;新しいスキーマを定義する</DT
+><DT
+><A
+HREF="sql-createsequence.html"
+>CREATE SEQUENCE</A
+>&nbsp;--&nbsp;新しいシーケンスジェネレータを定義する</DT
+><DT
+><A
+HREF="sql-createserver.html"
+>CREATE SERVER</A
+>&nbsp;--&nbsp;新しい外部サーバを定義する</DT
+><DT
+><A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>&nbsp;--&nbsp;新しいテーブルを定義する</DT
+><DT
+><A
+HREF="sql-createtableas.html"
+>CREATE TABLE AS</A
+>&nbsp;--&nbsp;問い合わせの結果によって新しいテーブルを定義する</DT
+><DT
+><A
+HREF="sql-createtablespace.html"
+>CREATE TABLESPACE</A
+>&nbsp;--&nbsp;新しいテーブル空間を定義する</DT
+><DT
+><A
+HREF="sql-createtsconfig.html"
+>CREATE TEXT SEARCH CONFIGURATION</A
+>&nbsp;--&nbsp;新しいテキスト検索設定を定義する</DT
+><DT
+><A
+HREF="sql-createtsdictionary.html"
+>CREATE TEXT SEARCH DICTIONARY</A
+>&nbsp;--&nbsp;新しいテキスト検索辞書を定義する</DT
+><DT
+><A
+HREF="sql-createtsparser.html"
+>CREATE TEXT SEARCH PARSER</A
+>&nbsp;--&nbsp;新しいテキスト検索パーサを定義する</DT
+><DT
+><A
+HREF="sql-createtstemplate.html"
+>CREATE TEXT SEARCH TEMPLATE</A
+>&nbsp;--&nbsp;新しいテキスト検索テンプレートを定義する</DT
+><DT
+><A
+HREF="sql-createtrigger.html"
+>CREATE TRIGGER</A
+>&nbsp;--&nbsp;新しいトリガを定義する</DT
+><DT
+><A
+HREF="sql-createtype.html"
+>CREATE TYPE</A
+>&nbsp;--&nbsp;新しいデータ型を定義する</DT
+><DT
+><A
+HREF="sql-createuser.html"
+>CREATE USER</A
+>&nbsp;--&nbsp;新しいデータベースロールを定義する</DT
+><DT
+><A
+HREF="sql-createusermapping.html"
+>CREATE USER MAPPING</A
+>&nbsp;--&nbsp;外部サーバのユーザマップを新しく定義します。</DT
+><DT
+><A
+HREF="sql-createview.html"
+>CREATE VIEW</A
+>&nbsp;--&nbsp;新しいビューを定義する</DT
+><DT
+><A
+HREF="sql-deallocate.html"
+>DEALLOCATE</A
+>&nbsp;--&nbsp;準備された文の割り当てを解除する</DT
+><DT
+><A
+HREF="sql-declare.html"
+>DECLARE</A
+>&nbsp;--&nbsp;カーソルを定義する</DT
+><DT
+><A
+HREF="sql-delete.html"
+>DELETE</A
+>&nbsp;--&nbsp;テーブルから行を削除する</DT
+><DT
+><A
+HREF="sql-discard.html"
+>DISCARD</A
+>&nbsp;--&nbsp;セッションの状態を破棄する</DT
+><DT
+><A
+HREF="sql-do.html"
+>DO</A
+>&nbsp;--&nbsp;無名コードブロックを実行します。</DT
+><DT
+><A
+HREF="sql-dropaggregate.html"
+>DROP AGGREGATE</A
+>&nbsp;--&nbsp;集約関数を削除する</DT
+><DT
+><A
+HREF="sql-dropcast.html"
+>DROP CAST</A
+>&nbsp;--&nbsp;キャストを削除する</DT
+><DT
+><A
+HREF="sql-dropcollation.html"
+>DROP COLLATION</A
+>&nbsp;--&nbsp;照合順序を削除</DT
+><DT
+><A
+HREF="sql-dropconversion.html"
+>DROP CONVERSION</A
+>&nbsp;--&nbsp;変換を削除する</DT
+><DT
+><A
+HREF="sql-dropdatabase.html"
+>DROP DATABASE</A
+>&nbsp;--&nbsp;データベースを削除する</DT
+><DT
+><A
+HREF="sql-dropdomain.html"
+>DROP DOMAIN</A
+>&nbsp;--&nbsp;ドメインを削除する</DT
+><DT
+><A
+HREF="sql-dropextension.html"
+>DROP EXTENSION</A
+>&nbsp;--&nbsp;拡張を削除</DT
+><DT
+><A
+HREF="sql-dropforeigndatawrapper.html"
+>DROP FOREIGN DATA WRAPPER</A
+>&nbsp;--&nbsp;外部データラッパを削除する</DT
+><DT
+><A
+HREF="sql-dropforeigntable.html"
+>DROP FOREIGN TABLE</A
+>&nbsp;--&nbsp;外部テーブルを削除</DT
+><DT
+><A
+HREF="sql-dropfunction.html"
+>DROP FUNCTION</A
+>&nbsp;--&nbsp;関数を削除する</DT
+><DT
+><A
+HREF="sql-dropgroup.html"
+>DROP GROUP</A
+>&nbsp;--&nbsp;データベースロールを削除する</DT
+><DT
+><A
+HREF="sql-dropindex.html"
+>DROP INDEX</A
+>&nbsp;--&nbsp;インデックスの削除</DT
+><DT
+><A
+HREF="sql-droplanguage.html"
+>DROP LANGUAGE</A
+>&nbsp;--&nbsp;手続き言語の削除</DT
+><DT
+><A
+HREF="sql-dropoperator.html"
+>DROP OPERATOR</A
+>&nbsp;--&nbsp;演算子を削除する</DT
+><DT
+><A
+HREF="sql-dropopclass.html"
+>DROP OPERATOR CLASS</A
+>&nbsp;--&nbsp;演算子クラスを削除する</DT
+><DT
+><A
+HREF="sql-dropopfamily.html"
+>DROP OPERATOR FAMILY</A
+>&nbsp;--&nbsp;演算子族を削除する</DT
+><DT
+><A
+HREF="sql-drop-owned.html"
+>DROP OWNED</A
+>&nbsp;--&nbsp;データベースロールにより所有されるデータベースオブジェクトを削除します。</DT
+><DT
+><A
+HREF="sql-droprole.html"
+>DROP ROLE</A
+>&nbsp;--&nbsp;データベースロールを削除する</DT
+><DT
+><A
+HREF="sql-droprule.html"
+>DROP RULE</A
+>&nbsp;--&nbsp;書き換えルールを削除する</DT
+><DT
+><A
+HREF="sql-dropschema.html"
+>DROP SCHEMA</A
+>&nbsp;--&nbsp;スキーマを削除する</DT
+><DT
+><A
+HREF="sql-dropsequence.html"
+>DROP SEQUENCE</A
+>&nbsp;--&nbsp;シーケンスを削除する</DT
+><DT
+><A
+HREF="sql-dropserver.html"
+>DROP SERVER</A
+>&nbsp;--&nbsp;外部サーバの記述子を削除する</DT
+><DT
+><A
+HREF="sql-droptable.html"
+>DROP TABLE</A
+>&nbsp;--&nbsp;テーブルを削除する</DT
+><DT
+><A
+HREF="sql-droptablespace.html"
+>DROP TABLESPACE</A
+>&nbsp;--&nbsp;テーブル空間を削除する</DT
+><DT
+><A
+HREF="sql-droptsconfig.html"
+>DROP TEXT SEARCH CONFIGURATION</A
+>&nbsp;--&nbsp;テキスト検索設定を削除する</DT
+><DT
+><A
+HREF="sql-droptsdictionary.html"
+>DROP TEXT SEARCH DICTIONARY</A
+>&nbsp;--&nbsp;テキスト検索辞書を削除する</DT
+><DT
+><A
+HREF="sql-droptsparser.html"
+>DROP TEXT SEARCH PARSER</A
+>&nbsp;--&nbsp;テキスト検索パーサを削除する</DT
+><DT
+><A
+HREF="sql-droptstemplate.html"
+>DROP TEXT SEARCH TEMPLATE</A
+>&nbsp;--&nbsp;テキスト検索テンプレートを削除する</DT
+><DT
+><A
+HREF="sql-droptrigger.html"
+>DROP TRIGGER</A
+>&nbsp;--&nbsp;トリガを削除する</DT
+><DT
+><A
+HREF="sql-droptype.html"
+>DROP TYPE</A
+>&nbsp;--&nbsp;データ型の削除</DT
+><DT
+><A
+HREF="sql-dropuser.html"
+>DROP USER</A
+>&nbsp;--&nbsp;データベースロールを削除する</DT
+><DT
+><A
+HREF="sql-dropusermapping.html"
+>DROP USER MAPPING</A
+>&nbsp;--&nbsp;外部サーバ用のユーザマップを削除します。</DT
+><DT
+><A
+HREF="sql-dropview.html"
+>DROP VIEW</A
+>&nbsp;--&nbsp;ビューを削除する</DT
+><DT
+><A
+HREF="sql-end.html"
+>END</A
+>&nbsp;--&nbsp;現在のトランザクションをコミットする</DT
+><DT
+><A
+HREF="sql-execute.html"
+>EXECUTE</A
+>&nbsp;--&nbsp;   準備された文を実行する
+  </DT
+><DT
+><A
+HREF="sql-explain.html"
+>EXPLAIN</A
+>&nbsp;--&nbsp;問い合わせ文の実行計画を表示する</DT
+><DT
+><A
+HREF="sql-fetch.html"
+>FETCH</A
+>&nbsp;--&nbsp;カーソルを使用してテーブルから行を抽出する</DT
+><DT
+><A
+HREF="sql-grant.html"
+>GRANT</A
+>&nbsp;--&nbsp;アクセス権限を定義する</DT
+><DT
+><A
+HREF="sql-insert.html"
+>INSERT</A
+>&nbsp;--&nbsp;テーブルに新しい行を作成する</DT
+><DT
+><A
+HREF="sql-listen.html"
+>LISTEN</A
+>&nbsp;--&nbsp;通知を監視する</DT
+><DT
+><A
+HREF="sql-load.html"
+>LOAD</A
+>&nbsp;--&nbsp;共有ライブラリファイルの読み込みを行う</DT
+><DT
+><A
+HREF="sql-lock.html"
+>LOCK</A
+>&nbsp;--&nbsp;テーブルをロックする</DT
+><DT
+><A
+HREF="sql-move.html"
+>MOVE</A
+>&nbsp;--&nbsp;カーソルの位置を決める</DT
+><DT
+><A
+HREF="sql-notify.html"
+>NOTIFY</A
+>&nbsp;--&nbsp;通知を生成する</DT
+><DT
+><A
+HREF="sql-prepare.html"
+>PREPARE</A
+>&nbsp;--&nbsp;実行する文を準備する</DT
+><DT
+><A
+HREF="sql-prepare-transaction.html"
+>PREPARE TRANSACTION</A
+>&nbsp;--&nbsp;二相コミット用に現在のトランザクションを準備する</DT
+><DT
+><A
+HREF="sql-reassign-owned.html"
+>REASSIGN OWNED</A
+>&nbsp;--&nbsp;あるデータベースロールにより所有されたデータベースオブジェクトの所有権を変更する</DT
+><DT
+><A
+HREF="sql-reindex.html"
+>REINDEX</A
+>&nbsp;--&nbsp;インデックスを再構築する</DT
+><DT
+><A
+HREF="sql-release-savepoint.html"
+>RELEASE SAVEPOINT</A
+>&nbsp;--&nbsp;設定済みのセーブポイントを破棄する</DT
+><DT
+><A
+HREF="sql-reset.html"
+>RESET</A
+>&nbsp;--&nbsp;実行時パラメータの値をデフォルト値に戻す</DT
+><DT
+><A
+HREF="sql-revoke.html"
+>REVOKE</A
+>&nbsp;--&nbsp;アクセス権限を取り消す</DT
+><DT
+><A
+HREF="sql-rollback.html"
+>ROLLBACK</A
+>&nbsp;--&nbsp;現在のトランザクションをアボートする</DT
+><DT
+><A
+HREF="sql-rollback-prepared.html"
+>ROLLBACK PREPARED</A
+>&nbsp;--&nbsp;事前に二相コミット用に準備されたトランザクションを取り消します。</DT
+><DT
+><A
+HREF="sql-rollback-to.html"
+>ROLLBACK TO SAVEPOINT</A
+>&nbsp;--&nbsp;セーブポイントまでロールバックする</DT
+><DT
+><A
+HREF="sql-savepoint.html"
+>SAVEPOINT</A
+>&nbsp;--&nbsp;現在のトランザクション内に新規にセーブポイントを定義する</DT
+><DT
+><A
+HREF="sql-security-label.html"
+>SECURITY LABEL</A
+>&nbsp;--&nbsp;オブジェクトに適用するセキュリティラベルを定義または変更する</DT
+><DT
+><A
+HREF="sql-select.html"
+>SELECT</A
+>&nbsp;--&nbsp;テーブルもしくはビューから行を検索する</DT
+><DT
+><A
+HREF="sql-selectinto.html"
+>SELECT INTO</A
+>&nbsp;--&nbsp;問い合わせの結果からの新しいテーブルを定義する</DT
+><DT
+><A
+HREF="sql-set.html"
+>SET</A
+>&nbsp;--&nbsp;実行時パラメータを変更する</DT
+><DT
+><A
+HREF="sql-set-constraints.html"
+>SET CONSTRAINTS</A
+>&nbsp;--&nbsp;現在のトランザクションの制約検査のタイミングを設定する</DT
+><DT
+><A
+HREF="sql-set-role.html"
+>SET ROLE</A
+>&nbsp;--&nbsp;現在のセッションにおける現在のユーザ識別子を設定する</DT
+><DT
+><A
+HREF="sql-set-session-authorization.html"
+>SET SESSION AUTHORIZATION</A
+>&nbsp;--&nbsp;セッションのユーザ識別子、現在のセッションの現在のユーザ識別子を設定する</DT
+><DT
+><A
+HREF="sql-set-transaction.html"
+>SET TRANSACTION</A
+>&nbsp;--&nbsp;現在のトランザクションの特性を設定する</DT
+><DT
+><A
+HREF="sql-show.html"
+>SHOW</A
+>&nbsp;--&nbsp;実行時パラメータの値を表示する</DT
+><DT
+><A
+HREF="sql-start-transaction.html"
+>START TRANSACTION</A
+>&nbsp;--&nbsp;トランザクションブロックを開始する</DT
+><DT
+><A
+HREF="sql-truncate.html"
+>TRUNCATE</A
+>&nbsp;--&nbsp;1テーブルまたはテーブル群を空にする</DT
+><DT
+><A
+HREF="sql-unlisten.html"
+>UNLISTEN</A
+>&nbsp;--&nbsp;通知の監視を停止する</DT
+><DT
+><A
+HREF="sql-update.html"
+>UPDATE</A
+>&nbsp;--&nbsp;テーブルの行を更新する</DT
+><DT
+><A
+HREF="sql-vacuum.html"
+>VACUUM</A
+>&nbsp;--&nbsp;データベースの不要領域の回収とデータベースの解析（オプション）を行う</DT
+><DT
+><A
+HREF="sql-values.html"
+>VALUES</A
+>&nbsp;--&nbsp;行セットを計算します</DT
+></DL
+></DD
+><DT
+>II. <A
+HREF="reference-client.html"
+>PostgreSQLクライアントアプリケーション</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="app-clusterdb.html"
+><SPAN
+CLASS="APPLICATION"
+>clusterdb</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースをクラスタ化する</DT
+><DT
+><A
+HREF="app-createdb.html"
+><SPAN
+CLASS="APPLICATION"
+>createdb</SPAN
+></A
+>&nbsp;--&nbsp;新しい<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースを作成する</DT
+><DT
+><A
+HREF="app-createlang.html"
+><SPAN
+CLASS="APPLICATION"
+>createlang</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>手続き言語をインストールする</DT
+><DT
+><A
+HREF="app-createuser.html"
+><SPAN
+CLASS="APPLICATION"
+>createuser</SPAN
+></A
+>&nbsp;--&nbsp;新しい<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウントを定義する</DT
+><DT
+><A
+HREF="app-dropdb.html"
+><SPAN
+CLASS="APPLICATION"
+>dropdb</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースを削除する</DT
+><DT
+><A
+HREF="app-droplang.html"
+><SPAN
+CLASS="APPLICATION"
+>droplang</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>手続き言語を削除する</DT
+><DT
+><A
+HREF="app-dropuser.html"
+><SPAN
+CLASS="APPLICATION"
+>dropuser</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウントを削除する</DT
+><DT
+><A
+HREF="app-ecpg.html"
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+></A
+>&nbsp;--&nbsp;埋め込みSQL用Cプリプロセッサを使用する</DT
+><DT
+><A
+HREF="app-pgbasebackup.html"
+>pg_basebackup</A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>クラスタのベースバックアップを取得</DT
+><DT
+><A
+HREF="app-pgconfig.html"
+>pg_config</A
+>&nbsp;--&nbsp;インストールした<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>バージョンの情報を提供する</DT
+><DT
+><A
+HREF="app-pgdump.html"
+>pg_dump</A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースをスクリプトファイルまたは他のアーカイブファイルへ抽出する
+  </DT
+><DT
+><A
+HREF="app-pg-dumpall.html"
+><SPAN
+CLASS="APPLICATION"
+>pg_dumpall</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースクラスタをスクリプトファイルへ抽出する</DT
+><DT
+><A
+HREF="app-pgrestore.html"
+>pg_restore</A
+>&nbsp;--&nbsp;<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>によって作成されたアーカイブファイルから<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースをリストアする
+  </DT
+><DT
+><A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>対話的ターミナル
+    </DT
+><DT
+><A
+HREF="app-reindexdb.html"
+><SPAN
+CLASS="APPLICATION"
+>reindexdb</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースのインデックスを再作成します。</DT
+><DT
+><A
+HREF="app-vacuumdb.html"
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースの不要領域の回収と解析を行う</DT
+></DL
+></DD
+><DT
+>III. <A
+HREF="reference-server.html"
+>PostgreSQLサーバアプリケーション</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="app-initdb.html"
+>initdb</A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のデータベースクラスタを新しく作成する</DT
+><DT
+><A
+HREF="app-pgcontroldata.html"
+><SPAN
+CLASS="APPLICATION"
+>pg_controldata</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースクラスタの制御情報を表示する</DT
+><DT
+><A
+HREF="app-pg-ctl.html"
+><SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバの初期化、起動、停止、制御</DT
+><DT
+><A
+HREF="app-pgresetxlog.html"
+><SPAN
+CLASS="APPLICATION"
+>pg_resetxlog</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースクラスタの先行書き込みログやその他の制御情報を初期化する</DT
+><DT
+><A
+HREF="app-postgres.html"
+><SPAN
+CLASS="APPLICATION"
+>postgres</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースサーバ</DT
+><DT
+><A
+HREF="app-postmaster.html"
+><SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+></A
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースサーバ</DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="spi-examples.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>例</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SQLコマンド</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

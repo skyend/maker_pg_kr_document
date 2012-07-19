@@ -1,0 +1,407 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER USER MAPPING</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER USER"
+HREF="sql-alteruser.html"><LINK
+REL="NEXT"
+TITLE="ALTER VIEW"
+HREF="sql-alterview.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER USER"
+HREF="sql-alteruser.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER USER"
+HREF="sql-alteruser.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER VIEW"
+HREF="sql-alterview.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER VIEW"
+HREF="sql-alterview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERUSERMAPPING"
+></A
+>ALTER USER MAPPING</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN62972"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER USER MAPPING&nbsp;--&nbsp;ユーザマップの定義を変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN62977"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER USER MAPPING FOR { <TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+> | USER | CURRENT_USER | PUBLIC }
+    SERVER <TT
+CLASS="REPLACEABLE"
+><I
+>server_name</I
+></TT
+>
+    OPTIONS ( [ ADD | SET | DROP ] <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> ['<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>'] [, ... ] )</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62983"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER USER MAPPING</TT
+>はユーザマップの定義を変更します。
+  </P
+><P
+>外部サーバの所有者は任意のユーザに対するそのサーバ向けのユーザマップを変更することができます。
+また、サーバ上で<TT
+CLASS="LITERAL"
+>USAGE</TT
+>権限がユーザに付与されていた場合、ユーザは自身の持つユーザ名に対応するユーザマップを変更することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62989"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+></DT
+><DD
+><P
+>対応付けするユーザ名です。
+<TT
+CLASS="LITERAL"
+>CURRENT_USER</TT
+>と<TT
+CLASS="LITERAL"
+>USER</TT
+>は現在のユーザ名に一致します。
+<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>は現在および将来にシステム上に存在するすべてのユーザに一致させるために使用します。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>server_name</I
+></TT
+></DT
+><DD
+><P
+>ユーザマップのサーバ名です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OPTIONS ( [ ADD | SET | DROP ] <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> ['<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>'] [, ... ] )</TT
+></DT
+><DD
+><P
+>ユーザマップのオプションを変更します。
+新しいオプションは過去に指定されたオプションをすべて上書きします。
+<TT
+CLASS="LITERAL"
+>ADD</TT
+>、<TT
+CLASS="LITERAL"
+>SET</TT
+>、<TT
+CLASS="LITERAL"
+>DROP</TT
+>は実行する動作を指定します。
+明示的な動作指定がない場合、<TT
+CLASS="LITERAL"
+>ADD</TT
+>とみなされます。
+オプション名は一意でなければなりません。
+またオプションはサーバの外部データラッパにより検証されます。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63016"
+></A
+><H2
+>例</H2
+><P
+>サーバ<TT
+CLASS="LITERAL"
+>foo</TT
+>のユーザマップ<TT
+CLASS="LITERAL"
+>bob</TT
+>のパスワードを変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER USER MAPPING FOR bob SERVER foo OPTIONS (user 'bob', password 'public');</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63022"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER USER MAPPING</TT
+>はISO/IEC 9075-9(SQL/MED)に従います。
+小さな構文上の問題があります。
+標準では<TT
+CLASS="LITERAL"
+>FOR</TT
+>キーワードを省略します。
+<TT
+CLASS="LITERAL"
+>CREATE USER MAPPING</TT
+>と<TT
+CLASS="LITERAL"
+>DROP USER MAPPING</TT
+>では<TT
+CLASS="LITERAL"
+>FOR</TT
+>を似たような位置で使用し、またIBM DB2（他の主なSQL/MED実装になっています）では<TT
+CLASS="LITERAL"
+>ALTER USER MAPPING</TT
+>で必要としていますので、PostgreSQLは、一貫性と相互運用性を目的に、標準と違いを持たせています。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63031"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createusermapping.html"
+>CREATE USER MAPPING</A
+>, <A
+HREF="sql-dropusermapping.html"
+>DROP USER MAPPING</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alteruser.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alterview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER USER</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER VIEW</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

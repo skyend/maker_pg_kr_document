@@ -1,0 +1,1246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE TRIGGER</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE TEXT SEARCH TEMPLATE"
+HREF="sql-createtstemplate.html"><LINK
+REL="NEXT"
+TITLE="CREATE TYPE"
+HREF="sql-createtype.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE TEXT SEARCH TEMPLATE"
+HREF="sql-createtstemplate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE TEXT SEARCH TEMPLATE"
+HREF="sql-createtstemplate.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE TYPE"
+HREF="sql-createtype.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE TYPE"
+HREF="sql-createtype.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATETRIGGER"
+></A
+>CREATE TRIGGER</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN68587"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE TRIGGER&nbsp;--&nbsp;新しいトリガを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN68592"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE [ CONSTRAINT ] TRIGGER <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> { BEFORE | AFTER | INSTEAD OF } { <TT
+CLASS="REPLACEABLE"
+><I
+>event</I
+></TT
+> [ OR ... ] }
+    ON <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>
+    [ FROM <TT
+CLASS="REPLACEABLE"
+><I
+>referenced_table_name</I
+></TT
+> ]
+    { NOT DEFERRABLE | [ DEFERRABLE ] { INITIALLY IMMEDIATE | INITIALLY DEFERRED } }
+    [ FOR [ EACH ] { ROW | STATEMENT } ]
+    [ WHEN ( <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+> ) ]
+    EXECUTE PROCEDURE <TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>arguments</I
+></TT
+> )
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>event</I
+></TT
+>は以下のいずれかを取ることができます。</SPAN
+></SPAN
+>
+    INSERT
+    UPDATE [ OF <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ... ] ]
+    DELETE
+    TRUNCATE</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68604"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>は新しいトリガを作成します。
+作成したトリガは指定したテーブルまたはビューと関連付けられ、特定のイベントが発生した時に指定した関数<TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+>を実行します。
+  </P
+><P
+>トリガでは、起動のタイミングとして、行への操作が開始される前（制約条件のチェックと<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>が行われる前）、操作が完了した後（制約条件がチェックされ、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>が完了した後）、操作の代わり（ビューにおける挿入、更新、削除の場合）のいずれかを指定することができます。
+イベントの前または代わりにトリガが起動する場合、そのトリガは対象行に対する操作を省略したり、（<TT
+CLASS="COMMAND"
+>INSERT</TT
+>と<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>の操作時のみ）挿入する行を変更したりすることができます。
+イベントの後にトリガが起動する場合、他のトリガの影響を含む全ての変更が、トリガに対して<SPAN
+CLASS="QUOTE"
+>"可視"</SPAN
+>状態となります。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR EACH ROW</TT
+>付きのトリガは、その操作によって変更される行ごとに1回ずつ呼び出されます。
+例えば、10行に影響を与える<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作は、対象リレーション上の<TT
+CLASS="LITERAL"
+>ON DELETE</TT
+>トリガを、行が削除される度に1回ずつ、個別に10回呼び出すことになります。
+反対に、<TT
+CLASS="LITERAL"
+>FOR EACH STATEMENT</TT
+>付きのトリガは、その操作によって何行変更されたかにかかわらず、任意の操作ごとに1回のみ実行されます
+（変更対象が0行となる操作でも、適用できる<TT
+CLASS="LITERAL"
+>FOR EACH STATEMENT</TT
+>トリガがあれば実行されます）。
+  </P
+><P
+>トリガイベントの<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>として発行されるように指定されたトリガは<TT
+CLASS="LITERAL"
+>FOR EACH ROW</TT
+>印を付けなければなりません。
+このためビュー上にのみ定義することができます。
+ビューに対する<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>および<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガは<TT
+CLASS="LITERAL"
+>FOR EACH STATEMENT</TT
+>印を付けなければなりません。
+   </P
+><P
+>さらに、<TT
+CLASS="LITERAL"
+>FOR EACH STATEMENT</TT
+>のみですが、トリガを<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>で発行するように定義することができます。
+  </P
+><P
+>以下の表にどの種類のトリガがテーブルとビューに対して使用できるかをまとめます。
+  </P
+><DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><A
+NAME="SUPPORTED-TRIGGER-TYPES"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>いつ</TH
+><TH
+>イベント</TH
+><TH
+>行レベル</TH
+><TH
+>文レベル</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ROWSPAN="2"
+ALIGN="CENTER"
+><TT
+CLASS="LITERAL"
+>BEFORE</TT
+></TD
+><TD
+ALIGN="CENTER"
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+></TD
+><TD
+ALIGN="CENTER"
+>テーブル</TD
+><TD
+ALIGN="CENTER"
+>テーブルおよびビュー</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+></TD
+><TD
+ALIGN="CENTER"
+>&mdash;</TD
+><TD
+ALIGN="CENTER"
+>テーブル</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+ALIGN="CENTER"
+><TT
+CLASS="LITERAL"
+>AFTER</TT
+></TD
+><TD
+ALIGN="CENTER"
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+></TD
+><TD
+ALIGN="CENTER"
+>テーブル</TD
+><TD
+ALIGN="CENTER"
+>テーブルおよびビュー</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+></TD
+><TD
+ALIGN="CENTER"
+>&mdash;</TD
+><TD
+ALIGN="CENTER"
+>テーブル</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+ALIGN="CENTER"
+><TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+></TD
+><TD
+ALIGN="CENTER"
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+></TD
+><TD
+ALIGN="CENTER"
+>ビュー</TD
+><TD
+ALIGN="CENTER"
+>&mdash;</TD
+></TR
+><TR
+><TD
+ALIGN="CENTER"
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+></TD
+><TD
+ALIGN="CENTER"
+>&mdash;</TD
+><TD
+ALIGN="CENTER"
+>&mdash;</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+><P
+>またトリガ定義では、トリガを発行すべきかどうかを判定する、論理値の<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件を指定することができます。
+行レベルのトリガでは、<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件は行の列の古い値、新しい値、またはその両方で検証することができます。
+文レベルのトリガでも<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件を持たせることができますが、条件としてテーブル内の何らかの値を参照することができませんので、この機能はあまり有用ではありません
+  </P
+><P
+>同一イベントに同じ種類の複数のトリガが定義された場合、名前のアルファベット順で実行されます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>CONSTRAINT</TT
+>オプションが指定された場合、このコマンドは<I
+CLASS="FIRSTTERM"
+>制約トリガ</I
+>を作成します。
+これは、<A
+HREF="sql-set-constraints.html"
+>SET CONSTRAINTS</A
+>を使用してトリガを発行するタイミングを調整することができるという点を除き、通常のトリガと同じです。
+制約トリガは<TT
+CLASS="LITERAL"
+>AFTER ROW</TT
+>トリガでなければなりません。
+トリガイベントを引き起こした文の最後、またはそれを含むトランザクションの最後のいずれかで発行することができます。
+後者の場合、<I
+CLASS="FIRSTTERM"
+>遅延</I
+>と呼ばれます。
+<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>を使用することで、強制的に待機中の遅延トリガの発行を即座に行わせることができます。
+制約トリガは、実装する制約に違反した時に例外を発生するものと想定しています。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>はまったく行を変更しないため、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>トリガを作成することはできません。
+この場合は、ルールやビューの方が適しています。
+  </P
+><P
+>トリガに関するより詳細については、<A
+HREF="triggers.html"
+>&#31532;36&#31456;</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68703"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>新しいトリガに付与する名前です。
+同じテーブルの他のトリガと異なる名前にする必要があります。
+名前をスキーマ修飾することはできません。
+トリガはそのテーブルのスキーマを引き継ぎます。
+制約トリガの場合、この名前が<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>を使用してトリガの動作を変更する時に使用されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>BEFORE</TT
+><BR><TT
+CLASS="LITERAL"
+>AFTER</TT
+><BR><TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+></DT
+><DD
+><P
+>関数の呼び出しをイベントの前に行うか後に行うか、それとも代替として行うかを決定します。
+制約トリガでは<TT
+CLASS="LITERAL"
+>AFTER</TT
+>としてしか指定することができません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>event</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>のいずれかが入ります。
+このパラメータは、トリガを起動するイベントを指定します。
+<TT
+CLASS="LITERAL"
+>OR</TT
+>を使用して、複数のイベントを指定することができます。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>UPDATE</TT
+>イベントでは、以下の構文を使用して列リストを指定することができます。
+</P><PRE
+CLASS="SYNOPSIS"
+>UPDATE OF <TT
+CLASS="REPLACEABLE"
+><I
+>column_name1</I
+></TT
+> [, <TT
+CLASS="REPLACEABLE"
+><I
+>column_name2</I
+></TT
+> ... ]</PRE
+><P>
+このトリガは<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドの対象として列挙された列のいずれか少なくとも1つの列が指定された場合に発行されます。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>INSTEAD OF UPDATE</TT
+>イベントは列リストをサポートしません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+></DT
+><DD
+><P
+>トリガを作成するテーブルまたはビューの名前です（スキーマ修飾名も可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>referenced_table_name</I
+></TT
+></DT
+><DD
+><P
+>制約で参照される（おそらくスキーマ修飾された）他のテーブルの名前です。
+このオプションは外部キー制約で使用されるものであり、一般利用を推奨しません。
+これは制約トリガでのみ指定することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DEFERRABLE</TT
+><BR><TT
+CLASS="LITERAL"
+>NOT DEFERRABLE</TT
+><BR><TT
+CLASS="LITERAL"
+>INITIALLY IMMEDIATE</TT
+><BR><TT
+CLASS="LITERAL"
+>INITIALLY DEFERRED</TT
+></DT
+><DD
+><P
+>トリガのデフォルトのタイミングです。
+これらの制約オプションについては<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>文書を参照してください。
+これは制約トリガでのみ指定することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FOR EACH ROW</TT
+><BR><TT
+CLASS="LITERAL"
+>FOR EACH STATEMENT</TT
+></DT
+><DD
+><P
+>このパラメータは、トリガプロシージャを、トリガイベントによって影響を受ける行ごとに1回起動するか、SQL文ごとに1回のみ起動するかを指定します。
+どちらも指定されない場合は、<TT
+CLASS="LITERAL"
+>FOR EACH STATEMENT</TT
+>がデフォルトです。
+制約トリガでは<TT
+CLASS="LITERAL"
+>FOR EACH ROW</TT
+>のみ指定することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+></DT
+><DD
+><P
+>トリガ関数を実際に実行するか否かを決定する論理式です。
+<TT
+CLASS="LITERAL"
+>WHEN</TT
+>が指定された場合、<TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+>が<TT
+CLASS="LITERAL"
+>true</TT
+>を返す場合のみ関数が呼び出されます。
+<TT
+CLASS="LITERAL"
+>FOR EACH ROW</TT
+>トリガでは、<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件で、それぞれ<TT
+CLASS="LITERAL"
+>OLD.<TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+></TT
+>、<TT
+CLASS="LITERAL"
+>NEW.<TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+></TT
+>と記述することで、古い行値、新しい行値、またはその両方の列を参照することができます。
+当然ながら<TT
+CLASS="LITERAL"
+>INSERT</TT
+>トリガでは<TT
+CLASS="LITERAL"
+>OLD</TT
+>を参照することはできませんし、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>トリガでは<TT
+CLASS="LITERAL"
+>NEW</TT
+>を参照することはできません。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガは<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件をサポートしません。
+     </P
+><P
+>現時点では<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件に副問い合わせを含めることはできません。
+     </P
+><P
+>制約トリガでは、<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件の評価は遅延されず、行の更新操作が行われた直後に発生することに注意してください。
+この条件が真と評価されなかった場合、トリガは遅延実行ようのキューに入りません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+></DT
+><DD
+><P
+>ユーザが提供する関数です。この関数は、引数を取らず<TT
+CLASS="LITERAL"
+>trigger</TT
+>型を返すよう定義します。トリガが起動した時に実行されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>arguments</I
+></TT
+></DT
+><DD
+><P
+>トリガ実行時に関数に渡される引数をカンマで区切ったリストです。このパラメータは省略可能です。
+引数として指定するのは、リテラル文字列定数です。
+単純な名前および数値定数を記述できますが、全て文字列に変換されます。
+関数内でこれらの引数にアクセスする方法について調べるためには、トリガ関数を実装した言語の説明を参照してください。
+通常の関数引数とは異なる場合があります。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATETRIGGER-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+>テーブルにトリガを作成するには、ユーザがそのテーブルに対し<TT
+CLASS="LITERAL"
+>TRIGGER</TT
+>権限を持っている必要があります。
+またユーザはトリガ関数に対し<TT
+CLASS="LITERAL"
+>EXECUTE</TT
+>権限を持たなければなりません。
+  </P
+><P
+>トリガを削除するためには<A
+HREF="sql-droptrigger.html"
+>DROP TRIGGER</A
+>を使用してください。
+  </P
+><P
+>列指定のトリガ（<TT
+CLASS="LITERAL"
+>UPDATE OF <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+></TT
+>構文で定義されたトリガ）は、列挙された列のいずれかかが<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドの<TT
+CLASS="LITERAL"
+>SET</TT
+>リスト内に対象として指定された場合に発行されます。
+<TT
+CLASS="LITERAL"
+>BEFORE UPDATE</TT
+>トリガにより行の内容になされた変更が考慮されないため、トリガが発行されない場合であっても、列の値を変更することができます。
+反対に、<TT
+CLASS="LITERAL"
+>UPDATE ... SET x = x ...</TT
+>のようなコマンドは、列の値が変更されていない場合であっても、<TT
+CLASS="LITERAL"
+>x</TT
+>列に対するトリガは発行されます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガにおいて<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件は関数が実行される、またはされそうな場合のみ評価されます。
+このため<TT
+CLASS="LITERAL"
+>WHEN</TT
+>の使用はトリガ関数の先頭で同一の条件を試験することと実質違いはありません。
+この条件で確認できる<TT
+CLASS="LITERAL"
+>NEW</TT
+>行が現在の値であり、それまでのトリガで変更されている可能性があることに、特に注意して下さい。
+また<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガの<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件では、まだ設定されていませんので、<TT
+CLASS="LITERAL"
+>NEW</TT
+>行のシステム列(<TT
+CLASS="LITERAL"
+>oid</TT
+>など)を検査することができません。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガにおいて、<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件は行の更新を行った直後に評価され、文の最後でトリガを発行するためにイベントを保持すべきかどうかを決定します。
+このため<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガの<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件は真を返さない場合、イベントを保持する必要もありませんし、文の最後の行を再度取り出す必要もありません。
+これにより、トリガをわずかな行のみに対して発行する必要がある場合、多くの行を変更する文を非常に高速にすることができます。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 7.3より前のバージョンでは、トリガ関数の戻り値の型を、<TT
+CLASS="TYPE"
+>trigger</TT
+>型ではなくプレースホルダである<TT
+CLASS="TYPE"
+>opaque</TT
+>型として宣言する必要がありました。
+古いダンプファイルのロードをサポートするため、<TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>では<TT
+CLASS="TYPE"
+>opaque</TT
+>型を返すよう宣言された関数を受け入れます。
+しかし、注意を促すメッセージを表示し、宣言された関数の戻り値型を<TT
+CLASS="TYPE"
+>trigger</TT
+>に変換します。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATETRIGGER-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>accounts</TT
+>テーブルの行が更新される直前に<CODE
+CLASS="FUNCTION"
+>check_account_update</CODE
+>関数を実行します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TRIGGER check_update
+    BEFORE UPDATE ON accounts
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_account_update();</PRE
+><P>
+
+上と同じです。
+しかし、<TT
+CLASS="LITERAL"
+>balance</TT
+>列が<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドの対象として使用された場合のみ実行されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TRIGGER check_update
+    BEFORE UPDATE OF balance ON accounts
+    FOR EACH ROW
+    EXECUTE PROCEDURE check_account_update();</PRE
+><P>
+
+以下の構文では、<TT
+CLASS="LITERAL"
+>balance</TT
+>列が実際に変更された場合のみ関数が実行されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TRIGGER check_update
+    BEFORE UPDATE ON accounts
+    FOR EACH ROW
+    WHEN (OLD.balance IS DISTINCT FROM NEW.balance)
+    EXECUTE PROCEDURE check_account_update();</PRE
+><P>
+
+何か変更された場合のみに<TT
+CLASS="LITERAL"
+>accounts</TT
+>の更新のログを取る関数を呼び出します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TRIGGER log_update
+    AFTER UPDATE ON accounts
+    FOR EACH ROW
+    WHEN (OLD.* IS DISTINCT FROM NEW.*)
+    EXECUTE PROCEDURE log_account_update();</PRE
+><P>
+
+ビューの背後にあるテーブルに行を挿入するために、各行に対して<CODE
+CLASS="FUNCTION"
+>view_insert_row</CODE
+>関数を実行します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TRIGGER view_insert
+    INSTEAD OF INSERT ON my_view
+    FOR EACH ROW
+    EXECUTE PROCEDURE view_insert_row();</PRE
+><P>
+  </P
+><P
+><A
+HREF="trigger-example.html"
+>&#38917;36.4</A
+>には、C言語で作成されたトリガ関数の完全な例があります。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATETRIGGER-COMPATIBILITY"
+></A
+><H2
+>互換性</H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>における<TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>文は標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>のサブセットを実装したものです
+ただし、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には、次の機能がありません。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>SQLでは、<SPAN
+CLASS="QUOTE"
+>"old"</SPAN
+>や<SPAN
+CLASS="QUOTE"
+>"new"</SPAN
+>、トリガによって起動する動作の定義が使用するテーブルに、別名を定義することができます。
+（例えば、<TT
+CLASS="LITERAL"
+>CREATE TRIGGER ... ON tablename REFERENCING OLD ROW AS somename NEW ROW AS othername ...</TT
+>）。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、複数のユーザ定義言語でトリガプロシージャを作成できるので、データへのアクセスは言語固有の方法で扱われます。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、トリガ動作として、1つのユーザ定義関数の実行しか認めていません。
+標準では、他のSQLコマンドを複数実行させることができます。
+例えば、トリガ動作として<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>を実行させることも可能です。
+この制限を回避する方法は簡単です。必要なコマンドを実行するユーザ定義関数を作成すればよいのです。
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+>SQLでは、複数のトリガは、作成時刻順に起動すべきであると規定しています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では名前順であり、より簡単に判断することができます。
+  </P
+><P
+>SQLでは、数珠繋ぎの削除に対する<TT
+CLASS="LITERAL"
+>BEFORE DELETE</TT
+>は、数珠繋ぎの<TT
+CLASS="LITERAL"
+>DELETE</TT
+>が完了した<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>後に</I
+></SPAN
+>発行するものと規定しています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、<TT
+CLASS="LITERAL"
+>BEFORE  DELETE</TT
+>は常に削除操作よりも後に行われます。
+この方がより一貫性があると考えています。
+また、参照整合性に関する動作により引き起こる更新を実行している間に、<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガが行を更新し、更新を妨げるような場合の動作は非標準的です。
+これは、制約違反となるかもしれませんし、参照整合性制約に合わないデータを格納してしまうかもしれません。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>OR</TT
+>を使用して単一トリガに複数の動作を指定する機能は、標準SQLに対する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>でのトリガ発行機能、および、ビューに対する文レベルトリガの定義機能は標準SQLに対する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE CONSTRAINT TRIGGER</TT
+>は標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>に対する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68897"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>, <A
+HREF="sql-altertrigger.html"
+>ALTER TRIGGER</A
+>, <A
+HREF="sql-droptrigger.html"
+>DROP TRIGGER</A
+>, <A
+HREF="sql-set-constraints.html"
+>SET CONSTRAINTS</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createtstemplate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createtype.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE TEXT SEARCH TEMPLATE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE TYPE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>디스크 공간 부족 문제 </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \"디스크 사용량 모니터링\"\n
+HREF="diskusage.html"><LINK
+REL="PREVIOUS"
+TITLE = \" 디스크 사용량 결정\"\n
+HREF="disk-usage.html"><LINK
+REL="NEXT"
+TITLE = \" 신뢰성과 로그 선행 쓰기 \"\n
+HREF="wal.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" 디스크 사용량 결정\"\n
+HREF="disk-usage.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \"디스크 사용량 모니터링\"\n
+HREF="diskusage.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 28 장 ディスク使用量の監視</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \"디스크 사용량 모니터링\"\n
+HREF="diskusage.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 신뢰성과 로그 선행 쓰기 \"\n
+HREF="wal.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DISK-FULL"
+>28.2 디스크 공간 부족 문제 </A
+></H1
+><P
+>데이터베이스 관리자의 가장 중요한 디스크 모니터링 작업 은 디스크 공간이 부족할 되어 있는지 확인 하는 것입니다.
+용량 부족으로 된 디스크 는 데이터가 손상 되지 않습니다. 하지만 데이터 손상 이 발생해질 수 있습니다.
+만약 WAL 파일이있는 디스크가 꽉 찬 경우에는 데이터베이스 서버가 멎어 결과적으로 종료합니다.
+  </P
+><P
+>다른 데이터를 삭제해도 디스크에 공간을 확보 하지 못하면\n
+테이블 스페이스를 사용 하여 데이터베이스 파일의 일부를\n
+다른 파일 시스템으로 이동 시킬 수 있습니다. 자세한 내용은
+<A
+HREF="manage-ag-tablespaces.html"
+>&#38917;21.6</A
+>를 참조 하십시오.
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>일부 파일 시스템 용량이 거의 가득 찬 경우 성능이 저하 됩니다.
+따라서 디스크가 거의 꽉 찰 전에 여유를 가지고 대책을 취하십시오.
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>시스템 에서 사용 자별 디스크 할당량을 지원하는 경우  당연히 데이터베이스를 서버를 실행하는 사용자에게 할당된 할당량 을 따릅니다.
+할당량을 초과하면 디스크 공간이 완전히 없어진 때 와 같은 부작용이 발생합니다.
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="disk-usage.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="wal.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>디스크 사용량 결정 </TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="diskusage.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>신뢰성과 로그 선행 기입 </TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

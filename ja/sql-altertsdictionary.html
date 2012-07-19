@@ -1,0 +1,441 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER TEXT SEARCH DICTIONARY</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER TEXT SEARCH CONFIGURATION"
+HREF="sql-altertsconfig.html"><LINK
+REL="NEXT"
+TITLE="ALTER TEXT SEARCH PARSER"
+HREF="sql-altertsparser.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER TEXT SEARCH CONFIGURATION"
+HREF="sql-altertsconfig.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER TEXT SEARCH CONFIGURATION"
+HREF="sql-altertsconfig.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER TEXT SEARCH PARSER"
+HREF="sql-altertsparser.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER TEXT SEARCH PARSER"
+HREF="sql-altertsparser.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERTSDICTIONARY"
+></A
+>ALTER TEXT SEARCH DICTIONARY</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN62505"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER TEXT SEARCH DICTIONARY&nbsp;--&nbsp;テキスト検索辞書の定義を変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN62510"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER TEXT SEARCH DICTIONARY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> (
+    <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> [ = <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> ] [, ... ]
+)
+ALTER TEXT SEARCH DICTIONARY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>
+ALTER TEXT SEARCH DICTIONARY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+>
+ALTER TEXT SEARCH DICTIONARY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SET SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62521"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TEXT SEARCH DICTIONARY</TT
+>はテキスト検索辞書の定義を変更します。
+辞書のテンプレート固有のオプションの変更、辞書の名称、辞書の所有者を変更することができます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TEXT SEARCH DICTIONARY</TT
+>を使用するには、辞書の所有者でなければなりません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62527"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>既存のテキスト検索辞書の名称（スキーマ修飾可）です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+></DT
+><DD
+><P
+>この辞書に設定される、テンプレート固有のオプションの名称です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+></DT
+><DD
+><P
+>テンプレート固有のオプションで使用される、新しい値です。
+等号記号と値が省略された場合、そのオプションの以前の設定は辞書から削除され、デフォルト値の使用を許可します。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>新しいテキスト検索辞書の名称です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></DT
+><DD
+><P
+>新しいテキスト検索辞書の所有者です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></DT
+><DD
+><P
+>テキスト検索辞書の新しいスキーマです。
+     </P
+></DD
+></DL
+></DIV
+><P
+>テンプレート固有のオプションは任意の順序で記述することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62561"
+></A
+><H2
+>例</H2
+><P
+>次の例は、雪だるま式に増加する辞書のストップワードを変更します。
+他のパラメータはそのまま変更されません。
+  </P
+><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TEXT SEARCH DICTIONARY my_dict ( StopWords = newrussian );</PRE
+><P
+>次の例は、言語オプションをドイツ語に変更し、ストップワードオプションを完全に消去します。
+  </P
+><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TEXT SEARCH DICTIONARY my_dict ( language = dutch, StopWords );</PRE
+><P
+>次の例は、実際には何も変更しませんが、辞書の定義を<SPAN
+CLASS="QUOTE"
+>"更新"</SPAN
+>します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TEXT SEARCH DICTIONARY my_dict ( dummy );</PRE
+><P>
+
+（無効なオプションが存在しても、オプションを消去するコードでエラーとしないため、これは動作します。）
+この手品は、辞書用の設定ファイルを変更する際に有用です。
+この<TT
+CLASS="COMMAND"
+>ALTER</TT
+>により既存のデータベースセッションは強制的に設定ファイルを再度読み込みます。
+こうしないと、以前に読み込んだ設定ファイルを再読み込みすることはありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62571"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>ALTER TEXT SEARCH DICTIONARY</TT
+>文はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62575"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createtsdictionary.html"
+>CREATE TEXT SEARCH DICTIONARY</A
+>, <A
+HREF="sql-droptsdictionary.html"
+>DROP TEXT SEARCH DICTIONARY</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-altertsconfig.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-altertsparser.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER TEXT SEARCH CONFIGURATION</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER TEXT SEARCH PARSER</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

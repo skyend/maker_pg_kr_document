@@ -1,0 +1,1076 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>問い合わせ計画</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="レプリケーション"
+HREF="runtime-config-replication.html"><LINK
+REL="NEXT"
+TITLE="エラー報告とログ取得"
+HREF="runtime-config-logging.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="レプリケーション"
+HREF="runtime-config-replication.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="エラー報告とログ取得"
+HREF="runtime-config-logging.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-QUERY"
+>18.7. 問い合わせ計画</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-QUERY-ENABLE"
+>18.7.1. プランナメソッド設定</A
+></H2
+><P
+>      
+       これらの設定パラメータは、問い合わせオプティマイザが選択する問い合わせ計画に影響する大雑把な手法を提供します。
+もしも、ある問い合わせに対してオプティマイザが選択したデフォルト計画が最適でない場合、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>暫定的な</I
+></SPAN
+>解決策は、これらの設定パラメータの1つを使用し、オプティマイザに異なる計画を選択するように仕向けることです。
+品質を改良する方策は以下を含みます。
+プランナコスト定数の調節（<A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS"
+>&#38917;18.7.2</A
+>を参照）、
+<A
+HREF="runtime-config-query.html#GUC-DEFAULT-STATISTICS-TARGET"
+>default_statistics_target</A
+>設定パラメータの値を手作業で大きくし
+そして<TT
+CLASS="COMMAND"
+>ALTER TABLE SET STATISTICS</TT
+>を使用して、特定の列に対して収集された統計情報を増やします。
+      </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-ENABLE-BITMAPSCAN"
+></A
+><TT
+CLASS="VARNAME"
+>enable_bitmapscan</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナがビットマップ走計画型を選択することを有効もしくは無効にします。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-HASHAGG"
+></A
+><TT
+CLASS="VARNAME"
+>enable_hashagg</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナがハッシュ集約計画型を選択することを有効もしくは無効にします。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-HASHJOIN"
+></A
+><TT
+CLASS="VARNAME"
+>enable_hashjoin</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナがハッシュ結合計画型を選択することを有効もしくは無効にします。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-INDEXSCAN"
+></A
+><TT
+CLASS="VARNAME"
+>enable_indexscan</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナがインデックス走査計画型を選択することを有効もしくは無効にします。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-MATERIAL"
+></A
+><TT
+CLASS="VARNAME"
+>enable_material</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナの具体化の使用を有効、または無効にします。
+	全体にわたって具体化を差し止めることはできませんが、この値をoffにすることにより、正確性が要求される場合を除いて、具体化ノードをプランナが挿入することを防止します。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-MERGEJOIN"
+></A
+><TT
+CLASS="VARNAME"
+>enable_mergejoin</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナがマージ結合計画型を選択することを有効もしくは無効にします。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-NESTLOOP"
+></A
+><TT
+CLASS="VARNAME"
+>enable_nestloop</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナが入れ子になったループ結合計画を選択することを有効もしくは無効にします。
+	入れ子ループ結合を完全に禁止することは不可能ですが、この変数をオフにすると、もし他の方法が利用できるのであれば、プランナはその使用を行わないようになります。
+	デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-SEQSCAN"
+></A
+><TT
+CLASS="VARNAME"
+>enable_seqscan</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナがシーケンシャル走査計画を選択することを有効もしくは無効にします。
+	シーケンシャル走査を完全に禁止することは不可能ですが、この変数をオフにすると、もし他の方法が利用できるのであれば、プランナはその使用を行わないようになります。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-SORT"
+></A
+><TT
+CLASS="VARNAME"
+>enable_sort</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナが明示的並び替え手順を選択することを有効もしくは無効にします。
+	明示的並び替えを完全に禁止することは不可能ですが、この変数をオフにすると、もし他の方法が利用できるのであれば、プランナはその使用を行わないようになります。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ENABLE-TIDSCAN"
+></A
+><TT
+CLASS="VARNAME"
+>enable_tidscan</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせプランナが<ACRONYM
+CLASS="ACRONYM"
+>TID</ACRONYM
+>走査計画型を選択することを有効もしくは無効にします。デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-QUERY-CONSTANTS"
+>18.7.2. プランナコスト定数</A
+></H2
+><P
+>    
+     本節で扱う<I
+CLASS="FIRSTTERM"
+>コスト</I
+>変数は、任意の尺度で測られます。
+これらは相対的な値でしかありません。
+そのため、同じ因子で尺度を変えても、プランナの選択は結果として変わりません。
+デフォルトではこれらのコスト変数はシーケンシャルなページ取り込みに基づいています。
+つまり、<TT
+CLASS="VARNAME"
+>seq_page_cost</TT
+>を慣習的に<TT
+CLASS="LITERAL"
+>1.0</TT
+>とし、他のコスト変数をそれを参考にして設定されていました。
+しかし望むなら、特定のマシンにおけるミリ秒単位の実行時間など、異なる尺度を使用することができます。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     残念ながら、コスト変数に対する理想的な値を決定する、上手く定義された方法がありません。
+特定のインストレーションが受け取る問い合わせ全体を混在させたものの平均を最善のものとして扱われています。
+数回の実験のみを根拠にこの値を変更することは危険であるといえます。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-SEQ-PAGE-COST"
+></A
+><TT
+CLASS="VARNAME"
+>seq_page_cost</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	シーケンシャルな一連の取り出しの一部となる、ディスクページ取り出しに関する、プランナの推定コストを設定します。
+デフォルトは1.0です。
+この値は同じ名前のテーブル空間パラメータを設定することで、特定のテーブル空間に対し上書きされます（<A
+HREF="sql-altertablespace.html"
+>ALTER TABLESPACE</A
+>を参照してください）。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-RANDOM-PAGE-COST"
+></A
+><TT
+CLASS="VARNAME"
+>random_page_cost</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	非シーケンシャル的に取り出されるディスクページのコストに対するプランナの推測を設定します。
+デフォルトは4です。
+	この値は同じ名前のテーブル空間パラメータを設定することで、特定のテーブル空間に対し上書きされます（<A
+HREF="sql-altertablespace.html"
+>ALTER TABLESPACE</A
+>を参照してください）。
+       </P
+><P
+>       
+	この値を<TT
+CLASS="VARNAME"
+>seq_page_cost</TT
+>に相対的に減少させると、システムはインデックススキャンを好んで使用するようになります。
+増加させると、インデックススキャンが相対的に高価になります。
+両方の値を増減させることで、CPUコストに対するディスクI/Oの重要性を変更させることができます。
+これについては、後述のパラメータで説明します。
+       </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>	
+	 システムは<TT
+CLASS="VARNAME"
+>random_page_cost</TT
+>を<TT
+CLASS="VARNAME"
+>seq_page_cost</TT
+>よりも小さな値に設定しようとしますが、これには物理的な意味はありません。
+しかし、データベースが完全にRAMにキャッシュされる場合、同じ値に設定することは意味を持ちます。
+この場合、順序通りではないページアクセスに対するペナルティが存在しないからです。
+また、多くがキャッシュされるデータベースでは、CPUパラメータに対して両値を小さく設定すべきです。
+RAM内に存在するページの取り出しコストは通常よりもかなり小さくなるためです。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-CPU-TUPLE-COST"
+></A
+><TT
+CLASS="VARNAME"
+>cpu_tuple_cost</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせ間にそれぞれの行の処理に対するプランナの推測を設定します。デフォルトは0.01です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-CPU-INDEX-TUPLE-COST"
+></A
+><TT
+CLASS="VARNAME"
+>cpu_index_tuple_cost</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	インデックス走査間にそれぞれのインデックス行の処理に対するプランナの推測を設定します。
+デフォルトは0.005です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-CPU-OPERATOR-COST"
+></A
+><TT
+CLASS="VARNAME"
+>cpu_operator_cost</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせ時に実行される各演算子や関数の処理コストに対するプランナの推測を設定します。デフォルトは0.0025です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-EFFECTIVE-CACHE-SIZE"
+></A
+><TT
+CLASS="VARNAME"
+>effective_cache_size</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	単一の問い合わせで利用できるディスクキャッシュの実効容量に関するプランナの条件を設定します。
+これは、インデックスを使用するコスト推定値の要素となります。
+より高い値にすれば、よりインデックススキャンが使用されるようになり、より小さく設定すれば、シーケンシャルスキャンがより使用されるようになります。
+このパラメータを設定する時には、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の共有バッファと<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データファイルに使用されるカーネルのディスクキャッシュの量の両方を考慮しなければなりません。
+また、利用可能な領域を共有しますので、異なるテーブルに対して同時に実行される問い合わせの総定数も考慮してください。
+このパラメータは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で割り当てられる共有メモリの大きさには影響を与えません。また、カーネルのディスクキャッシュを予約したりもしません。
+これは推定目的のみで使用されます。
+       同時に、システムは問い合わせの間のディスクキャッシュ内のデータの残滓を想定していません。
+デフォルトは128メガバイト（<TT
+CLASS="LITERAL"
+>128MB</TT
+>）です。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-QUERY-GEQO"
+>18.7.3. 遺伝的問い合わせオプティマイザ</A
+></H2
+><P
+>     
+      遺伝的問い合わせオプティマイザ（GEQO）はヒューリスティック（発見的）検索法を用いた問い合わせ計画を行なう演算手法です。
+      通常のしらみつぶしの検索演算手法で見いだされる計画よりも時として劣った計画を作成するという代償を払いますが、この手法は（多くのリレーションを結合するような）複雑な問い合わせに対し計画時間を軽減します。
+      より詳細は<A
+HREF="geqo.html"
+>&#31532;51&#31456;</A
+>を参照してください。
+     </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-GEQO"
+></A
+><TT
+CLASS="VARNAME"
+>geqo</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	遺伝的問い合わせ最適化を有効もしくは無効にします。デフォルトは有効です。
+	運用時には無効にしないことが通常最善です。<TT
+CLASS="VARNAME"
+>geqo_threshold</TT
+>変数は、GEQOを制御するためよりきめ細かな方法を提供します。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-GEQO-THRESHOLD"
+></A
+><TT
+CLASS="VARNAME"
+>geqo_threshold</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+少なくともこれだけの数の<TT
+CLASS="LITERAL"
+>FROM</TT
+>項目数で問い合わせを計画するのに遺伝的問い合わせ最適化を使用します。
+（<TT
+CLASS="LITERAL"
+>FULL OUTER JOIN</TT
+>の生成子は、1つの<TT
+CLASS="LITERAL"
+>FROM</TT
+>項目として計算することに注意してください。）
+デフォルトは12です。
+もっと単純な問い合わせでは、通常のしらみつぶしの検索プランナを使用するのが最善ですが、多くのテーブルを持つ問い合わせでは、しらみつぶしの検索プランナは非常に時間がかかります。しばしば事前の計画を実行する代償より長くなります。
+したがって、問い合わせサイズに対する閾値がGEQOの使用を管理するための簡便な方法です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-GEQO-EFFORT"
+></A
+><TT
+CLASS="VARNAME"
+>geqo_effort</TT
+>
+      (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	GEQOにおける計画時間と問い合わせ計画の品質間のトレードオフを制御します。この変数は1から10までの範囲の整数でなければなりません。
+	デフォルトの値は5です。値を大きくすると、問い合わせ計画作成により多くの時間を費すことになりますが、より効率的な問い合わせ計画が選択される可能性が増加します。
+       </P
+><P
+>       
+	実際<TT
+CLASS="VARNAME"
+>geqo_effort</TT
+>は直接何も行いません。それはGEQOの動作に影響を与える他の変数に対し、デフォルトの値を計算するためにのみ使用されます（以下で説明します）。もしよければ、代わりに手作業で他のパラメータを設定できます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-GEQO-POOL-SIZE"
+></A
+><TT
+CLASS="VARNAME"
+>geqo_pool_size</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	GEQOで使用されるプール容量を管理します。それは遺伝的個体群内の個体数です。最低でも2つはなければならず、よく100から1000までの値が使用されます。もし（デフォルトの設定である）零に設定されると、<TT
+CLASS="VARNAME"
+>geqo_effort</TT
+>および問い合わせの中のテーブル数に基づいて、適切な値が選択されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-GEQO-GENERATIONS"
+></A
+><TT
+CLASS="VARNAME"
+>geqo_generations</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	GEQOで使用される世代の数を管理します。それはアルゴリズムの反復数です。最低でも1はなければならず、よくプールサイズと同じ範囲の値が使用されます。これを0に設定（デフォルトの設定）すると、適切な値が<TT
+CLASS="VARNAME"
+>geqo_effort</TT
+>に基づいて選択されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-GEQO-SELECTION-BIAS"
+></A
+><TT
+CLASS="VARNAME"
+>geqo_selection_bias</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	GEQOで使用される淘汰の偏りを管理します。淘汰の偏りは個体群内の（遺伝的な）自然淘汰です。値は1.50から2.00で、2.00がデフォルトです。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-GEQO-SEED"
+></A
+><TT
+CLASS="VARNAME"
+>geqo_seed</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	結合順序検索空間にわたって、GEQOが無作為のパスを選択するために使用される乱数発生器の初期値を制御済ます。
+	値は0（デフォルト）から1までの範囲です。
+	値を変動させると探査される結合パスの集合を変化させ、それが見つかっているより良いか、より悪い最善のパスとなる可能性があります。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-QUERY-OTHER"
+>18.7.4. その他のプランナオプション</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-DEFAULT-STATISTICS-TARGET"
+></A
+><TT
+CLASS="VARNAME"
+>default_statistics_target</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="COMMAND"
+>ALTER TABLE SET STATISTICS</TT
+>で列特定の目的セットの無いテーブル列に対し、デフォルトの統計対象を設定します。
+より大きい値は<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>に必要なの時間を増加させますが、プランナの予測の品質を向上させます。
+デフォルトは100です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の問い合わせプランナによる統計情報の使用法に関するより詳細な情報は、<A
+HREF="planner-stats.html"
+>&#38917;14.2</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-CONSTRAINT-EXCLUSION"
+></A
+><TT
+CLASS="VARNAME"
+>constraint_exclusion</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	問い合わせを最適化するため、テーブル制約に対しての問い合わせプランナの使用を制御します。<TT
+CLASS="VARNAME"
+>constraint_exclusion</TT
+>に許容される値は、<TT
+CLASS="LITERAL"
+>on</TT
+>（全てのテーブルに対し制約を検査する）、<TT
+CLASS="LITERAL"
+>off</TT
+>（決して制約を検査しない）、および<TT
+CLASS="LITERAL"
+>partition</TT
+>（継承された子テーブルおよび<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>副問い合わせのみ制約を検査する）です。<TT
+CLASS="LITERAL"
+>partition</TT
+>がデフォルトです。
+継承テーブルと分割されたテーブルの性能向上のためしばしば使用されます。
+      </P
+><P
+>       
+	このパラメータが特定のテーブルに対して許される時、プランナはそのテーブルの<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約で問い合わせ条件を比較し、制約と矛盾する条件のテーブルの走査を省きます。
+例えば以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE parent(key integer, ...);
+CREATE TABLE child1000(check (key between 1000 and 1999)) INHERITS(parent);
+CREATE TABLE child2000(check (key between 2000 and 2999)) INHERITS(parent);
+...
+SELECT * FROM parent WHERE key = 2400;</PRE
+><P>
+	制約排除が有効であると、この<TT
+CLASS="COMMAND"
+>SELECT</TT
+>は全く<TT
+CLASS="STRUCTNAME"
+>child1000</TT
+>を走査せず、性能を向上させます。
+       </P
+><P
+>       
+	現在<TT
+CLASS="VARNAME"
+>constraint_exclusion</TT
+>はデフォルトで、テーブルパーティショニングを実装するためによく使用される場合のみで有効です。
+       すべてのテーブルを有効にすることは、計画作成において単純な問い合わせでは無視できない程の余計なオーバーヘッドをもたらします。
+       パーティショニングされたテーブルがない場合、完全に無効にする方が良いでしょう。
+       </P
+><P
+>       
+	制約排除とテーブル分割についてのより進んだ情報は<A
+HREF="ddl-partitioning.html#DDL-PARTITIONING-CONSTRAINT-EXCLUSION"
+>&#38917;5.9.4</A
+>を参照ください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-CURSOR-TUPLE-FRACTION"
+></A
+><TT
+CLASS="VARNAME"
+>cursor_tuple_fraction</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	検索されるカーソル行の割合のプランナの見積もりを設定します。
+	デフォルトは0.1です。
+	この設定をより小さくすると、プランナはカーソルに対し<SPAN
+CLASS="QUOTE"
+>"起動を高速にする"</SPAN
+>計画を使用するようになりがちになります。
+	この場合先頭の数行の取り出しは高速になりますが、行全体を取り出す場合に時間がかかるようになる可能性があります。
+	この値をより大きくすると、推定時間全体がより強調されるようになります。
+	最大の設定である1.0の場合、カーソルは通常の問い合わせとまったく同様に計画されます。
+	つまり、推定時間全体のみが考慮され、先頭の行の取り出しにかかる時間は考慮されなくなります。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-FROM-COLLAPSE-LIMIT"
+></A
+><TT
+CLASS="VARNAME"
+>from_collapse_limit</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	プランナは、<TT
+CLASS="LITERAL"
+>FROM</TT
+>リストがこの数の項目より少ない結果の場合、副問い合わせを上位の問い合わせに併合します。
+より小さい値は計画時間を縮小させますが、劣った問い合わせ計画をもたらす可能性があります。
+デフォルトは8です。
+詳細は<A
+HREF="explicit-joins.html"
+>&#38917;14.3</A
+>を参照してください。
+       </P
+><P
+>       
+	この値を<A
+HREF="runtime-config-query.html#GUC-GEQO-THRESHOLD"
+>geqo_threshold</A
+>か、それ以上に設定するとGEQOプランナ使用の誘引となり、最善ではない計画をもたらします。<A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-GEQO"
+>&#38917;18.7.3</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-JOIN-COLLAPSE-LIMIT"
+></A
+><TT
+CLASS="VARNAME"
+>join_collapse_limit</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	最終的にリストがこの項目数以下になる時、プランナは、明示的な<TT
+CLASS="LITERAL"
+>JOIN</TT
+>構文（<TT
+CLASS="LITERAL"
+>FULL JOIN</TT
+>を除く）を<TT
+CLASS="LITERAL"
+>FROM</TT
+>項目のリストに直します。
+この値を小さくすれば計画作成時間は減少しますが、劣った問い合わせ計画が作成される可能性があります。
+       </P
+><P
+>       
+	デフォルトでは、この値は<TT
+CLASS="VARNAME"
+>from_collapse_limit</TT
+>と同じ値に設定されており、殆どの場合に適切です。
+これを1に設定すると明示的な<TT
+CLASS="LITERAL"
+>JOIN</TT
+>の再順序付けは行われなくなります。
+したがって、問い合わせで指定された明示的結合順序は、関係（リレーション）が結合される実際の順序となります。
+問い合わせプランナは常に最適な結合順序を選択するとは限らないので、
+上級ユーザなら暫定的にこの変数を1に設定し、明示的に希望とする結合順序を指定してもよいでしょう。
+詳細は<A
+HREF="explicit-joins.html"
+>&#38917;14.3</A
+>を参照してください。
+       </P
+><P
+>       
+	この値を<A
+HREF="runtime-config-query.html#GUC-GEQO-THRESHOLD"
+>geqo_threshold</A
+>か、それ以上に設定するとGEQOプランナ使用の誘引となり、最善ではない計画をもたらします。<A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-GEQO"
+>&#38917;18.7.3</A
+>を参照してください。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-replication.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-logging.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>レプリケーション</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>エラー報告とログ取得</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

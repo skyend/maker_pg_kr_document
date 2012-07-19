@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>インデックススキャン</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"><LINK
+REL="PREVIOUS"
+TITLE="インデックスアクセスメソッド関数"
+HREF="index-functions.html"><LINK
+REL="NEXT"
+TITLE="インデックスのロック処理に関する検討"
+HREF="index-locking.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッド関数"
+HREF="index-functions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 52&#31456;インデックスアクセスメソッドのインタフェース定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックスのロック処理に関する検討"
+HREF="index-locking.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEX-SCANNING"
+>52.3. インデックススキャン</A
+></H1
+><P
+>インデックススキャンでは、<I
+CLASS="FIRSTTERM"
+>スキャンキー</I
+>に一致するものと示したすべてのタプルのTIDを繰り返すことに関する責任をインデックスアクセスメソッドが持ちます。
+アクセスメソッドには、実際のインデックスの親テーブルからのタプルの取り出しやタプルがスキャンの時間制限試験や他の条件を通過したかどうかの決定は含まれ<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ません</I
+></SPAN
+>。
+
+  </P
+><P
+>スキャンキーは、<TT
+CLASS="REPLACEABLE"
+><I
+>index_key</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>constant</I
+></TT
+>という形式の<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の内部的表現です。
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>index_key</I
+></TT
+>は、インデックス列の1つで、<TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+>はインデックス列に関連した演算子族のメンバの1つです。
+インデックススキャンは、暗黙的にAND演算される0個以上のスキャンキーを持ちます。
+返されるタプルは指定された条件を満たすものと想定されます。
+  </P
+><P
+>アクセスメソッドはインデックスがある特定の問い合わせに対し<I
+CLASS="FIRSTTERM"
+>非可逆</I
+>、または再検査を要求するかどうかを報告することができます。
+これは、インデックススキャンがスキャンキーを満たすすべての項目と、それに加えて、満たさない可能性のある項目を返すことを意味します。
+コアシステムのインデックススキャン機構はヒープタプルに対し、本当に選択されるべきかどうかを検証するためにその演算子をインデックス条件に再度適用します。
+再検査オプションが指定されない場合、インデックススキャンは一致する項目の集合を返さなければなりません。
+  </P
+><P
+>確実に、指定されたスキャンキーすべてに一致するもののみをすべて正しく見つけ出すことは、完全にアクセスメソッドの責任であることに注意してください。
+また、コアシステムは、冗長かどうかや矛盾するかどうかを決定するための意味的な解析を行わず、単にインデックスキーと演算子族に一致する<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句をすべて渡します。
+例えば、<TT
+CLASS="LITERAL"
+>WHERE x &gt; 4 AND x &gt; 14</TT
+>があり、<TT
+CLASS="LITERAL"
+>x</TT
+>がB-treeインデックス列であったとすると、これは、B-tree <CODE
+CLASS="FUNCTION"
+>amrescan</CODE
+>関数に任されて、最初のスキャンキーが冗長であり、無視することができることが認知されます。
+<CODE
+CLASS="FUNCTION"
+>amrescan</CODE
+>における前処理の必要性は、インデックスアクセスメソッドがスキャンキーを<SPAN
+CLASS="QUOTE"
+>"正規化"</SPAN
+>形式にする必要があるかどうかに依存します。
+  </P
+><P
+>一部のアクセスメソッドは、他では行いませんが、十分に定義された順序でインデックス項目を返します。
+アクセスメソッドが出力の順序付けをサポートできるようにする方法は、実質２種類存在します。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>常にそのデータ（btreeなど）の自然な順序で項目を返すアクセスメソッドは<TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>amcanorder</TT
+>を真に設定しなければなりません。
+現在、こうしたアクセスメソッドは、その等価性と順序付け演算子でbtree互換の戦略番号を使用しなければなりません。
+      </P
+></LI
+><LI
+><P
+>順序付け演算子をサポートするアクセスメソッドは<TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>amcanorderbyop</TT
+>を真に設定しなければなりません。
+これは、インデックスが<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>index_key</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>constant</I
+></TT
+>を満たす順序で項目を返すことができることを示します。
+前述の通り、この形式のスキャン修飾子を<CODE
+CLASS="FUNCTION"
+>amrescan</CODE
+>に渡すことができます。
+      </P
+></LI
+></UL
+><P>
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>関数は<TT
+CLASS="LITERAL"
+>direction</TT
+>引数を持ちます。
+これは<TT
+CLASS="LITERAL"
+>ForwardScanDirection</TT
+>（通常の場合）または<TT
+CLASS="LITERAL"
+>BackwardScanDirection</TT
+>のいずれかを取ることができます。
+<CODE
+CLASS="FUNCTION"
+>amrescan</CODE
+>後の最初の呼び出しが<TT
+CLASS="LITERAL"
+>BackwardScanDirection</TT
+>を指定していた場合、一致したインデックス項目は通常の前から後ろという方向ではなく、後ろから前という方向でスキャンされます。
+そのため、<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>は通常ならばインデックス内の最初に一致したタプルを返すところですが、最後に一致したタプルを返さなければなりません。
+（これは<TT
+CLASS="STRUCTFIELD"
+>amcanorder</TT
+>が真に設定されたアクセスメソッドでのみ発生します。）
+最初の呼び出しの後、<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>は、最も最近に返された項目からどちらの方向にスキャンを進めるかを準備しなければなりません。
+（しかし<TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>amcanbackward</TT
+>が偽であれば、引き続くすべての呼び出しは最初のものと同じ方向を持ちます。）
+  </P
+><P
+>順序付けされたスキャンを提供するアクセスメソッドはスキャン内位置の<SPAN
+CLASS="QUOTE"
+>"記録"</SPAN
+>をサポートしなければならず、また、後でその記録された位置に戻ることをサポートしなければなりません。
+同じ位置が複数回記録されるかもしれません。
+しかし、スキャン内の1つの位置のみを記録する必要があります。
+新しい<CODE
+CLASS="FUNCTION"
+>ammarkpos</CODE
+>呼び出しにより前回記録された位置は上書きされます。
+順序付けされたスキャンをサポートしないアクセスメソッドであっても、<TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+>内で記録用の関数と位置に戻るための関数を提供しなければなりませんが、呼び出されたとしてもエラーを返すだけで十分です。
+  </P
+><P
+>スキャン位置と記録された位置（もしあれば）の両方は、インデックス内の同時挿入や削除という観点における一貫性を保持しなければなりません。
+スキャンが始まった時に存在していた場合、項目を見つけ出したスキャンが新しく挿入された項目を返さなかったとしても問題ありません。
+このような場合のスキャンでは、再スキャンやバックアップによって、あたかも最初の時点で返されたものとして項目が返されます。
+同様に、同時実行削除によってスキャンの結果に影響が出るかもしれません。
+重要なことは、挿入や削除によって、その項目自体が挿入・削除されていない項目がスキャンで失われたり二重になったりすることが起こらないという点です。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>を使用する代わりに、<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>を使用して、一回の呼出しですべてのタプルを取り出してインデックススキャンを行うことができます。
+これはアクセスメソッド内でのロック/ロック解除という過程を防ぐことができますので、<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>よりもかなり効率的です。
+実際には、<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>は<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>呼び出しを繰り返すことと同じ効果を持つはずですが、物事を単純化するために複数の制限を加えています。
+まず第一に、<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>は一回ですべてのタプルを返し、スキャン位置の記録と位置戻しをサポートしません。
+第二に、特定の順序付けをまったく持たないビットマップの中にタプルが返されます。
+これは<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>が<TT
+CLASS="LITERAL"
+>direction</TT
+>引数を取らない理由です。
+（順序付け演算子はこのようなスキャンでは決して与えられません。）
+最後に、<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>は返されたタプルに関し、<A
+HREF="index-locking.html"
+>&#38917;52.4</A
+>に記載した意味でのロックを保証しません。
+  </P
+><P
+>  
+アクセスメソッドの内部実装がどちらか片方のAPIにそぐわない場合、<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>を実装せず<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>のみを実装、またはその逆も許されていることに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index-functions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="index-locking.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インデックスアクセスメソッド関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexam.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>インデックスのロック処理に関する検討</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

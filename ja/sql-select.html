@@ -1,0 +1,4029 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SELECT</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="SECURITY LABEL"
+HREF="sql-security-label.html"><LINK
+REL="NEXT"
+TITLE="SELECT INTO"
+HREF="sql-selectinto.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SECURITY LABEL"
+HREF="sql-security-label.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SECURITY LABEL"
+HREF="sql-security-label.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SELECT INTO"
+HREF="sql-selectinto.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SELECT INTO"
+HREF="sql-selectinto.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-SELECT"
+></A
+>SELECT</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN74248"
+></A
+><H2
+>&#21517;&#21069;</H2
+>SELECT, TABLE, WITH&nbsp;--&nbsp;テーブルもしくはビューから行を検索する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN74260"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>[ WITH [ RECURSIVE ] <TT
+CLASS="REPLACEABLE"
+><I
+>with_query</I
+></TT
+> [, ...] ]
+SELECT [ ALL | DISTINCT [ ON ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [, ...] ) ] ]
+    * | <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [ [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>output_name</I
+></TT
+> ] [, ...]
+    [ FROM <TT
+CLASS="REPLACEABLE"
+><I
+>from_item</I
+></TT
+> [, ...] ]
+    [ WHERE <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+> ]
+    [ GROUP BY <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [, ...] ]
+    [ HAVING <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+> [, ...] ]
+    [ WINDOW <TT
+CLASS="REPLACEABLE"
+><I
+>window_name</I
+></TT
+> AS ( <TT
+CLASS="REPLACEABLE"
+><I
+>window_definition</I
+></TT
+> ) [, ...] ]
+    [ { UNION | INTERSECT | EXCEPT } [ ALL | DISTINCT ] <TT
+CLASS="REPLACEABLE"
+><I
+>select</I
+></TT
+> ]
+    [ ORDER BY <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [ ASC | DESC | USING <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ] [ NULLS { FIRST | LAST } ] [, ...] ]
+    [ LIMIT { <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+> | ALL } ]
+    [ OFFSET <TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+> [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+> ] { ROW | ROWS } ONLY ]
+    [ FOR { UPDATE | SHARE } [ OF <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [, ...] ] [ NOWAIT ] [...] ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>from_item</I
+></TT
+>は以下のいずれかです。</SPAN
+></SPAN
+>
+
+
+    [ ONLY ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [ * ] [ [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_alias</I
+></TT
+> [, ...] ) ] ]
+    ( <TT
+CLASS="REPLACEABLE"
+><I
+>select</I
+></TT
+> ) [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_alias</I
+></TT
+> [, ...] ) ]
+    <TT
+CLASS="REPLACEABLE"
+><I
+>with_query_name</I
+></TT
+> [ [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_alias</I
+></TT
+> [, ...] ) ] ]
+    <TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( [ <TT
+CLASS="REPLACEABLE"
+><I
+>argument</I
+></TT
+> [, ...] ] ) [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_alias</I
+></TT
+> [, ...] | <TT
+CLASS="REPLACEABLE"
+><I
+>column_definition</I
+></TT
+> [, ...] ) ]
+    <TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( [ <TT
+CLASS="REPLACEABLE"
+><I
+>argument</I
+></TT
+> [, ...] ] ) AS ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_definition</I
+></TT
+> [, ...] )
+    <TT
+CLASS="REPLACEABLE"
+><I
+>from_item</I
+></TT
+> [ NATURAL ] <TT
+CLASS="REPLACEABLE"
+><I
+>join_type</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>from_item</I
+></TT
+> [ ON <TT
+CLASS="REPLACEABLE"
+><I
+>join_condition</I
+></TT
+> | USING ( <TT
+CLASS="REPLACEABLE"
+><I
+>join_column</I
+></TT
+> [, ...] ) ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>また<TT
+CLASS="REPLACEABLE"
+><I
+>with_query</I
+></TT
+>は以下の通りです。</SPAN
+></SPAN
+>
+
+    <TT
+CLASS="REPLACEABLE"
+><I
+>with_query_name</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ...] ) ] AS ( <TT
+CLASS="REPLACEABLE"
+><I
+>select</I
+></TT
+> | <TT
+CLASS="REPLACEABLE"
+><I
+>insert</I
+></TT
+> | <TT
+CLASS="REPLACEABLE"
+><I
+>update</I
+></TT
+> | <TT
+CLASS="REPLACEABLE"
+><I
+>delete</I
+></TT
+> )
+
+TABLE [ ONLY ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [ * ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN74312"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>は0個以上のテーブルから行を返します。
+<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の一般的な処理は以下の通りです。
+
+   <P
+></P
+></P><OL
+TYPE="1"
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>リスト内のすべての問い合わせが計算されます。
+これらは実質、<TT
+CLASS="LITERAL"
+>FROM</TT
+>リスト内から参照可能な一時テーブルとして提供されます。
+<TT
+CLASS="LITERAL"
+>FROM</TT
+>内で2回以上参照される<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせは一度のみ計算されます。
+（後述の<A
+HREF="sql-select.html#SQL-WITH"
+><I
+><I
+>WITH</I
+>句</I
+></A
+>を参照してください。）
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>リストにある全要素が計算されます
+（<TT
+CLASS="LITERAL"
+>FROM</TT
+>リストの要素は実テーブルか仮想テーブルのいずれかです）。
+<TT
+CLASS="LITERAL"
+>FROM</TT
+>リストに複数の要素が指定された場合、それらはクロス結合されます
+（後述の<A
+HREF="sql-select.html#SQL-FROM"
+><I
+><I
+>FROM</I
+>句</I
+></A
+>を参照してください）。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>WHERE</TT
+>句が指定された場合、条件を満たさない行は全て出力から取り除かれます
+（後述の<A
+HREF="sql-select.html#SQL-WHERE"
+><I
+><I
+>WHERE</I
+>句</I
+></A
+>を参照してください）。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句が指定された場合、1つまたは複数の値が条件に合う行ごとにグループに組み合わせて出力されます。
+<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句が指定された場合、指定した条件を満たさないグループは取り除かれます
+（後述の<A
+HREF="sql-select.html#SQL-GROUPBY"
+><I
+><I
+>GROUP BY</I
+>句</I
+></A
+>と<A
+HREF="sql-select.html#SQL-HAVING"
+><I
+><I
+>HAVING</I
+>句</I
+></A
+>を参照してください）。
+     </P
+></LI
+><LI
+><P
+>実際には、選択された各行または行グループに対して、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>出力式を使用して計算した結果の行が出力されます
+（後述の<A
+HREF="sql-select.html#SQL-SELECT-LIST"
+><I
+><I
+>SELECT</I
+>リスト</I
+></A
+>を参照してください）。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>は結果から重複行を取り除きます。
+<TT
+CLASS="LITERAL"
+>DISTINCT ON</TT
+>は指定した全ての式に一致する行を取り除きます。
+<TT
+CLASS="LITERAL"
+>ALL</TT
+>では、重複行も含め、全ての候補行を返します（これがデフォルトです。
+詳しくは、後述の<A
+HREF="sql-select.html#SQL-DISTINCT"
+><I
+><I
+>DISTINCT</I
+>句</I
+></A
+>を参照してください）。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UNION</TT
+>、<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>、<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>演算子を使用すると、複数の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の出力を1つの結果集合にまとめることができます。
+<TT
+CLASS="LITERAL"
+>UNION</TT
+>演算子は、両方の結果集合に存在する行と、片方の結果集合に存在する行を全て返します。
+<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>演算子は、両方の結果集合に存在する行を返します。
+<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>演算子は、最初の結果集合にあり、2番目の結果集合にない行を返します。
+<TT
+CLASS="LITERAL"
+>ALL</TT
+>が指定されない限り、いずれの場合も、重複する行は取り除かれます。
+無意味な<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>という単語を付けて、明示的に重複行を除去することを指定することができます。
+<TT
+CLASS="COMMAND"
+>SELECT</TT
+>自体は<TT
+CLASS="LITERAL"
+>ALL</TT
+>がデフォルトですが、この場合は<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>がデフォルトの動作であることに注意してください。
+（後述の<A
+HREF="sql-select.html#SQL-UNION"
+><I
+><I
+>UNION</I
+>句</I
+></A
+>、<A
+HREF="sql-select.html#SQL-INTERSECT"
+><I
+><I
+>INTERSECT</I
+>句</I
+></A
+>、<A
+HREF="sql-select.html#SQL-EXCEPT"
+><I
+><I
+>EXCEPT</I
+>句</I
+></A
+>を参照してください。）
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句が指定された場合、返される行は指定した順番でソートされます。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>が指定されない場合は、システムが計算過程で見つけた順番で行が返されます
+（後述の<A
+HREF="sql-select.html#SQL-ORDERBY"
+><I
+><I
+>ORDER BY</I
+>句</I
+></A
+>を参照してください）。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>（または<TT
+CLASS="LITERAL"
+>FETCH FIRST</TT
+>）あるいは<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>句が指定された場合、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文は結果行の一部分のみを返します
+（詳しくは、後述の<A
+HREF="sql-select.html#SQL-LIMIT"
+><I
+><I
+>LIMIT</I
+>句</I
+></A
+>を参照してください）。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句を指定すると、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文は引き続き行われる更新に備えて選択行をロックします
+（詳しくは、後述の<A
+HREF="sql-select.html#SQL-FOR-UPDATE-SHARE"
+><I
+><I
+>FOR UPDATE</I
+>/<I
+>FOR SHARE</I
+>句</I
+></A
+>を参照してください）。
+     </P
+></LI
+></OL
+><P>
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンド内で使われる列それぞれに対する<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限が必要です。
+<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>を使用するには、さらに、（選択できるように各テーブルで少なくとも1列に対する）<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>権限が必要です。
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN74392"
+></A
+><H2
+>パラメータ</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-WITH"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>句により主問い合わせ内で名前により参照可能な、1つ以上の副問い合わせを指定することができます。
+副問い合わせは実質的に主問い合わせの間の一時的なテーブルかビューのように動作します。
+各副問い合わせは<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>にすることができます。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>内でデータ変更文（<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>）を記述する場合は、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を含めることが有用です。
+主問い合わせで読み取られる一時テーブルを形成するのは、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>の出力であり、文が変更する背後のテーブルでは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ありません</I
+></SPAN
+>。
+<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>を省くと、文は同様に実行されますが、出力を生成しませんので、主問い合わせでテーブルとして参照することができません。
+   </P
+><P
+>（スキーマ修飾がない）名前を各<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせで指定しなければなりません。
+省略可能ですが、列名のリストを指定することもできます。
+これを省略すると、列名は副問い合わせから推定されます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>RECURSIVE</TT
+>が指定されると、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>副問い合わせは自身で名前により参照することができます。
+こうした副問い合わせは以下のような形式でなければなりません。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>non_recursive_term</I
+></TT
+> UNION [ ALL | DISTINCT ] <TT
+CLASS="REPLACEABLE"
+><I
+>recursive_term</I
+></TT
+></PRE
+><P>
+ここで再帰的な自己参照は<TT
+CLASS="LITERAL"
+>UNION</TT
+>の右辺に現れなければなりません。
+問い合わせ当たり1つの再帰的な自己参照のみが許されます。
+再帰的なデータ変更文はサポートされていませんが、データ変更文で再帰的な<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の結果を使用することができます。
+例は<A
+HREF="queries-with.html"
+>&#38917;7.8</A
+>を参照してください。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>RECURSIVE</TT
+>には他にも、<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせが順序通りでなくても構わないという効果があります。
+問い合わせはリストの後にある別のものを参照することができます。
+（しかし巡回する参照や相互的な参照は実装されていません。）
+<TT
+CLASS="LITERAL"
+>RECURSIVE</TT
+>がないと、<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせは主問い合わせが共通する<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせのうち、<TT
+CLASS="LITERAL"
+>WITH</TT
+>リストの前方にあるもののみを参照することができます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせの鍵となる特性は、これらを主問い合わせが複数回参照していたとしても、主問い合わせの実行当たり一度のみ評価される点です。
+特にデータ変更文は、主問い合わせがその出力のすべてまたは一部を読み取るかに関係なく、本当に一度のみ実行されることが保証されています。
+   </P
+><P
+>主問い合わせと<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせは（理論上）同時にすべて実行されます。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>内のデータ変更文によりなされた影響は、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>出力を読み取る以外、問い合わせの他の部分では参照できないことを意味します。
+こうしたデータ変更文が２つあり、同じ行を変更しようとした場合、その結果は明確ではありません。
+   </P
+><P
+>追加情報については<A
+HREF="queries-with.html"
+>&#38917;7.8</A
+>を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-FROM"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句には<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の対象となるソーステーブルを1つ以上指定します。
+複数のソースが指定された場合、結果は全てのソースの直積（クロス結合）となります。
+しかし、通常は制約条件を付けて、直積のごく一部を返すように結果行を限定します。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句には以下の要素を指定できます。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+></DT
+><DD
+><P
+>既存のテーブルもしくはビューの名前です（スキーマ修飾名も可）。
+<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定された場合、そのテーブルのみがスキャンされます。
+<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定されない場合、テーブルとそれを継承する全てのテーブルがスキャンされます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+></DT
+><DD
+><P
+>別名を含む<TT
+CLASS="LITERAL"
+>FROM</TT
+>アイテムの代替名です。
+別名は、指定を簡潔にするため、もしくは、自己結合（同じテーブルを複数回スキャンする結合）の曖昧さをなくすために使われます。
+別名が指定されている場合は、その別名によって実際のテーブル名または関数名が完全に隠されます。
+例えば、<TT
+CLASS="LITERAL"
+>FROM foo AS f</TT
+>と指定されている場合、以降の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文ではこの<TT
+CLASS="LITERAL"
+>FROM</TT
+>アイテムを<TT
+CLASS="LITERAL"
+>foo</TT
+>ではなく<TT
+CLASS="LITERAL"
+>f</TT
+>として参照する必要があります。
+テーブルの別名があれば、そのテーブルの複数の列の名前を置き換える列の別名リストを記述することができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>select</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句では、副<TT
+CLASS="COMMAND"
+>SELECT</TT
+>を使うことができます。
+<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドの実行中、副<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の出力は一時テーブルであるかのように動作します。
+副<TT
+CLASS="COMMAND"
+>SELECT</TT
+>は括弧で囲まれなければなりません。また、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必ず</I
+></SPAN
+>別名を与えておかなければなりません。
+<A
+HREF="sql-values.html"
+>VALUES</A
+>コマンドをここで使用することもできます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>with_query_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせは、問い合わせの名前があたかもテーブル名であるかのように、名前を記述することで参照されます。
+（実際には<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせは主問い合わせの対象とするテーブルと同じ名前の実テーブルを隠蔽します。
+必要ならばテーブル名をスキーマ修飾することで同じ名前の実テーブルを参照することができます。）
+テーブルと同様の方法で別名を提供することができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句では、関数呼び出しを使用することができます
+（これは特に関数が結果セットを返す場合に有用ですが、任意の関数を使用することもできます）。
+<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドの実行中は、この関数の結果は一時テーブルであるかのように動作します。
+また、別名を使用することもできます。 
+別名が指定されていれば、さらに列の別名リストを指定して、関数の複合型の戻り値の属性に対する代替名を提供することもできます。
+関数が<TT
+CLASS="TYPE"
+>record</TT
+>データ型を返すと定義されている場合は、別名すなわち<TT
+CLASS="LITERAL"
+>AS</TT
+>キーワードと、それに続く<TT
+CLASS="LITERAL"
+>（<TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>]）</TT
+>という形式の列定義リストが必要です。
+列定義リストは、関数によって返される実際の列の数およびデータ型に一致していなければなりません。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>join_type</I
+></TT
+></DT
+><DD
+><P
+>        以下のいずれかです。
+        <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>[ INNER ] JOIN</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>LEFT [ OUTER ] JOIN</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>RIGHT [ OUTER ] JOIN</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>FULL [ OUTER ] JOIN</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>CROSS JOIN</TT
+></P
+></LI
+></UL
+><P>
+
+<TT
+CLASS="LITERAL"
+>INNER</TT
+>および<TT
+CLASS="LITERAL"
+>OUTER</TT
+>結合型では、結合条件、すなわち、<TT
+CLASS="LITERAL"
+>NATURAL</TT
+>, <TT
+CLASS="LITERAL"
+>ON <TT
+CLASS="REPLACEABLE"
+><I
+>join_condition</I
+></TT
+></TT
+>、<TT
+CLASS="LITERAL"
+>USING (<TT
+CLASS="REPLACEABLE"
+><I
+>join_column</I
+></TT
+> [, ...])</TT
+>のいずれか1つのみを指定する必要があります。
+それぞれの意味は後述します。
+<TT
+CLASS="LITERAL"
+>CROSS JOIN</TT
+>では、これらの句を記述しなくても構いません。
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>JOIN</TT
+>句は、2つの<TT
+CLASS="LITERAL"
+>FROM</TT
+>アイテムを結び付けます。
+入れ子の順番を決めるために、必要ならば括弧を使用してください。
+括弧がないと、<TT
+CLASS="LITERAL"
+>JOIN</TT
+>は左から右へ入れ子にします。
+どのような場合でも<TT
+CLASS="LITERAL"
+>JOIN</TT
+>は、カンマで分けられた<TT
+CLASS="LITERAL"
+>FROM</TT
+>項目よりも強い結び付きを持ちます。
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>CROSS JOIN</TT
+>と<TT
+CLASS="LITERAL"
+>INNER JOIN</TT
+>は直積を1つ生成します。これは、<TT
+CLASS="LITERAL"
+>FROM</TT
+>の最上位で2つの項目を結合した結果と同一です。
+しかし、（指定すれば）結合条件によって制限をかけることができます。
+<TT
+CLASS="LITERAL"
+>CROSS JOIN</TT
+>は<TT
+CLASS="LITERAL"
+>INNER JOIN ON (true)</TT
+>と等価であり、条件によって削除される行はありません。
+これらの結合型は記述上の便宜のためだけに用意されています。
+したがって、通常の<TT
+CLASS="LITERAL"
+>FROM</TT
+>と<TT
+CLASS="LITERAL"
+>WHERE</TT
+>を実行しなければ何も行いません。
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>LEFT OUTER JOIN</TT
+>は、条件に合う直積の全ての行（つまり、その結合条件を満たす全ての組み合わせ）に加え、左側テーブルの中で、右側テーブルには結合条件を満たす行が存在しなかった行のコピーも返します。  
+この左側テーブルの行を結合結果のテーブルの幅に拡張するために、右側テーブルが入る列にはNULL値が挿入されます。 
+マッチする行を決める時は、<TT
+CLASS="LITERAL"
+>JOIN</TT
+>句自身の条件のみが考慮されることに注意してください。
+他の外部結合条件は後で適用されます。
+       </P
+><P
+>逆に、<TT
+CLASS="LITERAL"
+>RIGHT OUTER JOIN</TT
+>は、全ての結合行と、左側テーブルに当てはまるものがなかった右側の行（左側はNULLで拡張されています）の1行ずつを返します。
+左右のテーブルを入れ替えれば<TT
+CLASS="LITERAL"
+>LEFT OUTER JOIN</TT
+>に変換できるので、<TT
+CLASS="LITERAL"
+>RIGHT OUTER JOIN</TT
+>は記述上の便宜を図るため用意されているに過ぎません。
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>FULL OUTER JOIN</TT
+>は、全ての結合行に加え、一致しなかった左側の行（右側はNULLで拡張）、一致しなかった右側の行（左側はNULLで拡張）を全て返します。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ON <TT
+CLASS="REPLACEABLE"
+><I
+>join_condition</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>join_condition</I
+></TT
+>は、結合においてどの行が一致するかを指定する、<TT
+CLASS="TYPE"
+>boolean</TT
+>型の値を返す式です（<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句に類似しています）。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>USING ( <TT
+CLASS="REPLACEABLE"
+><I
+>join_column</I
+></TT
+> [, ...] )</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>USING ( a, b, ... )</TT
+>句は<TT
+CLASS="LITERAL"
+>ON left_table.a = right_table.a AND left_table.b = right_table.b ...</TT
+>の省略形です。
+<TT
+CLASS="LITERAL"
+>USING</TT
+>は等価な列の両方ではなく片方のみが結合の出力に含まれることを意味します。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NATURAL</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>NATURAL</TT
+>は、2つのテーブル内の同じ名前を持つ行を全て指定した<TT
+CLASS="LITERAL"
+>USING</TT
+>リストの省略形です。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-WHERE"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>WHERE</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>WHERE</TT
+>句は通常以下の形式となります（この句は省略可能です）。
+</P><PRE
+CLASS="SYNOPSIS"
+>WHERE <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+>は、評価の結果として<TT
+CLASS="TYPE"
+>boolean</TT
+>型を返す任意の式です。
+この条件を満たさない行は全て出力から取り除かれます。
+全ての変数に実際の行の値を代入して、式が真を返す場合、その行は条件を満たすとみなされます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-GROUPBY"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句は通常以下の形式となります（この句は省略可能です）。
+</P><PRE
+CLASS="SYNOPSIS"
+>GROUP BY <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [, ...]</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>は、グループ化のために与えられた式を評価し、結果が同じ値になった行を1つの行にまとめる機能を持ちます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>には、入力列の名前、出力列（<TT
+CLASS="COMMAND"
+>SELECT</TT
+>リスト項目）の名前/序数、あるいは入力列の値を計算する任意の式を取ることができます。
+判断がつかない時は、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>の名前は出力列名ではなく入力列名として解釈されます。
+   </P
+><P
+>集約関数が使用された場合、各グループ内の全ての行を対象に計算が行われ、結果としてグループごとの値が生成されます
+（一方<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>がなければ、集約関数は選択された全ての行を対象に計算を行い、1つの値を生成します）。
+<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>が存在する場合、集約関数内部以外で、グループ化されていない列を参照する場合やグループ化されていない列がグループ化された列に関数依存する場合、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>リストは無効になります。
+こうしないとグループ化されていない列について返される値は複数の値になってしまう可能性があるからです。
+グループ化された列(またはその部分集合)がグループ化されていない列を含むテーブルのプライマリキーである場合、関数依存が存在します。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-HAVING"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>HAVING</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>HAVING</TT
+>は通常以下の形になります（この句は省略可能です）。
+</P><PRE
+CLASS="SYNOPSIS"
+>HAVING <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+>は<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句で指定するものと同じです。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>HAVING</TT
+>は、グループ化された行の中で、条件を満たさない行を取り除く機能を持ちます。
+<TT
+CLASS="LITERAL"
+>HAVING</TT
+>と<TT
+CLASS="LITERAL"
+>WHERE</TT
+>は次の点が異なります。
+<TT
+CLASS="LITERAL"
+>WHERE</TT
+>が、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>の適用前に個々の行に対してフィルタを掛けるのに対し、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>は、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>の適用後に生成されたグループ化された行に対してフィルタをかけます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+>内で使用する列は、集約関数内で使用されたものを除き、グループ化された列を一意に参照するものでなければなりません。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>HAVING</TT
+>句があると、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句がなかったとしても問い合わせはグループ化された問い合わせになります。
+<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句を持たない問い合わせが集約関数を含む場合も同様です。
+選択された行はすべて、1つのグループを形成するものとみなされます。また、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>リストと<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句では、集約関数が出力するテーブル列しか参照することができません。
+こうした問い合わせでは、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>が真の場合には単一の行を、真以外の場合は0行を出力します。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-WINDOW"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句</H3
+><P
+>省略可能な<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句の一般的な構文は以下の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+>WINDOW <TT
+CLASS="REPLACEABLE"
+><I
+>window_name</I
+></TT
+> AS ( <TT
+CLASS="REPLACEABLE"
+><I
+>window_definition</I
+></TT
+> ) [, ...]</PRE
+><P>
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>window_name</I
+></TT
+>は、こののちのウィンドウ定義や<TT
+CLASS="LITERAL"
+>OVER</TT
+>句で参照することができる名前です。
+また、<TT
+CLASS="REPLACEABLE"
+><I
+>window_definition</I
+></TT
+>は以下の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+>[ <TT
+CLASS="REPLACEABLE"
+><I
+>existing_window_name</I
+></TT
+> ]
+[ PARTITION BY <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [, ...] ]
+[ ORDER BY <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [ ASC | DESC | USING <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ] [ NULLS { FIRST | LAST } ] [, ...] ]
+[ <TT
+CLASS="REPLACEABLE"
+><I
+>frame_clause</I
+></TT
+> ]</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>existing_window_name</I
+></TT
+>が指定された場合、それは<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>リストの前にある項目を参照しなければなりません。
+新しいウィンドウはその範囲指定句をその項目からコピーします。
+順序指定句があった場合も同様です。
+この場合、新しいウィンドウでは独自の<TT
+CLASS="LITERAL"
+>PARTITION BY</TT
+>句を指定することはできません。
+また、コピーされたウィンドウが<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を持たない場合のみ<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を指定することができます。
+新しいウィンドウは常に独自のフレーム句を使用します。
+コピーされたウィンドウはフレーム句を指定してはなりません。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>PARTITION BY</TT
+>リストの要素は<A
+HREF="sql-select.html#SQL-GROUPBY"
+><I
+><I
+>GROUP BY</I
+>句</I
+></A
+>の要素とほとんど同じように解釈されます。
+ただし、こちらは常に単純な式であり、出力列の名前や番号ではないことが異なります。
+他にも違いがあり、これらの式は、通常の<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句では許されない、集約関数を含めることができるという点です。
+グループ化および集約処理の後にウィンドウ処理が動作するため、これらでは許されています。
+   </P
+><P
+>同様に、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>リストの要素は<A
+HREF="sql-select.html#SQL-ORDERBY"
+><I
+><I
+>ORDER BY</I
+>句</I
+></A
+>の要素とほとんど同じように解釈されます。
+ただし、この式は常に単純な式であり、出力列の名前や番号ではないことが異なります。
+   </P
+><P
+>省略可能な<TT
+CLASS="REPLACEABLE"
+><I
+>frame_clause</I
+></TT
+>は、（すべてではありませんが）フレームに依存するウィンドウ関数用の<I
+CLASS="FIRSTTERM"
+>ウィンドウフレーム</I
+>を定義します。
+ウィンドウフレームは、問い合わせの各行(<I
+CLASS="FIRSTTERM"
+>現在の行</I
+>と呼ばれます)に関連する行の集合です。
+<TT
+CLASS="REPLACEABLE"
+><I
+>frame_clause</I
+></TT
+>は以下のいずれかを取ることができます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>[ RANGE | ROWS ] <TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+>
+[ RANGE | ROWS ] BETWEEN <TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+> AND <TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+></PRE
+><P>
+
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+>は以下のいずれかを取ることができます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>UNBOUNDED PRECEDING
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> PRECEDING
+CURRENT ROW
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> FOLLOWING
+UNBOUNDED FOLLOWING</PRE
+><P>
+
+<TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+>が省略された場合デフォルトで<TT
+CLASS="LITERAL"
+>CURRENT ROW</TT
+>となります。
+<TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+>は<TT
+CLASS="LITERAL"
+>UNBOUNDED FOLLOWING</TT
+>とすることができない、<TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+>は<TT
+CLASS="LITERAL"
+>UNBOUNDED PRECEDING</TT
+>とすることができない、および、上のリストで<TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+>の選択を<TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+>の選択より先に行うことができないという制限があります。
+例えば<TT
+CLASS="LITERAL"
+>RANGE BETWEEN CURRENT ROW AND <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> PRECEDING</TT
+>は許されません。
+   </P
+><P
+>デフォルトのフレーム化オプションは<TT
+CLASS="LITERAL"
+>RANGE UNBOUNDED PRECEDING</TT
+>です。
+これは<TT
+CLASS="LITERAL"
+>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</TT
+>と同じで、
+パーティションの先頭から<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>順序における現在の行の最後のピアまでのすべての行をフレームとします(<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>がなければすべての行を意味します)。
+一般的に<TT
+CLASS="LITERAL"
+>UNBOUNDED PRECEDING</TT
+>はフレームがパーティションの先頭から始まることを意味し、同様に<TT
+CLASS="LITERAL"
+>UNBOUNDED FOLLOWING</TT
+>はフレームがパーティションの最終行で終わることを意味します(<TT
+CLASS="LITERAL"
+>RANGE</TT
+>モードか<TT
+CLASS="LITERAL"
+>ROWS</TT
+>かは関係ありません)。
+<TT
+CLASS="LITERAL"
+>ROWS</TT
+>モードでは、<TT
+CLASS="LITERAL"
+>CURRENT ROW</TT
+>はフレームが現在の行で始まる、または終わることを意味しますが、<TT
+CLASS="LITERAL"
+>RANGE</TT
+>モードでは、フレームが現在の行の<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>順序における最初のピアまたは最後のピアで始まる、または終わることを意味します。
+現時点では<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="LITERAL"
+>PRECEDING</TT
+>および<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="LITERAL"
+>FOLLOWING</TT
+>という場合わけは<TT
+CLASS="LITERAL"
+>ROWS</TT
+>モードだけで許されます。
+これらは、現在の行の何行前または何行後にフレームが始まるまたは終わることを示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>は整数式でなければならず、変数、集約関数、ウィンドウ関数を含めることはできません。
+この値はNULLまたは負を取ることはできません。
+しかし、現在の行自身を選択するゼロを取ることができます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>順序によりその行を一意に順序付けできない場合、<TT
+CLASS="LITERAL"
+>ROWS</TT
+>が予期できない結果をもたらす可能性があることに注意して下さい。
+<TT
+CLASS="LITERAL"
+>RANGE</TT
+>は、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>順序におけるピアとなる行が同等に扱われる、つまり任意の2つのピアはフレーム内に両方とも存在するか、存在しないかのいずれかとなることが確実になるように設計されています。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句の目的は、問い合わせの<A
+HREF="sql-select.html#SQL-SELECT-LIST"
+><I
+><I
+>SELECT</I
+>リスト</I
+></A
+>または<A
+HREF="sql-select.html#SQL-ORDERBY"
+><I
+><I
+>ORDER BY</I
+>句</I
+></A
+>に記載される<I
+CLASS="FIRSTTERM"
+>ウィンドウ関数</I
+>の動作を規定することです。
+これらの関数はその<TT
+CLASS="LITERAL"
+>OVER</TT
+>句において名前で<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句の項目を参照することができます。
+しかし<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句の項目は他で参照されてはなりません。
+問い合わせ内で使用されなかったものは、単に無視されます。
+ウィンドウ関数呼び出しは<TT
+CLASS="LITERAL"
+>OVER</TT
+>句でウィンドウ定義を直接規定することができますので、<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句を全く使わずにウィンドウ関数を使用することができます。
+しかし<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句は、同じウィンドウ定義が複数のウィンドウ関数で必要とされる場合に入力量を省くことができます。
+   </P
+><P
+>ウィンドウ関数に関する詳細については<A
+HREF="tutorial-window.html"
+>&#38917;3.5</A
+>、<A
+HREF="sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS"
+>&#38917;4.2.8</A
+>、<A
+HREF="queries-table-expressions.html#QUERIES-WINDOW"
+>&#38917;7.2.4</A
+>を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-SELECT-LIST"
+></A
+><H3
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>リスト</H3
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>リスト（<TT
+CLASS="LITERAL"
+>SELECT</TT
+>と<TT
+CLASS="LITERAL"
+>FROM</TT
+>の間にあるキーワード）は、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の出力行を形成する式を指定するものです。
+この式では、<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で処理後の列を参照することができます（通常は実際に参照します）。
+<TT
+CLASS="LITERAL"
+>AS <TT
+CLASS="REPLACEABLE"
+><I
+>output_name</I
+></TT
+></TT
+>を使用すると、出力列に元の名前とは別の名前を付けることができます。
+   </P
+><P
+>テーブルの場合と同様に、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の出力列はすべて名前を持ちます。
+簡単な<TT
+CLASS="COMMAND"
+>SELECT</TT
+>では、この名前は列に表示用のラベルを付けるために使用されるだけです。
+しかし<TT
+CLASS="COMMAND"
+>SELECT</TT
+>が大規模な問い合わせの副問い合わせである場合、大規模な問い合わせ側で副問い合わせで生成された仮想のテーブルの列名としてこの名前が参照されます。
+出力列として使用するための名前を指定するためには、列式の後に<TT
+CLASS="LITERAL"
+>AS</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>output_name</I
+></TT
+>と記述してください。
+（希望する列名が<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のキーワード（<A
+HREF="sql-keywords-appendix.html"
+>&#20184;&#37682;C</A
+>を参照）に一致しない場合にのみ<TT
+CLASS="LITERAL"
+>AS</TT
+>を省略することができます。
+将来あり得るキーワードの追加に備えるために、常に<TT
+CLASS="LITERAL"
+>AS</TT
+>を記述する、あるいは、出力名を二重引用符で括ることを推奨します。）
+列名を指定しない場合、名前は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>により自動的に付けられます。
+列式が単純な列参照であれば、つけられる名前はその列の名前と同じものです。
+より複雑な場合では、通常<TT
+CLASS="LITERAL"
+>?column<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>?</TT
+>のように生成される名前が付けられます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句と<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句内で列の値を参照する時も、出力列名を使用できます。
+しかし、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>や<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句では使用できません。これらでは式を書かなければなりません。
+   </P
+><P
+>リストには、選択された行の全ての列を表す省略形として、式ではなく<TT
+CLASS="LITERAL"
+>*</TT
+>と書くことができます。
+また、そのテーブルに由来する列のみを表す省略形として、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+>.*</TT
+>と書くこともできます。
+このような場合、<TT
+CLASS="LITERAL"
+>AS</TT
+>により新しい名前を指定することはできません。
+出力列名はテーブルの列名と同一になります。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-DISTINCT"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>SELECT DISTINCT</TT
+>が指定されると、重複する行は全て結果セットから削除されます
+（重複するグループの中で1行が保持されます）。
+<TT
+CLASS="LITERAL"
+>SELECT ALL</TT
+>はこの反対で、全ての行が保持されます。
+デフォルトはこちらです。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>SELECT DISTINCT ON ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [, ...] )</TT
+>は各行集合の中で、指定した式が等しいと評価した最初の行のみを保持します。
+<TT
+CLASS="LITERAL"
+>DISTINCT ON</TT
+>式は、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>（上述）と同じ規則で扱われます。
+各集合の<SPAN
+CLASS="QUOTE"
+>"最初の行"</SPAN
+>は、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を使用して目的の行が確実に最初に現れるようにしない限り予測することはできないことに注意してください。
+例えば、次の例は各地点の最新の気象情報を取り出します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT DISTINCT ON (location) location, time, report
+    FROM weather_reports
+    ORDER BY location, time DESC;</PRE
+><P>
+しかし<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を使用して各地点を時間によって降順にソートしなければ、各地点について得られる情報がいつのものかはわかりません。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>DISTINCT ON</TT
+>に指定する式は<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>の最も左側の式と一致しなければなりません。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句は、通常、各<TT
+CLASS="LITERAL"
+>DISTINCT ON</TT
+>グループの中での行の優先順位を決定する追加的な式を含みます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-UNION"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>UNION</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>UNION</TT
+>は通常以下の形式となります。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+> UNION [ ALL | DISTINCT ] <TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+></PRE
+><P><TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+>には、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>、<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句を持たない任意の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文が入ります
+（<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>と<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>は、括弧で囲めば複式として付与することができます。
+括弧がない場合、これらの句は右側に置かれた入力式ではなく、<TT
+CLASS="LITERAL"
+>UNION</TT
+>の結果に対して適用されてしまいます）。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>UNION</TT
+>演算子は、2つの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文が返す行の和集合を作成します。
+この和集合には、2つの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の結果集合のいずれか（または両方）に存在する行が全て含まれています。
+<TT
+CLASS="LITERAL"
+>UNION</TT
+>の直接のオペランドとなる<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文同士が返す列数は、同じでなければなりません。また、対応する列のデータ型には互換性が存在する必要があります。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ALL</TT
+>オプションが指定されていない限り、<TT
+CLASS="LITERAL"
+>UNION</TT
+>の結果には重複行は含まれません。
+<TT
+CLASS="LITERAL"
+>ALL</TT
+>を指定するとこのような重複除去が行われません
+（したがって、通常<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>は<TT
+CLASS="LITERAL"
+>UNION</TT
+>よりかなり高速です。
+できるだけ<TT
+CLASS="LITERAL"
+>ALL</TT
+>を使用してください）。
+重複行を除去するデフォルトの動作を明示的に指定するために<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>を記述することができます。
+   </P
+><P
+>1つの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文に複数の<TT
+CLASS="LITERAL"
+>UNION</TT
+>演算子がある場合、括弧がない限り、それらは左から右に評価されます。
+   </P
+><P
+>現時点では、<TT
+CLASS="LITERAL"
+>UNION</TT
+>の結果や<TT
+CLASS="LITERAL"
+>UNION</TT
+>に対する入力に、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>を指定することはできません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-INTERSECT"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>は通常以下の形式となります。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+> INTERSECT [ ALL | DISTINCT ] <TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+></PRE
+><P><TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+>には、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>、<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句を持たない、任意の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文が入ります。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>は、2つの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文が返す行の積集合を計算します。
+この積集合に含まれるのは、2つの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の結果集合の両方に存在する行です。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ALL</TT
+>オプションを指定しない限り、<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>の結果に重複行は含まれません。
+<TT
+CLASS="LITERAL"
+>ALL</TT
+>が指定された場合、左側テーブルに<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>個、右側テーブルに<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>個の重複がある行は、結果集合ではmin(<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)個出現します。
+重複行を除去するデフォルトの動作を明示的に指定するために<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>を記述することができます。
+   </P
+><P
+>1つの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文に複数の<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>演算子がある場合、括弧がない限り、それらは左から右に評価されます。
+<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>は<TT
+CLASS="LITERAL"
+>UNION</TT
+>よりも強い結び付きを持ちます。
+つまり、<TT
+CLASS="LITERAL"
+>A UNION B INTERSECT C</TT
+> は<TT
+CLASS="LITERAL"
+>A UNION (B INTERSECT C)</TT
+>と解釈されます。
+   </P
+><P
+>現時点では、<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>の結果や<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>に対する入力に、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>を指定することはできません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-EXCEPT"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>は通常以下の形式となります。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+> EXCEPT [ ALL | DISTINCT ] <TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+></PRE
+><P><TT
+CLASS="REPLACEABLE"
+><I
+>select_statement</I
+></TT
+>には、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>、<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句を持たない、任意の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文が入ります。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>は、左側の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の結果には存在し、右側の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の結果には存在しない行の集合を生成します。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ALL</TT
+>オプションが指定されていない限り、<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>の結果には重複行は含まれません。
+<TT
+CLASS="LITERAL"
+>ALL</TT
+>がある場合、左側テーブルに<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>個、右側テーブルに<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>個の重複がある行は、結果集合ではmax(<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>-<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>,0)個出現します。
+重複行を除去するデフォルトの動作を明示的に指定するために<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>を記述することができます。
+   </P
+><P
+>1つの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文に複数の<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>演算子がある場合、括弧がない限り、それらは左から右に評価されます。
+<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>の結び付きの強さは<TT
+CLASS="LITERAL"
+>UNION</TT
+>と同じです。
+   </P
+><P
+>現時点では、<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>の結果や<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>に対する入力に、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>を指定することはできません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-ORDERBY"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句は通常以下の形式となります（この句は省略可能です）。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>ORDER BY <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [ ASC | DESC | USING <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ] [ NULLS { FIRST | LAST } ] [, ...]</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句を使うと、結果行を指定した式（複数可）に従ってソートすることができます。
+最も左側の式を使って比較した結果、2つの行が等しいと判断された場合は、1つ右側の式を使って比較します。その結果も等しければ、さらに次の式に進みます。
+指定した全ての式で等しいと判断された場合は、実装に依存した順番で返されます。
+   </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>には、出力列（<TT
+CLASS="COMMAND"
+>SELECT</TT
+>リスト項目）の名前または序数、あるいは入力列値から形成される任意の式を取ることができます。
+   </P
+><P
+>序数は、出力列の位置（左から右に割り当てられます）を示します。
+これを使うと、一意な名前を持たない列の順序を定義することができます。
+<TT
+CLASS="LITERAL"
+>AS</TT
+>句を使用すれば出力列に名前を割り当てることができるので、これはどうしても必要な機能というわけではありません。
+
+   </P
+><P
+>また、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句には、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>出力リストに出現しない列を含む、任意の式を使用できます。
+したがって、以下の文は有効です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT name FROM distributors ORDER BY code;</PRE
+><P>
+ただし、<TT
+CLASS="LITERAL"
+>UNION</TT
+>、<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>、<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>の結果に<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を適用する場合は、式は使用できず、出力列の名前か序数のみを指定できるという制限があります。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>の式として出力列名と入力列名の両方に一致する単なる名前が与えられた場合、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>はそれを出力列名として扱います。
+これは、同じ状況における<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>の選択とは反対です。
+この不整合は、標準SQLとの互換性を保持するために発生しています。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>中の任意の式の後に、省略可能なキーワード<TT
+CLASS="LITERAL"
+>ASC</TT
+>（昇順）、<TT
+CLASS="LITERAL"
+>DESC</TT
+>（降順）を付加することができます。
+指定がなければ、デフォルトで<TT
+CLASS="LITERAL"
+>ASC</TT
+>があるものとして扱われます。
+その他、順序を指定する演算子名を<TT
+CLASS="LITERAL"
+>USING</TT
+>句に指定する方法もあります。
+順序指定演算子は何らかのB-Tree演算子族の小なりまたは大なり演算子でなければなりません。
+通常、<TT
+CLASS="LITERAL"
+>ASC</TT
+>は<TT
+CLASS="LITERAL"
+>USING &lt;</TT
+>と、<TT
+CLASS="LITERAL"
+>DESC</TT
+>は<TT
+CLASS="LITERAL"
+>USING &gt;</TT
+>と同じです
+（ただし、ユーザ定義データ型の作成時には、デフォルトのソート順を定義することができます。また、異なる名前の演算子と対応付けすることもできます）。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>NULLS LAST</TT
+>が指定されると、NULL値はすべての非NULL値の後にソートされます。
+<TT
+CLASS="LITERAL"
+>NULLS FIRST</TT
+>が指定されると、NULL値はすべての非NULL値の前にソートされます。
+どちらも指定されない場合のデフォルト動作は、明示的あるいは暗黙的な<TT
+CLASS="LITERAL"
+>ASC</TT
+>の場合は<TT
+CLASS="LITERAL"
+>NULLS LAST</TT
+>、<TT
+CLASS="LITERAL"
+>DESC</TT
+>がの場合は<TT
+CLASS="LITERAL"
+>NULLS FIRST</TT
+>です。
+（したがって、デフォルトでは、NULLが非NULLよりも大きい値であるかのように動作します。）
+<TT
+CLASS="LITERAL"
+>USING</TT
+>が指定されると、デフォルトのNULLの順序は、演算子が小なり演算子か大なり演算子によって変わります。
+   </P
+><P
+>順序付けオプションは直前の演算子にのみ適用されます。
+たとえば、<TT
+CLASS="LITERAL"
+>ORDER BY x, y DESC</TT
+>は<TT
+CLASS="LITERAL"
+>ORDER BY x DESC, y DESC</TT
+>と同一の意味ではありません。
+   </P
+><P
+>文字型データでは、格納する列に適用された照合順序に従ってソートされます。
+これは必要に応じて<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>内に<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句を含めることで上書きできます。
+例えば<TT
+CLASS="LITERAL"
+>ORDER BY mycolumn COLLATE "en_US"</TT
+>です。
+より詳細については<A
+HREF="sql-expressions.html#SQL-SYNTAX-COLLATE-EXPRS"
+>&#38917;4.2.10</A
+>および<A
+HREF="collation.html"
+>&#38917;22.2</A
+>を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-LIMIT"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>句は2つの独立した副句から構成されます。
+</P><PRE
+CLASS="SYNOPSIS"
+>LIMIT { <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+> | ALL }
+OFFSET <TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>には返される行の最大数を、一方、<TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+>には行を返し始める前に飛ばす行数を指定します。
+両方とも指定された場合、<TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+>行分が飛ばされ、そこから数えて<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>行が返されます。
+   </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>式がNULLと評価された場合、<TT
+CLASS="LITERAL"
+>LIMIT ALL</TT
+>として、つまり制限無しとして扱われます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+>がNULLと評価された場合、<TT
+CLASS="LITERAL"
+>OFFSET 0</TT
+>と同様に扱われます。
+   </P
+><P
+>SQL:2008では同じ結果を実現する異なる構文が導入されました。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でもサポートしています。
+以下の構文です。
+</P><PRE
+CLASS="SYNOPSIS"
+>OFFSET <TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+> { ROW | ROWS }
+FETCH { FIRST | NEXT } [ <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+> ] { ROW | ROWS } ONLY</PRE
+><P>
+この構文において、<TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+>または<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>に単一整数定数以外を記述するためには、括弧でくくって記述しなければなりません。
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>を<TT
+CLASS="LITERAL"
+>FETCH</TT
+>句で省略した場合、そのデフォルトは１です。
+<TT
+CLASS="LITERAL"
+>ROW</TT
+>および<TT
+CLASS="LITERAL"
+>ROWS</TT
+>、そして<TT
+CLASS="LITERAL"
+>FIRST</TT
+>および<TT
+CLASS="LITERAL"
+>NEXT</TT
+>は意味がない単語で、この句に影響を与えることはありません。
+標準に従うと<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>句は、<TT
+CLASS="LITERAL"
+>FETCH</TT
+>句と同時に使用する場合、これより前に存在しなければなりません。
+しかし<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は厳密ではなく、どちらが先でも許されます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>を使う時は、結果行を一意な順番に強制する<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句を使うとよいでしょう。
+そうしないと、問い合わせ結果のどの部分が返されるのかがわかりません。 
+10〜20行目までを出力するとしても、どの順番で並べた時の10〜20行目なのでしょうか。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を指定しない限り、行が返される順番は不明です。
+   </P
+><P
+>問い合わせプランナは問い合わせ計画を作成する時に<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>を考慮するので、<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>と<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>の指定によって異なった計画を得ることになるでしょう。計画が異なれば、異なる順番で行が返ります。
+したがって、<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>/<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>値の変更によって異なる結果行を選択しようとすると、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>で順序を並び替えない限り、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>矛盾した結果を返すことになります</I
+></SPAN
+>。
+これはバグではありません。
+「SQLは、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>で順序を制御されない限り、問い合わせ結果が返す順序を約束しない」という事実の当然の帰結なのです。
+   </P
+><P
+>厳密的に部分集合の選択を強制する<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>がなければ、同じ<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>問い合わせを繰り返し実行してもテーブル行から異なる部分集合が取り出される可能性すらあります。
+繰り返しますが、これは不具合ではありません。
+こうした場合に確定した結果は単に保証されていないのです。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-FOR-UPDATE-SHARE"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>/<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>は以下の形式となります。
+</P><PRE
+CLASS="SYNOPSIS"
+>FOR UPDATE [ OF <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [, ...] ] [ NOWAIT ]</PRE
+><P>
+   </P
+><P
+>深く関連する<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句は以下の形式となります。
+</P><PRE
+CLASS="SYNOPSIS"
+>FOR SHARE [ OF <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [, ...] ] [ NOWAIT ]</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>を使用すると、問い合わせによって検索された行が更新用にロックされます。
+これにより、現行のトランザクションが終了するまでは、これらの行が他のトランザクションによって変更されたり削除されたりすることがなくなります。
+つまり、現行のトランザクションが終了するまでは、他のトランザクションがこれらの行に対して<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>を試行しても拒否されます。
+また、他のトランザクションからの<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>によって選択した行がロックされている場合、<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>を実行しようとすると、<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>はそのトランザクションが終了するのを待ってから、その後行をロックして更新された行を返します（行が削除された場合は返しません）。
+しかし<TT
+CLASS="LITERAL"
+>REPEATABLE READ</TT
+>または<TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+>トランザクションの内部では、ロック対象の行がトランザクション開始時から変更されていた場合、エラーが発生します。
+<A
+HREF="mvcc.html"
+>&#31532;13&#31456;</A
+>を参照してください。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>も同様に振舞いますが、入手する行に対し排他的ロックを獲得するのではなく共有ロックを獲得する点が異なります。
+共有ロックにより、他トランザクションによるその行に対する<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>操作はブロックされます。
+しかし、他トランザクションによる<TT
+CLASS="COMMAND"
+>SELECT FOR SHARE</TT
+>操作を防ぎません。
+   </P
+><P
+>他のトランザクションのコミットを待機することなく操作を進めるには、<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>オプションを使用してください。
+<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>では、選択行のロックを即座に獲得できない時、文は待機せずに、エラーを報告します。
+<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>は行レベルロックにのみに適用される点に注意してください。
+つまり、必要な<TT
+CLASS="LITERAL"
+>ROW SHARE</TT
+>テーブルレベルロックは通常通りの方法（ <A
+HREF="mvcc.html"
+>&#31532;13&#31456;</A
+>を参照）で獲得されます。
+もし、テーブルレベルのロックを待機せずに獲得しなければならないのであれば、最初に<A
+HREF="sql-lock.html"
+>LOCK</A
+>の<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>オプションを使用してください。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>内に特定のテーブルが指定されている場合は、そのテーブルの行のみがロックされます。
+<TT
+CLASS="COMMAND"
+>SELECT</TT
+>内の他のテーブルは通常通りに読み込まれます。
+テーブルリストを持たない<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>もしくは<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句は、その文で使用されるすべてのテーブルに影響を与えます。
+<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>もしくは<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>がビューまたは副問い合わせで使用された場合、そのビューや副問い合わせで使用されるすべてのテーブルに影響を与えます。
+しかし<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>/<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>は主問い合わせで参照される<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせには適用されません。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせ内での行ロックを行いたい場合は、<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせ内で<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>を指定してください。
+   </P
+><P
+>異なるロック方式を異なるテーブルに指定する必要があれば、複数の<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>と<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句を記述することができます。
+<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>句と<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>句の両方で、同一のテーブルを記述した（または暗黙的に影響が与えられた）場合、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>として処理されます。
+同様に、あるテーブルに影響を与える句のいずれかで<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>が指定された場合、そのテーブルは<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>として処理されます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>および<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>は、返される行がテーブルのどの行に対応するのかが明確に識別できない場合には使用することができません。
+例えば、集約には使用できません。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>が<TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせの最上位レベルに存在する場合、ロック対象行は問い合わせが返す行に正確に一致します。
+結合問い合わせ内の場合、ロック対象行は返される結合行に関連する行となります。
+さらに、スナップショットを更新した後に問い合わせ条件を満たさなくなった場合は返されなくなりますが、問い合わせのスナップショット時点で問い合わせ条件を満たす行もロックされます。
+<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>が使用された場合、制限を満たす行が返されるとロック処理は止まります。
+（しかし、<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>により飛ばされた行はロックされることに注意してください。）
+同様に、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>がカーソル問い合わせで使用された場合、カーソルにより実際に取り込んだ行または過去に処理された行のみがロックされます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>が副<TT
+CLASS="COMMAND"
+>SELECT</TT
+>に存在する場合、ロック対象行は副問い合わせの外側の問い合わせで返される行となります。
+外側の問い合わせからの条件が副問い合わせ実行の最適化に使用される可能性がありますので、これには副問い合わせ自体の検査が提示する行より少なくなるかもしれません。
+例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM (SELECT * FROM mytable FOR UPDATE) ss WHERE col1 = 5;</PRE
+><P>
+は、副問い合わせ内では文字として条件が記載されていなくても、<TT
+CLASS="LITERAL"
+>col1 = 5</TT
+>を持つ行のみがロックされます。
+   </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>行をロックしてから後のセーブポイントや<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>例外ブロックでその行を編集することは避けてください。
+後のロールバックでロックが失われてしまいます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN;
+SELECT * FROM mytable WHERE key = 1 FOR UPDATE;
+SAVEPOINT s;
+UPDATE mytable SET ... WHERE key = 1;
+ROLLBACK TO s;</PRE
+><P>
+<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>後、行は、セーブポイント前のロックされた更新前の状態に戻らず、実質ロックされません。
+現在のトランザクションでロックされた行が更新されたり削除されたりした場合や、共有ロックが排他ロックに向上した場合、これは危険です。
+すべての場合において、以前のロック状態が忘れられています。
+トランザクションがその後、元のロックコマンドと続く更新の間の状態にロールバックした場合、その行はロックされていない状態として現れます。
+これは実装上の問題であり、将来の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リリースで修正する予定です。
+
+   </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句と<TT
+CLASS="LITERAL"
+>FOR UPDATE/SHARE</TT
+>句を使用した、<TT
+CLASS="LITERAL"
+>READ COMMITTED</TT
+>トランザクション隔離レベルで実行する<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドでは、順序通りにならない行を返す可能性があります。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>が最初に適用されるためです。
+このコマンドは結果をソートしますが、その後、1行または複数の行のロック獲得がブロックされる可能性があります。
+この<TT
+CLASS="LITERAL"
+>SELECT</TT
+>のブロックが解除された時点で、順序付け対象の列値の一部が変更されているかもしれません。
+これによりこうした行が（元の列値という観点では順序通りではありますが、）順序通りに現れません。
+必要に応じて、これは以下のように副問い合わせ内に<TT
+CLASS="LITERAL"
+>FOR UPDATE/SHARE</TT
+>句を記述することで、回避することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM (SELECT * FROM mytable FOR UPDATE) ss ORDER BY column1;</PRE
+><P>
+これは、最上位レベルにおける<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>は実際に返される行のみをロックするのに対して、結果として<TT
+CLASS="STRUCTNAME"
+>mytable</TT
+>のすべての行をロックすることに注意してください。
+これは、特に<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>が<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>やその他の制限と組み合わせている場合、性能上大きな違いを生み出す可能性があります。
+このため、この技法は、順序付け対象の列に対する同時実行の更新が想定され、かつ、厳密にソートされた結果が要求される場合にのみ推奨されます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>REPEATABLE READ</TT
+>または<TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+>トランザクション隔離レベルでは、（<TT
+CLASS="LITERAL"
+>'40001'</TT
+>という<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>を持つ）シリアライゼーション失敗が発生します。
+このためこれらの隔離レベルでは順序外の行を受け取る可能性はありません。
+   </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-TABLE"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>TABLE</TT
+>コマンド</H3
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></PRE
+><P>
+というコマンドは以下と完全に同じです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></PRE
+><P>
+これは、最上位のコマンドとしても複雑な問い合わせの一部として入力を省略する構文の一種としても使用することができます。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75099"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>films</TT
+>テーブルを<TT
+CLASS="LITERAL"
+>distributors</TT
+>テーブルと結合します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT f.title, f.did, d.name, f.date_prod, f.kind
+    FROM distributors d, films f
+    WHERE f.did = d.did
+
+       title       | did |     name     | date_prod  |   kind
+-------------------+-----+--------------+------------+----------
+ The Third Man     | 101 | British Lion | 1949-12-23 | Drama
+ The African Queen | 101 | British Lion | 1951-08-11 | Romantic
+ ...</PRE
+><P>
+  </P
+><P
+>全ての映画の<TT
+CLASS="LITERAL"
+>len</TT
+>列を合計し<TT
+CLASS="LITERAL"
+>kind</TT
+>列によって結果をグループ化します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT kind, sum(len) AS total FROM films GROUP BY kind;
+
+   kind   | total
+----------+-------
+ Action   | 07:34
+ Comedy   | 02:58
+ Drama    | 14:28
+ Musical  | 06:42
+ Romantic | 04:38</PRE
+><P>
+  </P
+><P
+>全ての映画の<TT
+CLASS="LITERAL"
+>len</TT
+>列を合計し<TT
+CLASS="LITERAL"
+>kind</TT
+>列によって結果をグループ化し、合計が5時間より少ないグループの合計を表示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT kind, sum(len) AS total
+    FROM films
+    GROUP BY kind
+    HAVING sum(len) &lt; interval '5 hours';
+
+   kind   | total
+----------+-------
+ Comedy   | 02:58
+ Romantic | 04:38</PRE
+><P>
+  </P
+><P
+>次に、結果を2番目の列（<TT
+CLASS="LITERAL"
+>name</TT
+>）の内容に基づいてソートする方法を2つ例示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM distributors ORDER BY name;
+SELECT * FROM distributors ORDER BY 2;
+
+ did |       name
+-----+------------------
+ 109 | 20th Century Fox
+ 110 | Bavaria Atelier
+ 101 | British Lion
+ 107 | Columbia
+ 102 | Jean Luc Godard
+ 113 | Luso films
+ 104 | Mosfilm
+ 103 | Paramount
+ 106 | Toho
+ 105 | United Artists
+ 111 | Walt Disney
+ 112 | Warner Bros.
+ 108 | Westward</PRE
+><P>
+  </P
+><P
+>次の例は、<TT
+CLASS="LITERAL"
+>distributors</TT
+>テーブルと<TT
+CLASS="LITERAL"
+>actors</TT
+>テーブルの和集合を取得する方法を示しています。さらに、両方のテーブルで結果をWという文字で始まる行のみに限定しています。
+重複しない行のみが必要なので、<TT
+CLASS="LITERAL"
+>ALL</TT
+>キーワードは省略されています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>distributors:               actors:
+ did |     name              id |     name
+-----+--------------        ----+----------------
+ 108 | Westward               1 | Woody Allen
+ 111 | Walt Disney            2 | Warren Beatty
+ 112 | Warner Bros.           3 | Walter Matthau
+ ...                         ...
+
+SELECT distributors.name
+    FROM distributors
+    WHERE distributors.name LIKE 'W%'
+UNION
+SELECT actors.name
+    FROM actors
+    WHERE actors.name LIKE 'W%';
+
+      name
+----------------
+ Walt Disney
+ Walter Matthau
+ Warner Bros.
+ Warren Beatty
+ Westward
+ Woody Allen</PRE
+><P>
+  </P
+><P
+>次に、<TT
+CLASS="LITERAL"
+>FROM</TT
+>句内での関数の使用方法について、列定義リストがある場合とない場合の両方の例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION distributors(int) RETURNS SETOF distributors AS $$
+    SELECT * FROM distributors WHERE did = $1;
+$$ LANGUAGE SQL;
+
+SELECT * FROM distributors(111);
+ did |    name
+-----+-------------
+ 111 | Walt Disney
+
+CREATE FUNCTION distributors_2(int) RETURNS SETOF record AS $$
+    SELECT * FROM distributors WHERE did = $1;
+$$ LANGUAGE SQL;
+
+SELECT * FROM distributors_2(111) AS (f1 int, f2 text);
+ f1  |     f2
+-----+-------------
+ 111 | Walt Disney</PRE
+><P>
+  </P
+><P
+>以下の例では簡単な<TT
+CLASS="LITERAL"
+>WITH</TT
+>句の使用方法を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH t AS (
+    SELECT random() as x FROM generate_series(1, 3)
+  )
+SELECT * FROM t
+UNION ALL
+SELECT * FROM t
+
+         x          
+--------------------
+  0.534150459803641
+  0.520092216785997
+ 0.0735620250925422
+  0.534150459803641
+  0.520092216785997
+ 0.0735620250925422</PRE
+><P>
+
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせが一度だけ評価されることに注意してください。
+このため3つのランダムな値の2つの集合を得ることになります。
+  </P
+><P
+>以下の例では<TT
+CLASS="LITERAL"
+>WITH RECURSIVE</TT
+>を使用して、直接の部下しか表示しないテーブルから、従業員Maryの（直接または間接的な）部下とその間接度を見つけ出します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH RECURSIVE employee_recursive(distance, employee_name, manager_name) AS (
+    SELECT 1, employee_name, manager_name
+    FROM employee
+    WHERE manager_name = 'Mary'
+  UNION ALL
+    SELECT er.distance + 1, e.employee_name, e.manager_name
+    FROM employee_recursive er, employee e
+    WHERE er.employee_name = e.manager_name
+  )
+SELECT distance, employee_name FROM employee_recursive;</PRE
+><P>
+
+初期条件、続いて<TT
+CLASS="LITERAL"
+>UNION</TT
+>、さらに問い合わせの再帰部分という再起問い合わせの典型的な構文に注意してください。
+問い合わせの再帰部分は最終的にはタプルを返さないことを確実にしてください。
+さもないと問い合わせは無限にループします。
+（より多くの例については<A
+HREF="queries-with.html"
+>&#38917;7.8</A
+>を参照してください。）
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75133"
+></A
+><H2
+>互換性</H2
+><P
+>当然ながら、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文は標準SQLと互換性があります。
+しかし、拡張機能や実現されていない機能もいくつかあります。
+  </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75137"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句の省略</H3
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、<TT
+CLASS="LITERAL"
+>FROM</TT
+>句を省略することができます。
+これによって、以下のように単純な式を計算させることができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 2+2;
+
+ ?column?
+----------
+        4</PRE
+><P>
+他の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>データベースでは、このような<TT
+CLASS="COMMAND"
+>SELECT</TT
+>を行うためにはダミーの1行テーブルを使わなければなりません。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句の指定がない場合、問い合わせではデータベーステーブルを参照することができません。
+例えば、以下の問い合わせは無効です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT distributors.* WHERE distributors.name = 'Westward';</PRE
+><P><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リリース8.1より前まででは、こうした形の問い合わせを受け付け、問い合わせで参照する各テーブルに対する暗黙的な項目を問い合わせの<TT
+CLASS="LITERAL"
+>FROM</TT
+>句に追加していました。
+これは許されなくなりました。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75151"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>AS</TT
+>キーワードの省略</H3
+><P
+>標準SQLでは、省略可能なキーワード<TT
+CLASS="LITERAL"
+>AS</TT
+>は、新しい列名が有効な列名（つまり予約済みのキーワードと異なるものすべて）である場合は常に、出力列名の前から省くことができます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には多少より強い制限があります。
+新しい列名が予約済みか否かに関わらず何らかのキーワードに一致する場合は<TT
+CLASS="LITERAL"
+>AS</TT
+>が必要です。
+推奨する実践方法は、今後のキーワードの追加と競合する可能性に備え、<TT
+CLASS="LITERAL"
+>AS</TT
+>を使用する、または出力列名を二重引用符で括ることです。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>項目において標準および<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、未予約のキーワードである別名の前の<TT
+CLASS="LITERAL"
+>AS</TT
+>を省略することができます。
+しかし、構文があいまいになるため、出力名では現実的ではありません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75163"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>ONLY</TT
+>と括弧</H3
+><P
+>標準SQLでは、<TT
+CLASS="LITERAL"
+>SELECT * FROM ONLY (tab1), ONLY (tab2) WHERE ...</TT
+>のように、<TT
+CLASS="LITERAL"
+>ONLY</TT
+>に続くテーブル名の前後を括弧でくくることを要求します。
+PostgreSQLではこれもサポートしますが、括弧を省略することもできます。
+（この点は<TT
+CLASS="LITERAL"
+>ONLY</TT
+>オプションをサポートするすべてのSQLコマンドで同様に適用されます。）
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75170"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>と<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>における利用可能な名前空間</H3
+><P
+>標準SQL-92では、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句で使用できるのは、出力列名か序数のみであり、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句で使用できるのは、入力列名からなる式のみです。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、これらの句で両方が指定できるように拡張されています
+（ただし、不明瞭さがある場合は標準の解釈が使用されます）。
+さらに、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではどちらの句にも任意の式を指定できます。
+式で使われる名前は、常に出力列名ではなく入力列の名前とみなされることに注意してください。
+   </P
+><P
+>SQL:1999以降では、SQL-92との上位互換性がまったくない、多少異なる定義が採用されています。
+しかし、ほとんどの場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はSQL:1999と同じ方法で<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>や<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>を解釈します。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75183"
+></A
+><H3
+>関数依存性</H3
+><P
+>テーブルのプライマリキーが<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>リストに含まれる場合に限り、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は（<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>で列を省くことができる）関数依存性を認識します。
+標準SQLでは、認識しなければならない追加の条件を規定しています。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75189"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句の制限</H3
+><P
+>標準SQLではウィンドウ用の<TT
+CLASS="REPLACEABLE"
+><I
+>frame_clause</I
+></TT
+>オプションをさらに提供します。
+現在の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では上述のオプションのみをサポートします。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75195"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>および<TT
+CLASS="LITERAL"
+>OFFSET</TT
+></H3
+><P
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>および<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>句は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>独自の構文ですが、<SPAN
+CLASS="PRODUCTNAME"
+>MySQL</SPAN
+>でも使用されています。
+<A
+HREF="sql-select.html#SQL-LIMIT"
+><I
+><I
+>LIMIT</I
+>句</I
+></A
+>で説明したように、標準SQL:2008にて同じ機能の<TT
+CLASS="LITERAL"
+>OFFSET ... FETCH {FIRST|NEXT} ...</TT
+>が導入されました。
+この構文は<SPAN
+CLASS="PRODUCTNAME"
+>IBM DB2</SPAN
+>でも使用されています。
+（PostgreSQLでは利用できませんが、<SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+>用に開発されたアプリケーションでは、これらの句の機能を実装するためによく自動生成される<TT
+CLASS="LITERAL"
+>rownum</TT
+>列を含めるという回避策を使用します。）
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75209"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>および<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+></H3
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>は標準SQLに存在しますが、標準では、<TT
+CLASS="COMMAND"
+>DECLARE CURSOR</TT
+>のオプションとしてしか許されていません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、副<TT
+CLASS="COMMAND"
+>SELECT</TT
+>など任意の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>で許されます。
+これは拡張です。
+<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>の亜種、および<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>オプションは標準にはありません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75221"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>内のデータ変更文</H3
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせとして<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>および<TT
+CLASS="COMMAND"
+>DELETE</TT
+>を使用することができます。
+これは標準SQLにはありません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN75230"
+></A
+><H3
+>非標準句</H3
+><P
+><TT
+CLASS="LITERAL"
+>DISTINCT ON</TT
+>句は標準SQLでは定義されていません。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-security-label.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-selectinto.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SECURITY LABEL</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SELECT INTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

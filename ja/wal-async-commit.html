@@ -1,0 +1,367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>非同期コミット</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"><LINK
+REL="PREVIOUS"
+TITLE="ログ先行書き込み(WAL)"
+HREF="wal-intro.html"><LINK
+REL="NEXT"
+TITLE="WALの設定"
+HREF="wal-configuration.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ログ先行書き込み(WAL)"
+HREF="wal-intro.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 29&#31456;信頼性とログ先行書き込み</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="WALの設定"
+HREF="wal-configuration.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WAL-ASYNC-COMMIT"
+>29.3. 非同期コミット</A
+></H1
+><P
+><I
+CLASS="FIRSTTERM"
+>非同期コミット</I
+>とは、トランザクションをより高速に完了することができるオプションです。
+もっとも最近のトランザクションがデータベースがクラッシュしてしまった場合に失われるという危険があります。
+これは、多くのアプリケーションで受け入れられるトレードオフです。
+  </P
+><P
+>前説で説明した通り、通常トランザクションのコミットは<I
+CLASS="FIRSTTERM"
+>同期的</I
+>です。
+サーバはトランザクションの<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>レコードが永続的格納領域に記録されるまで、クライアントに成功したことを通知することを待機します。
+従って、直後にサーバクラッシュといった障害があったとしても、コミットされたと報告されたトランザクションは保持されることをクライアントは保証されます。
+しかし、短期のトランザクションでは、この遅延はトランザクションの処理時間の大半を占める要素となります。
+非同期コミットモードを選択することは、サーバが<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>記録が実際に作成された通りにディスクに書き込まれるより前に、トランザクションの論理的な完了をもって成功したと通知することを意味します。
+これにより、小規模なトランザクションでスループットがかなり向上します。
+  </P
+><P
+>非同期コミットにはデータ損失の危険があります。
+トランザクションの完了をクライアントに通知してからトランザクションが本当に完了する（つまり、サーバクラッシュしても損失がないことが保証される）までの間にわずかな時間が存在します。
+したがって、クライアントがトランザクションが記録されているという仮定を元に外部的な動作を行うクライアントがある場合は、非同期コミットを使用すべきではありません。
+例えば、銀行では、ATMの現金分配を記録するトランザクションで非同期コミットを使用してはいけません。
+しかし、イベント記録など多くのシナリオでは、この種の保証を持って格納する必要はありません。
+  </P
+><P
+>非同期コミットによりもたらされる危険性は、データの破壊ではなくデータの損失です。
+データベースがクラッシュした場合、最後にフラッシュされた記録まで<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>を再生することで復旧が行われます。
+このため、データベースは内部で一貫性を持った状態に復旧されますが、ディスクにフラッシュされていないトランザクションはすべてそこには反映されません。
+したがって、影響を受けるのは、最後に行われたいくつかのトランザクションの損失です。
+トランザクションはコミットされた順に再生されますので、一貫性が失われることはありません。
+例えば、トランザクションBが以前に行われたトランザクションAの結果に依存した変更を行った場合、Bの影響が保存されている限り、Aの影響が失われることは起こり得ません。
+  </P
+><P
+>ユーザは各トランザクションでコミットモードを選択することができます。
+このため、同時実行されるトランザクションを同期的、および非同期の両方でコミットさせることができます。
+これにより、性能とトランザクションの信頼性の確実性との間で柔軟な選択を行うことができます。
+コミットモードはユーザによる設定が可能なパラメータ<A
+HREF="runtime-config-wal.html#GUC-SYNCHRONOUS-COMMIT"
+>synchronous_commit</A
+>で制御されます。
+このパラメータは、設定パラメータを設定することができる全ての方法で変更することが可能です。
+あるひとつのトランザクションで使用されるモードは、トランザクションのコミットが始まった時の<TT
+CLASS="VARNAME"
+>synchronous_commit</TT
+>の値に依存します。
+  </P
+><P
+>例えば<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>などの特定のユーティリティコマンドでは、<TT
+CLASS="VARNAME"
+>synchronous_commit</TT
+>の設定に関わらず、強制的に同期的コミットが行われます。
+これにより、サーバのファイルシステムとデータベースの論理的な状態との間の一貫性が保証されます。
+<TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>などの2層コミットをサポートするコマンドもまた、常に同期的です。
+  </P
+><P
+>もし非同期コミットとそのトランザクションの<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>記録の書き込みの間の危険期間にデータベースがクラッシュしたとすると、そのトランザクションでなされた変更は失われる<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>でしょう</I
+></SPAN
+>。
+バックグランドプロセス（<SPAN
+CLASS="QUOTE"
+>"WALライタ"</SPAN
+>）が未書き込みの<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>記録を<A
+HREF="runtime-config-wal.html#GUC-WAL-WRITER-DELAY"
+>wal_writer_delay</A
+>ミリ秒毎にディスクに吐き出しますので、この危険期間は制限されます。
+WALライタは稼働中に一回ページ全体を書き込むように設計されているため、危険期間の実際の最大の長さは<TT
+CLASS="VARNAME"
+>wal_writer_delay</TT
+>の３倍です。
+  </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>即時モードのシャットダウンはサーバクラッシュと同じことですので、吐き出されていない非同期コミットが失われることになります。
+   </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>非同期コミットでは<A
+HREF="runtime-config-wal.html#GUC-FSYNC"
+>fsync</A
+> = offという設定とは異なる動作になります。
+<TT
+CLASS="VARNAME"
+>fsync</TT
+>はサーバ全体に関する設定であり、すべてのトランザクションの動作を変更します。
+これは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>における、データベースの別の場所への同期書き込みの試行に関するすべてのロジックを無効にします。
+このため、システムクラッシュ（<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>自体の失敗ではなくハードウェアやオペレーティングシステムのクラッシュ）の結果、予測できないデータベース状態の破壊が起こります。
+非同期コミットはデータ破壊の危険性はなく、多くの状況では<TT
+CLASS="VARNAME"
+>fsync</TT
+>を無効にした場合に得られる性能向上とほぼ同等の性能を提供します。
+  </P
+><P
+>また<A
+HREF="runtime-config-wal.html#GUC-COMMIT-DELAY"
+>commit_delay</A
+>も非同期コミットと類似のように見えますが、これは実のところ同期コミットの一方法です。
+（実際、非同期コミット時<TT
+CLASS="VARNAME"
+>commit_delay</TT
+>は無視されます。）
+同期コミットが<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>をディスクに吐き出す直前に、こうしたトランザクションによって実行される一度の吐き出しにより、ほぼ同時期にコミットを行う他のトランザクションの分も処理できるようにすることを目的とした遅延が<TT
+CLASS="VARNAME"
+>commit_delay</TT
+>により発生します。
+<TT
+CLASS="VARNAME"
+>commit_delay</TT
+>の設定は、多くの同時にコミットを行うトランザクションが存在する時にのみ役に立ち、性能を損なうことなく実際に有用な値に調整することは困難です。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="wal-intro.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="wal-configuration.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ログ先行書き込み(<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>)</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="wal.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>の設定</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

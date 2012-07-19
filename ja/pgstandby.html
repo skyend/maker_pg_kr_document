@@ -1,0 +1,863 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>pg_standby</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="pgrowlocks"
+HREF="pgrowlocks.html"><LINK
+REL="NEXT"
+TITLE="pg_stat_statements"
+HREF="pgstatstatements.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pgrowlocks"
+HREF="pgrowlocks.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pg_stat_statements"
+HREF="pgstatstatements.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PGSTANDBY"
+>F.31. pg_standby</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>は<SPAN
+CLASS="QUOTE"
+>"ウォームスタンバイ"</SPAN
+>データベースサーバの作成をサポートします。
+これは、特定の変更が必要となるカスタマイズ可能なテンプレートを持ち、実運用環境で利用可能なプログラムとして設計されています。
+ </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>は、標準のアーカイブリカバリからウォームスタンバイに切り替えるために必要な待機コマンド<TT
+CLASS="VARNAME"
+>restore_command</TT
+>として設計されています。
+他の設定も必要ですが、それらはすべてメインのサーバマニュアルで説明されています（<A
+HREF="warm-standby.html"
+>&#38917;25.2</A
+>を参照してください）。
+ </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>の機能は以下のとおりです。
+ </P
+><P
+></P
+><UL
+><LI
+><P
+>C言語で作成されているため、移植性に優れ、インストールが簡単です。
+   </P
+></LI
+><LI
+><P
+>利用者自身のニーズに沿って変更すべき部分が限定されており、ソースの変更が簡単です。
+   </P
+></LI
+><LI
+><P
+>LinuxとWindowsで試験済みです。
+   </P
+></LI
+></UL
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136449"
+>F.31.1. 使用方法</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>を使用して待機サーバを構築するには、<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>設定ファイルに以下を追加します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>restore_command = 'pg_standby <TT
+CLASS="REPLACEABLE"
+><I
+>archiveDir</I
+></TT
+> %f %p %r'</PRE
+><P>
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>archiveDir</I
+></TT
+>は、リストアすべきWALセグメントファイルが存在するディレクトリです。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>コマンドの全構文を以下に示します。
+</P><PRE
+CLASS="SYNOPSIS"
+>pg_standby [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> ... </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>archivelocation</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>nextwalfile</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>xlogfilepath</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>restartwalfile</I
+></TT
+> </SPAN
+>]</PRE
+><P>
+<TT
+CLASS="VARNAME"
+>restore_command</TT
+>内で使用される場合、リストアで必要となる実際のファイルとパスを提供するために、<TT
+CLASS="REPLACEABLE"
+><I
+>nextwalfile</I
+></TT
+>および<TT
+CLASS="REPLACEABLE"
+><I
+>xlogfilepath</I
+></TT
+>に対して、それぞれ<TT
+CLASS="LITERAL"
+>%f</TT
+>および<TT
+CLASS="LITERAL"
+>%p</TT
+>マクロを指定しなければなりません。
+  </P
+><P
+>通常、<TT
+CLASS="LITERAL"
+>%r</TT
+>マクロを使用して<TT
+CLASS="REPLACEABLE"
+><I
+>restartwalfile</I
+></TT
+>が指定された場合、このファイルより論理的に前のすべてのWALファイルは<TT
+CLASS="REPLACEABLE"
+><I
+>archivelocation</I
+></TT
+>から削除されます。
+これによってクラッシュからの再起動ができることを担保しつつ、保持する必要があるファイルの数を最小化します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>archivelocation</I
+></TT
+>が、この特定の待機サーバで一時使用用の領域である場合、このパラメータの使用は適切です。
+しかし、<TT
+CLASS="REPLACEABLE"
+><I
+>archivelocation</I
+></TT
+>が長期間のWAL保管を目的とした領域である場合には、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>不適切</I
+></SPAN
+>となります。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>は、<TT
+CLASS="REPLACEABLE"
+><I
+>archivelocation</I
+></TT
+>がサーバを所有するユーザから読み取り可能なディレクトリであることを前提とします。
+また、<TT
+CLASS="REPLACEABLE"
+><I
+>restartwalfile</I
+></TT
+>（または<TT
+CLASS="LITERAL"
+>-k</TT
+>）が指定される場合、<TT
+CLASS="REPLACEABLE"
+><I
+>archivelocation</I
+></TT
+>ディレクトリは書き込み可能である必要があります。
+  </P
+><P
+>マスタサーバが失敗した時の<SPAN
+CLASS="QUOTE"
+>"ウォームスタンバイ"</SPAN
+>データベースサーバへフェイルオーバーする方法には、以下の2つがあります。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>スマートフェイルオーバー</DT
+><DD
+><P
+>スマートフェイルオーバーは、アーカイブとして利用可能なすべてのWALファイルを適用した後に、待機サーバが準備完了となります。
+待機サーバが遅れてもデータロスとなることは全くありませんが、適用されていないWALが大量にある場合、待機サーバが利用可能になるまでには長時間かかるかもしれません。
+スマートフェイルオーバーのトリガとなるためには、単語<TT
+CLASS="LITERAL"
+>smart</TT
+>を含むトリガファイルを作成するか、単に空のファイルを作成してください。
+      </P
+></DD
+><DT
+>ファストフェイルオーバー</DT
+><DD
+><P
+>ファストフェイルオーバーでは、待機サーバはすぐに準備完了となります。
+アーカイブ内の未適用のWALファイルは無視され、それらのファイルに記録されていたすべてのトランザクションは失われます。
+ファストフェイルオーバーのトリガとなるためには、トリガファイルを作成し、単語<TT
+CLASS="LITERAL"
+>fast</TT
+>を書き込んでください。
+また、指定した時間内に新しいWALファイルが出現しない場合に、自動的にファストフェイルオーバーを実行するように<SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>を設定することもできます。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136499"
+>F.31.2. <SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>のオプション</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>は、以下のコマンドライン引数を受け付けます。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="OPTION"
+>-c</TT
+></DT
+><DD
+><P
+>アーカイブからWALファイルをリストアするために <TT
+CLASS="LITERAL"
+>cp</TT
+>または<TT
+CLASS="LITERAL"
+>copy</TT
+>コマンドを使用します。
+これが唯一サポートされている動作ですので、このオプションには意味はありません。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-d</TT
+></DT
+><DD
+><P
+><TT
+CLASS="FILENAME"
+>stderr</TT
+>に大量のデバッグログを出力します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-k</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>archivelocation</I
+></TT
+>からファイルを削除することによって、現在のWALファイルよりも古いWALファイルが、ここで指定した数以上アーカイブ内に保持されないようにします。
+ゼロ（デフォルト）は<TT
+CLASS="REPLACEABLE"
+><I
+>archivelocation</I
+></TT
+>からファイルをまったく削除しないことを意味します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>restartwalfile</I
+></TT
+>が指定された場合、このパラメータは警告なく無視されます。
+アーカイブ内の正確な切り捨て点を決定する際には、そちらの指定方法の方がより正確だからです。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.3の時点では、<TT
+CLASS="REPLACEABLE"
+><I
+>restartwalfile</I
+></TT
+>パラメータによる指定の方が安全、かつ効率的であるため、このパラメータの使用は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>廃止予定</I
+></SPAN
+>です。
+あまりにも小さな値を設定すると、待機サーバの再起動に必要とするファイルも削除されてしまう可能性があり、一方であまりに大きな値を設定するとアーカイブ領域を無駄に消費します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-r</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>maxretries</I
+></TT
+></DT
+><DD
+><P
+>コピーが失敗した場合のリトライ回数の最大値を設定します（デフォルトは3です）。
+失敗する度に、失敗回数に比例して待ち時間が増加するように<TT
+CLASS="REPLACEABLE"
+><I
+>sleeptime</I
+></TT
+> * <TT
+CLASS="REPLACEABLE"
+><I
+>num_retries</I
+></TT
+>秒間待機します。
+そのため、デフォルトでは待機サーバに失敗を返す前に、5秒、10秒、15秒待機することになります。
+これはリカバリの完了、およびその結果としてスタンバイが完全に成功するであろうと解釈されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-s</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>sleeptime</I
+></TT
+></DT
+><DD
+><P
+>リストアすべきWALがアーカイブ内で見つかるかどうか、その確認をする間隔を秒単位で設定します（最大60秒、デフォルト5秒）。
+デフォルト設定は必ずしも推奨するものではありません。
+<A
+HREF="warm-standby.html"
+>&#38917;25.2</A
+>を参考に検討してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-t</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>triggerfile</I
+></TT
+></DT
+><DD
+><P
+>存在すればフェイルオーバー発生のきっかけとなるトリガファイルを指定します。
+同一システムに複数のサーバが存在する場合、たとえば<TT
+CLASS="FILENAME"
+>/tmp/pgsql.trigger.5432</TT
+>などのように構造を持ったファイル名を使用して、どのサーバのトリガか混乱しないようにすることを推奨します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-w</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>maxwaittime</I
+></TT
+></DT
+><DD
+><P
+>ファストフェイルオーバー実行後に、次のWALファイルを待機する最大秒数を設定します。
+ゼロ（デフォルト）に設定することは永久に待機することを意味します。
+デフォルトの設定は必ずしも推奨されません。
+<A
+HREF="warm-standby.html"
+>&#38917;25.2</A
+>を参考にして検討してください。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136558"
+>F.31.3. 例</A
+></H2
+><P
+>LinuxまたはUnixシステムでは以下のように使用できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>archive_command = 'cp %p .../archive/%f'
+
+restore_command = 'pg_standby -d -s 2 -t /tmp/pgsql.trigger.5442 .../archive %f %p %r 2&#62;&#62;standby.log'
+
+recovery_end_command = 'rm -f /tmp/pgsql.trigger.5442'</PRE
+><P>
+ここでは、アーカイブディレクトリは物理的には待機サーバ上にあります。
+そのため、<TT
+CLASS="VARNAME"
+>archive_command</TT
+>はNFS経由でアーカイブディレクトリにアクセスします。
+しかし、このファイルは（<TT
+CLASS="LITERAL"
+>ln</TT
+>の使用を有効にした）待機サーバではローカルです。
+そのため、以下のようになります。
+  <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>standby.log</TT
+>にデバッグ用の出力を書き出します。
+    </P
+></LI
+><LI
+><P
+>次のWALファイルが利用可能になったかどうかを確認するまで2秒間待機します。
+    </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/tmp/pgsql.trigger.5442</TT
+>というトリガファイルが出現すると待機状態を解除し、トリガファイルの内容に従ってフェイルオーバーを実行します。
+    </P
+></LI
+><LI
+><P
+>復旧が終了した時点で、トリガファイルを削除します。
+    </P
+></LI
+><LI
+><P
+>必要なくなったファイルをアーカイブディレクトリから削除します。
+    </P
+></LI
+></UL
+><P>
+  </P
+><P
+>Windowsでは以下のように使用できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>archive_command = 'copy %p ...\\archive\\%f'
+
+restore_command = 'pg_standby -d -s 5 -t C:\pgsql.trigger.5442 ...\archive %f %p %r 2&#62;&#62;standby.log'
+
+recovery_end_command = 'del C:\pgsql.trigger.5442'</PRE
+><P>
+<TT
+CLASS="VARNAME"
+>archive_command</TT
+>ではバックスラッシュを二重にする必要がありますが、<TT
+CLASS="VARNAME"
+>restore_command</TT
+>や<TT
+CLASS="VARNAME"
+>recovery_end_command</TT
+>では<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必要ない</I
+></SPAN
+>ことに注意してください。
+これは以下のような内容になります。
+  <P
+></P
+></P><UL
+><LI
+><P
+>アーカイブからWALファイルをリストアするために<TT
+CLASS="LITERAL"
+>copy</TT
+>コマンドを使用します。
+    </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>standby.log</TT
+>にデバッグ用の出力を書き出します。
+    </P
+></LI
+><LI
+><P
+>次のWALファイルが利用可能になったかどうかを確認するまで5秒間待機します。
+    </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>C:\pgsql.trigger.5442</TT
+>というトリガファイルが出現すると待機を中止し、トリガファイルの内容に従ってフェイルオーバーを実行します。
+    </P
+></LI
+><LI
+><P
+>復旧が終了した時点で、トリガファイルを削除します。
+    </P
+></LI
+><LI
+><P
+>必要なくなったファイルをアーカイブディレクトリから削除します。
+    </P
+></LI
+></UL
+><P>
+  </P
+><P
+>Windowsの<TT
+CLASS="LITERAL"
+>copy</TT
+>コマンドは、ファイルが完全にコピーされる前に、最終的なファイルサイズを設定します。
+これは通常<SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>を誤動作させます。
+したがって、<SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>は適切なファイルサイズを見てから、いったん<TT
+CLASS="LITERAL"
+>sleeptime</TT
+>秒待ちます。
+GNUWin32の<TT
+CLASS="LITERAL"
+>cp</TT
+>は、ファイルコピーが完了した後にだけ、ファイルサイズを設定します。
+  </P
+><P
+>Windowsの例では両方のサーバで<TT
+CLASS="LITERAL"
+>copy</TT
+>を使用していますので、どちらか一方、または両サーバがネットワーク経由でアーカイブディレクトリにアクセスすることになります。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136607"
+>F.31.4. サポートされているサーバのバージョン</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.2以降で動作するよう設計されています。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.3は、保持しておく必要がある最後のWALファイルを<SPAN
+CLASS="APPLICATION"
+>pg_standby</SPAN
+>に渡すための<TT
+CLASS="LITERAL"
+>%r</TT
+>マクロを提供しています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.2では、アーカイブファイルの削除が必要な場合<TT
+CLASS="LITERAL"
+>-k</TT
+>オプションを使用しなければなりません。
+このオプションは8.3でもまだ利用可能ですが、非推奨です。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.4は、<TT
+CLASS="VARNAME"
+>recovery_end_command</TT
+>オプションを提供しています。
+このオプションを指定しないと、残ったトリガファイルが問題を引き起こす可能性があります。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN136621"
+>F.31.5. 作者</A
+></H2
+><P
+>   Simon Riggs <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:simon@2ndquadrant.com"
+>simon@2ndquadrant.com</A
+>&#62;</CODE
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="pgrowlocks.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pgstatstatements.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>pgrowlocks</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>pg_stat_statements</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

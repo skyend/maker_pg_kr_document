@@ -1,0 +1,2651 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Informix互換モード</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="WHENEVER"
+HREF="ecpg-sql-whenever.html"><LINK
+REL="NEXT"
+TITLE="内部"
+HREF="ecpg-develop.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="WHENEVER"
+HREF="ecpg-sql-whenever.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="内部"
+HREF="ecpg-develop.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-INFORMIX-COMPAT"
+>33.15. <SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>互換モード</A
+></H1
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+>を<I
+CLASS="FIRSTTERM"
+>Informix互換モード</I
+>というモードで動作させることができます。
+このモードが有効ならば、<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+> E/SQL用の<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>プリプロセッサであるかのように動作します。
+一般的にいうと、これにより埋め込みSQLコマンドを導入する際に<TT
+CLASS="LITERAL"
+>EXEC SQL</TT
+>プリミティブの代わりにドル記号を使用することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$int j = 3;
+$CONNECT TO :dbname;
+$CREATE TABLE test(i INT PRIMARY KEY, j INT);
+$INSERT INTO test(i, j) VALUES (7, :j);
+$COMMIT;</PRE
+><P>
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="LITERAL"
+>$</TT
+>とその後に続く<TT
+CLASS="LITERAL"
+>include</TT
+>、<TT
+CLASS="LITERAL"
+>define</TT
+>、<TT
+CLASS="LITERAL"
+>ifdef</TT
+>などのプリプロセッサ指示子の間に空白文字を含めてはなりません。
+こうしないと、プリプロセッサはトークンをホスト変数として解析します。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>INFORMIX</TT
+>、<TT
+CLASS="LITERAL"
+>INFORMIX_SE</TT
+>という2つの互換モードがあります。
+  </P
+><P
+>互換モードを使用するプログラムをリンクする際、ECPGに同梱される<TT
+CLASS="LITERAL"
+>libcompat</TT
+>とリンクすることを忘れないでください。
+  </P
+><P
+>以前に説明した構文上の飾りの他に、<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>互換モードでは、入力、出力、データ変換関数、E/SQLからECPGで既知の埋め込みSQL文変換に関する関数もいくつか移植しています。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>互換モードはECPGのpgtypeslibライブラリと密接に関係しています。
+pgtypeslibはSQLデータ型とCホストプログラム内のデータ型を対応付けし、ほとんどの<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>互換モードで追加された関数を使用してこれらのCホストプログラム型を操作することができます。
+しかし、互換範囲は制限されています。
+これは<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の動作を真似ることはしません。
+これを使用して、多少は同じ名前で同じ基本動作を行う関数を操作、提供できますが、<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>を使用しているのであれば、完全な置き換えにはなりません。
+さらに一部のデータ型は異なります。
+例えば、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の日付時刻やinterval型では<TT
+CLASS="LITERAL"
+>YEAR TO MINUTE</TT
+>のような範囲を持ちませんので、これらはECPGではサポートできないことがわかります。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-INFORMIX-TYPES"
+>33.15.1. 追加の型</A
+></H2
+><P
+>右側を切り詰めた文字列データを格納するInformixの特別な"string"仮想型は<TT
+CLASS="LITERAL"
+>typedef</TT
+>を使用せずともInformixモードでサポートされるようになりました。
+実際Informixモードでは、ECPGは<TT
+CLASS="LITERAL"
+>typedef sometype string;</TT
+>を含むソースファイルの処理を拒絶します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+string userid; /* this variable will contain trimmed data */
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL FETCH MYCUR INTO :userid;</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-INFORMIX-STATEMENTS"
+>33.15.2. 追加または存在しない埋め込みSQL文</A
+></H2
+><P
+>    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>CLOSE DATABASE</TT
+></DT
+><DD
+><P
+>このSQL文は現在の接続を閉じます。
+実際、これはECPGの<TT
+CLASS="LITERAL"
+>DISCONNECT CURRENT</TT
+>と同義です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$CLOSE DATABASE;                /* close the current connection */
+EXEC SQL CLOSE DATABASE;</PRE
+><P>
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FREE cursor_name</TT
+></DT
+><DD
+><P
+>InformixのESQL/Cと比べCECPGの動作方法に違いがあります(つまり純粋に文法の変換がどの段階で行われ、背後の実行時ライブラリにどの段階で依存するか)ので、ECPGには<TT
+CLASS="LITERAL"
+>FREE cursor_name</TT
+>文はありません。
+このためECPGにおいて、<TT
+CLASS="LITERAL"
+>DECLARE CURSOR</TT
+>がカーソル名を使用する実行時ライブラリ内の関数呼び出しに変換されません。
+これはECPG実行時ライブラリ内ではSQLカーソルの実行状況を保持しておらず、PostgreSQLサーバ内のみで保持していることを意味します。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FREE statement_name</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>FREE statement_name</TT
+>は<TT
+CLASS="LITERAL"
+>DEALLOCATE PREPARE statement_name</TT
+>の類義語です。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-INFORMIX-SQLDA"
+>33.15.3. Informix互換SQLDA記述子領域</A
+></H2
+><P
+>Informix互換モードは<A
+HREF="ecpg-descriptors.html#ECPG-SQLDA-DESCRIPTORS"
+>&#38917;33.7.2</A
+>の説明と異なる構造体をサポートします。
+以下を参照してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>struct sqlvar_compat
+{
+    short   sqltype;
+    int     sqllen;
+    char   *sqldata;
+    short  *sqlind;
+    char   *sqlname;
+    char   *sqlformat;
+    short   sqlitype;
+    short   sqlilen;
+    char   *sqlidata;
+    int     sqlxid;
+    char   *sqltypename;
+    short   sqltypelen;
+    short   sqlownerlen;
+    short   sqlsourcetype;
+    char   *sqlownername;
+    int     sqlsourceid;
+    char   *sqlilongdata;
+    int     sqlflags;
+    void   *sqlreserved;
+};
+
+struct sqlda_compat
+{
+    short  sqld;
+    struct sqlvar_compat *sqlvar;
+    char   desc_name[19];
+    short  desc_occ;
+    struct sqlda_compat *desc_next;
+    void  *reserved;
+};
+
+typedef struct sqlvar_compat    sqlvar_t;
+typedef struct sqlda_compat     sqlda_t;</PRE
+><P>
+   </P
+><P
+>大域的な属性を以下に示します。
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>sqld</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>SQLDA</TT
+>記述子内のフィールド数です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqlvar</TT
+></DT
+><DD
+><P
+>フィールド単位の属性へのポインタです。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>desc_name</TT
+></DT
+><DD
+><P
+>未使用です。
+ゼロバイトで埋められます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>desc_occ</TT
+></DT
+><DD
+><P
+>割り当てられた構造体のサイズです。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>desc_next</TT
+></DT
+><DD
+><P
+>結果セットに複数のレコードが含まれる場合、次のSQLDA構造体へのポインタです。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>reserved</TT
+></DT
+><DD
+><P
+>未使用のポインタでNULLが含まれます。
+Informix互換のために保持されます。
+       </P
+></DD
+></DL
+></DIV
+><P>
+
+フィールド毎の属性を以下に示します。
+これらは<TT
+CLASS="LITERAL"
+>sqlvar</TT
+>配列内に格納されます。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>sqltype</TT
+></DT
+><DD
+><P
+>フィールドの型です。
+定数は<TT
+CLASS="LITERAL"
+>sqltypes.h</TT
+>内に記載されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqllen</TT
+></DT
+><DD
+><P
+>フィールドデータ長です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqldata</TT
+></DT
+><DD
+><P
+>フィールドデータへのポインタです。
+このポインタは<TT
+CLASS="LITERAL"
+>char *</TT
+>型です。
+指し示されるデータはバイナリ書式です。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>int intval;
+
+switch (sqldata-&#62;sqlvar[i].sqltype)
+{
+    case SQLINTEGER:
+        intval = *(int *)sqldata-&#62;sqlvar[i].sqldata;
+        break;
+  ...
+}</PRE
+><P>
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqlind</TT
+></DT
+><DD
+><P
+>NULL指示子へのポインタです。
+DESCRIBEまたはFETCHで返される場合、常に有効なポインタです。
+<TT
+CLASS="LITERAL"
+>EXECUTE ... USING sqlda;</TT
+>への入力として使用される場合、NULLポインタ値はこのフィールドの値が非NULLであることを意味します。
+さもなくば、有効なポインタと<TT
+CLASS="LITERAL"
+>sqlitype</TT
+>は適切に設定さればければなりません。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>if (*(int2 *)sqldata-&#62;sqlvar[i].sqlind != 0)
+    printf("value is NULL\n");</PRE
+><P>
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqlname</TT
+></DT
+><DD
+><P
+>フィールド名です。
+ゼロ終端の文字列です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqlformat</TT
+></DT
+><DD
+><P
+>Informixでは予約されています。
+このフィールドの<CODE
+CLASS="FUNCTION"
+>PQfformat()</CODE
+>の値です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqlitype</TT
+></DT
+><DD
+><P
+>NULL指示子データの型です。
+サーバからデータが返される場合は常にSQLSMINTです。
+パラメータ付き問い合わせで<TT
+CLASS="LITERAL"
+>SQLDA</TT
+>が使用される時、データは集合型にしたがって扱われます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqlilen</TT
+></DT
+><DD
+><P
+>NULL指示子データの長さです。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqlxid</TT
+></DT
+><DD
+><P
+>フィールドの拡張型で、<CODE
+CLASS="FUNCTION"
+>PQftype()</CODE
+>の結果です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqltypename</TT
+><BR><TT
+CLASS="LITERAL"
+>sqltypelen</TT
+><BR><TT
+CLASS="LITERAL"
+>sqlownerlen</TT
+><BR><TT
+CLASS="LITERAL"
+>sqlsourcetype</TT
+><BR><TT
+CLASS="LITERAL"
+>sqlownername</TT
+><BR><TT
+CLASS="LITERAL"
+>sqlsourceid</TT
+><BR><TT
+CLASS="LITERAL"
+>sqlflags</TT
+><BR><TT
+CLASS="LITERAL"
+>sqlreserved</TT
+></DT
+><DD
+><P
+>未使用です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sqlilongdata</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>sqllen</TT
+>が32キロバイトより大きい場合<TT
+CLASS="LITERAL"
+>sqldata</TT
+>と同じです。
+       </P
+></DD
+></DL
+></DIV
+><P>
+
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL INCLUDE sqlda.h;
+
+    sqlda_t        *sqlda; /* This doesn't need to be under embedded DECLARE SECTION */
+
+    EXEC SQL BEGIN DECLARE SECTION;
+    char *prep_stmt = "select * from table1";
+    int i;
+    EXEC SQL END DECLARE SECTION;
+
+    ...
+
+    EXEC SQL PREPARE mystmt FROM :prep_stmt;
+
+    EXEC SQL DESCRIBE mystmt INTO sqlda;
+
+    printf("# of fields: %d\n", sqlda-&gt;sqld);
+    for (i = 0; i &lt; sqlda-&gt;sqld; i++)
+      printf("field %d: \"%s\"\n", sqlda-&gt;sqlvar[i]-&gt;sqlname);
+
+    EXEC SQL DECLARE mycursor CURSOR FOR mystmt;
+    EXEC SQL OPEN mycursor;
+    EXEC SQL WHENEVER NOT FOUND GOTO out;
+
+    while (1)
+    {
+      EXEC SQL FETCH mycursor USING sqlda;
+    }
+
+    EXEC SQL CLOSE mycursor;
+
+    free(sqlda); /* The main structure is all to be free(),
+                  * sqlda and sqlda-&gt;sqlvar is in one allocated area */</PRE
+><P>
+より詳細については<TT
+CLASS="LITERAL"
+>sqlda.h</TT
+>ヘッダファイルと<TT
+CLASS="LITERAL"
+>src/interfaces/ecpg/test/compat_informix/sqlda.pgc</TT
+>リグレッションテストを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-INFORMIX-FUNCTIONS"
+>33.15.4. 追加関数</A
+></H2
+><P
+>    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><CODE
+CLASS="FUNCTION"
+>decadd</CODE
+></DT
+><DD
+><P
+>2つのdecimal型変数を加算します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int decadd(decimal *arg1, decimal *arg2, decimal *sum);</PRE
+><P>
+この関数は、decimal型の最初の演算項目(<TT
+CLASS="LITERAL"
+>arg1</TT
+>)へのポインタ、decimal型の2番目の演算項目(<TT
+CLASS="LITERAL"
+>arg2</TT
+>)へのポインタ、加算結果を格納するdecimal型値(<TT
+CLASS="LITERAL"
+>sum</TT
+>)へのポインタを受付けます。
+成功すると、この関数は0を返します。
+オーバーフローが発生した場合は<TT
+CLASS="SYMBOL"
+>ECPG_INFORMIX_NUM_OVERFLOW</TT
+>が、アンダーフローの場合は<TT
+CLASS="SYMBOL"
+>ECPG_INFORMIX_NUM_UNDERFLOW</TT
+>が返ります。
+この他の失敗が発生した場合は-1が返り、<TT
+CLASS="VARNAME"
+>errno</TT
+>にはpgtypeslibにおける対応する<TT
+CLASS="VARNAME"
+>errno</TT
+>番号が設定されます。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>deccmp</CODE
+></DT
+><DD
+><P
+>2つのdecimal型変数を比較します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int deccmp(decimal *arg1, decimal *arg2);</PRE
+><P>
+この関数は、最初のdecimal値(<TT
+CLASS="LITERAL"
+>arg1</TT
+>)へのポインタ、2番目のdecimal値(<TT
+CLASS="LITERAL"
+>arg2</TT
+>)へのポインタを受付け、どちらが大きいかを示すint値を返します。
+        <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>arg1</TT
+>が指し示す値が<TT
+CLASS="LITERAL"
+>arg2</TT
+>が指し示す値より大きければ1。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>arg1</TT
+>が指し示す値が<TT
+CLASS="LITERAL"
+>arg2</TT
+>が指し示す値より小さければ-1。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>arg1</TT
+>が指し示す値と<TT
+CLASS="LITERAL"
+>arg2</TT
+>が指し示す値が同じならば0。
+          </P
+></LI
+></UL
+><P>
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>deccopy</CODE
+></DT
+><DD
+><P
+>decimal値をコピーします。
+</P><PRE
+CLASS="SYNOPSIS"
+>void deccopy(decimal *src, decimal *target);</PRE
+><P>
+この関数は、最初の引数としてコピー元のdecimal値(<TT
+CLASS="LITERAL"
+>src</TT
+>)へのポインタ、2番目の引数としてdecimal型のコピー先構造体(<TT
+CLASS="LITERAL"
+>target</TT
+>)へのポインタを受付けます。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>deccvasc</CODE
+></DT
+><DD
+><P
+>ASCII表現からdecimal型に値を変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int deccvasc(char *cp, int len, decimal *np);</PRE
+><P>
+この関数は、変換対象の文字列表現を持つ文字列(<TT
+CLASS="LITERAL"
+>cp</TT
+>)へのポインタとその文字列長<TT
+CLASS="LITERAL"
+>len</TT
+>を受付けます。
+<TT
+CLASS="LITERAL"
+>np</TT
+>はこの操作結果を格納するdecimal型の値へのポインタです。
+       </P
+><P
+>有効な書式の例は以下の通りです。
+         <TT
+CLASS="LITERAL"
+>-2</TT
+>、
+         <TT
+CLASS="LITERAL"
+>.794</TT
+>、
+         <TT
+CLASS="LITERAL"
+>+3.44</TT
+>、
+         <TT
+CLASS="LITERAL"
+>592.49E07</TT
+>、
+         <TT
+CLASS="LITERAL"
+>-32.84e-4</TT
+>。
+       </P
+><P
+>この関数は成功時0を返します。
+オーバーフローやアンダーフローが発生した場合は<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_OVERFLOW</TT
+>や<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_UNDERFLOW</TT
+>が返されます。
+ASCII表現の解析ができなかった場合は<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_NUMERIC</TT
+>が、指数部分の解析に問題がある場合は<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_EXPONENT</TT
+>が返されます。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>deccvdbl</CODE
+></DT
+><DD
+><P
+>double型の値をdecimal型の値に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int deccvdbl(double dbl, decimal *np);</PRE
+><P>
+この関数は、最初の引数として変換対象のdouble型の変数(<TT
+CLASS="LITERAL"
+>dbl</TT
+>)を受付けます。
+2番目の引数(<TT
+CLASS="LITERAL"
+>np</TT
+>)として、この関数は操作結果を格納するdecimal型変数へのポインタを受付けます。
+       </P
+><P
+>この関数は成功時に0を返します。
+変換が失敗した場合は負の値が返ります。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>deccvint</CODE
+></DT
+><DD
+><P
+>int型の値をdecimal型の値に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int deccvint(int in, decimal *np);</PRE
+><P>
+この関数は最初の引数として、変換対象のint型変数(<TT
+CLASS="LITERAL"
+>in</TT
+>)を受付けます。
+2番目の引数(<TT
+CLASS="LITERAL"
+>np</TT
+>)として、この関数は変換結果を格納するdecimal型変数へのポインタを受付けます。
+       </P
+><P
+>この関数は成功時に0を返します。
+変換が失敗した場合は負の値が返ります。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>deccvlong</CODE
+></DT
+><DD
+><P
+>long型の値をdecimal型の値に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int deccvlong(long lng, decimal *np);</PRE
+><P>
+この関数は最初の引数として、変換対象のlong型変数(<TT
+CLASS="LITERAL"
+>lng</TT
+>)を受付けます。
+2番目の引数(<TT
+CLASS="LITERAL"
+>np</TT
+>)として、この関数は変換結果を格納するdecimal型変数へのポインタを受付けます。
+       </P
+><P
+>この関数は成功時に0を返します。
+変換が失敗した場合は負の値が返ります。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>decdiv</CODE
+></DT
+><DD
+><P
+>2つのdecimal型変数の除算を行います。
+</P><PRE
+CLASS="SYNOPSIS"
+>int decdiv(decimal *n1, decimal *n2, decimal *result);</PRE
+><P>
+この関数は、1番目の演算項目(<TT
+CLASS="LITERAL"
+>n1</TT
+>)と2番目の演算項目(<TT
+CLASS="LITERAL"
+>n2</TT
+>)となる変数のポインタを受付け、<TT
+CLASS="LITERAL"
+>n1</TT
+>/<TT
+CLASS="LITERAL"
+>n2</TT
+>を計算します。
+<TT
+CLASS="LITERAL"
+>result</TT
+>は、操作結果を格納する変数へのポインタです。
+       </P
+><P
+>成功時0が返され、除算の失敗時には負の値が返されます。
+オーバーフローやアンダーフローが発生した場合、この関数はそれぞれ<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_OVERFLOW</TT
+>、<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_UNDERFLOW</TT
+>を返します。
+0割りが発生した場合は<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_DIVIDE_ZERO</TT
+>が返されます。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>decmul</CODE
+></DT
+><DD
+><P
+>2つのdecimal型変数を乗算します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int decmul(decimal *n1, decimal *n2, decimal *result);</PRE
+><P>
+この関数は、1番目の演算項目(<TT
+CLASS="LITERAL"
+>n1</TT
+>)と2番目の演算項目(<TT
+CLASS="LITERAL"
+>n2</TT
+>)となる変数のポインタを受付け、<TT
+CLASS="LITERAL"
+>n1</TT
+>*<TT
+CLASS="LITERAL"
+>n2</TT
+>を計算します。
+<TT
+CLASS="LITERAL"
+>result</TT
+>は、操作結果を格納する変数へのポインタです。
+       </P
+><P
+>成功時0が返され、除算の失敗時には負の値が返されます。
+オーバーフローやアンダーフローが発生した場合、この関数はそれぞれ<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_OVERFLOW</TT
+>、<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_UNDERFLOW</TT
+>を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>decsub</CODE
+></DT
+><DD
+><P
+>10進数型値同士の引算を行います。
+</P><PRE
+CLASS="SYNOPSIS"
+>int decsub(decimal *n1, decimal *n2, decimal *result);</PRE
+><P>
+この関数は、1番目の演算項目(<TT
+CLASS="LITERAL"
+>n1</TT
+>)と2番目の演算項目(<TT
+CLASS="LITERAL"
+>n2</TT
+>)となる変数のポインタを受付け、<TT
+CLASS="LITERAL"
+>n1</TT
+>-<TT
+CLASS="LITERAL"
+>n2</TT
+>を計算します。
+<TT
+CLASS="LITERAL"
+>result</TT
+>は、操作結果を格納する変数へのポインタです。
+       </P
+><P
+>成功時0が返され、除算の失敗時には負の値が返されます。
+オーバーフローやアンダーフローが発生した場合、この関数はそれぞれ<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_OVERFLOW</TT
+>、<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_UNDERFLOW</TT
+>を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dectoasc</CODE
+></DT
+><DD
+><P
+>decimal型変数をC char* 文字列のASCII表現に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int dectoasc(decimal *np, char *cp, int len, int right)</PRE
+><P>
+この関数はdecimal型変数(<TT
+CLASS="LITERAL"
+>np</TT
+>)のポインタを受け付け、テキスト表現に変換します。
+<TT
+CLASS="LITERAL"
+>cp</TT
+>は変換結果を格納するためのバッファです。
+<TT
+CLASS="LITERAL"
+>right</TT
+>パラメータは、decimal小数点の右側の何桁を出力するかを指定します。
+結果はこの10進桁数で丸められます。
+<TT
+CLASS="LITERAL"
+>right</TT
+>を-1にすることで、すべての有効な桁数が出力されるようになります。
+<TT
+CLASS="LITERAL"
+>len</TT
+>で示す出力バッファ長が、最後のNULL文字を含むテキスト表現を格納するのには不十分であった場合、結果には<TT
+CLASS="LITERAL"
+>*</TT
+>という1文字が格納され、-1が返されます。
+       </P
+><P
+>この関数は、<TT
+CLASS="LITERAL"
+>cp</TT
+>バッファが小さすぎる場合に-1を返します。
+メモリ不足の場合は<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_OUT_OF_MEMORY</TT
+>を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dectodbl</CODE
+></DT
+><DD
+><P
+>decimal型変数をdoubleに変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int dectodbl(decimal *np, double *dblp);</PRE
+><P>
+この関数は変換対象のdecimal型変数(<TT
+CLASS="LITERAL"
+>np</TT
+>)のポインタと処理結果を格納するdouble変数(<TT
+CLASS="LITERAL"
+>dblp</TT
+>)へのポインタを受け付けます。
+       </P
+><P
+>成功時0が、変換失敗時負の値が返されます。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dectoint</CODE
+></DT
+><DD
+><P
+>decimal型変数を整数型に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int dectoint(decimal *np, int *ip);</PRE
+><P>
+この関数は変換対象のdecimal型変数(<TT
+CLASS="LITERAL"
+>np</TT
+>)のポインタと処理結果を格納するoint型変数(<TT
+CLASS="LITERAL"
+>lp</TT
+>)へのポインタを受け付けます。
+       </P
+><P
+>成功時0が、変換失敗時負の値が返されます。
+オーバーフローが発生した場合は<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_OVERFLOW</TT
+>が返されます。
+       </P
+><P
+>このECPGの実装は<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の実装と異なることに注意してください。
+<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>では、整数範囲に-32767から32767までという制限をしていますが、ECPGでの制限はアーキテクチャに依存(<TT
+CLASS="LITERAL"
+>-INT_MAX .. INT_MAX</TT
+>)します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dectolong</CODE
+></DT
+><DD
+><P
+>decimal型変数をlong型に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int dectolong(decimal *np, long *lngp);</PRE
+><P>
+この関数は変換対象のdecimal型変数(<TT
+CLASS="LITERAL"
+>np</TT
+>)のポインタと処理結果を格納するlong変数(<TT
+CLASS="LITERAL"
+>lngp</TT
+>)へのポインタを受け付けます。
+       </P
+><P
+>成功時0が、変換失敗時負の値が返されます。
+オーバーフローが発生した場合は<TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_OVERFLOW</TT
+>が返されます。
+       </P
+><P
+>このECPGの実装は<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の実装と異なることに注意してください。
+<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>では、整数範囲に-2,147,483,647から2,147,483,647までという制限をしていますが、ECPGでの制限はアーキテクチャに依存(<TT
+CLASS="LITERAL"
+>-LONG_MAX .. LONG_MAX</TT
+>)します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rdatestr</CODE
+></DT
+><DD
+><P
+>date型をC char*文字列に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rdatestr(date d, char *str);</PRE
+><P>
+この関数は2つの引数を受付けます。
+最初の引数は変換対象のdate型(<TT
+CLASS="LITERAL"
+>d</TT
+>)、2番目は変換後の文字列へのポインタです。
+出力書式は常に<TT
+CLASS="LITERAL"
+>yyyy-mm-dd</TT
+>ですので、少なくとも11文字（NULL終端を含む）を結果文字列に割り当てなければなりません。
+       </P
+><P
+>この関数は成功時0を、エラー時負の値を返します。
+       </P
+><P
+>このECPGの実装は<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の実装と異なることに注意してください。
+<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>では、環境変数により書式を変更できますが、ECPGでは出力書式を変更することはできません。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rstrdate</CODE
+></DT
+><DD
+><P
+>date型のテキスト表現を解析します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rstrdate(char *str, date *d);</PRE
+><P>
+この関数は、変換対象のdate型のテキスト表現(<TT
+CLASS="LITERAL"
+>str</TT
+>)とdate型変数のポインタ(<TT
+CLASS="LITERAL"
+>d</TT
+>)を受付けます。
+この関数では書式マスクを指定することができません。
+<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>のデフォルトの書式マスクである<TT
+CLASS="LITERAL"
+>mm/dd/yyyy</TT
+>を使用します。
+内部的には、この関数は<CODE
+CLASS="FUNCTION"
+>rdefmtdate</CODE
+>を使用して実装しています。
+したがって<CODE
+CLASS="FUNCTION"
+>rstrdate</CODE
+>は速くありません。
+もし選択肢があるのであれば、書式マスクを明示的に指定することができる<CODE
+CLASS="FUNCTION"
+>rdefmtdate</CODE
+>を選択すべきです。
+       </P
+><P
+>この関数は<CODE
+CLASS="FUNCTION"
+>rdefmtdate</CODE
+>と同様の値を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rtoday</CODE
+></DT
+><DD
+><P
+>現在の日付を（date型で）入手します。
+</P><PRE
+CLASS="SYNOPSIS"
+>void rtoday(date *d);</PRE
+><P>
+この関数はdate型変数(<TT
+CLASS="LITERAL"
+>d</TT
+>)へのポインタを受付け、そこに現在の日付を格納します。
+       </P
+><P
+>内部的には、この関数は<A
+HREF="ecpg-pgtypes.html#PGTYPESDATETODAY"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPESdate_today</CODE
+></I
+></A
+>関数を使用します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rjulmdy</CODE
+></DT
+><DD
+><P
+>date型変数から、日、月、年の値を取り出します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rjulmdy(date d, short mdy[3]);</PRE
+><P>
+この関数は日付<TT
+CLASS="LITERAL"
+>d</TT
+>、3つのshort integer型の値からなる配列<TT
+CLASS="LITERAL"
+>mdy</TT
+>へのポインタを受付けます。
+この変数名はその並びを表し、<TT
+CLASS="LITERAL"
+>mdy[0]</TT
+>には月数、<TT
+CLASS="LITERAL"
+>mdy[1]</TT
+>には日数が、<TT
+CLASS="LITERAL"
+>mdy[2]</TT
+>には年が入ります。
+       </P
+><P
+>現在この関数は常に0を返します。
+       </P
+><P
+>内部的にはこの関数は<A
+HREF="ecpg-pgtypes.html#PGTYPESDATEJULMDY"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPESdate_julmdy</CODE
+></I
+></A
+>関数を使用します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rdefmtdate</CODE
+></DT
+><DD
+><P
+>書式マスクを使用して、文字列をdate型の値に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rdefmtdate(date *d, char *fmt, char *str);</PRE
+><P>
+この関数は、処理結果を格納するためのdate型へのポインタ(<TT
+CLASS="LITERAL"
+>d</TT
+>)、日付を解析するための書式マスク(<TT
+CLASS="LITERAL"
+>fmt</TT
+>)、dateのテキスト表現を含むCのchar*文字列(<TT
+CLASS="LITERAL"
+>str</TT
+>)を受付けます。
+テキスト表現は書式マスクに合った表現であることが仮定されています。
+しかし、文字列と書式マスクを1:1に対応付けする必要はありません。
+この関数は並んだ順番に解析し、年の位置を表す<TT
+CLASS="LITERAL"
+>yy</TT
+>または<TT
+CLASS="LITERAL"
+>yyyy</TT
+>を、月の位置を表す<TT
+CLASS="LITERAL"
+>mm</TT
+>を、日の位置を表す<TT
+CLASS="LITERAL"
+>dd</TT
+>を検索します。
+       </P
+><P
+>この関数は以下の値を返します。
+        <P
+></P
+></P><UL
+><LI
+><P
+>0 - 関数が正常に終了しました。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_ENOSHORTDATE</TT
+> - 日付に、日、月、年を区切る文字がありませんでした。
+この場合、入力文字列は6バイト、8バイトのいずれかでなければなりませんが、そうではありませんでした。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_ENOTDMY</TT
+> - 書式文字列が正しく年月日の順番を示していません。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_DAY</TT
+> - 入力文字列に有効な日が含まれていません。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_MONTH</TT
+> - 入力文字列に有効な月が含まれていません。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_YEAR</TT
+> - 入力文字列に有効な年が含まれていません。
+          </P
+></LI
+></UL
+><P>
+       </P
+><P
+>内部的には、この関数は<A
+HREF="ecpg-pgtypes.html#PGTYPESDATEDEFMTASC"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPESdate_defmt_asc</CODE
+></I
+></A
+>関数を使用して実装しています。
+この関数の説明には、入力例の表がありますので、こちらも参照してください。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rfmtdate</CODE
+></DT
+><DD
+><P
+>書式マスクを使用してdate型変数をテキスト表現に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rfmtdate(date d, char *fmt, char *str);</PRE
+><P>
+この関数は変換対象の日付(<TT
+CLASS="LITERAL"
+>d</TT
+>)、書式マスク(<TT
+CLASS="LITERAL"
+>fmt</TT
+>)、日付のテキスト表現を格納する文字列(<TT
+CLASS="LITERAL"
+>str</TT
+>)を受付けます。
+       </P
+><P
+>成功時0、エラーが発生した場合は負の値が返されます。
+       </P
+><P
+>内部的にはこの関数は<A
+HREF="ecpg-pgtypes.html#PGTYPESDATEFMTASC"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPESdate_fmt_asc</CODE
+></I
+></A
+>関数を使用します。
+例が記載されていますので、こちらも参照してください。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rmdyjul</CODE
+></DT
+><DD
+><P
+>日付の日、月、年を表す3つのshort integer型からなる配列から日付型の値を作成します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rmdyjul(short mdy[3], date *d);</PRE
+><P>
+この関数は3つのshort integer型からなる配列(<TT
+CLASS="LITERAL"
+>mdy</TT
+>)と処理結果を格納するdate型変数へのポインタを受付けます。
+       </P
+><P
+>現在この関数は常に0を返します。
+       </P
+><P
+>内部的にはこの関数は<A
+HREF="ecpg-pgtypes.html#PGTYPESDATEMDYJUL"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPESdate_mdyjul</CODE
+></I
+></A
+>関数を使用して実装しています。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rdayofweek</CODE
+></DT
+><DD
+><P
+>日付型の値の週内日数を示す値を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rdayofweek(date d);</PRE
+><P>
+この関数はdate型変数<TT
+CLASS="LITERAL"
+>d</TT
+>をその唯一の引数として受付け、その日付の週内日数を示す整数を返します。
+        <P
+></P
+></P><UL
+><LI
+><P
+>0 - 日曜
+          </P
+></LI
+><LI
+><P
+>1 - 月曜
+          </P
+></LI
+><LI
+><P
+>2 - 火曜
+          </P
+></LI
+><LI
+><P
+>3 - 水曜
+          </P
+></LI
+><LI
+><P
+>4 - 木曜
+          </P
+></LI
+><LI
+><P
+>5 - 金曜
+          </P
+></LI
+><LI
+><P
+>6 - 土曜
+          </P
+></LI
+></UL
+><P>
+       </P
+><P
+>内部的にはこの関数は <A
+HREF="ecpg-pgtypes.html#PGTYPESDATEDAYOFWEEK"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPESdate_dayofweek</CODE
+></I
+></A
+>関数を使用して実装しています。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dtcurrent</CODE
+></DT
+><DD
+><P
+>現在のタイムスタンプを取り出します。
+</P><PRE
+CLASS="SYNOPSIS"
+>void dtcurrent(timestamp *ts);</PRE
+><P>
+この関数は現在のタイムスタンプを受け取り、<TT
+CLASS="LITERAL"
+>ts</TT
+>が指し示すタイムスタンプ型変数に格納します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dtcvasc</CODE
+></DT
+><DD
+><P
+>テキスト表現からtimestamp型変数にタイムスタンプを解析します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int dtcvasc(char *str, timestamp *ts);</PRE
+><P>
+この関数は対象の文字列(<TT
+CLASS="LITERAL"
+>str</TT
+>)と処理結果を格納するtimestamp型変数(<TT
+CLASS="LITERAL"
+>ts</TT
+>)へのポインタを受付けます。
+       </P
+><P
+>この関数は成功時0を返し、エラー時負の値を返します。
+       </P
+><P
+>内部的にはこの関数は<A
+HREF="ecpg-pgtypes.html#PGTYPESTIMESTAMPFROMASC"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPEStimestamp_from_asc</CODE
+></I
+></A
+>関数を使用します。
+入力例の表がありますので、こちらも参照してください。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dtcvfmtasc</CODE
+></DT
+><DD
+><P
+>書式マスクを使用してタイムスタンプのテキスト表現をtimestamp型変数に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>dtcvfmtasc(char *inbuf, char *fmtstr, timestamp *dtvalue)</PRE
+><P>
+この関数は、対象とする文字列(<TT
+CLASS="LITERAL"
+>inbuf</TT
+>)、使用する書式マスク(<TT
+CLASS="LITERAL"
+>fmtstr</TT
+>)、処理結果を格納するtimestamp変数(<TT
+CLASS="LITERAL"
+>dtvalue</TT
+>)へのポインタを受付けます。
+       </P
+><P
+>この関数は<A
+HREF="ecpg-pgtypes.html#PGTYPESTIMESTAMPDEFMTASC"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPEStimestamp_defmt_asc</CODE
+></I
+></A
+>関数を使用して実装されています。
+使用可能な書式指定のリストがありますので、こちらも参照してください。
+       </P
+><P
+>この関数は成功時に0を、エラー時負の値を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dtsub</CODE
+></DT
+><DD
+><P
+>timestamp型同士で減算を行い、interval型変数を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int dtsub(timestamp *ts1, timestamp *ts2, interval *iv);</PRE
+><P>
+この関数は<TT
+CLASS="LITERAL"
+>ts1</TT
+>が指し示すtimestamp型変数から<TT
+CLASS="LITERAL"
+>ts2</TT
+>が指し示すtimestamp型変数を引き去ります。
+結果は<TT
+CLASS="LITERAL"
+>iv</TT
+>が指し示すinterval型変数に格納されます。
+       </P
+><P
+>成功時この関数は0を返し、エラー時負の値を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dttoasc</CODE
+></DT
+><DD
+><P
+>timestamp型変数をC char*文字列に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int dttoasc(timestamp *ts, char *output);</PRE
+><P>
+この関数は対象のtimestamp型変数(<TT
+CLASS="LITERAL"
+>ts</TT
+>)へのポインタ、処理結果を格納する文字列(<TT
+CLASS="LITERAL"
+>output</TT
+>)を受付けます。
+これは<TT
+CLASS="LITERAL"
+>ts</TT
+>を標準SQLに従うテキスト表現（<TT
+CLASS="LITERAL"
+>YYYY-MM-DD HH:MM:SS</TT
+>として定義）に変換します。
+       </P
+><P
+>成功時この関数は0を返し、エラー時負の値を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>dttofmtasc</CODE
+></DT
+><DD
+><P
+>書式マスクを使用してtimestamp型変数をC char*に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int dttofmtasc(timestamp *ts, char *output, int str_len, char *fmtstr);</PRE
+><P>
+この関数は、最初の引数として変換対象のタイムスタンプ(<TT
+CLASS="LITERAL"
+>ts</TT
+>)を、出力バッファのポインタ(<TT
+CLASS="LITERAL"
+>output</TT
+>)、出力バッファで割当て可能な最大長 (<TT
+CLASS="LITERAL"
+>str_len</TT
+>)、変換に使用する書式マスク(<TT
+CLASS="LITERAL"
+>fmtstr</TT
+>)を受付けます。
+       </P
+><P
+>成功時この関数は0を返します。エラーが発生した場合は負の値を返します。
+       </P
+><P
+>内部的に、この関数は<A
+HREF="ecpg-pgtypes.html#PGTYPESTIMESTAMPFMTASC"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>PGTYPEStimestamp_fmt_asc</CODE
+></I
+></A
+>関数を使用します。
+使用できる書式マスクに関する情報がありますので、こちらも参照してください。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>intoasc</CODE
+></DT
+><DD
+><P
+>interval型変数をC char*文字列に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int intoasc(interval *i, char *str);</PRE
+><P>
+この関数は、変換対象のinterval型変数(<TT
+CLASS="LITERAL"
+>i</TT
+>)へのポインタ、処理結果を格納する文字列(<TT
+CLASS="LITERAL"
+>str</TT
+>)を受付けます。
+これは<TT
+CLASS="LITERAL"
+>i</TT
+>を標準SQLに従うテキスト表現（<TT
+CLASS="LITERAL"
+>YYYY-MM-DD HH:MM:SS</TT
+>として定義）に変換します。
+       </P
+><P
+>成功時、この関数は0を返します。
+エラーが発生した場合は負の値を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rfmtlong</CODE
+></DT
+><DD
+><P
+>long integer値を書式マスクを使用してテキスト表現に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rfmtlong(long lng_val, char *fmt, char *outbuf);</PRE
+><P>
+この関数は、long型の値<TT
+CLASS="LITERAL"
+>lng_val</TT
+>、書式マスク<TT
+CLASS="LITERAL"
+>fmt</TT
+>、出力バッファ<TT
+CLASS="LITERAL"
+>outbuf</TT
+>へのポインタを受付けます。
+これはlong型の値を書式マスクに従ってテキスト表現に変換します。
+       </P
+><P
+>書式マスクは以下の書式指定文字を組み合わせることができます。
+        <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>*</TT
+> (アスタリスク) - この位置が空白ならばアスタリスクで埋めます。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>&amp;</TT
+> (アンパサンド) - この位置が空白ならば0で埋めます。
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>#</TT
+> - 先頭のゼロを空白に変換します。
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>&lt;</TT
+> - 文字列内で数値を左そろえします。
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>,</TT
+> (カンマ) - 4桁以上の数値をカンマで区切った3桁にグループ化します。
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>.</TT
+> (ピリオド) - この文字は数値から小数部分を区別します。
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>-</TT
+> (マイナス) - 数値が負の場合、マイナス記号を付けます。
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>+</TT
+> (プラス) - 数値が正の場合プラス記号を付けます。
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>(</TT
+> - これは負の値の先頭のマイナス記号を置き換えます。
+マイナス記号は現れません。
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>)</TT
+> - この文字はマイナス記号を置き換え、負の値の最後に出力します。
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>$</TT
+> - 通貨記号
+          </P
+></LI
+></UL
+><P>
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rupshift</CODE
+></DT
+><DD
+><P
+>文字列を大文字に変換します。
+</P><PRE
+CLASS="SYNOPSIS"
+>void rupshift(char *str);</PRE
+><P>
+この関数は文字列へのポインタを受付け、すべての小文字を大文字に変換します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>byleng</CODE
+></DT
+><DD
+><P
+>文字列内の文字数を返します。
+ただし、末尾の空白は数えません。
+</P><PRE
+CLASS="SYNOPSIS"
+>int byleng(char *str, int len);</PRE
+><P>
+この関数は最初の引数として、固定長の文字列(<TT
+CLASS="LITERAL"
+>str</TT
+>)を、2番目の引数としてその文字列長 (<TT
+CLASS="LITERAL"
+>len</TT
+>)想定しています。
+これは、文字列から末尾の空白を取り除いた、有効文字の数を返します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ldchar</CODE
+></DT
+><DD
+><P
+>固定長の文字列をNULL終端の文字列に複製します。
+</P><PRE
+CLASS="SYNOPSIS"
+>void ldchar(char *src, int len, char *dest);</PRE
+><P>
+この関数はコピー対象の固定長の文字列(<TT
+CLASS="LITERAL"
+>src</TT
+>)、文字列長(<TT
+CLASS="LITERAL"
+>len</TT
+>)、格納先メモリ(<TT
+CLASS="LITERAL"
+>dest</TT
+>)へのポインタを受付けます。
+<TT
+CLASS="LITERAL"
+>dest</TT
+>が指し示す文字列には少なくとも<TT
+CLASS="LITERAL"
+>len+1</TT
+>バイトを割り当てなければならない点に注意してください。
+この関数は多くても<TT
+CLASS="LITERAL"
+>len</TT
+>バイトを新しい場所にコピーします。
+（元の文字列が末尾に空白文字を持つ場合に少なくなります。）
+そして、NULL終端を付与します。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rgetmsg</CODE
+></DT
+><DD
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>int rgetmsg(int msgnum, char *s, int maxsize);</PRE
+><P>
+この関数は存在しますが、現在実装されていません。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rtypalign</CODE
+></DT
+><DD
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>int rtypalign(int offset, int type);</PRE
+><P>
+この関数は存在しますが、現在実装されていません。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rtypmsize</CODE
+></DT
+><DD
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>int rtypmsize(int type, int len);</PRE
+><P>
+この関数は存在しますが、現在実装されていません。
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>rtypwidth</CODE
+></DT
+><DD
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>int rtypwidth(int sqltype, int sqllen);</PRE
+><P>
+この関数は存在しますが、現在実装されていません。
+       </P
+></DD
+><DT
+><A
+NAME="RSETNULL"
+></A
+><CODE
+CLASS="FUNCTION"
+>rsetnull</CODE
+></DT
+><DD
+><P
+>変数にNULLを設定します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int rsetnull(int t, char *ptr);</PRE
+><P>
+この関数は、変数の種類を示す整数とC char*にキャストした変数自体へのポインタを受付けます。
+       </P
+><P
+>以下の種類が存在します。
+        <P
+></P
+></P><UL
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CCHARTYPE</TT
+> - <TT
+CLASS="TYPE"
+>char</TT
+>または <TT
+CLASS="TYPE"
+>char*</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CSHORTTYPE</TT
+> - <TT
+CLASS="TYPE"
+>short int</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CINTTYPE</TT
+> - <TT
+CLASS="TYPE"
+>int</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CBOOLTYPE</TT
+> - <TT
+CLASS="TYPE"
+>boolean</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CFLOATTYPE</TT
+> - <TT
+CLASS="TYPE"
+>float</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CLONGTYPE</TT
+> - <TT
+CLASS="TYPE"
+>long</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CDOUBLETYPE</TT
+> - <TT
+CLASS="TYPE"
+>double</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CDECIMALTYPE</TT
+> - <TT
+CLASS="TYPE"
+>decimal</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CDATETYPE</TT
+> - <TT
+CLASS="TYPE"
+>date</TT
+>型の変数用
+          </P
+></LI
+><LI
+><P
+>	   <TT
+CLASS="LITERAL"
+>CDTIMETYPE</TT
+> - <TT
+CLASS="TYPE"
+>timestamp</TT
+>型の変数用
+          </P
+></LI
+></UL
+><P>
+       </P
+><P
+>以下にこの関数の呼び出し例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$char c[] = "abc       ";
+$short s = 17;
+$int i = -74874;
+
+rsetnull(CCHARTYPE, (char *) c);
+rsetnull(CSHORTTYPE, (char *) &#38;s);
+rsetnull(CINTTYPE, (char *) &#38;i);</PRE
+><P>
+       </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>risnull</CODE
+></DT
+><DD
+><P
+>変数がNULLか検査します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int risnull(int t, char *ptr);</PRE
+><P>
+この関数は検査する変数の種類(<TT
+CLASS="LITERAL"
+>t</TT
+>)、変数(<TT
+CLASS="LITERAL"
+>ptr</TT
+>)へのポインタを受付けます。
+後者はchar*にキャストする必要があることに注意してください。
+取り得る変数種類については <A
+HREF="ecpg-informix-compat.html#RSETNULL"
+><I
+CLASS="TERM"
+><CODE
+CLASS="FUNCTION"
+>rsetnull</CODE
+></I
+></A
+>関数を参照してください。
+       </P
+><P
+>この関数の使用方法の例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$char c[] = "abc       ";
+$short s = 17;
+$int i = -74874;
+
+risnull(CCHARTYPE, (char *) c);
+risnull(CSHORTTYPE, (char *) &#38;s);
+risnull(CINTTYPE, (char *) &#38;i);</PRE
+><P>
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-INFORMIX-CONSTANTS"
+>33.15.5. 追加の定数</A
+></H2
+><P
+>ここで示す定数はすべてエラーを示すものであり、負の値を表すように定義されていることに注意してください。
+また、他の定数の説明では、現在の実装で定数が表す数値がわかります。
+しかし、この数値に依存してはなりません。
+しかし、これらのすべてが負の値であることに依存することは可能です。
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_OVERFLOW</TT
+></DT
+><DD
+><P
+>計算時にオーバーフローが発生した場合、関数はこの値を返します。
+内部的には-1200（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_NUM_UNDERFLOW</TT
+></DT
+><DD
+><P
+>計算時にアンダーフローが発生した場合、関数はこの値を返します。
+内部的には-1201（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_DIVIDE_ZERO</TT
+></DT
+><DD
+><P
+>計算時にゼロ除算が発生した場合、関数はこの値を返します。
+内部的には-1202（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_YEAR</TT
+></DT
+><DD
+><P
+>日付の解析時に年の値が不正であった場合、関数はこの値を返します。
+内部的には-1204（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_MONTH</TT
+></DT
+><DD
+><P
+>日付の解析時に月の値が不正であった場合、関数はこの値を返します。
+内部的には-1205（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_DAY</TT
+></DT
+><DD
+><P
+>日付の解析時に日の値が不正であった場合、関数はこの値を返します。
+内部的には-1206（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_ENOSHORTDATE</TT
+></DT
+><DD
+><P
+>解析処理が短縮日付表現を必要にしているが、正しい長さの日付文字列が得られなかった場合、関数はこの値を返します。
+内部的には-1209（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_DATE_CONVERT</TT
+></DT
+><DD
+><P
+>日付の書式付けの時にエラーが発生した場合、関数はこの値を返します。
+内部的には-1210（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_OUT_OF_MEMORY</TT
+></DT
+><DD
+><P
+>操作時にメモリが不足した場合、関数はこの値を返します。
+内部的には-1211（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_ENOTDMY</TT
+></DT
+><DD
+><P
+>解析処理が書式マスク（<TT
+CLASS="LITERAL"
+>mmddyy</TT
+>のような）が存在することを前提としているが、すべてのフィールドが正しく列挙されていない場合、関数はこの値を返します。
+内部的には-1212（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_NUMERIC</TT
+></DT
+><DD
+><P
+>解析処理がエラーのため数値のテキスト表現を解析できなかった場合や数値変数の少なくとも1つが無効のため数値変数を使用した計算を完了できなかった場合、関数はこの値を返します。
+内部的には-1213（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_EXPONENT</TT
+></DT
+><DD
+><P
+>解析処理がが指数の解析を行うことができなかった場合、関数はこの値を返します。
+内部的には-1216（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_BAD_DATE</TT
+></DT
+><DD
+><P
+>解析処理が日付を解析できなかった場合、関数はこの値を返します。
+内部的には-1218（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ECPG_INFORMIX_EXTRA_CHARS</TT
+></DT
+><DD
+><P
+>解析処理が追加の文字列を解析できなかった場合、関数はこの値を返します。
+内部的には-1264（<SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>の定義）と定義されています。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-sql-whenever.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-develop.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>WHENEVER</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>内部</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

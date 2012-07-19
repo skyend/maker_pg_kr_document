@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="NEXT"
+TITLE="はじめに"
+HREF="preface.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="LEGALNOTICE"
+><A
+NAME="LEGALNOTICE"
+></A
+><P
+><B
+>法的告知</B
+></P
+><P
+>Copyright &copy; 1996-2011 <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はPostgreSQLグローバル開発チームが著作権を有し、以下のカリフォルニア大学のライセンスの元に配布されています。
+ </P
+><P
+>Copyright &copy; 1994-1995 <SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>はカリフォルニア大学評議員が著作権を有します。
+ </P
+><P
+>  Permission to use, copy, modify, and distribute this software and
+  its documentation for any purpose, without fee, and without a
+  written agreement is hereby granted, provided that the above
+  copyright notice and this paragraph and the following two paragraphs
+  appear in all copies.
+  
+  [訳注：日本語は参考程度と解釈してください。]
+  上記の著作権表示、および
+  本段落と続く2つの段落を全てのコピーに含めることを条件として、無料かつ
+  書面による許可なしに、このソフトウェアとドキュメントの使用、複製、改変、
+  再配布をどのような目的にでも許可します。
+ </P
+><P
+>  IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY
+  PARTY FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL
+  DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS
+  SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA
+  HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  カリフォルニア大学は、いかなる当事者に対しても、利益の壊失を
+  含む、直接的、間接的、特別、偶然あるいは必然的にかかわらず生じた
+  損害について、たとえカリフォルニア大学がこれらの損害について訴追
+  を受けていたとしても、一切の責任を負いません。
+ </P
+><P
+>  THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
+  INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE
+  PROVIDED HEREUNDER IS ON AN <SPAN
+CLASS="QUOTE"
+>"AS-IS"</SPAN
+> BASIS, AND THE UNIVERSITY OF
+  CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT,
+  UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+  カリフォルニア大学は、商用目的における暗黙の保証と、特定目的で
+  の適合性に関してはもとより、これらに限らず、いかなる保証も放棄す
+  ることを明言します。以下に用意されたソフトウェアは「そのまま」を
+  基本原理とし、カリフォルニア大学はそれを維持、支援、更新、改良あ
+  るいは修正する義務を負いません。
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

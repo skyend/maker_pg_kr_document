@@ -1,0 +1,928 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Visual C++またはPlatform SDKを使用した構築</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Windowsにおけるソースコードからのインストール"
+HREF="install-windows.html"><LINK
+REL="PREVIOUS"
+TITLE="Windowsにおけるソースコードからのインストール"
+HREF="install-windows.html"><LINK
+REL="NEXT"
+TITLE="Visual C++またはBorland C++を使用したlibpqの構築"
+HREF="install-windows-libpq.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="Windowsにおけるソースコードからのインストール"
+HREF="install-windows.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="Windowsにおけるソースコードからのインストール"
+HREF="install-windows.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 16&#31456;<SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>におけるソースコードからのインストール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="Windowsにおけるソースコードからのインストール"
+HREF="install-windows.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="Visual C++またはBorland C++を使用したlibpqの構築"
+HREF="install-windows-libpq.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INSTALL-WINDOWS-FULL"
+>16.1. <SPAN
+CLASS="PRODUCTNAME"
+>Visual C++</SPAN
+>または<SPAN
+CLASS="PRODUCTNAME"
+>Platform SDK</SPAN
+>を使用した構築</A
+></H1
+><P
+>Microsoftが提供するVisual C++コンパイラスィートを使用してPostgreSQLを構築することができます。
+これらのコンパイラは<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio</SPAN
+>、<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio Express</SPAN
+>、いくつかのバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>Platform SDK</SPAN
+>にあります。
+すでに<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio</SPAN
+>環境が設定されているのでなければ、Microsoftから無料でダウンロードできる<SPAN
+CLASS="PRODUCTNAME"
+>Platform SDK</SPAN
+>内のコンパイラを使用することが最も簡単な方法です。
+ </P
+><P
+>PostgreSQLは<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio 2005</SPAN
+>および<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio 2008</SPAN
+>付属のコンパイラをサポートします。
+Platform SDKのみを使用する場合、または64ビットWindowsで構築する場合には<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio 2008</SPAN
+>のみがサポートされます。
+<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio 2010</SPAN
+>はまだサポートされていません。
+ </P
+><P
+> 
+  <SPAN
+CLASS="PRODUCTNAME"
+>Platform SDK</SPAN
+>を使って構築を行う際、SDKの6.0から7.0はサポートされています。これらより古い、もしくは新しいバージョンでは動かないでしょう。
+  特に、バージョン7.0a以降では<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio 2010</SPAN
+>のコンパイラを含むため、上手くいきません。
+ </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Visual C++</SPAN
+>を使用して構築するためのツールが<TT
+CLASS="FILENAME"
+>src/tools/msvc</TT
+>ディレクトリに存在します。
+構築する際に、<SPAN
+CLASS="PRODUCTNAME"
+>MinGW</SPAN
+>や<SPAN
+CLASS="PRODUCTNAME"
+>Cygwin</SPAN
+>に付属するツールがシステムPATHに存在しないことを確認してください。
+また、PATH上で必要なVisual C++ツールがすべて利用可能になっていることを確認してください。
+<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio</SPAN
+>では、<SPAN
+CLASS="APPLICATION"
+>Visual Studio 2005 コマンドプロンプト</SPAN
+>を起動してください。
+<SPAN
+CLASS="PRODUCTNAME"
+>Platform SDK</SPAN
+>では、スタートメニューのSDK以下に列挙される<SPAN
+CLASS="APPLICATION"
+>CMD shell</SPAN
+>を起動してください。
+64ビット版を構築したい場合には、それぞれ64ビット版のコマンドを使用する必要があります。
+すべてのコマンドは<TT
+CLASS="FILENAME"
+>src\tools\msvc</TT
+>ディレクトリから実行しなければなりません。
+ </P
+><P
+>構築する前に、<TT
+CLASS="FILENAME"
+>config.pl</TT
+>ファイルを編集して、変更したい設定オプションや使用する何らかのサードパーティ製のライブラリのパスを反映させる必要があるかもしれません。
+まず<TT
+CLASS="FILENAME"
+>config_default.pl</TT
+>ファイルを読み取り、解析することから始まり、そして<TT
+CLASS="FILENAME"
+>config.pl</TT
+>内の何らかの変更が適用されて、すべての設定が決定されます。
+例えば、<SPAN
+CLASS="PRODUCTNAME"
+>Python</SPAN
+>インストレーションの場所を指定する場合、以下を<TT
+CLASS="FILENAME"
+>config.pl</TT
+>に記載します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$config-&#62;{python} = 'c:\python26';</PRE
+><P>
+<TT
+CLASS="FILENAME"
+>config_default.pl</TT
+>内の指定と異なるパラメータのみを指定する必要があります。
+ </P
+><P
+>何か他に環境変数を設定する必要があれば、<TT
+CLASS="FILENAME"
+>buildenv.pl</TT
+>という名前のファイルを作成し、そこに必要なコマンドを記載してください。
+たとえば、PATHにbison用のパスを追加したいのであれば、以下を含むファイルを作成してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$ENV{PATH}=$ENV{PATH} . ';c:\some\where\bison\bin';</PRE
+><P>
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN24718"
+>16.1.1. 必要条件</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を構築するには以下の追加製品が必要です。
+<TT
+CLASS="FILENAME"
+>config.pl</TT
+>ファイルを使用してライブラリを利用できるディレクトリを指定してください。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>Microsoft Platform SDK</SPAN
+></DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Microsoft Platform SDK</SPAN
+>(現在はバージョン7.0)のバージョンを入手可能な最新版までアップグレードすることを推奨します。
+<A
+HREF="http://www.microsoft.com/downloads/"
+TARGET="_top"
+>http://www.microsoft.com/downloads/</A
+>からダウンロードできます。
+     </P
+><P
+>SDKの<SPAN
+CLASS="APPLICATION"
+>Windows Headers and Libraries</SPAN
+>を常にインクルードしなければなりません。
+<SPAN
+CLASS="APPLICATION"
+>Visual C++ Compilers</SPAN
+>に含まれる<SPAN
+CLASS="PRODUCTNAME"
+>Platform SDK</SPAN
+>をインストールしている場合、構築のために<SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio</SPAN
+>は必要ありません。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>ActiveState Perl</SPAN
+></DT
+><DD
+><P
+>ActiveState Perlが構築生成スクリプトを実行するために必要です。
+MinGWまたはCygwinのPerlでは動作しません。
+また、PATH内に含められていなければなりません。
+<A
+HREF="http://www.activestate.com"
+TARGET="_top"
+>http://www.activestate.com</A
+>からバイナリをダウンロードできます
+（注意：バージョン5.8以降が必要です。フリー版の標準配布で十分です）。
+     </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>使用できるようになることが目的であれば以下の追加製品は必要ありませんが、完全なパッケージを構築する場合には必要です。
+<TT
+CLASS="FILENAME"
+>config.pl</TT
+>を使用してライブラリが利用できるディレクトリを指定してください。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>ActiveState TCL</SPAN
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/TCL</SPAN
+>を構築する時に必要です
+（注意：バージョン8.4が必要です。フリー版の標準配布で十分です）。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>Bison</SPAN
+>および<SPAN
+CLASS="PRODUCTNAME"
+>Flex</SPAN
+></DT
+><DD
+><P
+>Gitから構築する場合はBisonおよびFlexが必要です。
+リリースファイルから構築する場合は不要です。
+Bison 1.875またはバージョン2.2以降のみで動作することに注意してください。
+またFlex 2.5.31以降が必要です。
+Bisonは<A
+HREF="http://gnuwin32.sourceforge.net"
+TARGET="_top"
+>http://gnuwin32.sourceforge.net</A
+>からダウンロードすることができます。
+Flexは<A
+HREF="http://www.postgresql.org/ftp/misc/winflex/"
+TARGET="_top"
+>http://www.postgresql.org/ftp/misc/winflex/</A
+>からダウンロードすることができます。
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>      
+        GnuWin32からのBisonディストリビューションでは、<TT
+CLASS="FILENAME"
+>C:\Program Files\GnuWin32</TT
+>の様に名前に空白を持つディレクトリにインストールされると正常に機能しないというバグがあります。
+        代わりに<TT
+CLASS="FILENAME"
+>C:\GnuWin32</TT
+>へインストールすることを検討してください。
+       </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>Diff</SPAN
+></DT
+><DD
+><P
+>リグレッションテストを実行するにはdiffが必要です。
+<A
+HREF="http://gnuwin32.sourceforge.net"
+TARGET="_top"
+>http://gnuwin32.sourceforge.net</A
+>からダウンロードできます。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>Gettext</SPAN
+></DT
+><DD
+><P
+>NLSサポート付きで構築する場合はgettextが必要です。
+<A
+HREF="http://gnuwin32.sourceforge.net"
+TARGET="_top"
+>http://gnuwin32.sourceforge.net</A
+>からダウンロードできます。
+バイナリ、依存物、開発用ファイルすべてが必要であることに注意してください。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>MIT Kerberos</SPAN
+></DT
+><DD
+><P
+>Kerberos認証をサポートする場合に必要です。
+MIT Kerberosは<A
+HREF="http://web.mit.edu/Kerberos/dist/index.html"
+TARGET="_top"
+>http://web.mit.edu/Kerberos/dist/index.html</A
+>からダウンロードできます。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>libxml2</SPAN
+>および<SPAN
+CLASS="PRODUCTNAME"
+>libxslt</SPAN
+></DT
+><DD
+><P
+>XMLサポートのために必要です。
+バイナリは<A
+HREF="http://zlatkovic.com/pub/libxml"
+TARGET="_top"
+>http://zlatkovic.com/pub/libxml</A
+>から、ソースは<A
+HREF="http://xmlsoft.org"
+TARGET="_top"
+>http://xmlsoft.org</A
+>からダウンロードできます。
+libxml2はiconvを必要することに注意してください。
+同じ場所からダウンロードできます。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>openssl</SPAN
+></DT
+><DD
+><P
+>SSLサポートのために必要です。
+バイナリは<A
+HREF="http://www.slproweb.com/products/Win32OpenSSL.html"
+TARGET="_top"
+>http://www.slproweb.com/products/Win32OpenSSL.html</A
+>から、ソースは<A
+HREF="http://www.openssl.org"
+TARGET="_top"
+>http://www.openssl.org</A
+>からダウンロードできます。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>ossp-uuid</SPAN
+></DT
+><DD
+><P
+>UUID-OSSPサポート（contribのみ）で必要です。
+ソースは<A
+HREF="http://www.ossp.org/pkg/lib/uuid/"
+TARGET="_top"
+>http://www.ossp.org/pkg/lib/uuid/</A
+>にあります。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>Python</SPAN
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/Python</SPAN
+>を構築する場合に必要です。
+バイナリは<A
+HREF="http://www.python.org"
+TARGET="_top"
+>http://www.python.org</A
+>からダウンロードできます。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="PRODUCTNAME"
+>zlib</SPAN
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>および<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>における圧縮をサポートするために必要です。
+バイナリは<A
+HREF="http://www.zlib.net"
+TARGET="_top"
+>http://www.zlib.net</A
+>からダウンロードできます。
+     </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN24817"
+>16.1.2. 64ビット版のWindowsにおける特別な考慮事項</A
+></H2
+><P
+>64ビット版Windowsにおいてx64アーキテクチャのみでPostgreSQLを構築することができます。
+Itaniumプロセッサをサポートしていません。
+  </P
+><P
+>同じ構築用ツリーで32ビット版と64ビット版を混在させることはサポートされません。
+構築システムは32ビット環境で動作しているか64ビット環境で動作しているかを自動的に検出し、それにしたがってPostgreSQLを構築します。
+このため構築作業を始める前に正しいコマンドプロンプトを実行させることが重要です。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>python</SPAN
+>や<SPAN
+CLASS="PRODUCTNAME"
+>openssl</SPAN
+>などのサーバサイドのサードパーティ製ライブラリを使用するためには、ライブラリも64ビット版である<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必要があります</I
+></SPAN
+>。
+64ビット版のサーバで32ビット版のライブラリをロードすることはサポートされていません。
+PostgreSQLがサポートするサードパーティ製のライブラリで32ビット版しか利用できないものが複数あります。
+こうした場合、64ビット版のPostgreSQLで使用することはできません。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN24825"
+>16.1.3. 構築</A
+></H2
+><P
+>リリース条件（デフォルト）でPostgreSQLをすべて構築するためには、以下のコマンドを実行してください。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>build</KBD
+></PRE
+><P>
+デバッグ条件でPostgreSQLをすべて構築するためには、以下のコマンドを実行してください。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>build DEBUG</KBD
+></PRE
+><P>
+単一のプロジェクトのみを構築するためには、たとえばpsqlであれば、以下のコマンドを実行してください。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>build psql</KBD
+>
+<KBD
+CLASS="USERINPUT"
+>build DEBUG psql</KBD
+></PRE
+><P>
+デバッグのためにデフォルトの構築条件を変更するためには、以下を<TT
+CLASS="FILENAME"
+>buildenv.pl</TT
+>ファイルに記載してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$ENV{CONFIG}="Debug";</PRE
+><P>
+  </P
+><P
+>また、Visual Studio GUI内から構築することも可能です。
+この場合はコマンドプロンプトから以下を実行しなければなりません。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>perl mkvcbuild.pl</KBD
+></PRE
+><P>
+その後に、生成された<TT
+CLASS="FILENAME"
+>pgsql.sln</TT
+>（ソースツリーのトップディレクトリに存在します。）をVisual Studioで開いてください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN24841"
+>16.1.4. 整理およびインストール</A
+></H2
+><P
+>ほとんどの場合、Visual Studioの持つ自動依存関係追跡により変更されたファイルが扱われます。
+しかし、大規模な変更が行われた場合、インストレーションを整理する必要があるかもしれません。
+このためには、<TT
+CLASS="FILENAME"
+>clean.bat</TT
+>コマンドを実行してください。
+これにより、生成されたファイルがすべて自動的に消去されます。
+また、<TT
+CLASS="PARAMETER"
+>dist</TT
+>パラメータを使用して実行することも可能です。
+この場合、<KBD
+CLASS="USERINPUT"
+>make distclean</KBD
+>のように振舞い、flex/bisonの出力ファイルも削除します。
+  </P
+><P
+>デフォルトで、すべてのファイルは<TT
+CLASS="FILENAME"
+>debug</TT
+>または<TT
+CLASS="FILENAME"
+>release</TT
+>ディレクトリ以下のサブディレクトリに書き出されます。
+これらのファイルを標準レイアウトでインストールし、データベースの初期化や使用に必要なファイルを生成するためには、以下のコマンドを実行してください。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>install c:\destination\directory</KBD
+></PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN24852"
+>16.1.5. リグレッションテストの実行</A
+></H2
+><P
+>リグレッションテストを実行するためには、まず必要なすべての部品の構築が完了していることを確認してください。
+また、システムのすべての部品で必要とするDLL（手続き言語用のPerlのDLLやPythonのDLLなど）がシステムパスに含まれていることを確認してください。
+もし含まれていなければ、<TT
+CLASS="FILENAME"
+>buildenv.pl</TT
+>ファイルを介して設定してください。
+試験を実行するためには、以下のコマンドのいずれかを<TT
+CLASS="FILENAME"
+>src\tools\msvc</TT
+>ディレクトリから実行してください。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>vcregress check</KBD
+>
+<KBD
+CLASS="USERINPUT"
+>vcregress installcheck</KBD
+>
+<KBD
+CLASS="USERINPUT"
+>vcregress plcheck</KBD
+>
+<KBD
+CLASS="USERINPUT"
+>vcregress contribcheck</KBD
+></PRE
+><P>
+
+使用するスケジュール（デフォルトはparallelです）を変更するためには、コマンドラインに以下のように追加してください。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>vcregress check serial</KBD
+></PRE
+><P>
+
+リグレッションテストの詳細については<A
+HREF="regress.html"
+>&#31532;30&#31456;</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN24865"
+>16.1.6. 文書の構築</A
+></H2
+><P
+>PostgreSQLの文書をHTML書式で構築するためには、いくつかツールやファイルが必要です。
+これらのファイルをすべて格納するためのトップディレクトリを作成し、以下のリストに記載したサブディレクトリに格納してください。
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>OpenJade 1.3.1-2</DT
+><DD
+><P
+><A
+HREF="http://sourceforge.net/projects/openjade/files/openjade/1.3.1/openjade-1_3_1-2-bin.zip/download"
+TARGET="_top"
+>http://sourceforge.net/projects/openjade/files/openjade/1.3.1/openjade-1_3_1-2-bin.zip/download</A
+>からダウンロードし、<TT
+CLASS="FILENAME"
+>openjade-1.3.1</TT
+>サブディレクトリで伸長してください。
+     </P
+></DD
+><DT
+>DocBook DTD 4.2</DT
+><DD
+><P
+><A
+HREF="http://www.oasis-open.org/docbook/sgml/4.2/docbook-4.2.zip"
+TARGET="_top"
+>http://www.oasis-open.org/docbook/sgml/4.2/docbook-4.2.zip</A
+>からダウンロードし、<TT
+CLASS="FILENAME"
+>docbook</TT
+>サブディレクトリで伸長してください。
+     </P
+></DD
+><DT
+>DocBook DSSSL 1.79</DT
+><DD
+><P
+><A
+HREF="http://sourceforge.net/projects/docbook/files/docbook-dsssl/1.79/docbook-dsssl-1.79.zip/download"
+TARGET="_top"
+>http://sourceforge.net/projects/docbook/files/docbook-dsssl/1.79/docbook-dsssl-1.79.zip/download</A
+>からダウンロードし、<TT
+CLASS="FILENAME"
+>docbook-dsssl-1.79</TT
+>サブディレクトリで伸長してください。
+     </P
+></DD
+><DT
+>ISO文字エンティティ</DT
+><DD
+><P
+><A
+HREF="http://www.oasis-open.org/cover/ISOEnts.zip"
+TARGET="_top"
+>http://www.oasis-open.org/cover/ISOEnts.zip</A
+>からダウンロードし、<TT
+CLASS="FILENAME"
+>docbook</TT
+>サブディレクトリで伸長してください。
+     </P
+></DD
+></DL
+></DIV
+><P>
+<TT
+CLASS="FILENAME"
+>buildenv.pl</TT
+>ファイルを編集し、このトップディレクトリの場所を示す変数を追加してください。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$ENV{DOCROOT}='c:\docbook';</PRE
+><P>
+文書を構築するためには、<TT
+CLASS="FILENAME"
+>builddoc.bat</TT
+>コマンドを実行してください。
+これは実際にはインデックスを作成するために、2回構築を行うことに注意してください。
+生成されたHTMLファイルは<TT
+CLASS="FILENAME"
+>doc\src\sgml</TT
+>に格納されます。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="install-windows.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="install-windows-libpq.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>におけるソースコードからのインストール</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="install-windows.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>Visual C++</SPAN
+>または<SPAN
+CLASS="PRODUCTNAME"
+>Borland C++</SPAN
+>を使用した<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の構築</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>概念</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQL言語"
+HREF="tutorial-sql.html"><LINK
+REL="PREVIOUS"
+TITLE="序文"
+HREF="tutorial-sql-intro.html"><LINK
+REL="NEXT"
+TITLE="新しいテーブルの作成"
+HREF="tutorial-table.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="序文"
+HREF="tutorial-sql-intro.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 2&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="新しいテーブルの作成"
+HREF="tutorial-table.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-CONCEPTS"
+>2.2. 概念</A
+></H1
+><P
+>    
+    
+    
+    
+    
+
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は<I
+CLASS="FIRSTTERM"
+>リレーショナルデータベースマネージメントシステム</I
+>（<ACRONYM
+CLASS="ACRONYM"
+>RDBMS</ACRONYM
+>）です。
+これは<I
+CLASS="FIRSTTERM"
+>リレーション</I
+>の中に格納されたデータを管理するシステムであることを意味しています。
+リレーションは基本的には<I
+CLASS="FIRSTTERM"
+>テーブル</I
+>を表す数学用語です。
+テーブルにデータを格納することは今日では平凡なことですので、わかりきったものだと思われるかもしれませんが、データベースを構成する方法には他にも多くの方式があります。
+Unix互換のオペレーティングシステムのファイルとディレクトリは、階層型データベースの一種と言えます。
+より近代的な成果はオブジェクト指向データベースです。
+   </P
+><P
+>    
+    
+
+各テーブルは、<I
+CLASS="FIRSTTERM"
+>行</I
+>の集合に名前を付けたものです。
+あるテーブルの各行は、名前を付けた<I
+CLASS="FIRSTTERM"
+>列</I
+>の集合ということができます。
+各列は特定のデータ型を持ちます。
+列は行において固定の順番を持ちますが、SQLはテーブルにある行の順番をまったく保証しないことを覚えておくことは重要です
+（しかし、表示用に明示的にソートさせることは可能です）。
+   </P
+><P
+>    
+    
+
+テーブルはデータベースとしてまとめられ、1つの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバインスタンスで管理されるデータベースの集合はデータベース<I
+CLASS="FIRSTTERM"
+>クラスタ</I
+>を構成します。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-sql-intro.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-table.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>序文</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>新しいテーブルの作成</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

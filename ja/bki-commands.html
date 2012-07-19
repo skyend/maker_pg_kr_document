@@ -1,0 +1,703 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>BKIコマンド</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="BKIバックエンドインタフェース"
+HREF="bki.html"><LINK
+REL="PREVIOUS"
+TITLE="BKIファイル形式"
+HREF="bki-format.html"><LINK
+REL="NEXT"
+TITLE="BKIファイルのブートストラップの構成"
+HREF="bki-structure.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="BKIファイル形式"
+HREF="bki-format.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="BKIバックエンドインタフェース"
+HREF="bki.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 56&#31456;<ACRONYM
+CLASS="ACRONYM"
+>BKI</ACRONYM
+>バックエンドインタフェース</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="BKIバックエンドインタフェース"
+HREF="bki.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="BKIファイルのブートストラップの構成"
+HREF="bki-structure.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="BKI-COMMANDS"
+>56.2. <ACRONYM
+CLASS="ACRONYM"
+>BKI</ACRONYM
+>コマンド</A
+></H1
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>create</TT
+>
+     <TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+>
+     <TT
+CLASS="REPLACEABLE"
+><I
+>tableoid</I
+></TT
+>
+     [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="LITERAL"
+>bootstrap</TT
+></SPAN
+>]
+     [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="LITERAL"
+>shared_relation</TT
+></SPAN
+>]
+     [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="LITERAL"
+>without_oids</TT
+></SPAN
+>]
+     [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="LITERAL"
+>rowtype_oid</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>oid</I
+></TT
+></SPAN
+>]
+     (<TT
+CLASS="REPLACEABLE"
+><I
+>name1</I
+></TT
+> =
+     <TT
+CLASS="REPLACEABLE"
+><I
+>type1</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>,
+     <TT
+CLASS="REPLACEABLE"
+><I
+>name2</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>type2</I
+></TT
+>, ...</SPAN
+>])</DT
+><DD
+><P
+>括弧で与えられた列と、OID <TT
+CLASS="REPLACEABLE"
+><I
+>tableoid</I
+></TT
+>を持つ<TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+>というテーブルを作成します。
+     </P
+><P
+>次の列型は<TT
+CLASS="FILENAME"
+>bootstrap.c</TT
+>で直接サポートされます。
+<TT
+CLASS="TYPE"
+>bool</TT
+>、<TT
+CLASS="TYPE"
+>bytea</TT
+>、<TT
+CLASS="TYPE"
+>char</TT
+>（1バイト）、<TT
+CLASS="TYPE"
+>name</TT
+>、<TT
+CLASS="TYPE"
+>int2</TT
+>、<TT
+CLASS="TYPE"
+>int4</TT
+>、<TT
+CLASS="TYPE"
+>regproc</TT
+>、<TT
+CLASS="TYPE"
+>regclass</TT
+>、<TT
+CLASS="TYPE"
+>regtype</TT
+>、<TT
+CLASS="TYPE"
+>text</TT
+>、<TT
+CLASS="TYPE"
+>oid</TT
+>、<TT
+CLASS="TYPE"
+>tid</TT
+>、<TT
+CLASS="TYPE"
+>xid</TT
+>、<TT
+CLASS="TYPE"
+>cid</TT
+>、<TT
+CLASS="TYPE"
+>int2vector</TT
+>、<TT
+CLASS="TYPE"
+>oidvector</TT
+>、<TT
+CLASS="TYPE"
+>_int4</TT
+>（配列）、<TT
+CLASS="TYPE"
+>_text</TT
+>（配列）、<TT
+CLASS="TYPE"
+>_oid</TT
+>（配列）、<TT
+CLASS="TYPE"
+>_char</TT
+>（配列）、<TT
+CLASS="TYPE"
+>_aclitem</TT
+>（配列）。
+この他の型を持つテーブルを作成することはできますが、<TT
+CLASS="STRUCTNAME"
+>pg_type</TT
+>が完了し適切な項目で埋められるまで完了させることができません。（これらの列型のみブートストラップされたテーブルで使用されますが、非ブートストラップカタログは如何なる組み込み型も含む事があるという事を実際に意味しています。）
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>bootstrap</TT
+>が指定された場合、テーブルはディスク上に作成されるだけで、<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>や<TT
+CLASS="STRUCTNAME"
+>pg_attribute</TT
+>などにその項目は登録されません。
+したがって、これらの項目が（<TT
+CLASS="LITERAL"
+>insert</TT
+>コマンドで）固定化されるまで、普通のSQL操作でこのテーブルにアクセスできません。
+このオプションは<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>など自身を作成するために使用されます。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>shared_relation</TT
+>が指定された場合、テーブルは作成されます。
+<TT
+CLASS="LITERAL"
+>without_oids</TT
+>が指定されていない限りテーブルはOIDを持ちます。
+テーブルの行型OID（<TT
+CLASS="STRUCTNAME"
+>pg_type</TT
+> OID）は<TT
+CLASS="LITERAL"
+>rowtype_oid</TT
+>句で指定できます。
+指定されなければ、OIDは自動的に生成されます。
+（<TT
+CLASS="LITERAL"
+>bootstrap</TT
+> が指定されていれば、<TT
+CLASS="LITERAL"
+>rowtype_oid</TT
+>句は役に立ちません。しかし、文書化のためにともかく指定はできます。）
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>open</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+></DT
+><DD
+><P
+>データを挿入するために<TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+>と名前が付けられたテーブルを開きます。
+現在開いているテーブルは閉じられます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>close</TT
+> [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+></SPAN
+>]</DT
+><DD
+><P
+>開いているテーブルを閉じます。テーブル名は様々な方法で検査可能ですが、必要性はありません
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>insert</TT
+> [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="LITERAL"
+>OID =</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>oid_value</I
+></TT
+></SPAN
+>] <TT
+CLASS="LITERAL"
+>(</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>value1</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>value2</I
+></TT
+> ... <TT
+CLASS="LITERAL"
+>)</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>value1</I
+></TT
+>や<TT
+CLASS="REPLACEABLE"
+><I
+>value2</I
+></TT
+>などを列の値として、<TT
+CLASS="REPLACEABLE"
+><I
+>oid_value</I
+></TT
+>をOIDとし、開いているテーブルに行を挿入します。
+もし<TT
+CLASS="REPLACEABLE"
+><I
+>oid_value</I
+></TT
+>がゼロ（0）、もしくは句が省略され、テーブルがOIDを所有していれば、次の有効なOIDが割り当てられます。
+     </P
+><P
+>NULL値は特別なキーワード、<TT
+CLASS="LITERAL"
+>_null_</TT
+>によって指定できます。
+空白を含む値は二重引用符で囲まなければなりません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>declare</TT
+> [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="LITERAL"
+>unique</TT
+></SPAN
+>]
+     <TT
+CLASS="LITERAL"
+>index</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>indexname</I
+></TT
+>
+     <TT
+CLASS="REPLACEABLE"
+><I
+>indexoid</I
+></TT
+>
+     <TT
+CLASS="LITERAL"
+>on</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+>
+     <TT
+CLASS="LITERAL"
+>using</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>amname</I
+></TT
+>
+     <TT
+CLASS="LITERAL"
+>(</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>opclass1</I
+></TT
+>
+     <TT
+CLASS="REPLACEABLE"
+><I
+>name1</I
+></TT
+>
+     [<SPAN
+CLASS="OPTIONAL"
+>, ...</SPAN
+>] <TT
+CLASS="LITERAL"
+>)</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>amname</I
+></TT
+>アクセスメソッドを使用して、<TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+>と名付けられたテーブル上に、OID <TT
+CLASS="REPLACEABLE"
+><I
+>indexoid</I
+></TT
+>を所有する、<TT
+CLASS="REPLACEABLE"
+><I
+>indexname</I
+></TT
+>という名前のインデックスを作成します。
+インデックスが付けられるフィールドは、<TT
+CLASS="REPLACEABLE"
+><I
+>name1</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>name2</I
+></TT
+>など、そして使用される演算子クラスは<TT
+CLASS="REPLACEABLE"
+><I
+>opclass1</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>opclass2</I
+></TT
+>などとそれぞれ呼ばれます。
+このインデックスファイルは作成され、適切なカタログ項目が作成されますが、このコマンドではインデックスの内容の初期化を行いません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>declare toast</TT
+>
+     <TT
+CLASS="REPLACEABLE"
+><I
+>toasttableoid</I
+></TT
+>
+     <TT
+CLASS="REPLACEABLE"
+><I
+>toastindexoid</I
+></TT
+>
+     <TT
+CLASS="LITERAL"
+>on</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+>という名前のテーブル用のTOASTテーブルを作成します。
+このTOASTテーブルはOIDとして<TT
+CLASS="REPLACEABLE"
+><I
+>toasttableoid</I
+></TT
+>が割り当てられ、そのインデックスはOIDとして<TT
+CLASS="REPLACEABLE"
+><I
+>toastindexoid</I
+></TT
+>が割り当てられます。
+<TT
+CLASS="LITERAL"
+>declare index</TT
+>と同様、インデックスの作成は遅延されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>build indices</TT
+></DT
+><DD
+><P
+>前に宣言されたインデックスを作成します。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="bki-format.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="bki-structure.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>BKI</ACRONYM
+>ファイル形式</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="bki.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>BKI</ACRONYM
+>ファイルのブートストラップの構成</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

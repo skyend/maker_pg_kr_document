@@ -1,0 +1,468 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.0.15</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.0.16"
+HREF="release-8-0-16.html"><LINK
+REL="NEXT"
+TITLE="リリース8.0.14"
+HREF="release-8-0-14.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.0.16"
+HREF="release-8-0-16.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.0.14"
+HREF="release-8-0-14.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-0-15"
+>E.107. リリース8.0.15</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2008-01-07</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは、重大なセキュリティ問題の修正を含む、8.0.14の各種不具合を修正したものです。
+8.0メジャーリリースにおける新機能については<A
+HREF="release-8-0.html"
+>&#38917;E.122</A
+>を参照してください。
+  </P
+><P
+>これが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>コミュニティが<SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>用のバイナリパッケージを作成する、最後の8.0.Xリリースです。
+8.2.Xでは、過去のバージョンに移植することが現実的ではない、Windows固有の修正が行われていますので、Windowsユーザは8.2.X以降への移行が推奨されています。
+他のプラットフォームでは8.0.Xはまだサポートされます。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN123504"
+>E.107.1. バージョン8.0.15への移行</A
+></H2
+><P
+>8.0.Xからの移行ではダンプ/リストアは不要です。
+しかし、8.0.6より前のバージョンからアップグレードする場合は、8.0.6のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN123507"
+>E.107.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>インデックス内の関数が<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>などを実行するユーザの権限で実行されることを防止します。(Tom)
+     </P
+><P
+>インデックス式内で使用される関数および部分インデックスの述語は、新しいテーブル項目が作成されると評価されます。
+これが、もし信頼できないユーザが所有するテーブルを変更したとすると、トロイの木馬となるコードの実行という危険性を引き起こすことは以前から解っていました。
+（トリガ、デフォルト、検査制約なども同種の危険性を引き起こします。）
+しかしインデックス内の関数は、<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>などの日常の保守作業で実行される可能性があるため、さらに危険です。
+こうした保守作業は通常自動的にスーパーユーザ権限で行われます。
+例えば、極悪なユーザがトロイの木馬となるインデックス定義を設定し、次回の日常のバキューム処理を待つことで、スーパーユーザ権限でコードを実行することが可能です。
+この修正は、<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>関数で使用されていた権限変更機構を使用して、標準的な保守作業（<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>、<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>、<TT
+CLASS="COMMAND"
+>CLUSTER</TT
+>を含む）が呼び出したユーザではなくテーブル所有者として実行するように調整しました。
+こうしたセキュリティ制限の迂回を防ぐために、<TT
+CLASS="COMMAND"
+>SET SESSION AUTHORIZATION</TT
+>および<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>が<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>コンテキストで禁止されるようになりました。(CVE-2007-6600)
+     </P
+></LI
+><LI
+><P
+>正規表現パッケージ内のさまざまな不具合を修正しました。(Tom, Will Drewry)
+     </P
+><P
+>より巧妙な正規表現パターンにより、信頼できないソースから正規表現検索パターンを受け付けるアプリケーションでは、クラッシュ、無限または無限に近いループ、大量のメモリの浪費、DoS攻撃を引き起こすすべてが発生する可能性がありました。(CVE-2007-4769、CVE-2007-4772、CVE-2007-6067)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/dblink</TT
+>を使用して、パスワード認証のみをセキュリティ制限として使用するには非スーパーユーザでなければなりません。
+     </P
+><P
+>8.0.14で行った修正は不十分で、一部の<TT
+CLASS="FILENAME"
+>dblink</TT
+>関数に対してのみ問題を解消していました。(CVE-2007-6601,CVE-2007-3278)
+     </P
+></LI
+><LI
+><P
+>時間帯ファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+>リリース2007kに更新しました（具体的には最近のアルゼンチンの変更）。(Tom)
+     </P
+></LI
+><LI
+><P
+>一部の<TT
+CLASS="LITERAL"
+>WHERE false AND var IN (SELECT ...)</TT
+>におけるプランナの失敗を修正しました。 (Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TABLE ... ALTER COLUMN TYPE</TT
+>で再構築されるインデックスのテーブル空間と格納パラメータを保持します。(Tom)
+     </P
+></LI
+><LI
+><P
+>アーカイブリカバリが、リカバリの停止時間が使用された時だけではなく、常に新しいWAL時系列から始まるようにしました。
+     </P
+><P
+>これは、まれに起こる可能性のある既存の最後のWALセグメントのアーカイブされたコピーを上書きしようとする危険を防止します。
+また元の定義より単純、明確になったと考えられます。
+     </P
+></LI
+><LI
+><P
+>テーブルが小さすぎて有用でない場合、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>がすべての<TT
+CLASS="VARNAME"
+>maintenance_work_mem</TT
+>を使用しないようにしました。
+     </P
+></LI
+><LI
+><P
+>マルチバイトデータベース符号化方式を使用している時に潜在する、<CODE
+CLASS="FUNCTION"
+>translate()</CODE
+>のクラッシュを修正しました。
+     </P
+></LI
+><LI
+><P
+>プラットフォームのPerlが<TT
+CLASS="LITERAL"
+>bool</TT
+>型を<TT
+CLASS="LITERAL"
+>char</TT
+>ではなく<TT
+CLASS="LITERAL"
+>int</TT
+>として定義した場合に対応するようにPL/Perlを修正しました。(Tom)
+     </P
+><P
+>これは理論上どこでも発生する可能性がありましたが、標準的に構築されたPerlではこうなりませんでした。<SPAN
+CLASS="PRODUCTNAME"
+>Mac OS X</SPAN
+> 10.5までは…。
+     </P
+></LI
+><LI
+><P
+>長い例外メッセージでクラッシュしないようPL/Pythonを修正しました。(Alvaro)
+     </P
+></LI
+><LI
+><P
+>親テーブルと異なるデフォルト式を持つ、継承子テーブルを正しく扱うよう<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>パーサを修正しました。(Michael)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/tablefunc</TT
+>の<CODE
+CLASS="FUNCTION"
+>crosstab()</CODE
+>が、クラッシュするのではなく、独自の意味でカテゴリとしてNULL行識別子を扱うようにしました。(Joe)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>および<TT
+CLASS="TYPE"
+>tsquery</TT
+>出力関数が正しくバックスラッシュをエスケープするように修正しました。(Teodor, Bruce)
+     </P
+></LI
+><LI
+><P
+>入力文字列が大きな場合に<CODE
+CLASS="FUNCTION"
+>to_tsvector()</CODE
+>がクラッシュすることを修正しました。(Teodor)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>configure</TT
+>スクリプトを再生成する場合、特定のバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>Autoconf</SPAN
+>を使用することが必要になりました。(Peter)
+     </P
+><P
+>これは開発者とパッケージ作成者のみに影響します。
+この変更は、<SPAN
+CLASS="PRODUCTNAME"
+>Autoconf</SPAN
+>と<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の未確認のバージョンの組み合わせを使用する事故を防ぐためになされました。
+その結果がうまくいくかどうかについて責任を負う限り、異なるバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>Autoconf</SPAN
+>を本当に使用したい場合は、このバージョン検査を取り除くことができます。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-0-16.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-0-14.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.0.16</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.0.14</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

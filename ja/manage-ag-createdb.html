@@ -1,0 +1,381 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データベースの作成</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データベース管理"
+HREF="managing-databases.html"><LINK
+REL="PREVIOUS"
+TITLE="概要"
+HREF="manage-ag-overview.html"><LINK
+REL="NEXT"
+TITLE="テンプレートデータベース"
+HREF="manage-ag-templatedbs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="概要"
+HREF="manage-ag-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベース管理"
+HREF="managing-databases.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 21&#31456;データベース管理</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベース管理"
+HREF="managing-databases.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="テンプレートデータベース"
+HREF="manage-ag-templatedbs.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MANAGE-AG-CREATEDB"
+>21.2. データベースの作成</A
+></H1
+><P
+>データベースを作成する場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバが起動している必要があります（<A
+HREF="server-start.html"
+>&#38917;17.3</A
+>を参照してください）。
+  </P
+><P
+><A
+HREF="sql-createdatabase.html"
+>CREATE DATABASE</A
+>SQLコマンドでデータベースを作成することができます。
+</P><PRE
+CLASS="SYNOPSIS"
+>CREATE DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</PRE
+><P>
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>は<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>識別子の通常の規則に従います。
+現在のロールが自動的に新しいデータベースの所有者になります。
+作成後、データベースを削除する権限はこの所有者にあります（この作業では、そのデータベースに属している、所有者のものではないオブジェクトでも、全て削除されます）。
+  </P
+><P
+>データベースの作成は制限された作業です。
+権限の付与に関する詳細は<A
+HREF="role-attributes.html"
+>&#38917;20.2</A
+>を参照してください。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>コマンドを実行するためには、データベースサーバに接続している必要があります。
+そうすると、あるサイトの<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>最初の</I
+></SPAN
+>データベースはどのようにして作成するのかという疑問が出てきます。 
+最初のデータベースは<TT
+CLASS="COMMAND"
+>initdb</TT
+>コマンドでデータ格納領域が初期化される（<A
+HREF="creating-cluster.html"
+>&#38917;17.2</A
+>を参照してください。）時、必ず作成されます。
+このデータベースは<TT
+CLASS="LITERAL"
+>postgres</TT
+>と呼ばれます。
+ 
+したがって、最初の<SPAN
+CLASS="QUOTE"
+>"通常の"</SPAN
+>データベースを作成するには<TT
+CLASS="LITERAL"
+>postgres</TT
+>に接続してください。
+  </P
+><P
+>また、<TT
+CLASS="LITERAL"
+>template1</TT
+>という2つ目のデータベースもデータベースクラスタの初期化時に作成されます。
+
+クラスタ内に新しいデータベースが作成されたら、実際に<TT
+CLASS="LITERAL"
+>template1</TT
+>が複製されます。
+つまり<TT
+CLASS="LITERAL"
+>template1</TT
+>に変更を与えると、その後に作成されるデータベース全てにその変更が反映されることを意味します。
+このため新しく作成するデータベースすべてに反映させたい場合でない限り<TT
+CLASS="LITERAL"
+>template1</TT
+>内にオブジェクトを作成することは避けてください。
+詳細については<A
+HREF="manage-ag-templatedbs.html"
+>&#38917;21.3</A
+>を参照してください。
+  </P
+><P
+>利便性のために、シェルから<TT
+CLASS="COMMAND"
+>createdb</TT
+>を実行して、新しいデータベースを作成することができます。
+
+
+</P><PRE
+CLASS="SYNOPSIS"
+>createdb <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></PRE
+><P>
+
+<TT
+CLASS="COMMAND"
+>createdb</TT
+>は魔法ではありません。
+これは<TT
+CLASS="LITERAL"
+>postgres</TT
+>データベースに接続し、先に解説した通りに<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>コマンドを実行します。
+<A
+HREF="app-createdb.html"
+><SPAN
+CLASS="APPLICATION"
+>createdb</SPAN
+></A
+>のマニュアルページに実行方法の詳細が説明されています。
+引数のない<TT
+CLASS="COMMAND"
+>createdb</TT
+>は現在のユーザ名のデータベースを作成しますので、注意してください。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>特定のデータベースに誰が接続できるかを制限する方法については<A
+HREF="client-authentication.html"
+>&#31532;19&#31456;</A
+>に記載されています。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>他のユーザのためにデータベースを作成し、そのユーザ自身が設定、管理できるように新しいデータベースの所有者にさせたい場合も考えられます。
+そのためには、次のコマンドのいずれかを使用します。
+SQL環境からであれば前者を、さもなくば後者をシェルから使用してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> OWNER <TT
+CLASS="REPLACEABLE"
+><I
+>rolename</I
+></TT
+>;</PRE
+><P>
+</P><PRE
+CLASS="PROGRAMLISTING"
+>createdb -O <TT
+CLASS="REPLACEABLE"
+><I
+>rolename</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></PRE
+><P>
+他のユーザのために（つまり、自身がメンバではないロールのために）データベースを作成することができるのはスーパーユーザだけです。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="manage-ag-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="manage-ag-templatedbs.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>概要</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="managing-databases.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>テンプレートデータベース</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

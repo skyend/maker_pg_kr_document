@@ -1,0 +1,611 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>複合型</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ型"
+HREF="datatype.html"><LINK
+REL="PREVIOUS"
+TITLE="配列"
+HREF="arrays.html"><LINK
+REL="NEXT"
+TITLE="オブジェクト識別子データ型"
+HREF="datatype-oid.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="配列"
+HREF="arrays.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 8&#31456;データ型</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="オブジェクト識別子データ型"
+HREF="datatype-oid.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ROWTYPES"
+>8.15. 複合型</A
+></H1
+><P
+><I
+CLASS="FIRSTTERM"
+>複合型</I
+>は、行もしくはレコードの構造を表現します。
+本質的には、これは単なるフィールド名とそのデータ型のリストです。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、単純な型において使用される方法と多くは同じ方法で複合型を使用できます。
+例えば、テーブルの列は複合型の型のものとして宣言することができます。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN7211"
+>8.15.1. 複合型の宣言</A
+></H2
+><P
+>複合型の宣言の例を以下に2つ示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE complex AS (
+    r       double precision,
+    i       double precision
+);
+
+CREATE TYPE inventory_item AS (
+    name            text,
+    supplier_id     integer,
+    price           numeric
+);</PRE
+><P>
+この構文は、フィールド名とその型のみを指定できるという点を除き、<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>と同等です。
+現在は、制約（<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>など）を含めることはできません。
+<TT
+CLASS="LITERAL"
+>AS</TT
+>キーワードが重要であることに注意してください。
+これがないと、システムは<TT
+CLASS="COMMAND"
+>CREATE TYPE</TT
+>の意味を異なって解釈し、おかしな構文エラーを引き起こします。
+ </P
+><P
+>定義済みの型を使用して、以下のようにテーブルや関数を生成することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE on_hand (
+    item      inventory_item,
+    count     integer
+);
+
+INSERT INTO on_hand VALUES (ROW('fuzzy dice', 42, 1.99), 1000);</PRE
+><P>
+
+また、関数においては以下のように利用できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION price_extension(inventory_item, integer) RETURNS numeric
+AS 'SELECT $1.price * $2' LANGUAGE SQL;
+
+SELECT price_extension(item, 10) FROM on_hand;</PRE
+><P>
+
+ </P
+><P
+>テーブルを生成する時には、テーブルの行型を表現するために、テーブル名と同じ名前の複合型も自動的に生成されます。
+例えば、以下のように
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE inventory_item (
+    name            text,
+    supplier_id     integer REFERENCES suppliers,
+    price           numeric CHECK (price &gt; 0)
+);</PRE
+><P>
+テーブルを作成すると、上述のものと同じ<TT
+CLASS="LITERAL"
+>inventory_item</TT
+>という複合型が副次的に作成され、同様に使用することができるようになります。
+しかし、現在の実装には、次のような重要な制限があることに注意してください。
+複合型には制約が関連付けられませんので、テーブル定義に含まれる制約は、テーブルの外部に作成される複合型には<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>適用されません</I
+></SPAN
+>
+（部分的な回避方法は、複合型のメンバとしてドメイン型を使用することです）。
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN7226"
+>8.15.2. 複合型の値の入力</A
+></H2
+><P
+>複合型をリテラル定数として記述するには、フィールド値をカンマで区切り、それらを括弧で括ります。
+フィールド値を二重引用符で括ることができ、また、値にカンマや括弧を含む場合は二重引用符で括らなければなりません
+（より詳細については後で説明します）。
+したがって、複合型の一般的な書式は以下のようになります。
+</P><PRE
+CLASS="SYNOPSIS"
+>'( <TT
+CLASS="REPLACEABLE"
+><I
+>val1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>val2</I
+></TT
+> , ... )'</PRE
+><P>
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'("fuzzy dice",42,1.99)'</PRE
+><P>
+これは、上述の<TT
+CLASS="LITERAL"
+>inventory_item</TT
+>型の値として有効なものです。
+フィールドをNULLにするには、リスト中の該当位置を空にします。
+例えば、以下の定数は3番目のフィールドにNULLを指定しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'("fuzzy dice",42,)'</PRE
+><P>
+NULLではなく空文字列にしたいのであれば、以下のように引用符を二重に記述します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'("",42,)'</PRE
+><P>
+これにより、最初のフィールドは非NULLの空文字列に、3番目のフィールドはNULLになります。
+  </P
+><P
+>（実際には、こうした定数は<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-GENERIC"
+>&#38917;4.1.2.7</A
+>で説明した、一般的な型の定数の特殊な場合に過ぎません。
+定数はまず、文字列として扱われ、複合型の入力変換処理に渡されます。
+明示的な型指定が必要になることもあります。）
+  </P
+><P
+>また、<TT
+CLASS="LITERAL"
+>ROW</TT
+>式構文も、複合値を生成する際に使用することができます。
+複数の階層に渡る引用符について考慮する必要がないため、おそらくほとんどの場合、これは文字列リテラル構文よりも簡単に使用できます。
+上記において、既にこの方法を使用しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ROW('fuzzy dice', 42, 1.99)
+ROW('', 42, NULL)</PRE
+><P>
+式の中に2つ以上のフィールドがある場合には、ROWキーワードは実際には省略することができます。
+ですので、以下のように簡略化することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>('fuzzy dice', 42, 1.99)
+('', 42, NULL)</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>ROW</TT
+>構文については<A
+HREF="sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS"
+>&#38917;4.2.13</A
+>でより詳細に説明します。
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN7247"
+>8.15.3. 複合型へのアクセス</A
+></H2
+><P
+>複合型の列のフィールドにアクセスするには、テーブル名からフィールドを選択する場合とほぼ同様に、ドットとフィールド名を記述します。
+実際、テーブル名からの選択とかなり似ていますので、パーサを混乱させないように括弧を使用しなければならないことがしばしばあります。
+例えば、<TT
+CLASS="LITERAL"
+>on_hand</TT
+>というテーブルの例からサブフィールドを選択しようとした場合、以下のように書くかもしれません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT item.name FROM on_hand WHERE item.price &gt; 9.99;</PRE
+><P>
+
+これは、SQLの構文規則に従って<TT
+CLASS="LITERAL"
+>item</TT
+>が<TT
+CLASS="LITERAL"
+>on_hand</TT
+>の列名ではなくテーブル名として解釈されるため、動作しません。
+以下のように記述しなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT (item).name FROM on_hand WHERE (item).price &gt; 9.99;</PRE
+><P>
+
+また、テーブル名も使用しなければならない場合（例えば複数テーブルに対する問い合わせ）、以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT (on_hand.item).name FROM on_hand WHERE (on_hand.item).price &gt; 9.99;</PRE
+><P>
+
+これで、括弧で括られたオブジェクトは正しく<TT
+CLASS="LITERAL"
+>item</TT
+>列への参照として解釈され、サブフィールドはそこから選択できるようになります。
+ </P
+><P
+>似たような構文上の問題は、複合型からフィールドを選択する時、常に発生します。
+例えば、複合型の値を返す関数の結果から1つだけフィールドを選択する場合、以下のように記述しなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT (my_func(...)).field FROM ...</PRE
+><P>
+
+追加の括弧がないと、これは構文エラーを生成します。
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN7259"
+>8.15.4. 複合型の変更</A
+></H2
+><P
+>複合型の列への挿入と更新についての適切な構文の例をいくつか示します。
+まず、列全体を挿入、更新する例です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO mytab (complex_col) VALUES((1.1,2.2));
+
+UPDATE mytab SET complex_col = ROW(1.1,2.2) WHERE ...;</PRE
+><P>
+
+最初の例では<TT
+CLASS="LITERAL"
+>ROW</TT
+>を省略し、2番目の例では<TT
+CLASS="LITERAL"
+>ROW</TT
+>を使用しています。
+どちらの方法でも行うことができます。
+ </P
+><P
+>以下のようにして、複合型の列の個々のサブフィールドを更新することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE mytab SET complex_col.r = (complex_col).r + 1 WHERE ...;</PRE
+><P>
+
+ここで、<TT
+CLASS="LITERAL"
+>SET</TT
+>直後の列名の周りに括弧を記述する必要がないこと（実際には記述できないこと）、しかし、等号の右で同じ列を参照する場合には括弧が必要なことに注意してください。
+ </P
+><P
+>また、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>の対象としてサブフィールドを指定することもできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO mytab (complex_col.r, complex_col.i) VALUES(1.1, 2.2);</PRE
+><P>
+
+列のサブフィールド全ての値を与えていなければ、残りのサブフィールドはNULL値になります。
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN7271"
+>8.15.5. 複合型の入出力構文</A
+></H2
+><P
+>複合型の外部テキスト表現は、個々のフィールド用のI/O変換規則に従って解釈される項目群と、複合構造を意味する修飾から構成されます。
+この修飾は、値全体を括る括弧（<TT
+CLASS="LITERAL"
+>(</TT
+>および<TT
+CLASS="LITERAL"
+>)</TT
+>）と隣接した項目間のカンマ（<TT
+CLASS="LITERAL"
+>,</TT
+>）で構成されます。
+括弧の外側の空白文字は無視されますが、括弧の内部ではフィールド値の一部とみなされます。
+ただし、空白に意味があるかないかについては、そのフィールドのデータ型用の入力変換規則に従います。
+例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'(  42)'</PRE
+><P>
+括弧内の空白文字は、そのフィールド型が整数の場合は無視されますが、テキストの場合は無視されません。
+  </P
+><P
+>前述の通り、複合型の値を記述する時には、個々のフィールド値を二重引用符で括ることができます。
+もし、フィールド値が複合型値用のパーサを混乱させる場合には、これは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必須</I
+></SPAN
+>です。
+具体的には、括弧、カンマ、二重引用符、バックスラッシュを含むフィールドの場合、二重引用符で括る必要があります。
+引用符で括った複合型のフィールド値内に二重引用符やバックスラッシュが存在する場合、その前にバックスラッシュを付けてください
+（また、引用符で括った複合型のフィールド値内に二重の引用符の組み合わせがあると、これは二重引用符を表す文字として解釈されます。
+これは、SQLリテラル文字列内の単一引用符の規則と同じです）。
+そのままでは複合型に対する構文として解釈されてしまう、全てのデータ文字を保護する他の方法として、引用符付けをせずにバックスラッシュによるエスケープを使用することができます。
+  </P
+><P
+>完全な空フィールド値（カンマや括弧の間にまったく文字がないもの）はNULLを表します。
+NULLではなく空文字列を値として記述するには <TT
+CLASS="LITERAL"
+>""</TT
+> と記述してください。
+  </P
+><P
+>複合型の出力処理では、もしフィールド値が空文字列の場合や括弧、カンマ、二重引用符、バックスラッシュ、空白文字を含む場合には、そのフィールド値を二重引用符で括って出力します
+（空白文字に対するこの処理は重要ではありませんが、可読性を高めます）。
+フィールド値内に埋め込まれた二重引用符やバックスラッシュは二重化されます。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>SQLコマンド内部に記述したものは、まず文字列リテラルとして、その後、複合型として解釈されることを覚えておいてください。
+これは必要なバックスラッシュの数を倍にします（エスケープ文字列構文が使用されることを仮定しています）。
+例えば、複合型の値の中に二重引用符とバックスラッシュを持つ<TT
+CLASS="TYPE"
+>text</TT
+>フィールドに挿入するには、以下のように書かなければなりません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT ... VALUES (E'("\\"\\\\")');</PRE
+><P>
+文字列リテラルプロセッサが第1レベルのバックスラッシュを取り除くため、複合型値のパーサに渡されるものは <TT
+CLASS="LITERAL"
+>("\"\\")</TT
+> のようになります。
+そして、<TT
+CLASS="TYPE"
+>text</TT
+>データ型の入力関数に渡される文字列は<TT
+CLASS="LITERAL"
+>"\</TT
+>になります
+（もし、例えば<TT
+CLASS="TYPE"
+>bytea</TT
+>といった、その入力関数もバックスラッシュを特別に扱うデータ型を扱っている場合、1つのバックスラッシュを複合型のフィールドに格納するためにコマンド内に8個ものバックスラッシュが必要になります）。
+ドル引用符付け（<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING"
+>&#38917;4.1.2.4</A
+>を参照）を使用して、このバックスラッシュの二重化を防ぐことができます。
+  </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>SQLコマンド内に複合型の値を書く時、通常、<TT
+CLASS="LITERAL"
+>ROW</TT
+>生成構文の方が複合型のリテラル構文より作業が簡単です。
+<TT
+CLASS="LITERAL"
+>ROW</TT
+>による記述では、複合型のメンバ以外の記述方法と同じ方法で個々のフィールド値を記述することができます。
+  </P
+></BLOCKQUOTE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="arrays.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="datatype-oid.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>配列</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="datatype.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>オブジェクト識別子データ型</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

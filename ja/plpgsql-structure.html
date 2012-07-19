@@ -1,0 +1,409 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/pgSQLの構造</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="概要"
+HREF="plpgsql-overview.html"><LINK
+REL="NEXT"
+TITLE="宣言"
+HREF="plpgsql-declarations.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="概要"
+HREF="plpgsql-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="宣言"
+HREF="plpgsql-declarations.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-STRUCTURE"
+>39.2. <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の構造</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>はブロック構造の言語です。
+関数定義のテキスト全体は<I
+CLASS="FIRSTTERM"
+>ブロック</I
+>でなければなりません。
+ブロックは以下のように定義されます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>[<SPAN
+CLASS="OPTIONAL"
+> &lt;&lt;<TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+>&gt;&gt; </SPAN
+>]
+[<SPAN
+CLASS="OPTIONAL"
+> DECLARE
+    <TT
+CLASS="REPLACEABLE"
+><I
+>declarations</I
+></TT
+> </SPAN
+>]
+BEGIN
+    <TT
+CLASS="REPLACEABLE"
+><I
+>statements</I
+></TT
+>
+END [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+> </SPAN
+>];</PRE
+><P>
+    </P
+><P
+>ブロック内の宣言や文はそれぞれ、セミコロンで終わります。
+上に示したように、他のブロック内に出現するブロックの<TT
+CLASS="LITERAL"
+>END</TT
+>の後にはセミコロンが必要ですが、関数本体を完結する最後の<TT
+CLASS="LITERAL"
+>END</TT
+>には不要です。
+    </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+><TT
+CLASS="LITERAL"
+>BEGIN</TT
+>の直後にセミコロンを書くことも、同じように間違いです。
+これは不正であり、構文エラーとなります。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+>が必要となるのは、<TT
+CLASS="LITERAL"
+>EXIT</TT
+>文が使用されるブロックを特定したい場合、またはブロック内で宣言された変数名を修飾したい場合だけです。
+<TT
+CLASS="LITERAL"
+>END</TT
+>の後にラベルを配置する時は、そのブロックの先頭ラベルと一致させなければなりません。
+    </P
+><P
+>全てのキーワードは大文字と小文字を区別しません。
+識別子は二重引用符でくくられていない限り、通常のSQLコマンドと同様に、暗黙的に小文字に変換されます。
+    </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>コード内では、通常のSQLと同じ方法のコメントが動作します。
+二重のダッシュ(<TT
+CLASS="LITERAL"
+>--</TT
+>)はその行末までをコメントとするコメントを開始します。
+<TT
+CLASS="LITERAL"
+>/*</TT
+>はコメントブロックの始まりを意味し、次に<TT
+CLASS="LITERAL"
+>*/</TT
+>が現れるまでをコメントとします。
+ブロックコメントは入れ子になります。
+    </P
+><P
+>ブロックの文節内の全ての<I
+CLASS="FIRSTTERM"
+>文</I
+>は<I
+CLASS="FIRSTTERM"
+>副ブロック</I
+>になることができます。
+副ブロックは論理的なグループ分けや変数を文の小さな集まりに局所化するのに使用できます。
+副ブロックにおいて宣言された変数は、副ブロック内部では外側のブロックにおける同名の変数を遮蔽しますが、外側のラベルを変数名に付加して指定すればアクセスできます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION somefunc() RETURNS integer AS $$
+DECLARE
+    quantity integer := 30;
+BEGIN
+    RAISE NOTICE 'Quantity here is %', quantity;  -- Quantity here is 30と表示
+    quantity := 50;
+    --
+    -- 副ブロックの作成
+    --
+    DECLARE
+        quantity integer := 80;
+    BEGIN
+	RAISE NOTICE 'Quantity here is %', quantity;  -- Quantity here is 80と表示
+    END;
+    RAISE NOTICE 'Quantity here is %', quantity;  -- Quantity here is 50と表示
+
+    RETURN quantity;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数の本体を囲む、隠れた<SPAN
+CLASS="QUOTE"
+>"外側のブロック"</SPAN
+>が存在します。
+この隠れたブロックにおいて、関数のパラメータがあれば宣言をして、同様に<TT
+CLASS="LITERAL"
+>FOUND</TT
+>のような特殊な変数（<A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-DIAGNOSTICS"
+>&#38917;39.5.5</A
+>を参照）を提供します。
+この外側のブロックのラベルは関数名となります。
+つまりパラメータと特殊な変数は関数名によって修飾することを意味します。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>における文をまとめるための<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>/<TT
+CLASS="COMMAND"
+>END</TT
+>とトランザクション制御用の同名のSQLコマンドとを取り違えないようにすることが重要です。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>/<TT
+CLASS="COMMAND"
+>END</TT
+>は単にまとめるためのもので、トランザクションを始めたり終わらせたりしません。
+関数とトリガプロシージャは常に外側の問い合わせで確立されたトランザクションの内側で実行されます。
+トランザクションの実行させる文脈はありませんので、これらはトランザクションを開始することもコミットすることもできません。
+しかし、<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>句を含むブロックは外側のトランザクションに影響しないでロールバックできるサブトランザクションを、実質的に作成できます。
+これについては<A
+HREF="plpgsql-control-structures.html#PLPGSQL-ERROR-TRAPPING"
+>&#38917;39.6.6</A
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-declarations.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>概要</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>宣言</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

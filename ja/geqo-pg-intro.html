@@ -1,0 +1,398 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PostgreSQLの遺伝的問い合わせ最適化（GEQO）</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="遺伝的問い合わせ最適化"
+HREF="geqo.html"><LINK
+REL="PREVIOUS"
+TITLE="遺伝的アルゴリズム"
+HREF="geqo-intro2.html"><LINK
+REL="NEXT"
+TITLE="さらに深く知るには"
+HREF="geqo-biblio.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="遺伝的アルゴリズム"
+HREF="geqo-intro2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="遺伝的問い合わせ最適化"
+HREF="geqo.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 51&#31456;遺伝的問い合わせ最適化</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="遺伝的問い合わせ最適化"
+HREF="geqo.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="さらに深く知るには"
+HREF="geqo-biblio.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="GEQO-PG-INTRO"
+>51.3. PostgreSQLの遺伝的問い合わせ最適化（<ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>）</A
+></H1
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>のモジュールは、問い合わせ最適化問題をあたかもよく知られている巡回セールスマン問題（<ACRONYM
+CLASS="ACRONYM"
+>TSP</ACRONYM
+>）のように扱います。
+可能な問い合わせプランは、整数の文字列として符号化されます。
+それぞれの文字列は、問い合わせの1つのリレーションから次へと結合の順番を表します。 
+例えば、以下の結合ツリーは整数文字列「4-1-3-2」によって符号化されています。
+</P><PRE
+CLASS="LITERALLAYOUT"
+>   /\
+  /\ 2
+ /\ 3
+4  1</PRE
+><P>
+これが意味するのは、まずリレーション「4」と「1」を、次に「3」を、そして「2」を結合するということです。
+ここで1、2、3、4は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>オプティマイザ内でリレーションIDを表します。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>における<ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>実装の特有な特徴は下記の様なものです。
+
+    <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+><I
+CLASS="FIRSTTERM"
+>定常状態</I
+><ACRONYM
+CLASS="ACRONYM"
+>GA</ACRONYM
+>の使用（世代全体の置き換えではなく、個体の中で適応度の低いものだけの置き換え）は、改良された問い合わせ計画へ素早い収束を可能にします。
+これは、妥当な時間内での問い合わせ処理にはきわめて重要です。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GA</ACRONYM
+>による<ACRONYM
+CLASS="ACRONYM"
+>TSP</ACRONYM
+>の解決策の辺損失を低く抑えるため、非常に適した<I
+CLASS="FIRSTTERM"
+>辺再組合せ交叉</I
+>を使用します。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>TSP</ACRONYM
+>の合法な巡回を行うために必要な修復処理を要求しないように、遺伝的演算子の突然変異は無視しています。
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>モジュールの部品は D. WhitleyのGenitorアルゴリズムを適合させたものです。
+   </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>モジュールにより、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>問い合わせオプティマイザが、大きな結合問い合わせをしらみつぶし検索以外の方法で実行することが可能になります。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN93852"
+>51.3.1. <ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>を使用した計画候補の生成</A
+></H2
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>の計画作成では、個々のリレーションのスキャンに対する計画を生成するために標準のプランナが使用されます。
+そして、結合計画が遺伝的手法を用いて展開されます。
+上で示した通り、
+結合計画候補はそれぞれ、基本リレーションの結合順によって表現されています。
+初期段階では、<ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>コードは単純にランダムに取り得る結合順をいくつか生成します。
+考慮された結合順それぞれについて、標準プランナコードが呼び出され、その結合順を使用して問い合わせを行った場合のコストを推定します。
+（結合順の各段階において、全体で3つの取り得る結合戦略が考慮されます。
+そして、あらかじめ決められたリレーションスキャン計画もすべて利用可能です。
+推定コストとはこれらの可能性の中から最も安価なものです。）
+より低い推定コストの結合順を、より高い推定コストのものより<SPAN
+CLASS="QUOTE"
+>"より高い適応度"</SPAN
+>と判断します。
+遺伝的アルゴリズムは適応度が低い候補を破棄します。
+そして、より多く合致する候補の遺伝子を組み合わせて、つまり、検討すべき新しい順序を作成するために既知の低コスト結合順をランダムに位置を選択して、新しい候補が生成されます。
+事前に設定された数まで結合順を検討するまで、この処理が繰り返されます。
+そして、この検索の間にもっとも優れたものが、最終的な計画を生成するために使用されます。
+   </P
+><P
+>初期の群を選択する時、および、その後の最善の候補の突然変異の時に無作為な選択がなされますので、この処理は生来非決定論的なものです。
+選択された計画の予期せぬ変化を避けるために、GEQOアルゴリズムの各実行では乱数生成器を現在の<A
+HREF="runtime-config-query.html#GUC-GEQO-SEED"
+>geqo_seed</A
+>パラメータ設定で再スタートさせます。
+<TT
+CLASS="VARNAME"
+>geqo_seed</TT
+>とその他のGEQOパラメータが変更されない限り、一定の問い合わせ（と統計のようなプランナへの他の入力）に対しては同じ計画が生成されます。
+異なる検索パスで実験するためには、<TT
+CLASS="VARNAME"
+>geqo_seed</TT
+>を変更してみて下さい。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GEQO-FUTURE"
+>51.3.2. <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> <ACRONYM
+CLASS="ACRONYM"
+>GEQO</ACRONYM
+>の今後の実装作業</A
+></H2
+><P
+>遺伝的アルゴリズムのパラメータ設定を改善するためにはまだ課題が残っています。
+<TT
+CLASS="FILENAME"
+>src/backend/optimizer/geqo/geqo_main.c</TT
+>の<CODE
+CLASS="FUNCTION"
+>gimme_pool_size</CODE
+>と<CODE
+CLASS="FUNCTION"
+>gimme_number_generations</CODE
+>というルーチンでは、次の2つの相反する要求を満たす妥協点を見つけなければいけません。
+      <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+><P
+>問い合わせ計画の最適性
+        </P
+></LI
+><LI
+><P
+>計算時間
+        </P
+></LI
+></UL
+><P>
+     </P
+><P
+>現在の実装では、各結合順候補の適応度は標準プランナの結合選択と、一から作成したコスト推定コードを実行して推定されます。
+異なる候補が同様の副結合順で使用されるにつれて、多くの作業が繰り返されることになります。
+これは、副結合のコスト推定を記憶することで、非常に高速になるはずです。
+この状態を記憶するために要するメモリ量が非合理的に拡大することを防止することが問題です。
+     </P
+><P
+>最も基本的なレベルでは、TSP用に設計されたGAアルゴリズムを用いた問い合わせ最適化の解法が適切かどうかは明確ではありません。
+TSPの場合は、部分文字列（巡回経路の一部）に関連付けられたコストは残りの巡回経路と独立していますが、これは問い合わせ最適化の場合には確実に成り立ちません。
+したがって、辺再組合せ交叉が最も有効な突然変異手続きかどうかは疑わしいと言えます。
+     </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="geqo-intro2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="geqo-biblio.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>遺伝的アルゴリズム</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="geqo.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>さらに深く知るには</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

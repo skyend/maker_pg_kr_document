@@ -1,0 +1,946 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>WITH問い合わせ（共通テーブル式）</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="問い合わせ"
+HREF="queries.html"><LINK
+REL="PREVIOUS"
+TITLE="VALUESリスト"
+HREF="queries-values.html"><LINK
+REL="NEXT"
+TITLE="データ型"
+HREF="datatype.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="VALUESリスト"
+HREF="queries-values.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="問い合わせ"
+HREF="queries.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 7&#31456;問い合わせ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="問い合わせ"
+HREF="queries.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="QUERIES-WITH"
+>7.8. <TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせ（共通テーブル式）</A
+></H1
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>は、より大規模な問い合わせで使用される補助文を記述する方法を提供します。
+これらの文は共通テーブル式または<ACRONYM
+CLASS="ACRONYM"
+>CTE</ACRONYM
+>とよく呼ばれるものであり、１つの問い合わせのためだけに存在する一時テーブルを定義するものと考えられます。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>句内の補助文はそれぞれ<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>を取ることができます。
+そして<TT
+CLASS="LITERAL"
+>WITH</TT
+>句自身は、これも<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>を取ることができる主文に付与されます。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-WITH-SELECT"
+>7.8.1. <TT
+CLASS="LITERAL"
+>WITH</TT
+>内の<TT
+CLASS="COMMAND"
+>SELECT</TT
+></A
+></H2
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>内の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の基本的な価値は、複雑な問い合わせをより単純な部品に分解することです。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH regional_sales AS (
+        SELECT region, SUM(amount) AS total_sales
+        FROM orders
+        GROUP BY region
+     ), top_regions AS (
+        SELECT region
+        FROM regional_sales
+        WHERE total_sales &gt; (SELECT SUM(total_sales)/10 FROM regional_sales)
+     )
+SELECT region,
+       product,
+       SUM(quantity) AS product_units,
+       SUM(amount) AS product_sales
+FROM orders
+WHERE region IN (SELECT region FROM top_regions)
+GROUP BY region, product;</PRE
+><P>
+
+これは地域（region）販売トップのみの製品ごとの売上高を表示します。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>句は、<TT
+CLASS="STRUCTNAME"
+>regional_sales</TT
+>、<TT
+CLASS="STRUCTNAME"
+>top_regions</TT
+>という名前の２つの補助文を定義します。
+ここで、<TT
+CLASS="STRUCTNAME"
+>regional_sales</TT
+>の出力は<TT
+CLASS="STRUCTNAME"
+>top_regions</TT
+>内で使用され、<TT
+CLASS="STRUCTNAME"
+>top_regions</TT
+>は<TT
+CLASS="COMMAND"
+>SELECT</TT
+>主問い合わせで使用されます。
+この例は <TT
+CLASS="LITERAL"
+>WITH</TT
+>なしでも記述できますが、二階層の入れ子の副<TT
+CLASS="COMMAND"
+>SELECT</TT
+>を必要とします。この方法に従うほうが多少扱いやすいです。
+  </P
+><P
+>オプションの<TT
+CLASS="LITERAL"
+>RECURSIVE</TT
+>修飾子は、<TT
+CLASS="LITERAL"
+>WITH</TT
+>を、単に構文上の利便性の高めるだけでなく標準的なSQLでは不可能な機能を実現させます。
+<TT
+CLASS="LITERAL"
+>RECURSIVE</TT
+>を使用すれば、<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせが行った自己の結果を参照できるようになります。1から100までの数を合計する非常に単純な問い合わせは以下のようなものです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH RECURSIVE t(n) AS (
+    VALUES (1)
+  UNION ALL
+    SELECT n+1 FROM t WHERE n &lt; 100
+)
+SELECT sum(n) FROM t;</PRE
+><P>
+
+再帰的<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせの汎用形式は常に、<I
+CLASS="FIRSTTERM"
+>非再帰的表現（non-recursiveterm）</I
+>、そして<TT
+CLASS="LITERAL"
+>UNION</TT
+>（または<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>）、そして<I
+CLASS="FIRSTTERM"
+>再帰的表現（recursive term）</I
+>です。
+再帰的表現だけが、その問い合わせ自身の出力への参照を含むことができます。
+このような問い合わせは以下のように実行されます。
+  </P
+><DIV
+CLASS="PROCEDURE"
+><P
+><B
+>再帰的問い合わせの評価</B
+></P
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+>非再帰的表現を評価します。
+<TT
+CLASS="LITERAL"
+>UNION</TT
+>（しかし<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>ではありません）では、重複行を廃棄します。
+その再帰的問い合わせの結果の残っている全ての行を盛り込み、同時にそれらを暫定的<I
+CLASS="FIRSTTERM"
+>作業テーブル</I
+>に置きます。
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>作業テーブルが空でないのであればこれらの手順を繰り返します。
+    </P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>再帰自己参照に対する作業テーブルの実行中の内容を置換し、再帰的表現を評価します。
+<TT
+CLASS="LITERAL"
+>UNION</TT
+>（しかし<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>ではない）に対し、重複行と前の結果行と重複する行を破棄します。
+その再帰的問い合わせの結果の残っているすべての行を盛り込み、同時にそれらを暫定的<I
+CLASS="FIRSTTERM"
+>中間テーブル</I
+>に置きます。
+      </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>中間テーブルの内容で作業テーブルの内容を差し替え、中間テーブルを空にします。
+      </P
+></LI
+></OL
+></LI
+></OL
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>厳密には、この手順は反復であって再帰ではありませんが、<TT
+CLASS="LITERAL"
+>RECURSIVE</TT
+>はSQL標準化委員会で選ばれた用語です。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>上記の例で、作業テーブルはそれぞれの手順での単なる単一行で、引き続く作業で1から100間での値を獲得します。
+100番目の作業で、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句による出力が無くなり、問い合わせが終了します。
+  </P
+><P
+>再帰的問い合わせは階層的、またはツリー構造データに対処するため一般的に使用されます。
+実用的な例は、直接使用する部品を表すテーブル１つのみが与えられ、そこから製品すべての直接・間接部品を見つける問い合わせです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH RECURSIVE included_parts(sub_part, part, quantity) AS (
+    SELECT sub_part, part, quantity FROM parts WHERE part = 'our_product'
+  UNION ALL
+    SELECT p.sub_part, p.part, p.quantity
+    FROM included_parts pr, parts p
+    WHERE p.part = pr.sub_part
+  )
+SELECT sub_part, SUM(quantity) as total_quantity
+FROM included_parts
+GROUP BY sub_part</PRE
+><P>
+  </P
+><P
+>再帰的問い合わせを扱う場合、問い合わせの再帰部分が時としてタプルを返さない、または、問い合わせが永久にループするといったことのないように注意することが重要です。
+たまには、<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>の替わりに<TT
+CLASS="LITERAL"
+>UNION</TT
+>を使用し、重複する前回の出力行を廃棄することで、これを実現できます。
+しかし、ある周期でしばしば完全に重複している出力行を含みません。
+同じ場所が既に到達されたかどうかを確認するために、１つだけ、または数フィールドを検査する必要があるかもしれません。
+このような状態を取り扱う標準手法は、既に巡回された値の配列を計算することです。
+例えば、<TT
+CLASS="STRUCTFIELD"
+>link</TT
+>フィールドを使ってテーブル<TT
+CLASS="STRUCTNAME"
+>graph</TT
+>を検索する以下の問い合わせを考えて見ます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH RECURSIVE search_graph(id, link, data, depth) AS (
+        SELECT g.id, g.link, g.data, 1
+        FROM graph g
+      UNION ALL
+        SELECT g.id, g.link, g.data, sg.depth + 1
+        FROM graph g, search_graph sg
+        WHERE g.id = sg.link
+)
+SELECT * FROM search_graph;</PRE
+><P>
+
+この問い合わせは<TT
+CLASS="STRUCTFIELD"
+>link</TT
+>関係が循環を含んでいればループします。
+<SPAN
+CLASS="QUOTE"
+>"depth"</SPAN
+>出力が必要ですので、<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>を<TT
+CLASS="LITERAL"
+>UNION</TT
+>に変えるだけでは、ループを取り除くことができません。
+その代わり、linkの特定の経路をたどっている間、同じ列に到達したかどうかを認識する必要があります。
+このループしやすい問い合わせに、<TT
+CLASS="STRUCTFIELD"
+>path</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>cycle</TT
+>の２列を加えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH RECURSIVE search_graph(id, link, data, depth, path, cycle) AS (
+        SELECT g.id, g.link, g.data, 1,
+          ARRAY[g.id],
+          false
+        FROM graph g
+      UNION ALL
+        SELECT g.id, g.link, g.data, sg.depth + 1,
+          path || g.id,
+          g.id = ANY(path)
+        FROM graph g, search_graph sg
+        WHERE g.id = sg.link AND NOT cycle
+)
+SELECT * FROM search_graph;</PRE
+><P>
+
+巡回防止は別として、配列値は<SPAN
+CLASS="QUOTE"
+>"path"</SPAN
+>がどんな特定行に到達したかの表示としての公正さからしばしば利用価値があります。
+  </P
+><P
+>循環を認識するために検査するために必要なフィールドが複数存在する一般的な状況では、行の配列を使用します。
+例えば、<TT
+CLASS="STRUCTFIELD"
+>f1</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>f2</TT
+> のフィールドを比較する必要があるときは次のようにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH RECURSIVE search_graph(id, link, data, depth, path, cycle) AS (
+        SELECT g.id, g.link, g.data, 1,
+          ARRAY[ROW(g.f1, g.f2)],
+          false
+        FROM graph g
+      UNION ALL
+        SELECT g.id, g.link, g.data, sg.depth + 1,
+          path || ROW(g.f1, g.f2),
+          ROW(g.f1, g.f2) = ANY(path)
+        FROM graph g, search_graph sg
+        WHERE g.id = sg.link AND NOT cycle
+)
+SELECT * FROM search_graph;</PRE
+><P>
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>循環を認識するために検査するために必要なフィールドが１つだけである一般的な場合では、<TT
+CLASS="LITERAL"
+>ROW()</TT
+>構文を削除します。
+これで、複合型配列ではなく単純配列が得られ、効率も上がります。
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>再帰的問い合わせ評価アルゴリズムは、横型検索順でのその出力を作成します。
+このようにして作られた<SPAN
+CLASS="QUOTE"
+>"path"</SPAN
+>列を外側問い合わせで<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>し、縦型検索順の結果の表示が可能です。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>ループするかどうか確信が持てない問い合わせをテストする有益な秘訣として、親問い合わせに<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>を配置します。
+例えば、以下の問い合わせは<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>がないと永久にループします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH RECURSIVE t(n) AS (
+    SELECT 1
+  UNION ALL
+    SELECT n+1 FROM t
+)
+SELECT n FROM t LIMIT 100;</PRE
+><P>
+
+これが動作するのは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の実装が、実際に親問い合わせで取り出されるのと同じ数の<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせの行のみを評価するからです。
+この秘訣を実稼動環境で使用することは勧められません。
+他のシステムでは異なった動作をする可能性があるからです。
+同時に、もし外部問い合わせを再帰的問い合わせの結果を並び替えしたり、またはそれらを他のテーブルと結合するような書き方をした場合、動作しません。
+このような場合、外部問い合わせは通常、<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせの出力をとにかくすべて取り込もうとするからです。
+  </P
+><P
+>有用な<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせの特性は、親問い合わせ、もしくは兄弟<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせによりたとえ１回以上参照されるとしても、親問い合わせ実行でたった１回だけ評価されることです。
+したがって、複数の場所で必要な高価な計算は、冗長作業を防止するため<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせの中に配置することができます。
+他にありうるアプリケーションとしては、望まれない副作用のある関数の多重評価を避けることです。
+しかし、反対の見方をすれば、オプティマイザの能力は、親問い合わせからの制約を通常の副問い合わせではなく、<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせに押し下げるには、劣っています。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせは一般的に、親問い合わせが後で破棄するであろう行を抑制せずに、書かれた通りに評価されます。
+（しかし、上で述べたように、問い合わせの参照が限定された数の行のみを要求する場合、評価は早期に停止します。）
+  </P
+><P
+>上の例では<TT
+CLASS="COMMAND"
+>SELECT</TT
+>を使用する<TT
+CLASS="LITERAL"
+>WITH</TT
+>のみを示しています。
+しかし、同じ方法で<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>を付与することができます。
+それぞれの場合において、これは主コマンド内で参照可能な一時テーブルを実質的に提供します。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-WITH-MODIFYING"
+>7.8.2. <TT
+CLASS="LITERAL"
+>WITH</TT
+>内のデータ変更文</A
+></H2
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>内でデータ変更文（<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>）を使用することができます。
+これにより同じ問い合わせ内で複数の異なる操作を行うことができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH moved_rows AS (
+    DELETE FROM products
+    WHERE
+        "date" &gt;= '2010-10-01' AND
+        "date" &lt; '2010-11-01'
+    RETURNING *
+)
+INSERT INTO products_log
+SELECT * FROM moved_rows;</PRE
+><P>
+
+この問い合わせは実質、<TT
+CLASS="STRUCTNAME"
+>products</TT
+>から<TT
+CLASS="STRUCTNAME"
+>products_log</TT
+>に行を移動します。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>内の<TT
+CLASS="COMMAND"
+>DELETE</TT
+>は<TT
+CLASS="STRUCTNAME"
+>products</TT
+>から指定した行を削除し、その<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句により削除した内容を返します。
+その後、主問い合わせはその出力を読み取り、それを<TT
+CLASS="STRUCTNAME"
+>products_log</TT
+>に挿入します。
+   </P
+><P
+>上の例の見事なところは、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>内の副<TT
+CLASS="COMMAND"
+>SELECT</TT
+>ではなく<TT
+CLASS="LITERAL"
+>WITH</TT
+>句が<TT
+CLASS="COMMAND"
+>INSERT</TT
+>に付与されていることです。
+これは、データ更新文は最上位レベルの文に付与される<TT
+CLASS="LITERAL"
+>WITH</TT
+>句内でのみ許されているため必要です。
+しかし、通常の<TT
+CLASS="LITERAL"
+>WITH</TT
+>の可視性規則が適用されますので、副<TT
+CLASS="COMMAND"
+>SELECT</TT
+>から<TT
+CLASS="LITERAL"
+>WITH</TT
+>文の出力を参照することができます。
+   </P
+><P
+>上の例で示したように、<TT
+CLASS="LITERAL"
+>WITH</TT
+>内のデータ変更文は通常<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を持ちます。
+データ変更文の対象テーブルでは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>なく</I
+></SPAN
+>、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句の出力が問い合わせの残りの部分で参照することができる一時テーブルを形成するものです。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>内のデータ変更文が<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を持たない場合、一時テーブルを形成しませんので、問い合わせの残りの部分で参照することができません。
+これにもかかわらずこうした文は実行されます。
+特別有用でもない例を以下に示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH t AS (
+    DELETE FROM foo
+)
+DELETE FROM bar;</PRE
+><P>
+
+この例は<TT
+CLASS="STRUCTNAME"
+>foo</TT
+>テーブルと<TT
+CLASS="STRUCTNAME"
+>bar</TT
+>テーブルからすべての行を削除します。
+クライアントに報告される影響を受けた行数には<TT
+CLASS="STRUCTNAME"
+>bar</TT
+>から削除された行のみが含まれます。
+   </P
+><P
+>データ変更文内の再帰的な自己参照は許されません。
+一部の場合において、再帰的な<TT
+CLASS="LITERAL"
+>WITH</TT
+>の出力を参照することで、この制限を回避することができます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH RECURSIVE included_parts(sub_part, part) AS (
+    SELECT sub_part, part FROM parts WHERE part = 'our_product'
+  UNION ALL
+    SELECT p.sub_part, p.part
+    FROM included_parts pr, parts p
+    WHERE p.part = pr.sub_part
+  )
+DELETE FROM parts
+  WHERE part IN (SELECT part FROM included_parts);</PRE
+><P>
+
+この問い合わせはある製品の直接的な部品と間接的な部品をすべて削除します。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>内のデータ変更文は正確に１回のみ実行され、主問い合わせがその出力をすべて（実際にはいずれか）を呼び出したかどうかに関係なく、常に完了します。
+これが、前節で説明した主問い合わせがその出力を要求した時に<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の実行が行われるという<TT
+CLASS="LITERAL"
+>WITH</TT
+>内の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>についての規則と異なることに注意してください。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>内の副文はそれぞれと主問い合わせで同時に実行されます。
+したがって<TT
+CLASS="LITERAL"
+>WITH</TT
+>内のデータ変更文を使用する時、指定したデータ変更文が実際に実行される順序は予測できません。
+すべての文は同じ<I
+CLASS="FIRSTTERM"
+>スナップショット</I
+>（<A
+HREF="mvcc.html"
+>&#31532;13&#31456;</A
+>参照）を用いて実行されます。
+このため互いが対象テーブルに行った影響を<SPAN
+CLASS="QUOTE"
+>"見る"</SPAN
+>ことはできません。
+これは、行の更新に関する実際の順序が予測できないという影響を軽減し、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>データが別の<TT
+CLASS="LITERAL"
+>WITH</TT
+>副文と主問い合わせとの間で変更を伝える唯一の手段であることを意味します。
+この例を以下に示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH t AS (
+    UPDATE products SET price = price * 1.05
+    RETURNING *
+)
+SELECT * FROM products;</PRE
+><P>
+
+外側の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>は<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>の動作前の元々の価格を返します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH t AS (
+    UPDATE products SET price = price * 1.05
+    RETURNING *
+)
+SELECT * FROM t;</PRE
+><P>
+
+一方こちらでは外側の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>は更新されたデータを返します。
+   </P
+><P
+>単一の文で同じ行を２回更新する試行はサポートされていません。
+１つの変更のみが行われますが、どちらかを確実に予測することは簡単ではありません（場合によっては不可能です）。
+これはまた、同じ文内ですでに更新された行を削除する場合でも当てはまります。
+したがって一般的には単一の文で１つの行を２回変更しようと試みることを避けなければなりません。
+具体的には主文または同レベルの副文で変更される行と同じ行に影響を与える<TT
+CLASS="LITERAL"
+>WITH</TT
+>副文を記述することは避けてください。
+こうした文の影響は予測することはできません。
+   </P
+><P
+>現状、<TT
+CLASS="LITERAL"
+>WITH</TT
+>内のデータ変更文の対象として使用されるテーブルはすべて、複数の文に展開される条件付きルール、<TT
+CLASS="LITERAL"
+>ALSO</TT
+>ルール、<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>ルールを持ってはなりません。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="queries-values.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="datatype.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>VALUES</TT
+>リスト</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="queries.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データ型</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

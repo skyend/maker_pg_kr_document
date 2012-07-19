@@ -1,0 +1,335 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ラージオブジェクト</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="ライブラリ関数"
+HREF="ecpg-library.html"><LINK
+REL="NEXT"
+TITLE="C++アプリケーション"
+HREF="ecpg-cpp.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ライブラリ関数"
+HREF="ecpg-library.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="C++アプリケーション"
+HREF="ecpg-cpp.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-LO"
+>33.12. ラージオブジェクト</A
+></H1
+><P
+>ラージオブジェクトはECPGで直接サポートされていません。
+しかしECPGアプリケーションは、<CODE
+CLASS="FUNCTION"
+>ECPGget_PGconn()</CODE
+>関数を呼び出して必要な<TT
+CLASS="TYPE"
+>PGconn</TT
+>を入手して、libpqラージオブジェクト関数を介してラージオブジェクトを操作することができます。
+（しかし<CODE
+CLASS="FUNCTION"
+>ECPGget_PGconn()</CODE
+>関数の使用と<TT
+CLASS="TYPE"
+>PGconn</TT
+>を直接触ることは非常に注意して行わなければなりません。理想を言えば他のECPGデータベースアクセス呼び出しと混在させないようにしてください。）
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>ECPGget_PGconn()</CODE
+>に関しては<A
+HREF="ecpg-library.html"
+>&#38917;33.11</A
+>を参照してください。
+ラージオブジェクト関数インタフェースについては<A
+HREF="largeobjects.html"
+>&#31532;32&#31456;</A
+>を参照してください。
+  </P
+><P
+>ラージオブジェクト関数をトランザクションブロック内で呼び出さなければなりません。
+このため自動コミットが無効な場合、<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>コマンドを明示的に発行しなければなりません。
+  </P
+><P
+><A
+HREF="ecpg-lo.html#ECPG-LO-EXAMPLE"
+>&#20363;33-2</A
+>では、ECPGアプリケーション内でラージオブジェクトの作成、書き出し、読み取りを行う方法を示すプログラム例を示します。
+  </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="ECPG-LO-EXAMPLE"
+></A
+><P
+><B
+>&#20363; 33-2. ラージオブジェクトにアクセスするECPGプログラム</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>#include &#60;stdio.h&#62;
+#include &#60;stdlib.h&#62;
+#include &#60;libpq-fe.h&#62;
+#include &#60;libpq/libpq-fs.h&#62;
+
+EXEC SQL WHENEVER SQLERROR STOP;
+
+int
+main(void)
+{
+    PGconn     *conn;
+    Oid         loid;
+    int         fd;
+    char        buf[256];
+    int         buflen = 256;
+    char        buf2[256];
+    int         rc;
+
+    memset(buf, 1, buflen);
+
+    EXEC SQL CONNECT TO testdb AS con1;
+
+    conn = ECPGget_PGconn("con1");
+    printf("conn = %p\n", conn);
+
+    /* create */
+    loid = lo_create(conn, 0);
+    if (loid &#38;lt; 0)
+        printf("lo_create() failed: %s", PQerrorMessage(conn));
+
+    printf("loid = %d\n", loid);
+
+    /* write test */
+    fd = lo_open(conn, loid, INV_READ|INV_WRITE);
+    if (fd &#38;lt; 0)
+        printf("lo_open() failed: %s", PQerrorMessage(conn));
+
+    printf("fd = %d\n", fd);
+
+    rc = lo_write(conn, fd, buf, buflen);
+    if (rc &#38;lt; 0)
+        printf("lo_write() failed\n");
+
+    rc = lo_close(conn, fd);
+    if (rc &#38;lt; 0)
+        printf("lo_close() failed: %s", PQerrorMessage(conn));
+
+    /* read test */
+    fd = lo_open(conn, loid, INV_READ);
+    if (fd &#38;lt; 0)
+        printf("lo_open() failed: %s", PQerrorMessage(conn));
+
+    printf("fd = %d\n", fd);
+
+    rc = lo_read(conn, fd, buf2, buflen);
+    if (rc &#38;lt; 0)
+        printf("lo_read() failed\n");
+
+    rc = lo_close(conn, fd);
+    if (rc &#38;lt; 0)
+        printf("lo_close() failed: %s", PQerrorMessage(conn));
+
+    /* check */
+    rc = memcmp(buf, buf2, buflen);
+    printf("memcmp() = %d\n", rc);
+
+    /* cleanup */
+    rc = lo_unlink(conn, loid);
+    if (rc &#38;lt; 0)
+        printf("lo_unlink() failed: %s", PQerrorMessage(conn));
+
+    EXEC SQL COMMIT;
+    EXEC SQL DISCONNECT ALL;
+    return 0;
+}</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-library.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-cpp.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ライブラリ関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>C++</ACRONYM
+>アプリケーション</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

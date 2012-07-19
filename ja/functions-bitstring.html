@@ -1,0 +1,508 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ビット文字列関数と演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="バイナリ文字列関数と演算子"
+HREF="functions-binarystring.html"><LINK
+REL="NEXT"
+TITLE="パターンマッチ"
+HREF="functions-matching.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="バイナリ文字列関数と演算子"
+HREF="functions-binarystring.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="パターンマッチ"
+HREF="functions-matching.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-BITSTRING"
+>9.6. ビット文字列関数と演算子</A
+></H1
+><P
+>   
+   本節では、ビット文字列の検査と操作を行う関数と演算子について説明します。ビット文字列とは、<TT
+CLASS="TYPE"
+>bit</TT
+>型と<TT
+CLASS="TYPE"
+>bit varying</TT
+>型の値のことです。通常の比較演算子に加え、<A
+HREF="functions-bitstring.html#FUNCTIONS-BIT-STRING-OP-TABLE"
+>&#34920;9-10</A
+>に示す演算子も使用可能です。<TT
+CLASS="LITERAL"
+>&amp;</TT
+>、<TT
+CLASS="LITERAL"
+>|</TT
+>、<TT
+CLASS="LITERAL"
+>#</TT
+>のビット文字列オペランドは同一長でなければなりません。ビットシフト処理の際、例に示す通り元の長さは保持されます。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-BIT-STRING-OP-TABLE"
+></A
+><P
+><B
+>&#34920; 9-10. ビット文字列演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>||</TT
+> </TD
+><TD
+>結合</TD
+><TD
+><TT
+CLASS="LITERAL"
+>B'10001' || B'011'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>10001011</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&amp;</TT
+> </TD
+><TD
+>ビットのAND</TD
+><TD
+><TT
+CLASS="LITERAL"
+>B'10001' &amp; B'01101'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>00001</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>|</TT
+> </TD
+><TD
+>ビットのOR</TD
+><TD
+><TT
+CLASS="LITERAL"
+>B'10001' | B'01101'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>11101</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>#</TT
+> </TD
+><TD
+>ビットのXOR</TD
+><TD
+><TT
+CLASS="LITERAL"
+>B'10001' # B'01101'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>11100</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>~</TT
+> </TD
+><TD
+>ビットのNOT</TD
+><TD
+><TT
+CLASS="LITERAL"
+>~ B'10001'</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>01110</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;&lt;</TT
+> </TD
+><TD
+>ビットの左シフト</TD
+><TD
+><TT
+CLASS="LITERAL"
+>B'10001' &lt;&lt; 3</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>01000</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;&gt;</TT
+> </TD
+><TD
+>ビットの右シフト</TD
+><TD
+><TT
+CLASS="LITERAL"
+>B'10001' &gt;&gt; 2</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>00100</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    次の標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数は文字列同様にビット文字列で動作します。
+    <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>length</CODE
+></TT
+>,
+    <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>bit_length</CODE
+></TT
+>,
+    <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>octet_length</CODE
+></TT
+>,
+    <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>position</CODE
+></TT
+>,
+    <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>substring</CODE
+></TT
+>,
+    <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>overlay</CODE
+></TT
+>.
+   </P
+><P
+>   
+    次の関数はバイナリ同様にビット文字列で動作します。
+    <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>get_bit</CODE
+></TT
+>,
+    <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>set_bit</CODE
+></TT
+>.
+   
+    ビット文字列に処理を行った場合、これらの関数は文字列の最初(一番左)のビットを0として数えます。
+   </P
+><P
+>   
+    さらに、<TT
+CLASS="TYPE"
+>bit</TT
+>型から整数値にキャストすることも整数から<TT
+CLASS="TYPE"
+>bit</TT
+>型にキャストすることも可能です。以下に例を示します。（訳注：原文はintegral valueとなっていますがinteger valueとして訳出）
+</P><PRE
+CLASS="PROGRAMLISTING"
+>44::bit(10)                    <I
+CLASS="LINEANNOTATION"
+>0000101100</I
+>
+44::bit(3)                     <I
+CLASS="LINEANNOTATION"
+>100</I
+>
+cast(-44 as bit(12))           <I
+CLASS="LINEANNOTATION"
+>111111010100</I
+>
+'1110'::bit(4)::integer        <I
+CLASS="LINEANNOTATION"
+>14</I
+></PRE
+><P>
+    単に<SPAN
+CLASS="QUOTE"
+>"bit"</SPAN
+>にキャストすることは<TT
+CLASS="LITERAL"
+>bit(1)</TT
+>にキャストすることを意味することに注意してください。つまり、単に整数の最下位ビットのみがわたされることになります。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>     
+      <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.0より前まででは、整数を<TT
+CLASS="TYPE"
+>bit(n)</TT
+>にキャストすると、整数の最上位ビットから<TT
+CLASS="LITERAL"
+>n</TT
+>ビットまでがコピーされました。現在は最下位ビットから<TT
+CLASS="LITERAL"
+>n</TT
+>ビット分複写されます。また、整数からビット数が元の整数より多いビット文字列にキャストする際、符号ビットでその左部分を拡張します。
+     </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-binarystring.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-matching.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>バイナリ文字列関数と演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>パターンマッチ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

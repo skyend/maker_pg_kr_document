@@ -1,0 +1,921 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SQL言語</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="まとめ"
+HREF="tutorial-conclusion.html"><LINK
+REL="NEXT"
+TITLE="SQLの構文"
+HREF="sql-syntax.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="PART"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="まとめ"
+HREF="tutorial-conclusion.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="チュートリアル"
+HREF="tutorial.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの管理"
+HREF="admin.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの構文"
+HREF="sql-syntax.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="SQL"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+>II. SQL言語</H1
+><DIV
+CLASS="PARTINTRO"
+><A
+NAME="AEN1134"
+></A
+><P
+>ここでは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語を使用する方法を説明します。
+まず最初に<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>構文全般について述べ、データを保持する構造の作成方法、データベースに登録する方法、そして、データベースへの問い合わせを行う方法について説明していきます。  
+本パートの中盤では、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドで使用可能なデータ型と関数を紹介します。 
+そして残りの部分では、最適な性能を実現するためにデータベースを調整する際に重要となるいくつかの点について説明します。
+   </P
+><P
+>ここでの内容は、初心者のユーザでも他の入門書などを参照することなく、最初から最後まで全てのトピックを理解できるような構成になっています。
+各章ごとに内容が独立していますので、上級ユーザは必要な章だけを選んで読むことができます。
+ここではトピックに関する説明が中心となっていますので、特定のコマンドの完全な記述が必要なユーザは<A
+HREF="reference.html"
+>&#12497;&#12540;&#12488;VI</A
+>を参照してください。
+   </P
+><P
+>対象読者は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースへの接続および<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンド発行に慣れ親しんでいるユーザです。
+まだこれらについて熟知していないユーザは、本書の前に<A
+HREF="tutorial.html"
+>&#12497;&#12540;&#12488;I</A
+>をお読みになることをお勧めします。
+<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドは通常<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の対話式端末<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を使用して入力しますが、同様の機能を備えた他のプログラムも使用することができます。
+   </P
+></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>4&#31456;<A
+HREF="sql-syntax.html"
+>SQLの構文</A
+></DT
+><DD
+><DL
+><DT
+>4.1. <A
+HREF="sql-syntax-lexical.html"
+>語彙の構成</A
+></DT
+><DT
+>4.2. <A
+HREF="sql-expressions.html"
+>評価式</A
+></DT
+><DT
+>4.3. <A
+HREF="sql-syntax-calling-funcs.html"
+>関数呼び出し</A
+></DT
+></DL
+></DD
+><DT
+>5&#31456;<A
+HREF="ddl.html"
+>データ定義</A
+></DT
+><DD
+><DL
+><DT
+>5.1. <A
+HREF="ddl-basics.html"
+>テーブルの基本</A
+></DT
+><DT
+>5.2. <A
+HREF="ddl-default.html"
+>デフォルト値</A
+></DT
+><DT
+>5.3. <A
+HREF="ddl-constraints.html"
+>制約</A
+></DT
+><DT
+>5.4. <A
+HREF="ddl-system-columns.html"
+>システム列</A
+></DT
+><DT
+>5.5. <A
+HREF="ddl-alter.html"
+>テーブルの変更</A
+></DT
+><DT
+>5.6. <A
+HREF="ddl-priv.html"
+>権限</A
+></DT
+><DT
+>5.7. <A
+HREF="ddl-schemas.html"
+>スキーマ</A
+></DT
+><DT
+>5.8. <A
+HREF="ddl-inherit.html"
+>継承</A
+></DT
+><DT
+>5.9. <A
+HREF="ddl-partitioning.html"
+>パーティショニング</A
+></DT
+><DT
+>5.10. <A
+HREF="ddl-foreign-data.html"
+>外部データ</A
+></DT
+><DT
+>5.11. <A
+HREF="ddl-others.html"
+>その他のデータベースオブジェクト</A
+></DT
+><DT
+>5.12. <A
+HREF="ddl-depend.html"
+>依存関係の追跡</A
+></DT
+></DL
+></DD
+><DT
+>6&#31456;<A
+HREF="dml.html"
+>データ操作</A
+></DT
+><DD
+><DL
+><DT
+>6.1. <A
+HREF="dml-insert.html"
+>データの挿入</A
+></DT
+><DT
+>6.2. <A
+HREF="dml-update.html"
+>データの更新</A
+></DT
+><DT
+>6.3. <A
+HREF="dml-delete.html"
+>データの削除</A
+></DT
+></DL
+></DD
+><DT
+>7&#31456;<A
+HREF="queries.html"
+>問い合わせ</A
+></DT
+><DD
+><DL
+><DT
+>7.1. <A
+HREF="queries-overview.html"
+>概要</A
+></DT
+><DT
+>7.2. <A
+HREF="queries-table-expressions.html"
+>テーブル式</A
+></DT
+><DT
+>7.3. <A
+HREF="queries-select-lists.html"
+>選択リスト</A
+></DT
+><DT
+>7.4. <A
+HREF="queries-union.html"
+>問い合わせの結合</A
+></DT
+><DT
+>7.5. <A
+HREF="queries-order.html"
+>行の並び替え</A
+></DT
+><DT
+>7.6. <A
+HREF="queries-limit.html"
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>と<TT
+CLASS="LITERAL"
+>OFFSET</TT
+></A
+></DT
+><DT
+>7.7. <A
+HREF="queries-values.html"
+><TT
+CLASS="LITERAL"
+>VALUES</TT
+>リスト</A
+></DT
+><DT
+>7.8. <A
+HREF="queries-with.html"
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>問い合わせ（共通テーブル式）</A
+></DT
+></DL
+></DD
+><DT
+>8&#31456;<A
+HREF="datatype.html"
+>データ型</A
+></DT
+><DD
+><DL
+><DT
+>8.1. <A
+HREF="datatype-numeric.html"
+>数値データ型</A
+></DT
+><DT
+>8.2. <A
+HREF="datatype-money.html"
+>通貨型</A
+></DT
+><DT
+>8.3. <A
+HREF="datatype-character.html"
+>文字型</A
+></DT
+><DT
+>8.4. <A
+HREF="datatype-binary.html"
+>バイナリ列データ型</A
+></DT
+><DT
+>8.5. <A
+HREF="datatype-datetime.html"
+>日付/時刻データ型</A
+></DT
+><DT
+>8.6. <A
+HREF="datatype-boolean.html"
+>論理値データ型</A
+></DT
+><DT
+>8.7. <A
+HREF="datatype-enum.html"
+>列挙型</A
+></DT
+><DT
+>8.8. <A
+HREF="datatype-geometric.html"
+>幾何データ型</A
+></DT
+><DT
+>8.9. <A
+HREF="datatype-net-types.html"
+>ネットワークアドレス型</A
+></DT
+><DT
+>8.10. <A
+HREF="datatype-bit.html"
+>ビット列データ型</A
+></DT
+><DT
+>8.11. <A
+HREF="datatype-textsearch.html"
+>テキスト検索に関する型</A
+></DT
+><DT
+>8.12. <A
+HREF="datatype-uuid.html"
+><ACRONYM
+CLASS="ACRONYM"
+>UUID</ACRONYM
+>型</A
+></DT
+><DT
+>8.13. <A
+HREF="datatype-xml.html"
+><ACRONYM
+CLASS="ACRONYM"
+>XML</ACRONYM
+>型</A
+></DT
+><DT
+>8.14. <A
+HREF="arrays.html"
+>配列</A
+></DT
+><DT
+>8.15. <A
+HREF="rowtypes.html"
+>複合型</A
+></DT
+><DT
+>8.16. <A
+HREF="datatype-oid.html"
+>オブジェクト識別子データ型</A
+></DT
+><DT
+>8.17. <A
+HREF="datatype-pseudo.html"
+>疑似データ型</A
+></DT
+></DL
+></DD
+><DT
+>9&#31456;<A
+HREF="functions.html"
+>関数と演算子</A
+></DT
+><DD
+><DL
+><DT
+>9.1. <A
+HREF="functions-logical.html"
+>論理演算子</A
+></DT
+><DT
+>9.2. <A
+HREF="functions-comparison.html"
+>比較演算子</A
+></DT
+><DT
+>9.3. <A
+HREF="functions-math.html"
+>算術関数と演算子</A
+></DT
+><DT
+>9.4. <A
+HREF="functions-string.html"
+>文字列関数と演算子</A
+></DT
+><DT
+>9.5. <A
+HREF="functions-binarystring.html"
+>バイナリ文字列関数と演算子</A
+></DT
+><DT
+>9.6. <A
+HREF="functions-bitstring.html"
+>ビット文字列関数と演算子</A
+></DT
+><DT
+>9.7. <A
+HREF="functions-matching.html"
+>パターンマッチ</A
+></DT
+><DT
+>9.8. <A
+HREF="functions-formatting.html"
+>データ型書式設定関数</A
+></DT
+><DT
+>9.9. <A
+HREF="functions-datetime.html"
+>日付/時刻関数と演算子</A
+></DT
+><DT
+>9.10. <A
+HREF="functions-enum.html"
+>列挙型サポート関数</A
+></DT
+><DT
+>9.11. <A
+HREF="functions-geometry.html"
+>幾何関数と演算子</A
+></DT
+><DT
+>9.12. <A
+HREF="functions-net.html"
+>ネットワークアドレス関数と演算子</A
+></DT
+><DT
+>9.13. <A
+HREF="functions-textsearch.html"
+>テキスト検索関数と演算子</A
+></DT
+><DT
+>9.14. <A
+HREF="functions-xml.html"
+>XML関数</A
+></DT
+><DT
+>9.15. <A
+HREF="functions-sequence.html"
+>シーケンス操作関数</A
+></DT
+><DT
+>9.16. <A
+HREF="functions-conditional.html"
+>条件式</A
+></DT
+><DT
+>9.17. <A
+HREF="functions-array.html"
+>配列関数と演算子</A
+></DT
+><DT
+>9.18. <A
+HREF="functions-aggregate.html"
+>集約関数</A
+></DT
+><DT
+>9.19. <A
+HREF="functions-window.html"
+>ウィンドウ関数</A
+></DT
+><DT
+>9.20. <A
+HREF="functions-subquery.html"
+>副問い合わせ式</A
+></DT
+><DT
+>9.21. <A
+HREF="functions-comparisons.html"
+>行と配列の比較</A
+></DT
+><DT
+>9.22. <A
+HREF="functions-srf.html"
+>集合を返す関数</A
+></DT
+><DT
+>9.23. <A
+HREF="functions-info.html"
+>システム情報関数</A
+></DT
+><DT
+>9.24. <A
+HREF="functions-admin.html"
+>システム管理関数</A
+></DT
+><DT
+>9.25. <A
+HREF="functions-trigger.html"
+>トリガ関数</A
+></DT
+></DL
+></DD
+><DT
+>10&#31456;<A
+HREF="typeconv.html"
+>型変換</A
+></DT
+><DD
+><DL
+><DT
+>10.1. <A
+HREF="typeconv-overview.html"
+>概要</A
+></DT
+><DT
+>10.2. <A
+HREF="typeconv-oper.html"
+>演算子</A
+></DT
+><DT
+>10.3. <A
+HREF="typeconv-func.html"
+>関数</A
+></DT
+><DT
+>10.4. <A
+HREF="typeconv-query.html"
+>値の格納</A
+></DT
+><DT
+>10.5. <A
+HREF="typeconv-union-case.html"
+><TT
+CLASS="LITERAL"
+>UNION</TT
+>、<TT
+CLASS="LITERAL"
+>CASE</TT
+>および関連する構文</A
+></DT
+></DL
+></DD
+><DT
+>11&#31456;<A
+HREF="indexes.html"
+>インデックス</A
+></DT
+><DD
+><DL
+><DT
+>11.1. <A
+HREF="indexes-intro.html"
+>序文</A
+></DT
+><DT
+>11.2. <A
+HREF="indexes-types.html"
+>インデックスの種類</A
+></DT
+><DT
+>11.3. <A
+HREF="indexes-multicolumn.html"
+>複数列インデックス</A
+></DT
+><DT
+>11.4. <A
+HREF="indexes-ordering.html"
+>インデックスと<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+></A
+></DT
+><DT
+>11.5. <A
+HREF="indexes-bitmap-scans.html"
+>複数のインデックスの組み合わせ</A
+></DT
+><DT
+>11.6. <A
+HREF="indexes-unique.html"
+>一意インデックス</A
+></DT
+><DT
+>11.7. <A
+HREF="indexes-expressional.html"
+>式に対するインデックス</A
+></DT
+><DT
+>11.8. <A
+HREF="indexes-partial.html"
+>部分インデックス</A
+></DT
+><DT
+>11.9. <A
+HREF="indexes-opclass.html"
+>演算子クラスと演算子族</A
+></DT
+><DT
+>11.10. <A
+HREF="indexes-collations.html"
+>インデックスと照合順序</A
+></DT
+><DT
+>11.11. <A
+HREF="indexes-examine.html"
+>インデックス使用状況の検証</A
+></DT
+></DL
+></DD
+><DT
+>12&#31456;<A
+HREF="textsearch.html"
+>全文検索</A
+></DT
+><DD
+><DL
+><DT
+>12.1. <A
+HREF="textsearch-intro.html"
+>導入</A
+></DT
+><DT
+>12.2. <A
+HREF="textsearch-tables.html"
+>テーブルとインデックス</A
+></DT
+><DT
+>12.3. <A
+HREF="textsearch-controls.html"
+>テキスト検索の制御</A
+></DT
+><DT
+>12.4. <A
+HREF="textsearch-features.html"
+>追加機能</A
+></DT
+><DT
+>12.5. <A
+HREF="textsearch-parsers.html"
+>パーサ</A
+></DT
+><DT
+>12.6. <A
+HREF="textsearch-dictionaries.html"
+>辞書</A
+></DT
+><DT
+>12.7. <A
+HREF="textsearch-configuration.html"
+>設定例</A
+></DT
+><DT
+>12.8. <A
+HREF="textsearch-debugging.html"
+>テキスト検索のテストとデバッグ</A
+></DT
+><DT
+>12.9. <A
+HREF="textsearch-indexes.html"
+>GiSTおよびGINインデックス種類</A
+></DT
+><DT
+>12.10. <A
+HREF="textsearch-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>サポート</A
+></DT
+><DT
+>12.11. <A
+HREF="textsearch-limitations.html"
+>制限事項</A
+></DT
+><DT
+>12.12. <A
+HREF="textsearch-migration.html"
+>8.3以前のテキスト検索からの移行</A
+></DT
+></DL
+></DD
+><DT
+>13&#31456;<A
+HREF="mvcc.html"
+>同時実行制御</A
+></DT
+><DD
+><DL
+><DT
+>13.1. <A
+HREF="mvcc-intro.html"
+>序文</A
+></DT
+><DT
+>13.2. <A
+HREF="transaction-iso.html"
+>トランザクションの分離</A
+></DT
+><DT
+>13.3. <A
+HREF="explicit-locking.html"
+>明示的ロック</A
+></DT
+><DT
+>13.4. <A
+HREF="applevel-consistency.html"
+>アプリケーションレベルでのデータの一貫性チェック</A
+></DT
+><DT
+>13.5. <A
+HREF="locking-indexes.html"
+>ロックとインデックス</A
+></DT
+></DL
+></DD
+><DT
+>14&#31456;<A
+HREF="performance-tips.html"
+>性能に関するヒント</A
+></DT
+><DD
+><DL
+><DT
+>14.1. <A
+HREF="using-explain.html"
+><TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>の利用</A
+></DT
+><DT
+>14.2. <A
+HREF="planner-stats.html"
+>プランナで使用される統計情報</A
+></DT
+><DT
+>14.3. <A
+HREF="explicit-joins.html"
+>明示的な<TT
+CLASS="LITERAL"
+>JOIN</TT
+>句でプランナを制御する</A
+></DT
+><DT
+>14.4. <A
+HREF="populate.html"
+>データベースへのデータ投入</A
+></DT
+><DT
+>14.5. <A
+HREF="non-durability.html"
+>永続性がない設定</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-conclusion.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-syntax.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>まとめ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SQLの構文</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

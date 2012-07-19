@@ -1,0 +1,563 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.3.1</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.3.2"
+HREF="release-8-3-2.html"><LINK
+REL="NEXT"
+TITLE="リリース 8.3"
+HREF="release-8-3.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.3.2"
+HREF="release-8-3-2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース 8.3"
+HREF="release-8-3.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-3-1"
+>E.46. リリース8.3.1</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2008-03-17</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.3.0の各種不具合を修正したものです。
+8.3メジャーリリースにおける新機能については<A
+HREF="release-8-3.html"
+>&#38917;E.47</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN116253"
+>E.46.1. バージョン8.3.1への移行</A
+></H2
+><P
+>8.3.Xからの移行ではダンプ/リストアは不要です。
+しかし、後述のWindowsロケール問題の影響がある場合、移行後にテキスト型の列上のインデックスに対し<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>を行わなければならないかもしれません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN116257"
+>E.46.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>異なる文字の組み合わせを等価とみなすWindowsロケールにおける文字列比較を修正しました。(Tom)
+     </P
+><P
+>この修正はWindowsのみ、かつ、UTF-8データベース符号化方式を使用している場合にのみ当てはまります。
+他の状況に対する同じ修正が2年前になされましたが、UTF-8を使用するWindowsでは変更されなかった経路のコードを使用しました。
+同一ではない一部の文字列を等価とみなすロケールを使用している場合、既存のテキスト型列上のインデックスを修正するために<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>を行う必要があるかもしれません。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>における境界不具合を修正しました。(Tom)
+     </P
+><P
+>異なるシステムカタログに対する同時実行<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>の間でのデッドロックの可能性が8.2で発生していました。
+これを修正しました。
+デッドロックが致命的なコード部分で発生し得たため、8.3ではこれが悪化し、ただのERROR条件ではなくPANICとなりました。
+     </P
+><P
+>また、システムカタログのバキューム中に途中で失敗した<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>により、同時実行中のデータベースセッションのキャッシュを破壊する結果になります。
+     </P
+><P
+>他にも8.3で発生した<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>の不具合により、有効なタプルを含まないページの処理中にクラッシュまたはメモリ不足報告が発生する結果になります。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>character</TT
+>または<TT
+CLASS="TYPE"
+>bit</TT
+>列を含む外部キー検査の誤動作を修正しました。(Tom)
+     </P
+><P
+>参照列が異なる型だが型互換がある場合（例えば<TT
+CLASS="TYPE"
+>varchar</TT
+>）、制約が間違って強制されました。
+     </P
+></LI
+><LI
+><P
+>不要となった外部キー検査における不必要なデッドロック失敗を防ぎます。(Stephan Szabo, Tom)
+     </P
+></LI
+><LI
+><P
+>準備済文の再計画時のコアダンプの可能性を修正しました。(Tom)
+     </P
+><P
+>この不具合は、SQL <TT
+CLASS="COMMAND"
+>PREPARE</TT
+>ではなく、プロトコルレベルの準備操作にのみ影響しました。
+このため、準備済文を非常に多く使用するJDBC、DBIなどクライアントサイドのドライバでのみ現れる傾向がありました。
+     </P
+></LI
+><LI
+><P
+>SPIを使用する関数を呼び出す問い合わせの再作成時に可能性がある失敗を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>異なるデータ型を含む行全体の比較における失敗を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>長く存在した<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>/<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>競合条件を修正しました。(Tom)
+     </P
+><P
+>まれな場合ですが、<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>を実行した同時実行中のトランザクションが後でコミットされたことが確認できたため、受け取ることが期待できる場合であっても、<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>を実行したばかりのセッションが注意を受け取らない可能性がありました。
+     </P
+><P
+>この修正の副作用として、
+まだコミットされていない<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>コマンドを実行したトランザクションが、<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>で検索するために選ばなければならない<TT
+CLASS="STRUCTNAME"
+>pg_listener</TT
+>内の行にまったく現れなくなりました。
+これまでは現れていました。
+この動作についてはどちらの方式も文書化されていませんでしたが、過去の動作に依存するアプリケーションがあるかもしれません。
+     </P
+></LI
+><LI
+><P
+>準備されたトランザクションでは<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>と<TT
+CLASS="COMMAND"
+>UNLISTEN</TT
+>は使用できません。(Tom)
+     </P
+><P
+>これまでは許されていましたが、これを行うと様々な悪影響が発生しました。
+特に構成したバックエンドは<TT
+CLASS="COMMAND"
+>UNLISTEN</TT
+>が未コミットである間終了することができませんでした。
+     </P
+></LI
+><LI
+><P
+>準備されたトランザクションでは一時テーブルの削除を行うことはできません。(Heikki)
+     </P
+><P
+>これは正確には8.1で禁止されていたのですが、8.2と8.3では不注意にこの検査が壊れていました。
+     </P
+></LI
+><LI
+><P
+>ハッシュインデックスを使用する問い合わせの間にエラーが発生した場合のまれなクラッシュを修正しました。
+      (Heikki)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>tsquery</TT
+>値の間違った比較を修正しました。(Teodor)
+     </P
+></LI
+><LI
+><P
+>単一バイト符号化方式における非ASCII文字の<TT
+CLASS="LITERAL"
+>LIKE</TT
+>の間違った動作を修正しました。(Rolf Jentsch)
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>xmlvalidate</CODE
+>を無効にしました。(Tom)
+     </P
+><P
+>この関数は8.3リリース以前に削除すべきでしたが、不注意にソースコード内に残っていました。
+非特権ユーザがサーバでアクセス可能な任意のファイルの先頭数文字を読み取ることができますので、これは小さなセキュリティ上の危険性があります。
+     </P
+></LI
+><LI
+><P
+>ある方法で集合を返す関数を使用した場合のメモリリークを修正しました。(Neil)
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>encode(<TT
+CLASS="REPLACEABLE"
+><I
+>bytea</I
+></TT
+>, 'escape')</CODE
+>がすべての上位ビット群を<TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>nnn</I
+></TT
+>8進エスケープ列に変換するようにしました。(Tom)
+     </P
+><P
+>データベース符号化方式がマルチバイトの場合に符号化問題を防ぐために必要です。
+<CODE
+CLASS="FUNCTION"
+>encode</CODE
+>の特定の結果を想定するアプリケーションでは、この変更は互換性に関する問題が発生します。
+     </P
+></LI
+><LI
+><P
+>紀元前の2月29日に関する日付時刻値の入力を修正しました。(Tom)
+     </P
+><P
+>これまでのコードでは、うるう年の判定に間違いがありました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>ALTER OWNER</TT
+>の一部の構文で発生した<SPAN
+CLASS="QUOTE"
+>"未知のノード型"</SPAN
+>エラーを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE LIKE INCLUDING INDEXES</TT
+>におけるテーブル空間権限エラーを防止しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>ロック待ちが中断した時に<TT
+CLASS="STRUCTNAME"
+>pg_stat_activity</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>waiting</TT
+>フラグを確実に初期化します。(Tom)
+     </P
+></LI
+><LI
+><P
+>Windows Vistaにおいてプロセス処理の取扱いを修正しました。(Dave, Magnus)
+     </P
+><P
+>具体的には、この修正により管理者ユーザとしてサーバを起動できるようになります。
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+>リリース2008aに更新しました（具体的には、最近のチリの変更です）。
+時間帯省略形<TT
+CLASS="LITERAL"
+>VET</TT
+> (ベネズエラ)がUTC-4:00ではなくUTC-4:30を意味するように調整しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>配列に関する<SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>の問題を修正しました。(Michael)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+>が正しくコマンドラインオプションからpostmasterのポート番号を取り出すように修正しました。(Itagaki Takahiro, Tom)
+     </P
+><P
+>これまでは、<TT
+CLASS="LITERAL"
+>pg_ctl start -w</TT
+>は間違ったポート上のpostmasterに接続しようとし、おかしな起動失敗の報告をもたらしていました。
+     </P
+></LI
+><LI
+><P
+>最近のバージョンの<SPAN
+CLASS="APPLICATION"
+>gcc</SPAN
+>における、最適化ミスの可能性を防止するために<TT
+CLASS="OPTION"
+>-fwrapv</TT
+>を使用します。(Tom)
+     </P
+><P
+>これは<SPAN
+CLASS="APPLICATION"
+>gcc</SPAN
+> 4.3以降で<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を構築する場合に必須であることは分かっていました。
+     </P
+></LI
+><LI
+><P
+>MSVCを使用した<TT
+CLASS="FILENAME"
+>contrib/uuid-ossp</TT
+>の構築が可能になりました。(Hiroshi Saito)
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-3-2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-3.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.3.2</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース 8.3</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

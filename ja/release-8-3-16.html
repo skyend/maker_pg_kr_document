@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.3.16</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.3.17"
+HREF="release-8-3-17.html"><LINK
+REL="NEXT"
+TITLE="リリース8.3.15"
+HREF="release-8-3-15.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.3.17"
+HREF="release-8-3-17.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.3.15"
+HREF="release-8-3-15.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-3-16"
+>E.31. リリース8.3.16</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2011-09-26</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.3.15に対し、各種の不具合を修正したものです。
+8.3メジャーリリースにおける新機能については<A
+HREF="release-8-3.html"
+>&#38917;E.47</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN114681"
+>E.31.1. バージョン8.3.16への移行</A
+></H2
+><P
+>8.3.Xからの移行ではダンプ/リストアは不要です。
+しかし8.3.8以前のバージョンからアップデートする場合は8.3.8のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN114684"
+>E.31.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>HOT更新されたか疑わしいタプルのインデックス処理における不具合を修正しました。(Tom Lane)
+     </P
+><P
+>この不具合のために、システムカタログの再インデックス処理の後インデックスが破損する可能性がありました。
+ユーザインデックスには影響しないはずです。
+     </P
+></LI
+><LI
+><P
+>GiSTインデックスページ分割処理における複数の不具合を修正しました。(Heikki Linnakangas)
+     </P
+><P
+>発生する可能性は小さいのですが、インデックスの破損を招く可能性がありました。
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>tsvector_concat()</CODE
+>におけるバッファオーバーランの可能性を修正しました。(Tom Lane)
+     </P
+><P
+>この関数は必要なメモリを少なく見積もり、その結果サーバクラッシュを招く可能性がありました。
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>xml_recv</CODE
+>において<SPAN
+CLASS="QUOTE"
+>"standalone"</SPAN
+>パラメータ処理時のクラッシュを修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>およびSJIS-2004符号化変換においてメモリの最後を超えてアクセスする可能性を修正しました。(Noah Misch)
+     </P
+><P
+>これは非常に可能性が低いサーバクラッシュ状況を修正します。
+     </P
+></LI
+><LI
+><P
+>relcache初期ファイルの無効化における競合状態を修正しました。(Tom Lane)
+     </P
+><P
+>新しいバックエンドプロセスが無効な初期ファイルを読み取ろうとするが、データが無効であることを通知するinvalメッセージを取り損なう期間がありました。
+この結果カタログアクセスにおいて、起動処理の後の<SPAN
+CLASS="QUOTE"
+>"could not read block 0 in file ..."</SPAN
+>といった奇妙な失敗が起こります。
+     </P
+></LI
+><LI
+><P
+>GiSTインデックススキャン終了時のメモリリークを修正しました。(Tom Lane)
+     </P
+><P
+>すでに多くの行を持つテーブルに対して新たなGiSTを基にした排他制約を作成する際の検証など、多くの分割GiSTインデックススキャンを行うコマンドが一時的にこのリークの原因となる大容量のメモリを求めることがあり得ました。
+     </P
+></LI
+><LI
+><P
+>大規模かつ非可逆なビットマップを構築する時の性能問題を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>配列作成、経路作成関数のパッド用バイトを確実にゼロにするように修正しました。(Tom Lane)
+     </P
+><P
+>これにより、プランナが意味的に等しい定数を等しくないとみなし、最適化を悪化させる一部の状況を防ぎます。
+     </P
+></LI
+><LI
+><P
+>WAL再生を壊すgcc 4.5.0の不具合を回避します。(Tom Lane)
+     </P
+><P
+>サーバクラッシュ後にコミットされたトランザクションの損失をもたらす可能性がありました。
+     </P
+></LI
+><LI
+><P
+>ビュー内の<TT
+CLASS="LITERAL"
+>VALUES</TT
+>についてのダンプ不具合を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>シーケンスに対する<TT
+CLASS="LITERAL"
+>SELECT FOR UPDATE/SHARE</TT
+>を許しません。(Tom Lane)
+     </P
+><P
+>この操作は想定通りに動作せず、また、失敗をもたらすことがあり得ました。
+     </P
+></LI
+><LI
+><P
+>ハッシュテーブルのサイズ計算時の整数オーバーフローから保護します。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CLUSTER</TT
+>がすでに削除されたTOASTデータへアクセスしようとする状況を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="QUOTE"
+>"peer"</SPAN
+>認証に関する証明書制御メッセージの使用における移植性不具合を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>複数の往復が必要な場合のSSPIログインを修正しました。(Ahmed Shinwari、Magnus Hagander)
+     </P
+><P
+>この問題の典型的な兆候はSSPIログイン期間の<SPAN
+CLASS="QUOTE"
+>"The function requested is not supported"</SPAN
+>エラーです。
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_srand48</CODE
+> シード初期化における記述ミスを修正しました。(Andres Freund)
+     </P
+><P
+>このため、提供されたシードの全ビットを使用すると失敗する可能性がありました。
+この関数はほとんどのプラットフォームで使用されていません（<CODE
+CLASS="FUNCTION"
+>srandom</CODE
+>を持たないプラットフォームのみです）ので、想定よりもランダム性が小さいシードによるセキュリティ露見の可能性はとにかく最小だったと思われます。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>と<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>値の合計が2^63を超えた場合の整数オーバーフローを防止します。(Heikki Linnakangas)
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>generate_series()</CODE
+>の<TT
+CLASS="TYPE"
+>int4</TT
+>版と<TT
+CLASS="TYPE"
+>int8</TT
+>版にオーバーフロー検査を追加しました。(Robert Haas)
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>to_char()</CODE
+>における末尾のゼロ除去を修正しました。(Marti Raudsepp)
+     </P
+><P
+>小数点の後の桁位置がない<TT
+CLASS="LITERAL"
+>FM</TT
+>付きの書式において、小数点より左のゼロが正しく除去できていませんでした。
+     </P
+></LI
+><LI
+><P
+>2^63近辺の入力に対するオーバーフローを防ぐように<CODE
+CLASS="FUNCTION"
+>pg_size_pretty()</CODE
+>を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+>において、Windowsのサービス登録用の静寂モードをサポートしました。(MauMau)
+     </P
+></LI
+><LI
+><P
+>異なるファイルから<TT
+CLASS="LITERAL"
+>COPY</TT
+>している時の、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のスクリプトファイル行番号の計数処理を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>に合わせて、<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>の直接データベースモードを修正しました。(Tom Lane)
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>が、<TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>が<TT
+CLASS="LITERAL"
+>on</TT
+>に設定されたアーカイブファイルからデータベースサーバに直接リストアする時に間違ったコマンドを発行する可能性がありました。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>のLDAPサービス検索コードにおけるwrite-past-buffer-endとメモリリークを修正しました。(Albe Laurenz)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>において、非ブロッキングI/OとSSL接続を使用する場合の失敗を防止します。(Martin Pihlak、Tom Lane)
+     </P
+></LI
+><LI
+><P
+>libpqの接続開始期間のエラーの取扱いを改良しました。(Tom Lane)
+     </P
+><P
+>具体的には、SSL接続開始期間の<CODE
+CLASS="FUNCTION"
+>fork()</CODE
+>失敗についてのサーバ報告への応答がより健全になりました。
+     </P
+></LI
+><LI
+><P
+>SSL失敗に関する<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>のエラー報告を改良しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpglib</SPAN
+>が<TT
+CLASS="TYPE"
+>double</TT
+>値を15桁の精度で書き込むようにしました。(Akira Kurosawa)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpglib</SPAN
+>において、エラー後確実に<TT
+CLASS="LITERAL"
+>LC_NUMERIC</TT
+>の設定を元に戻します。(Michael Meskes)
+     </P
+></LI
+><LI
+><P
+>blowfishの符号付き文字に関する不具合(CVE-2011-2483)に対する上流の修正を適用しました。(Tom Lane)
+     </P
+><P
+><TT
+CLASS="FILENAME"
+>contrib/pg_crypto</TT
+>のblowfish暗号化コードは、charが符号付きであるプラットフォーム(ほとんどのプラットフォーム)において間違った結果を生成し、暗号化されたパスワードが本来より脆弱になりました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/seg</TT
+>におけるメモリリークを修正しました。(Heikki Linnakangas)
+     </P
+></LI
+><LI
+><P
+>空のインデックスに対して一貫性を持った結果を生成するように<CODE
+CLASS="FUNCTION"
+>pgstatindex()</CODE
+>を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>perl 5.14を用いたビルドを可能にしました。(Alex Hunsaker)
+     </P
+></LI
+><LI
+><P
+>システム関数の存在を検出するためのconfigureスクリプトの方法を更新しました。(Tom Lane)
+     </P
+><P
+>8.3と8.2で使用しているautoconfのバージョンは、リンク時の最適化を行うコンパイラによってだまされることがあり得ました。
+     </P
+></LI
+><LI
+><P
+>空白を含むファイルパスでのビルドとインストールに関連した問題を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+> release 2011iに更新しました。
+カナダ、エジプト、ロシア、サモア、南スーダンにおける夏時間規則の変更が含まれています。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-3-17.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-3-15.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.3.17</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.3.15</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

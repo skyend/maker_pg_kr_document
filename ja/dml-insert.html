@@ -1,0 +1,294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データの挿入</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ操作"
+HREF="dml.html"><LINK
+REL="PREVIOUS"
+TITLE="データ操作"
+HREF="dml.html"><LINK
+REL="NEXT"
+TITLE="データの更新"
+HREF="dml-update.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ操作"
+HREF="dml.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ操作"
+HREF="dml.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 6&#31456;データ操作</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ操作"
+HREF="dml.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データの更新"
+HREF="dml-update.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DML-INSERT"
+>6.1. データの挿入</A
+></H1
+><P
+>テーブルは、作成時にはデータを含んでいません。
+データベースを利用価値のあるものにするには、まずデータを挿入する必要があります。
+理論的には、データは一度に1行ずつ挿入されます。
+もちろんユーザは複数行に挿入することもできますが、1行未満を挿入することはできません。
+列の値が一部しかわかっていない場合でも、1行全体を作成しなければなりません。
+  </P
+><P
+>新規の行を作成するには、<A
+HREF="sql-insert.html"
+>INSERT</A
+>コマンドを使用します。このコマンドは、テーブル名と列の値を必要とします。
+例えば、<A
+HREF="ddl.html"
+>&#31532;5&#31456;</A
+>のproductsテーブルの例で考えてみましょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE products (
+    product_no integer,
+    name text,
+    price numeric
+);</PRE
+><P>
+この場合、行を挿入するためのコマンドは以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO products VALUES (1, 'Cheese', 9.99);</PRE
+><P>
+データ値は、テーブルで列が表示される順序に従ってカンマで区切って列挙します。
+通常、データ値はリテラル（定数）ですが、スカラ式も使用できます。
+  </P
+><P
+>上記の構文には、テーブル内の列の順序を知っていなければならないという難点があります。
+これを避けるには、列を明示的に列挙する方法があります。
+例えば、以下の2つのどちらのコマンドでも上記のコマンドと同等の効果が得られます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO products (product_no, name, price) VALUES (1, 'Cheese', 9.99);
+INSERT INTO products (name, price, product_no) VALUES ('Cheese', 9.99, 1);</PRE
+><P>
+多くのユーザは常に列名を列挙する方法が優れていると考えています。
+  </P
+><P
+>値がわからない列については、省略することができます。
+省略した列には、デフォルト値が挿入されます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO products (product_no, name) VALUES (1, 'Cheese');
+INSERT INTO products VALUES (1, 'Cheese');</PRE
+><P>
+後者は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張機能です。
+これによって、列には左から順に指定されただけの値が挿入され、残りにはデフォルト値が挿入されます。
+  </P
+><P
+>明確にするため、列ごと、あるいは行全体についてデフォルト値を明示的に要求することもできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO products (product_no, name, price) VALUES (1, 'Cheese', DEFAULT);
+INSERT INTO products DEFAULT VALUES;</PRE
+><P>
+  </P
+><P
+>単一コマンドで複数行を挿入することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO products (product_no, name, price) VALUES
+    (1, 'Cheese', 9.99),
+    (2, 'Bread', 1.99),
+    (3, 'Milk', 2.99);</PRE
+><P>
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>一度に大量のデータを挿入する場合は<A
+HREF="sql-copy.html"
+>COPY</A
+>コマンドの使用を検討してください。
+<A
+HREF="sql-insert.html"
+>INSERT</A
+>コマンドほどの柔軟性はありませんが、より効率的です。
+大量のデータをロードする性能を向上するためについて、詳細は<A
+HREF="populate.html"
+>&#38917;14.4</A
+>を参照してください。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="dml.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="dml-update.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データ操作</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="dml.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データの更新</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

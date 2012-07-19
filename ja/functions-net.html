@@ -1,0 +1,1085 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ネットワークアドレス関数と演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="幾何関数と演算子"
+HREF="functions-geometry.html"><LINK
+REL="NEXT"
+TITLE="テキスト検索関数と演算子"
+HREF="functions-textsearch.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="幾何関数と演算子"
+HREF="functions-geometry.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="テキスト検索関数と演算子"
+HREF="functions-textsearch.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-NET"
+>9.12. ネットワークアドレス関数と演算子</A
+></H1
+><P
+>  
+   <A
+HREF="functions-net.html#CIDR-INET-OPERATORS-TABLE"
+>&#34920;9-33</A
+>に、<TT
+CLASS="TYPE"
+>inet</TT
+>型および<TT
+CLASS="TYPE"
+>cidr</TT
+>型で使用可能な演算子を示します。演算子 <TT
+CLASS="LITERAL"
+>&lt;&lt;</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;&lt;=</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;&gt;</TT
+>、および<TT
+CLASS="LITERAL"
+>&gt;&gt;=</TT
+>はサブネットに含まれているかどうかを調べるものです。ネットワークの部分のみを考慮（ネットワークアドレスのホスト部分を無視）して2つのネットワークアドレスが等しいか、もしくは一方のネットワークが他方のサブネットになっているかを特定します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="CIDR-INET-OPERATORS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-33. <TT
+CLASS="TYPE"
+>cidr</TT
+>と<TT
+CLASS="TYPE"
+>inet</TT
+>演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;</TT
+> </TD
+><TD
+>未満</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.5' &lt; inet '192.168.1.6'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;=</TT
+> </TD
+><TD
+>未満もしくは等しい（以下）</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.5' &lt;= inet '192.168.1.5'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>=</TT
+> </TD
+><TD
+>等しい</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.5' = inet '192.168.1.5'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;=</TT
+> </TD
+><TD
+>より大きいもしくは等しい（以上）</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.5' &gt;= inet '192.168.1.5'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;</TT
+> </TD
+><TD
+>より大きい</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.5' &gt; inet '192.168.1.4'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;&gt;</TT
+> </TD
+><TD
+>等しくない</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.5' &lt;&gt; inet '192.168.1.4'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;&lt;</TT
+> </TD
+><TD
+>内包される</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.5' &lt;&lt; inet '192.168.1/24'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;&lt;=</TT
+> </TD
+><TD
+>内包されるか等しい</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1/24' &lt;&lt;= inet '192.168.1/24'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;&gt;</TT
+> </TD
+><TD
+>内包する</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1/24' &gt;&gt; inet '192.168.1.5'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;&gt;=</TT
+> </TD
+><TD
+>内包するか等しい</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1/24' &gt;&gt;= inet '192.168.1/24'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>~</TT
+> </TD
+><TD
+>ビット否定</TD
+><TD
+><TT
+CLASS="LITERAL"
+>~ inet '192.168.1.6'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&amp;</TT
+> </TD
+><TD
+>ビット積</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.6' &amp; inet '0.0.0.255'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>|</TT
+> </TD
+><TD
+>ビット和</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.6' | inet '0.0.0.255'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+>加算</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.6' + 25</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+>減算</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.43' - 36</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+>減算</TD
+><TD
+><TT
+CLASS="LITERAL"
+>inet '192.168.1.43' - inet '192.168.1.19'</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>  
+   <A
+HREF="functions-net.html#CIDR-INET-FUNCTIONS-TABLE"
+>&#34920;9-34</A
+>に、<TT
+CLASS="TYPE"
+>inet</TT
+>型および<TT
+CLASS="TYPE"
+>cidr</TT
+>型で使用可能な関数を示します。
+関数<CODE
+CLASS="FUNCTION"
+>abbrev</CODE
+>、<CODE
+CLASS="FUNCTION"
+>host()</CODE
+>、および<CODE
+CLASS="FUNCTION"
+>text()</CODE
+>、は主として、代替の整形表示を提供する目的のものです。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="CIDR-INET-FUNCTIONS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-34. <TT
+CLASS="TYPE"
+>cidr</TT
+>および<TT
+CLASS="TYPE"
+>inet</TT
+>型関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>abbrev(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>表示用テキスト省略形</TD
+><TD
+><TT
+CLASS="LITERAL"
+>abbrev(inet '10.1.0.0/16')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>10.1.0.0/16</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>abbrev(<TT
+CLASS="TYPE"
+>cidr</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>表示用テキスト省略形</TD
+><TD
+><TT
+CLASS="LITERAL"
+>abbrev(cidr '10.1.0.0/16')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>10.1/16</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>broadcast(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>inet</TT
+></TD
+><TD
+>ネットワークブロードキャストアドレス</TD
+><TD
+><TT
+CLASS="LITERAL"
+>broadcast('192.168.1.5/24')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>192.168.1.255/24</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>family(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>int</TT
+></TD
+><TD
+>アドレスファミリの取り出し。IPv4では<TT
+CLASS="LITERAL"
+>4</TT
+>、IPv6では<TT
+CLASS="LITERAL"
+>6</TT
+>。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>family('::1')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>6</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>host(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>IPアドレスをテキストで抽出</TD
+><TD
+><TT
+CLASS="LITERAL"
+>host('192.168.1.5/24')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>192.168.1.5</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>hostmask(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>inet</TT
+></TD
+><TD
+>ネットワーク用のホストマスクの構築</TD
+><TD
+><TT
+CLASS="LITERAL"
+>hostmask('192.168.23.20/30')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>0.0.0.3</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>masklen(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>int</TT
+></TD
+><TD
+>ネットマスク長の抽出</TD
+><TD
+><TT
+CLASS="LITERAL"
+>masklen('192.168.1.5/24')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>24</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>netmask(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>inet</TT
+></TD
+><TD
+>ネットワーク用ネットマスクの構築</TD
+><TD
+><TT
+CLASS="LITERAL"
+>netmask('192.168.1.5/24')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>255.255.255.0</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>network(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>cidr</TT
+></TD
+><TD
+>ネットワークアドレスからネットワーク部を抽出</TD
+><TD
+><TT
+CLASS="LITERAL"
+>network('192.168.1.5/24')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>192.168.1.0/24</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>set_masklen(<TT
+CLASS="TYPE"
+>inet</TT
+>, <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>inet</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>inet</TT
+>値のネットマスク長を設定</TD
+><TD
+><TT
+CLASS="LITERAL"
+>set_masklen('192.168.1.5/24', 16)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>192.168.1.5/16</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>set_masklen(<TT
+CLASS="TYPE"
+>cidr</TT
+>, <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>cidr</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>cidr</TT
+>値のネットマスク長を設定</TD
+><TD
+><TT
+CLASS="LITERAL"
+>set_masklen('192.168.1.0/24'::cidr, 16)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>192.168.0.0/16</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>text(<TT
+CLASS="TYPE"
+>inet</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>IPアドレスとネットマスク長をテキストで抽出</TD
+><TD
+><TT
+CLASS="LITERAL"
+>text(inet '192.168.1.5')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>192.168.1.5/32</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>  
+   <TT
+CLASS="TYPE"
+>cidr</TT
+>値はすべて、暗黙的または明示的に<TT
+CLASS="TYPE"
+>inet</TT
+>型にキャスト可能です。
+したがって、上で示した<TT
+CLASS="TYPE"
+>inet</TT
+>に対する操作を行う関数は<TT
+CLASS="TYPE"
+>cidr</TT
+>値でも動作します。（<TT
+CLASS="TYPE"
+>inet</TT
+>と<TT
+CLASS="TYPE"
+>cidr</TT
+>で別々に関数が存在しますが、それは、この2つで動作に違いがあるためです。）また、<TT
+CLASS="TYPE"
+>inet</TT
+>値から<TT
+CLASS="TYPE"
+>cidr</TT
+>へのキャストも許されます。これが行われると、ネットマスクの右側のビットは、<TT
+CLASS="TYPE"
+>cidr</TT
+>として有効な値とするために0となります。さらに、通常のキャスト構文、例えば、<TT
+CLASS="LITERAL"
+>inet(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</TT
+>や<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>colname</I
+></TT
+>::cidr</TT
+>を使用して、テキスト値を<TT
+CLASS="TYPE"
+>inet</TT
+>や<TT
+CLASS="TYPE"
+>cidr</TT
+>にキャストすることもできます。
+  </P
+><P
+>  
+   <A
+HREF="functions-net.html#MACADDR-FUNCTIONS-TABLE"
+>&#34920;9-35</A
+>に、<TT
+CLASS="TYPE"
+>macaddr</TT
+>型で使用可能な関数を示します。関数<TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>trunc(<TT
+CLASS="TYPE"
+>macaddr</TT
+>)</CODE
+></TT
+>は終わりの3バイトがゼロに設定されたMACアドレスを返します。これは、残った接頭部を製造者に対応させることに使えます。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="MACADDR-FUNCTIONS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-35. <TT
+CLASS="TYPE"
+>macaddr</TT
+>型関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>trunc(<TT
+CLASS="TYPE"
+>macaddr</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>macaddr</TT
+></TD
+><TD
+>終わりの３バイトをゼロに設定</TD
+><TD
+><TT
+CLASS="LITERAL"
+>trunc(macaddr '12:34:56:78:90:ab')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>12:34:56:00:00:00</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <TT
+CLASS="TYPE"
+>macaddr</TT
+>型は（<TT
+CLASS="LITERAL"
+>&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;=</TT
+>等の）辞書編集順に並べる標準関係演算子もサポートします。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-geometry.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-textsearch.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>幾何関数と演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>テキスト検索関数と演算子</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

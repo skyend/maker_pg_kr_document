@@ -1,0 +1,445 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース7.4.1</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース7.4.2"
+HREF="release-7-4-2.html"><LINK
+REL="NEXT"
+TITLE="リリース 7.4"
+HREF="release-7-4.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース7.4.2"
+HREF="release-7-4-2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース 7.4"
+HREF="release-7-4.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-7-4-1"
+>E.152. リリース7.4.1</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2003-12-22</P
+></BLOCKQUOTE
+></DIV
+><P
+>     このリリースは7.4の様々な不具合を修正したものです。
+7.4メジャーリリースにおける新機能については<A
+HREF="release-7-4.html"
+>&#38917;E.153</A
+>を参照してください。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN126755"
+>E.152.1. 7.4.1バージョンへの移行</A
+></H2
+><P
+>7.4 からの移行の場合は ダンプ/リストアは必要<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ありません</I
+></SPAN
+>。
+    </P
+><P
+>情報スキーマ内の修正をインストールする場合は、データベース内にリロードする必要があります。
+これは、<TT
+CLASS="COMMAND"
+>initdb</TT
+>を実行して新しいクラスタを初期化すること、もしくは、新しいリリースをインストールした後に、スーパーユーザとして<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を使用して各データベースで以下の一連のSQLコマンドを実行することで行なうことができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DROP SCHEMA information_schema CASCADE;
+\i /usr/local/pgsql/share/information_schema.sql</PRE
+><P>
+2つ目のコマンド内のパスはインストレーションに合わせてください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN126763"
+>E.152.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>Fixed bug in <TT
+CLASS="COMMAND"
+>CREATE SCHEMA</TT
+> parsing in ECPG (Michael)</P
+></LI
+><LI
+><P
+>Fix compile error when <TT
+CLASS="OPTION"
+>--enable-thread-safety</TT
+> and <TT
+CLASS="OPTION"
+>--with-perl</TT
+> are used together (Peter)</P
+></LI
+><LI
+><P
+>Fix for subqueries that used hash joins (Tom)</P
+><P
+>不適切な構造体の共有のため、特定のハッシュ結合を使用する副問い合わせクラッシュしました。</P
+></LI
+><LI
+><P
+>Fix free space map compaction bug (Tom)</P
+><P
+>これは、空き領域マップの圧縮によってデータベースサーバの停止が発生する不具合の修正です。</P
+></LI
+><LI
+><P
+>Fix for Borland compiler build of libpq (Bruce)</P
+></LI
+><LI
+><P
+>Fix <CODE
+CLASS="FUNCTION"
+>netmask()</CODE
+> and <CODE
+CLASS="FUNCTION"
+>hostmask()</CODE
+> to return the maximum-length masklen (Tom)</P
+><P
+>7.4より前のリリースと一貫性を持つ値を返すように関数を修正しました。</P
+></LI
+><LI
+><P
+>Several <TT
+CLASS="FILENAME"
+>contrib/pg_autovacuum</TT
+> fixes</P
+><P
+>この修正には、不適切な変数の初期化、<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>後のvacuumの抜け、vacuum期間の計算のオーバーフローを含んでいます。</P
+></LI
+><LI
+><P
+>Allow compile of <TT
+CLASS="FILENAME"
+>contrib/cube</TT
+> under Cygwin (Jason Tishler)</P
+></LI
+><LI
+><P
+>Fix Solaris use of password file when no passwords are defined (Tom)</P
+><P
+>Solarisにおいてパスワードが定義されていない場合に何らかのパスワード認証を行なうとクラッシュする点を修正しました。</P
+></LI
+><LI
+><P
+>JDBC fix for thread problems, other fixes</P
+></LI
+><LI
+><P
+>Fix for <TT
+CLASS="TYPE"
+>bytea</TT
+> index lookups (Joe)</P
+></LI
+><LI
+><P
+>Fix information schema for bit data types (Peter)</P
+></LI
+><LI
+><P
+>Force zero_damaged_pages to be on during recovery from WAL</P
+></LI
+><LI
+><P
+>Prevent some obscure cases of <SPAN
+CLASS="QUOTE"
+>"variable not in subplan target lists"</SPAN
+></P
+></LI
+><LI
+><P
+>Make <CODE
+CLASS="FUNCTION"
+>PQescapeBytea</CODE
+> and <CODE
+CLASS="FUNCTION"
+>byteaout</CODE
+> consistent with each other (Joe)</P
+></LI
+><LI
+><P
+>Escape <TT
+CLASS="TYPE"
+>bytea</TT
+> output for bytes &gt; 0x7e(Joe)</P
+><P
+>異なるクライアント符号化方式が<TT
+CLASS="TYPE"
+>bytea</TT
+>の入出力に使用された場合、符号化方式の違いにより<TT
+CLASS="TYPE"
+>bytea</TT
+>値が破壊される可能性がありました。
+この修正では、影響を受ける可能性があるバイトを全てエスケープしました。</P
+></LI
+><LI
+><P
+>Added missing <CODE
+CLASS="FUNCTION"
+>SPI_finish()</CODE
+> calls to dblink's <CODE
+CLASS="FUNCTION"
+>get_tuple_of_interest()</CODE
+> (Joe)</P
+></LI
+><LI
+><P
+>New Czech FAQ</P
+></LI
+><LI
+><P
+>Fix information schema view <TT
+CLASS="LITERAL"
+>constraint_column_usage</TT
+> for foreign keys (Peter)</P
+></LI
+><LI
+><P
+>ECPG fixes (Michael)</P
+></LI
+><LI
+><P
+>Fix bug with multiple <TT
+CLASS="LITERAL"
+>IN</TT
+> subqueries and joins in the subqueries (Tom)</P
+></LI
+><LI
+><P
+>Allow <TT
+CLASS="LITERAL"
+>COUNT('x')</TT
+> to work (Tom)</P
+></LI
+><LI
+><P
+>Install ECPG include files for Informix compatibility into separate directory (Peter)</P
+><P
+>Informix互換用のECPGヘッダファイルの名前の一部がオペレーティングシステムのヘッダファイルと競合しました。
+独自のディレクトリにインストールすることで、名前の競合が防止されました。</P
+></LI
+><LI
+><P
+>Fix SSL memory leak (Neil)</P
+><P
+>このリリースは、7.4における、SSLが割り当てたメモリを全て解放しない不具合を修正しました。</P
+></LI
+><LI
+><P
+>Prevent <TT
+CLASS="FILENAME"
+>pg_service.conf</TT
+> from using service name as default dbname (Bruce)</P
+></LI
+><LI
+><P
+>Fix local ident authentication on FreeBSD (Tom)</P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-7-4-2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-7-4.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース7.4.2</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース 7.4</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

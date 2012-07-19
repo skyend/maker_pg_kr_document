@@ -1,0 +1,363 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>プランナ/オプティマイザ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PostgreSQL内部の概要"
+HREF="overview.html"><LINK
+REL="PREVIOUS"
+TITLE="PostgreSQLルールシステム"
+HREF="rule-system.html"><LINK
+REL="NEXT"
+TITLE="エクゼキュータ"
+HREF="executor.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQLルールシステム"
+HREF="rule-system.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQL内部の概要"
+HREF="overview.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 44&#31456;PostgreSQL内部の概要</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQL内部の概要"
+HREF="overview.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="エクゼキュータ"
+HREF="executor.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLANNER-OPTIMIZER"
+>44.5. プランナ/オプティマイザ</A
+></H1
+><P
+><I
+CLASS="FIRSTTERM"
+>プランナ/オプティマイザ</I
+>の役割は最適な実行計画を作ることです。
+ある与えられたSQL問い合わせは（それがある問い合わせツリーになるのですが）、同じ結果をもたらす、多くの異なった方法で実際には実行できます。
+もしもコンピュータの演算として可能であれば、問い合わせオプティマイザは可能な実行計画をすべて検証し、実行するとした場合に一番早く結果をもたらすと想定される実行計画を選択します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>場合によっては、問い合わせがどう実行されるか、可能性のある全ての手段を検証するため、膨大な時間とメモリ空間を消費する可能性があります。
+特に数多くの結合操作に問い合わせが関わった時です。
+相応な（必ずしも最適ではありませんが）問い合わせ計画を、相応な時間内で決定するため<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は結合の数が閾値を越えた場合、<I
+CLASS="FIRSTTERM"
+>遺伝的問い合わせオプティマイザ</I
+>（<A
+HREF="geqo.html"
+>&#31532;51&#31456;</A
+>参照）を使用します（<A
+HREF="runtime-config-query.html#GUC-GEQO-THRESHOLD"
+>geqo_threshold</A
+>を参照ください）。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>このプランナの検索手順は、実際には<I
+CLASS="FIRSTTERM"
+>経路</I
+>という名前のデータ構造を使用します。
+経路とは、プランナが決定を行うために必要な情報のみに切り詰めた単なる計画の表現です。
+最も安価である経路が決定された後、全てが揃った<I
+CLASS="FIRSTTERM"
+>計画ツリー</I
+>が作成されてエクゼキュータに渡されます。
+これはつまり、要求されている実行計画はエクゼキュータがそれを実行するために十分な詳しい内容を所有していることを表しています。
+本節の残りでは、経路と計画の違いについて無視します。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN84133"
+>44.5.1. 実行可能な計画の生成</A
+></H2
+><P
+>プランナ/オプティマイザは、問い合わせの中で使用される個々のリレーション（テーブル）をスキャンするための計画を生成することから始めます。
+各リレーション上で利用できるインデックスにより実行可能な計画が決まります。
+リレーションをシーケンシャルスキャンする可能性は常にありますので、シーケンシャルスキャンを使用する計画は常に作成されます。
+リレーション上にインデックス（例えばB-treeインデックス）が定義され、問い合わせには<TT
+CLASS="LITERAL"
+>relation.attribute OPR constant</TT
+>という条件があるとしましょう。
+もし<TT
+CLASS="LITERAL"
+>relation.attribute</TT
+>がB-treeインデックスのキーと一致し、<TT
+CLASS="LITERAL"
+>OPR</TT
+>がインデックスの <I
+CLASS="FIRSTTERM"
+>演算子クラス</I
+>に列挙されている演算子の1つであれば、リレーションをスキャンするためにB-treeインデックスを使用する別の計画が作られます。
+さらに他のインデックスが存在し、問い合わせの中で条件がインデックスのキーに一致した場合、なおその上に計画が検討されます。インデックススキャン計画は、問い合わせの （もし存在すれば）<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句に一致するソート順、もしくはマージ結合に便利なソート順を所有するインデックスに対して生成されます（以下を参照してください）。
+    </P
+><P
+>問い合わせが２つ以上のリレーションの結合を必要とすると、リレーションを結合する計画は、単一のリレーションをスキャンするために全ての実行可能な計画が探し出された後に検討されます。３つの実行可能な結合戦略を示します。
+
+     <P
+></P
+></P><UL
+><LI
+><P
+><I
+CLASS="FIRSTTERM"
+>入れ子ループ結合</I
+>：
+左側のリレーションの中で見つけられた行ごとに右側のリレーションが1回スキャンされます。
+この戦略は実装が簡単ですが、時間がかかる場合があります
+（とは言っても右側のリレーションがインデックススキャンによってスキャン可能であればよい戦略になります。
+右側のインデックススキャンのキーとして左側のリレーションの現在の行の値を使用することができます。）
+       </P
+></LI
+><LI
+><P
+><I
+CLASS="FIRSTTERM"
+>マージ結合</I
+>：
+結合を開始する前に、それぞれのリレーションを結合属性でソートします。
+そして、2つのリレーションを並行してスキャンし、一致する行を結合行の形にまとめます。
+それぞれのリレーションがたった1回しかスキャンされなくて済むのでこの結合は魅力的です。
+要求されるソートは、明示的なソート段階、または、結合キー上のインデックスを使用して適切な順序でリレーションをスキャンすることにより行われます。
+       </P
+></LI
+><LI
+><P
+><I
+CLASS="FIRSTTERM"
+>ハッシュ結合</I
+>：
+右側のリレーションがハッシュキーとして結合属性を用いて初めにスキャンされ、ハッシュテーブルに読み込まれます。
+次に左側のリレーションがスキャンされ、見つかったそれぞれの行に相応しい値が、右側のリレーションの行を探し出すためのハッシュキーとして使われます。
+       </P
+></LI
+></UL
+><P>
+    </P
+><P
+>問い合わせが3つ以上のリレーションを含む場合、それぞれ2つの入力を持つ結合段階のツリーによって最終結果を構築しなければなりません。
+プランナは最も低コストな計画を見つけ出すために、あり得る異なった結合順序を検証します。
+    </P
+><P
+>問い合わせが<A
+HREF="runtime-config-query.html#GUC-GEQO-THRESHOLD"
+>geqo_threshold</A
+>より少ないリレーションを使用する場合、最適な結合シーケンスを見つけ出すため、完璧に近い検索が行われます。
+プランナは<TT
+CLASS="LITERAL"
+>WHERE</TT
+>条件での対応する結合句が存在する（すなわち、<TT
+CLASS="LITERAL"
+>where rel1.attr1=rel2.attr2</TT
+>のような制約に対して）、あらゆる２つのリレーション間の結合を優先的に考慮します。
+結合句のない結合ペアは他に選択のない場合に考慮されます。つまり、ある特定のリレーションが他のどんなリレーションに対しても有効な結合句を持たない場合です。
+すべての有効な計画はプランナが考慮したすべての結合ペアに対し生成され、最も安価な（と評価された）ものが選択されます。
+    </P
+><P
+><TT
+CLASS="VARNAME"
+>geqo_threshold</TT
+>を上回ると、考慮された結合シーケンスは<A
+HREF="geqo.html"
+>&#31532;51&#31456;</A
+>に記載されているように経験則で決定されます。
+そうでない時、処理は変わりません。
+    </P
+><P
+>最終的な計画ツリーは基になっているリレーションのシーケンシャルもしくはインデックススキャン、そして必要に応じて入れ子ループ、マージ、またはハッシュ結合のノード、さらにはソートまたは集約関数計算ノードのような必要とされる補助の手順から構成されます。
+これらほとんどの計画ノード型は<I
+CLASS="FIRSTTERM"
+>選択</I
+>（特定の論理演算条件に合致しない行を破棄すること）および<I
+CLASS="FIRSTTERM"
+>射影</I
+>（与えられた列の値に基づき派生した列の集合を計算すること、つまり必要なところでスカラ式の評価をすること）を行う追加的能力を持っています。
+プランナの1つの責任は、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句から選択条件を付加して計画ツリーの最も適切なノードに対し必要とされる出力式を計算することです。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="rule-system.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="executor.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ルールシステム</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="overview.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>エクゼキュータ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

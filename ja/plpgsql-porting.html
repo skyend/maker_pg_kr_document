@@ -1,0 +1,1302 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Oracle PL/SQLからの移植</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/pgSQLによる開発向けのヒント"
+HREF="plpgsql-development-tips.html"><LINK
+REL="NEXT"
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQLによる開発向けのヒント"
+HREF="plpgsql-development-tips.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-PORTING"
+>39.12. <SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+> PL/SQLからの移植</A
+></H1
+><P
+>本節では<SPAN
+CLASS="TRADEMARK"
+>Oracle</SPAN
+>&reg;から<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>へアプリケーションを移植する開発者の手助けとなるように、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>言語とOracleの<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>言語の違いについて説明します。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>は多くの点でPL/SQLに似ています。
+それはブロックで構成されていて、厳格な言語であり、全ての変数は宣言されなければならない点です。
+代入やループ、条件分岐も同様です。
+<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>から<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>に移植する際に注意しなければならない、主な違いを以下に示します。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>SQLコマンド内に使用された名前が、テーブルの列名または関数の変数への参照のどちらにもなり得る場合、<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>は列名として処理します。
+これは<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>における<TT
+CLASS="LITERAL"
+>plpgsql.variable_conflict</TT
+> = <TT
+CLASS="LITERAL"
+>use_column</TT
+>時の動作に対応しますが、<A
+HREF="plpgsql-implementation.html#PLPGSQL-VAR-SUBST"
+>&#38917;39.10.1</A
+>の説明通り、これはデフォルトではありません。
+初期段階において、そのようなあいまいさを避けることが最善です。
+しかしこの動作に依存するコードの量が多いものを移植しなければならない場合、<TT
+CLASS="LITERAL"
+>variable_conflict</TT
+>を使用することが最善の解法かもしれません。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の関数本体は文字列リテラルとして書かなければなりません。
+したがって、関数本体内部でドル引用符を使用するか、単一引用符をエスケープする必要があります。
+（<A
+HREF="plpgsql-development-tips.html#PLPGSQL-QUOTE-TIPS"
+>&#38917;39.11.1</A
+>を参照してください）。
+      </P
+></LI
+><LI
+><P
+>パッケージの代わりに、スキーマを使用して関数群をグループにまとめてください。
+      </P
+></LI
+><LI
+><P
+>パッケージがないため、パッケージレベルの変数もありません。
+これは幾分か厄介なことです。
+代わって、セッションごとの状態を一時テーブル内部に保存できます。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>REVERSE</TT
+>を付けた整数<TT
+CLASS="COMMAND"
+>FOR</TT
+>ループの処理は異なります。 
+<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>では最後の数から最初の数へ減少しながら処理しますが、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>では最初の数から最後の数へ減少しながら処理します。
+移植において、ループの両端となる最初の数と最後の数を交換する必要があります。
+この非互換性は不幸なことですが、変わりそうもありません。
+（<A
+HREF="plpgsql-control-structures.html#PLPGSQL-INTEGER-FOR"
+>&#38917;39.6.3.5</A
+>を見てください。）
+      </P
+></LI
+><LI
+><P
+>      
+問い合わせ上の<TT
+CLASS="COMMAND"
+>FOR</TT
+>ループは（カーソルを除いて）も異なって処理されます。
+対象の変数は宣言されなければなりませんが、<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>は常にそれらを暗黙的に宣言します。
+この優位点は変数値をループを抜けてからでも依然としてアクセスできることです。
+      </P
+></LI
+><LI
+><P
+>      
+カーソル変数の使用に対する様々なな表記上の違いがあります。
+      </P
+></LI
+></UL
+><P>
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN55373"
+>39.12.1. 移植例</A
+></H2
+><P
+><A
+HREF="plpgsql-porting.html#PGSQL-PORTING-EX1"
+>&#20363;39-7</A
+>に簡単な関数の<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>から<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>への移植方法を示します。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PGSQL-PORTING-EX1"
+></A
+><P
+><B
+>&#20363; 39-7. 簡単な関数の<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>から<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>への移植</B
+></P
+><P
+>以下は<SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+> <SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>の関数です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION cs_fmt_browser_version(v_name varchar,
+                                                  v_version varchar)
+RETURN varchar IS
+BEGIN
+    IF v_version IS NULL THEN
+        RETURN v_name;
+    END IF;
+    RETURN v_name || '/' || v_version;
+END;
+/
+show errors;</PRE
+><P>
+    </P
+><P
+>この関数を通じて、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>との違いを見てみましょう。
+
+     <P
+></P
+></P><UL
+><LI
+><P
+>関数プロトタイプ内の<TT
+CLASS="LITERAL"
+>RETURN</TT
+>キーワード（関数本体ではありません）は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では<TT
+CLASS="LITERAL"
+>RETURNS</TT
+>になります。
+同様に<TT
+CLASS="LITERAL"
+>IS</TT
+>は<TT
+CLASS="LITERAL"
+>AS</TT
+>になります。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>以外の言語でも関数を記述できるため、<TT
+CLASS="LITERAL"
+>LANGUAGE</TT
+>句が必要となります。
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は関数本体を文字列リテラルと考えます。
+したがって、それを囲むドル引用符または他の引用符が必要です。
+これは<TT
+CLASS="LITERAL"
+>/</TT
+>で終了するOracleの方法の代替です。
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には<TT
+CLASS="LITERAL"
+>show errors</TT
+>コマンドはありません。
+また、エラーが自動的に表示されるため、必要ありません。
+       </P
+></LI
+></UL
+><P>
+    </P
+><P
+>それでは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に移植されると、この関数がどのようになるか見てみましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION cs_fmt_browser_version(v_name varchar,
+                                                  v_version varchar)
+RETURNS varchar AS $$
+BEGIN
+    IF v_version IS NULL THEN
+        RETURN v_name;
+    END IF;
+    RETURN v_name || '/' || v_version;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+    </P
+></DIV
+><P
+><A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-EX2"
+>&#20363;39-8</A
+>は、他の関数を生成する関数を移植する方法、ならびに、その結果発生する引用符問題を扱う方法を示します。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PLPGSQL-PORTING-EX2"
+></A
+><P
+><B
+>&#20363; 39-8. 他の関数を生成する<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>を<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>に移植</B
+></P
+><P
+>以下の手続きは、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文からの行を取って、効率のために<TT
+CLASS="LITERAL"
+>IF</TT
+>文で結果を巨大な関数に埋め込んでいます。
+    </P
+><P
+>以下はOracle版です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE PROCEDURE cs_update_referrer_type_proc IS
+    CURSOR referrer_keys IS 
+        SELECT * FROM cs_referrer_keys 
+        ORDER BY try_order;
+
+    func_cmd VARCHAR(4000); 
+BEGIN 
+    func_cmd := 'CREATE OR REPLACE FUNCTION cs_find_referrer_type(v_host IN VARCHAR,
+                 v_domain IN VARCHAR, v_url IN VARCHAR) RETURN VARCHAR IS BEGIN'; 
+
+    FOR referrer_key IN referrer_keys LOOP 
+        func_cmd := func_cmd ||
+          ' IF v_' || referrer_key.kind
+          || ' LIKE ''' || referrer_key.key_string
+          || ''' THEN RETURN ''' || referrer_key.referrer_type
+          || '''; END IF;'; 
+    END LOOP; 
+
+    func_cmd := func_cmd || ' RETURN NULL; END;'; 
+
+    EXECUTE IMMEDIATE func_cmd; 
+END; 
+/ 
+show errors;</PRE
+><P>
+    </P
+><P
+>この関数を<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で記述するとこうなるでしょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION cs_update_referrer_type_proc() RETURNS void AS $func$
+DECLARE
+    referrer_keys CURSOR IS
+        SELECT * FROM cs_referrer_keys
+        ORDER BY try_order;
+    func_body text;
+    func_cmd text;
+BEGIN 
+    func_body := 'BEGIN';
+
+    FOR referrer_key IN referrer_keys LOOP
+        func_body := func_body ||
+          ' IF v_' || referrer_key.kind
+          || ' LIKE ' || quote_literal(referrer_key.key_string)
+          || ' THEN RETURN ' || quote_literal(referrer_key.referrer_type)
+          || '; END IF;' ;
+    END LOOP; 
+
+    func_body := func_body || ' RETURN NULL; END;';
+
+    func_cmd :=
+      'CREATE OR REPLACE FUNCTION cs_find_referrer_type(v_host varchar,
+                                                        v_domain varchar,
+                                                        v_url varchar) 
+        RETURNS varchar AS '
+      || quote_literal(func_body)
+      || ' LANGUAGE plpgsql;' ;
+
+    EXECUTE func_cmd;
+END;
+$func$ LANGUAGE plpgsql;</PRE
+><P>
+
+関数本体を別途作成し、それを<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>に渡して本体内の引用符を二重化する方法に注目してください。
+新規の関数を定義する時ドル引用符の使用が安全とは限らないため、この方法が必要となります。
+それは<TT
+CLASS="STRUCTFIELD"
+>referrer_key.key_string</TT
+>の領域に、どのような文字列が書き込まれているか不明だからです。
+（<TT
+CLASS="STRUCTFIELD"
+>referrer_key.kind</TT
+>は常に信用できる<TT
+CLASS="LITERAL"
+>host</TT
+>か<TT
+CLASS="LITERAL"
+>domain</TT
+>か<TT
+CLASS="LITERAL"
+>url</TT
+>であると仮定しますが、どんなものでも<TT
+CLASS="STRUCTFIELD"
+>referrer_key.key_string</TT
+>になり得るので、ドル記号を含む可能性があります。）
+この関数はOracle版より実際に改善されています。
+それは<TT
+CLASS="STRUCTFIELD"
+>referrer_key.key_string</TT
+>または<TT
+CLASS="STRUCTFIELD"
+>referrer_key.referrer_type</TT
+>が引用符を含む時、おかしなコードを生成しないからです。
+    </P
+></DIV
+><P
+><A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-EX3"
+>&#20363;39-9</A
+>は、<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータを持ち、文字列操作を行う関数の移植方法を示します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には組み込みの<CODE
+CLASS="FUNCTION"
+>instr</CODE
+>関数はありませんが、他の関数を組み合わせることで作成できます。
+
+<A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-APPENDIX"
+>&#38917;39.12.3</A
+>に、移植を簡略化できるように<CODE
+CLASS="FUNCTION"
+>instr</CODE
+>の<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>による実装を示します。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PLPGSQL-PORTING-EX3"
+></A
+><P
+><B
+>&#20363; 39-9. 文字列操作を行い、<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータを持つ<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>プロシージャの<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>への移植</B
+></P
+><P
+>以下の<SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+> PL/SQLプロシージャは、URLを解析していくつかの要素（ホスト、パス、問い合わせ）を返します。
+    </P
+><P
+>以下はOracle版です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE PROCEDURE cs_parse_url(
+    v_url IN VARCHAR,
+    v_host OUT VARCHAR,  -- この値は戻されます
+    v_path OUT VARCHAR,  -- この値も戻されます
+    v_query OUT VARCHAR) -- この値も戻されます
+IS
+    a_pos1 INTEGER;
+    a_pos2 INTEGER;
+BEGIN
+    v_host := NULL;
+    v_path := NULL;
+    v_query := NULL;
+    a_pos1 := instr(v_url, '//');
+
+    IF a_pos1 = 0 THEN
+        RETURN;
+    END IF;
+    a_pos2 := instr(v_url, '/', a_pos1 + 2);
+    IF a_pos2 = 0 THEN
+        v_host := substr(v_url, a_pos1 + 2);
+        v_path := '/';
+        RETURN;
+    END IF;
+
+    v_host := substr(v_url, a_pos1 + 2, a_pos2 - a_pos1 - 2);
+    a_pos1 := instr(v_url, '?', a_pos2 + 1);
+
+    IF a_pos1 = 0 THEN
+        v_path := substr(v_url, a_pos2);
+        RETURN;
+    END IF;
+
+    v_path := substr(v_url, a_pos2, a_pos1 - a_pos2);
+    v_query := substr(v_url, a_pos1 + 1);
+END;
+/
+show errors;</PRE
+><P>
+    </P
+><P
+>これを<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で記述すると、以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION cs_parse_url(
+    v_url IN VARCHAR,
+    v_host OUT VARCHAR,  -- この値は戻されます
+    v_path OUT VARCHAR,  -- この値も戻されます
+    v_query OUT VARCHAR) -- この値も戻されます
+AS $$
+DECLARE
+    a_pos1 INTEGER;
+    a_pos2 INTEGER;
+BEGIN
+    v_host := NULL;
+    v_path := NULL;
+    v_query := NULL;
+    a_pos1 := instr(v_url, '//');
+
+    IF a_pos1 = 0 THEN
+        RETURN;
+    END IF;
+    a_pos2 := instr(v_url, '/', a_pos1 + 2);
+    IF a_pos2 = 0 THEN
+        v_host := substr(v_url, a_pos1 + 2);
+        v_path := '/';
+        RETURN;
+    END IF;
+
+    v_host := substr(v_url, a_pos1 + 2, a_pos2 - a_pos1 - 2);
+    a_pos1 := instr(v_url, '?', a_pos2 + 1);
+
+    IF a_pos1 = 0 THEN
+        v_path := substr(v_url, a_pos2);
+        RETURN;
+    END IF;
+
+    v_path := substr(v_url, a_pos2, a_pos1 - a_pos2);
+    v_query := substr(v_url, a_pos1 + 1);
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+
+この関数は以下のように使用できます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM cs_parse_url('http://foobar.com/query.cgi?baz');</PRE
+><P>
+    </P
+></DIV
+><P
+><A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-EX4"
+>&#20363;39-10</A
+>は、Oracleに特化した多くの機能を使用したプロシージャの移植方法を示します。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PLPGSQL-PORTING-EX4"
+></A
+><P
+><B
+>&#20363; 39-10. <SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>プロシージャの<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>への移植</B
+></P
+><P
+>以下はOracle版です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE PROCEDURE cs_create_job(v_job_id IN INTEGER) IS
+    a_running_job_count INTEGER;
+    PRAGMA AUTONOMOUS_TRANSACTION;<A
+NAME="CO.PLPGSQL-PORTING-PRAGMA"
+><B
+>(1)</B
+></A
+>
+BEGIN
+    LOCK TABLE cs_jobs IN EXCLUSIVE MODE;<A
+NAME="CO.PLPGSQL-PORTING-LOCKTABLE"
+><B
+>(2)</B
+></A
+>
+
+    SELECT count(*) INTO a_running_job_count FROM cs_jobs WHERE end_stamp IS NULL;
+
+    IF a_running_job_count &gt; 0 THEN
+        COMMIT; -- ロックを解放<A
+NAME="CO.PLPGSQL-PORTING-COMMIT"
+><B
+>(3)</B
+></A
+>
+        raise_application_error(-20000,
+                 'Unable to create a new job: a job is currently running.');
+    END IF;
+
+    DELETE FROM cs_active_job;
+    INSERT INTO cs_active_job(job_id) VALUES (v_job_id);
+
+    BEGIN
+        INSERT INTO cs_jobs (job_id, start_stamp) VALUES (v_job_id, sysdate);
+    EXCEPTION
+		WHEN dup_val_on_index THEN NULL; -- 既存であっても問題なし
+    END;
+    COMMIT;
+END;
+/
+show errors</PRE
+><P>
+   </P
+><P
+>このようなプロシージャは<TT
+CLASS="TYPE"
+>void</TT
+>型を返す<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>関数に簡単に変換することができます。
+以下のようなことを教えてくれることもあって、このプロシージャは特におもしろいものです。
+
+    <DIV
+CLASS="CALLOUTLIST"
+><DL
+COMPACT="COMPACT"
+><DT
+><A
+HREF="plpgsql-porting.html#CO.PLPGSQL-PORTING-PRAGMA"
+><B
+>(1)</B
+></A
+></DT
+><DD
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には<TT
+CLASS="LITERAL"
+>PRAGMA</TT
+>文はありません。
+      </DD
+><DT
+><A
+HREF="plpgsql-porting.html#CO.PLPGSQL-PORTING-LOCKTABLE"
+><B
+>(2)</B
+></A
+></DT
+><DD
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>で<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>を使用するならば、トランザクションの終了を呼び出すまでロックが解放されません。
+      </DD
+><DT
+><A
+HREF="plpgsql-porting.html#CO.PLPGSQL-PORTING-COMMIT"
+><B
+>(3)</B
+></A
+></DT
+><DD
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数内部では、<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>を使用できません。
+関数は外部のトランザクションの一部として実行されるため、<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>は関数の実行の終了を意味するからです。
+しかし、<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>によって掛けたロックはエラーが起こった時解放されるので、この例題では特に必要ありません。
+      </DD
+></DL
+></DIV
+>
+   </P
+><P
+>それでは、このプロシージャを<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>に移植することができた方法を見てみましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION cs_create_job(v_job_id integer) RETURNS void AS $$
+DECLARE
+    a_running_job_count integer;
+BEGIN
+    LOCK TABLE cs_jobs IN EXCLUSIVE MODE;
+
+    SELECT count(*) INTO a_running_job_count FROM cs_jobs WHERE end_stamp IS NULL;
+
+    IF a_running_job_count &gt; 0 THEN
+        RAISE EXCEPTION 'Unable to create a new job: a job is currently running';<A
+NAME="CO.PLPGSQL-PORTING-RAISE"
+><B
+>(1)</B
+></A
+>
+    END IF;
+
+    DELETE FROM cs_active_job;
+    INSERT INTO cs_active_job(job_id) VALUES (v_job_id);
+
+    BEGIN
+        INSERT INTO cs_jobs (job_id, start_stamp) VALUES (v_job_id, now());
+    EXCEPTION
+        WHEN unique_violation THEN <A
+NAME="CO.PLPGSQL-PORTING-EXCEPTION"
+><B
+>(2)</B
+></A
+>
+			-- 既存であっても問題なし
+    END;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+
+    <DIV
+CLASS="CALLOUTLIST"
+><DL
+COMPACT="COMPACT"
+><DT
+><A
+HREF="plpgsql-porting.html#CO.PLPGSQL-PORTING-RAISE"
+><B
+>(1)</B
+></A
+></DT
+><DD
+>基本の<TT
+CLASS="LITERAL"
+>RAISE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>exception_name</I
+></TT
+>である場合は同様に操作できますが、<TT
+CLASS="LITERAL"
+>RAISE</TT
+>構文はOracleにおける文とかなり異なります。
+      </DD
+><DT
+><A
+HREF="plpgsql-porting.html#CO.PLPGSQL-PORTING-EXCEPTION"
+><B
+>(2)</B
+></A
+></DT
+><DD
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>がサポートする例外の名称は、Oracleと異なります。
+提供する例外の名称は、はるかに広範囲です（<A
+HREF="errcodes-appendix.html"
+>&#20184;&#37682;A</A
+>を参照してください）。
+今のところ、ユーザ定義の例外名称を宣言できません。
+しかし代わりにユーザが選択したSQLSTATE値を返すことができます。
+      </DD
+></DL
+></DIV
+>
+
+このプロシージャはOracle版に比べて機能的な違いがあります。
+それは<TT
+CLASS="LITERAL"
+>cs_jobs</TT
+>テーブルの排他的ロックがトランザクションの終了まで継続することです。
+同様に、関数呼び出しの後で（例えばエラーが原因で）アボートすると、プロシージャの影響はロールバックされます。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-PORTING-OTHER"
+>39.12.2. その他の注意事項</A
+></H2
+><P
+>本節では、Oracle <SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>関数の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>への移植における、その他の注意事項を説明します。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="PLPGSQL-PORTING-EXCEPTIONS"
+>39.12.2.1. 例外後の暗黙的ロールバック</A
+></H3
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>において<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>句が例外を捕捉すると、<TT
+CLASS="LITERAL"
+>BEGIN</TT
+>以降のそのブロックにおけるデータベースの変更が自動的にロールバックされます。
+すなわち、Oracleの<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>による以下のプログラムと同等の処理が実行されます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN
+    SAVEPOINT s1;
+    ... code here ...
+EXCEPTION
+    WHEN ... THEN
+        ROLLBACK TO s1;
+        ... code here ...
+    WHEN ... THEN
+        ROLLBACK TO s1;
+        ... code here ...
+END;</PRE
+><P>
+
+このような方式で<TT
+CLASS="COMMAND"
+>SAVEPOINT</TT
+>と<TT
+CLASS="COMMAND"
+>ROLLBACK TO</TT
+>を使用したOracleのプロシージャの書き換えは簡単です。
+単に<TT
+CLASS="COMMAND"
+>SAVEPOINT</TT
+>と<TT
+CLASS="COMMAND"
+>ROLLBACK TO</TT
+>の処理を削除すればよいだけです。
+これと異なった方式で<TT
+CLASS="COMMAND"
+>SAVEPOINT</TT
+>と<TT
+CLASS="COMMAND"
+>ROLLBACK TO</TT
+>を使用したプロシージャの時は、それに応じた工夫が必要になると思われます。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN55520"
+>39.12.2.2. <TT
+CLASS="COMMAND"
+>EXECUTE</TT
+></A
+></H3
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PL/pgSQL</SPAN
+>の<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>は<SPAN
+CLASS="APPLICATION"
+>PL/SQL</SPAN
+>版とよく似ています。
+しかし<A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN"
+>&#38917;39.5.4</A
+>で説明されている<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>と<CODE
+CLASS="FUNCTION"
+>quote_ident</CODE
+>を使うことを覚えておかなければいけません。
+これらの関数を使用しない限り<TT
+CLASS="LITERAL"
+>EXECUTE ''SELECT * from $1'';</TT
+>という構文の動作には、信頼性がありません。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="PLPGSQL-PORTING-OPTIMIZATION"
+>39.12.2.3. <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数の最適化</A
+></H3
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には実行を最適化するために2つの関数生成修飾子があります。
+変動性（同じ引数が与えられた場合常に同じ結果が返します）と<SPAN
+CLASS="QUOTE"
+>"厳密性"</SPAN
+>（引数のいずれかにNULLが含まれる場合NULLを返します）です。
+詳細は<A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>を参照してください。
+    </P
+><P
+>これらの最適化属性を利用するためには、<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>文を以下のようにします。
+
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION foo(...) RETURNS integer AS $$
+...
+$$ LANGUAGE plpgsql STRICT IMMUTABLE;</PRE
+><P>
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-PORTING-APPENDIX"
+>39.12.3. 付録</A
+></H2
+><P
+>本節には、移植作業を簡略化するために使用できる、Oracle互換の<CODE
+CLASS="FUNCTION"
+>instr</CODE
+>関数のコードがあります。
+   </P
+><PRE
+CLASS="PROGRAMLISTING"
+>--
+-- Oracleのものと同じ動作をするinstr関数
+-- 構文: instr(string1,string2,[n],[m]) ただし、[]は省略可能なパラメータ
+-- 
+-- string1内のn番目の文字からm番目の文字まででstring2を探します。
+-- nが負の場合、逆方向に検索します。 mが渡されなかった場合は、
+-- 1とみなします（最初の文字から検索を始めます）。
+--
+
+CREATE FUNCTION instr(varchar, varchar) RETURNS integer AS $$
+DECLARE
+    pos integer;
+BEGIN
+    pos:= instr($1, $2, 1);
+    RETURN pos;
+END;
+$$ LANGUAGE plpgsql STRICT IMMUTABLE;
+
+
+CREATE FUNCTION instr(string varchar, string_to_search varchar, beg_index integer)
+RETURNS integer AS $$
+DECLARE
+    pos integer NOT NULL DEFAULT 0;
+    temp_str varchar;
+    beg integer;
+    length integer;
+    ss_length integer;
+BEGIN
+    IF beg_index &gt; 0 THEN
+        temp_str := substring(string FROM beg_index);
+        pos := position(string_to_search IN temp_str);
+
+        IF pos = 0 THEN
+            RETURN 0;
+        ELSE
+            RETURN pos + beg_index - 1;
+        END IF;
+    ELSE
+        ss_length := char_length(string_to_search);
+        length := char_length(string);
+        beg := length + beg_index - ss_length + 2;
+
+        WHILE beg &gt; 0 LOOP
+            temp_str := substring(string FROM beg FOR ss_length);
+            pos := position(string_to_search IN temp_str);
+
+            IF pos &gt; 0 THEN
+                RETURN beg;
+            END IF;
+
+            beg := beg - 1;
+        END LOOP;
+
+        RETURN 0;
+    END IF;
+END;
+$$ LANGUAGE plpgsql STRICT IMMUTABLE;
+
+
+CREATE FUNCTION instr(string varchar, string_to_search varchar,
+                      beg_index integer, occur_index integer)
+RETURNS integer AS $$
+DECLARE
+    pos integer NOT NULL DEFAULT 0;
+    occur_number integer NOT NULL DEFAULT 0;
+    temp_str varchar;
+    beg integer;
+    i integer;
+    length integer;
+    ss_length integer;
+BEGIN
+    IF beg_index &gt; 0 THEN
+        beg := beg_index;
+        temp_str := substring(string FROM beg_index);
+
+        FOR i IN 1..occur_index LOOP
+            pos := position(string_to_search IN temp_str);
+
+            IF i = 1 THEN
+                beg := beg + pos - 1;
+            ELSE
+                beg := beg + pos;
+            END IF;
+
+            temp_str := substring(string FROM beg + 1);
+        END LOOP;
+
+        IF pos = 0 THEN
+            RETURN 0;
+        ELSE
+            RETURN beg;
+        END IF;
+    ELSE
+        ss_length := char_length(string_to_search);
+        length := char_length(string);
+        beg := length + beg_index - ss_length + 2;
+
+        WHILE beg &gt; 0 LOOP
+            temp_str := substring(string FROM beg FOR ss_length);
+            pos := position(string_to_search IN temp_str);
+
+            IF pos &gt; 0 THEN
+                occur_number := occur_number + 1;
+
+                IF occur_number = occur_index THEN
+                    RETURN beg;
+                END IF;
+            END IF;
+
+            beg := beg - 1;
+        END LOOP;
+
+        RETURN 0;
+    END IF;
+END;
+$$ LANGUAGE plpgsql STRICT IMMUTABLE;</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-development-tips.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pltcl.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>による開発向けのヒント</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PL/Tcl - Tcl手続き言語</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,336 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Python 2対Python 3</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"><LINK
+REL="NEXT"
+TITLE="PL/Python関数"
+HREF="plpython-funcs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 42&#31456;PL/Python - Python手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Python関数"
+HREF="plpython-funcs.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPYTHON-PYTHON23"
+>42.1. Python 2対Python 3</A
+></H1
+><P
+>PL/PythonはPython 2およびPython 3言語の両方をサポートします。
+(PostgreSQLのインストール手順では、サポートするPythonの細かなマイナーバージョンに関して、より正確な情報が記載されています。)
+Python 2及びPython 3言語には重要な側面でいくつか互換性がありませんので、混在を防ぐためにPL/Pythonでは以下の命名ならびに移行計画が使用されています。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>plpython2u</TT
+>という名前のPostgreSQL言語はPython 2言語に基づいたPL/Pythonを実装します。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>plpython3u</TT
+>という名前のPostgreSQL言語はPython 3言語に基づいたPL/Pythonを実装します。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>plpythonu</TT
+>という名前の言語はデフォルトのPython言語(現時点ではPython 2)に基づいたPL/Pythonを実装します。
+(このデフォルトはどのローカルにインストールされたPythonがその<SPAN
+CLASS="QUOTE"
+>"デフォルト"</SPAN
+>とみなされるか、例えば<TT
+CLASS="FILENAME"
+>/usr/bin/python</TT
+>が何を示すか、とは独立しています。)
+PythonコミュニティにおけるPython 3への移行の進行状況に依存しますが、おそらく近い将来のPostgreSQLのデフォルトはPython 3に変わります。
+     </P
+></LI
+></UL
+><P>
+
+Python 2用のPL/PythonかPython 3用のPL/Python、またはその両方が利用できるかどうかは、構築時の設定またはインストールしたパッケージに依存します。
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>どのバージョンのPythonがインストール時に検出されるか、または、<TT
+CLASS="ENVAR"
+>PYTHON</TT
+>環境変数を使用してバージョンを明示的に設定することで、構築される亜種が決まります。
+<A
+HREF="install-procedure.html"
+>&#38917;15.4</A
+>を参照してください。
+１つのインストレーションで両方のPL/Pythonを利用可能にするためには、ソースツリーでconfigureと構築を２回行う必要があります。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>この結果以下のような使用方法と移行戦略となります。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>既存のユーザおよび現時点でPython 3に興味を持たないユーザは<TT
+CLASS="LITERAL"
+>plpythonu</TT
+>という名前の言語を使用し、当分の間何も変更する必要はありません。
+最終的なPython 3への移行を簡単にするために、Python 2.6/2.7への移行を介してコードを少しずつ<SPAN
+CLASS="QUOTE"
+>"将来に備える"</SPAN
+>ことを勧めます。
+     </P
+><P
+>実際には、多くのPL/Python関数はそのまま、またはわずかな変更を行うことでPython 3に移行されます。
+     </P
+></LI
+><LI
+><P
+>Python 2に大きく依存するコードがあることが分かっていて、変更する予定がないユーザは<TT
+CLASS="LITERAL"
+>plpython2u</TT
+>言語名を使用することができます。
+これは、PostgreSQLでPython 2のサポートが完全になくなる、非常に先の将来まで動作し続けます。
+     </P
+></LI
+><LI
+><P
+>Python 3に挑戦したいユーザは、現在の標準では永久に動作し続ける<TT
+CLASS="LITERAL"
+>plpython3u</TT
+>言語名を使用できます。
+遠い将来、Python 3がデフォルトになった時、美的な理由から<SPAN
+CLASS="QUOTE"
+>"3"</SPAN
+>という文字はなくなることになるでしょう。
+     </P
+></LI
+><LI
+><P
+>Python 3のみのオペレーティングシステム環境を構築したい、恐れを知らぬユーザは、<A
+HREF="catalog-pg-pltemplate.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+></A
+>の内容を変更して、<TT
+CLASS="LITERAL"
+>plpythonu</TT
+>が<TT
+CLASS="LITERAL"
+>plpython3u</TT
+>を示すようにすることができます。
+ただし、世間一般と互換性がないインストレーションを作成していることを覚えておいてください。
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+>また、Python 3への移植に関する情報については<A
+HREF="http://docs.python.org/py3k/whatsnew/3.0.html"
+TARGET="_top"
+>Python 3.0における新機能</A
+>文書を参照してください。
+  </P
+><P
+>Python 2を基にしたPL/PythonとPython 3を基にしたPL/Pythonを同じセッションで使用することはできません。
+動的モジュール内のシンボルが相反するため、こうするとPostgreSQLサーバプロセスがクラッシュしてしまうためです。
+あるセッション内でPythonのメジャーバージョンが混在させないための検査があり、不一致が見つかるとセッションは中断されます。
+しかし別々のセッションからであれば、同じデータベースにおいて異なるPL/Pythonの両方を使用することができます。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpython.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpython-funcs.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PL/Python - Python手続き言語</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpython.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PL/Python関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,471 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>概要</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="NEXT"
+TITLE="PL/pgSQLの構造"
+HREF="plpgsql-structure.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQLの構造"
+HREF="plpgsql-structure.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-OVERVIEW"
+>39.1. 概要</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースシステム用の読み込み可能な手続き言語です。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の設計目的は、次のような読み込み可能な手続き言語でした。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>関数とトリガプロシージャを作成するために使用できること
+      </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語に制御構造を追加すること
+      </P
+></LI
+><LI
+><P
+>複雑な演算が可能であること
+      </P
+></LI
+><LI
+><P
+>全てのユーザ定義型、関数、演算子を継承すること
+      </P
+></LI
+><LI
+><P
+>サーバによって信頼できるものと定義できること
+      </P
+></LI
+><LI
+><P
+>使いやすいこと
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>で作成した関数は、組み込み関数が使えるところであれば、どこでも使用できます。
+例えば、複雑な条件のある演算処理関数の作成が可能ですし、作成した関数を使用して演算子を定義することも、インデックス式にその関数を使用することも可能です。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.0以降では<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>はデフォルトでインストールされます。
+しかしこれはまだロード可能なモジュールですので、特にセキュリティに厳しい管理者は削除することもできます。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-ADVANTAGES"
+>39.1.1. <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>を使用することの利点</A
+></H2
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>およびその他のほとんどのリレーショナルデータベースが問い合わせ言語として使用している言語です。
+移植性があり、習得が容易です。
+しかし、あらゆる<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文はデータベースサーバによって個々に実行されなければいけません。
+    </P
+><P
+>これはクライアントアプリケーションに対して以下のようなことを要求しています。
+まず、データベースサーバに問い合わせを送信します。
+次にそれが処理されるのを待ちます。
+次に、結果を取得して処理します。
+次に若干の計算を行います。
+そして、サーバに次の問い合わせを送信します。
+クライアントがデータベースサーバマシンと異なるマシンの場合、プロセス間通信を招き、ネットワークオーバーヘッドを起こすでしょう。
+    </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>を使うことで、計算と複数の問い合わせをデータベースサーバ<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>内部</I
+></SPAN
+>でひとまとめに実行することができます。
+このように、手続き言語の能力とSQLの使いやすさを持ち合わせているにもかかわらず、クライアント/サーバ通信のオーバーヘッドをかなり節約できます。
+    </P
+><P
+></P
+><UL
+><LI
+><P
+>クライアント・サーバ間の余計なやり取りを排除する。
+ </P
+></LI
+><LI
+><P
+>クライアントサーバ間において、クライアントに不必要な中間結果の整理と転送を不要とする。
+ </P
+></LI
+><LI
+><P
+> 
+一連の問い合わせに、複数の解析が不要である。
+ </P
+></LI
+></UL
+><P
+>これにより、ストアドプロシージャを使用しないアプリケーションに比較して、かなり性能を向上させることができます。
+    </P
+><P
+>また、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>ではSQL全てのデータ型、演算子、関数を使用することができます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-ARGS-RESULTS"
+>39.1.2. 引数と結果データ型のサポート</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>で作成された関数は、サーバでサポートされる任意のスカラデータ型や配列データ型を引数として受け付けることができ、また、これらの型を結果として返すことができます。
+また、任意の、名前で指定された複合型（行型）を受け付けたり、返したりすることもできます。
+さらに、<A
+HREF="queries-table-expressions.html#QUERIES-TABLEFUNCTIONS"
+>&#38917;7.2.1.4</A
+>で説明されているように、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数が<TT
+CLASS="TYPE"
+>record</TT
+>を返すように宣言することも可能で、この場合、結果は行型で、その列は呼び出す問い合わせの中での指定で決まります。
+    </P
+><P
+>    
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数は<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+>記号を使用して可変長の引数を受け付けられるように宣言することができます。
+これは<A
+HREF="xfunc-sql.html#XFUNC-SQL-VARIADIC-FUNCTIONS"
+>&#38917;35.4.5</A
+>で論議したように、SQL関数と全く同じ方法で動作します。
+    </P
+><P
+>また、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数を、<TT
+CLASS="TYPE"
+>anyelement</TT
+>、<TT
+CLASS="TYPE"
+>anyarray</TT
+>、<TT
+CLASS="TYPE"
+>anynonarray</TT
+>、<TT
+CLASS="TYPE"
+>anyenum</TT
+>多様型を受け付けたり、返したりするように宣言することもできます。
+<A
+HREF="extend-type-system.html#EXTEND-TYPES-POLYMORPHIC"
+>&#38917;35.2.5</A
+>の説明の通り、多様型関数で扱われる実際のデータ型は呼び出しごとに変動することができます。
+例を<A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-PARAMETERS"
+>&#38917;39.3.1</A
+>に示します。
+    </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数は、1つのインスタンスとして返すことができる任意のデータ型の<SPAN
+CLASS="QUOTE"
+>"集合"</SPAN
+>（テーブル）を返すように宣言できます。
+こうした関数は、結果集合の必要な要素に対して<TT
+CLASS="LITERAL"
+>RETURN NEXT</TT
+>を実行すること、または問い合わせの評価結果を得るために<TT
+CLASS="COMMAND"
+>RETURN QUERY</TT
+>を使用することで、その出力を生成します。
+    </P
+><P
+>最後に、有用な戻り値を持たない場合、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数は、<TT
+CLASS="TYPE"
+>void</TT
+>を返すように宣言することができます。
+    </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数は戻り値の型を明確に指定する代わりに、出力パラメータと共に宣言することもできます。
+これは言語に対して基本的な能力を追加するものではありませんが、特に複数の値を返す時にしばしば便利です。
+<TT
+CLASS="LITERAL"
+>RETURNS TABLE</TT
+>表記は<TT
+CLASS="LITERAL"
+>RETURNS SETOF</TT
+>の代わりとして使用できます。
+    </P
+><P
+>関連する例は<A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-PARAMETERS"
+>&#38917;39.3.1</A
+>および<A
+HREF="plpgsql-control-structures.html#PLPGSQL-STATEMENTS-RETURNING"
+>&#38917;39.6.1</A
+>にあります。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-structure.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の構造</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

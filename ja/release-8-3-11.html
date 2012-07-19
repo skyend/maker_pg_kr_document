@@ -1,0 +1,461 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.3.11</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.3.12"
+HREF="release-8-3-12.html"><LINK
+REL="NEXT"
+TITLE="リリース8.3.10"
+HREF="release-8-3-10.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.3.12"
+HREF="release-8-3-12.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.3.10"
+HREF="release-8-3-10.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-3-11"
+>E.36. リリース8.3.11</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2010-05-17</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.3.10に対し、各種の不具合を修正したものです。
+8.3メジャーリリースにおける新機能については<A
+HREF="release-8-3.html"
+>&#38917;E.47</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115177"
+>E.36.1. バージョン8.3.11への移行</A
+></H2
+><P
+>8.3.Xからの移行ではダンプ/リストアは不要です。
+しかし8.3.8以前のバージョンからアップデートする場合は8.3.8のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115180"
+>E.36.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>Safe.pm</TT
+>を使用するのではなく、インタプリタ全体に適用されるopmaskを使用して<TT
+CLASS="LITERAL"
+>plperl</TT
+>を強制的に制限します。(Tim Bunce, Andrew Dunstan)
+     </P
+><P
+>最近の開発により<TT
+CLASS="LITERAL"
+>plperl</TT
+>を信頼できるとする根拠とするには<TT
+CLASS="FILENAME"
+>Safe.pm</TT
+>が非常に安全ではないことを知らされました。
+この変更により、<TT
+CLASS="FILENAME"
+>Safe.pm</TT
+>の使用がなくなり、常に適用されるopcodeマスクを持つ別のインタプリタを使用するようになります。
+この変更の喜ばしい副作用として、<TT
+CLASS="LITERAL"
+>plperl</TT
+>内で普通の方法でPerlの<TT
+CLASS="LITERAL"
+>strict</TT
+>プラグマが使用できるようになりました。
+また、Perlの<TT
+CLASS="LITERAL"
+>$a</TT
+>と<TT
+CLASS="LITERAL"
+>$b</TT
+>がソート関数で想定される動作を行うようになり、関数のコンパイルが非常に高速になりました。(CVE-2010-1169)
+     </P
+></LI
+><LI
+><P
+>PL/Tclにおいて<TT
+CLASS="STRUCTNAME"
+>pltcl_modules</TT
+>経由で信頼できないコードが実行されることを防止しました。(Tom)
+     </P
+><P
+>PL/TclのデータベーステーブルからTclコードを自動読み込みする機能はトロイの木馬攻撃によりつけこまれる可能性がありました。
+そのテーブルの作成や挿入できるユーザに対する制限がなかったためです。
+この変更により、<TT
+CLASS="STRUCTNAME"
+>pltcl_modules</TT
+>がスーパーユーザにより所有されていない限り、この機能は無効になります。
+(しかし、このテーブルに対する権限は検査されませんので、安全性が低いモジュールを本当に必要とするインストレーションでは、スーパーユーザ以外に適切な権限を付与することができます。)
+また、
+<TT
+CLASS="LITERAL"
+>pltclu</TT
+>関数を本当に実行しようとしていない限り、制限がない<SPAN
+CLASS="QUOTE"
+>"通常の"</SPAN
+>Tclにコードが読み込まれることを防止しました。(CVE-2010-1170)
+     </P
+></LI
+><LI
+><P
+>relcache項目の再構築中にキャッシュ再設定メッセージを受け取った場合にクラッシュする可能性を修正しました。(Heikki)
+     </P
+><P
+>8.3.10で関連する失敗を修正する時に、このエラーが入ってしまいました。
+     </P
+></LI
+><LI
+><P
+>関数の言語検証関数を実行する時に関数毎のGUC設定を適用します。(Itagaki Takahiro)
+     </P
+><P
+>これは、その設定がないと関数のコードが無効になる場合の失敗を防ぎます。
+例えば<TT
+CLASS="VARNAME"
+>search_path</TT
+>が正しくないとSQL関数は解析できません。
+     </P
+></LI
+><LI
+><P
+>非特権ユーザがスーパーユーザのみのパラメータ設定を再設定することを許しません。(Alvaro)
+     </P
+><P
+>これまで、非特権ユーザが自身に対する<TT
+CLASS="LITERAL"
+>ALTER USER ... RESET ALL</TT
+>または自身が所有するデータベースに対する<TT
+CLASS="LITERAL"
+>ALTER DATABASE ... RESET ALL</TT
+>を行った場合、そのユーザまたはデータベースに対する特別なパラメータ設定は、たとえスーパーユーザのみにより変更可能なものとして提供されるものであっても、すべて削除されました。
+<TT
+CLASS="COMMAND"
+>ALTER</TT
+>はそのユーザが変更権限を持つパラメータのみを削除するようになりました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>CONTEXT</TT
+>追加がログ項目になされる時にシャットダウンが発生した場合に、バックエンドのシャットダウン時にクラッシュする可能性を防ぎました。(Tom)
+     </P
+><P
+>現在のトランザクションがログメッセージを出力する時点に達した時にすでにロールバックされているために文脈出力関数が失敗することがありました。
+     </P
+></LI
+><LI
+><P
+>アーカイブ処理ができる限り高速に<TT
+CLASS="VARNAME"
+>archive_command</TT
+>の変更に対応することを確実にしました。(Tom)
+     </P
+></LI
+><LI
+><P
+>pl/perlの<TT
+CLASS="FILENAME"
+>ppport.h</TT
+>を最近のPerlバージョンに更新しました。(Andrew)
+     </P
+></LI
+><LI
+><P
+>pl/python内の雑多なメモリリークを修正しました。(Andreas Freund, Tom)
+     </P
+></LI
+><LI
+><P
+>変数展開が自身を参照している際の<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>における無限再帰を防止します。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>\copy (select ...)</TT
+>内のドットの前後に空白を追加しないように、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="LITERAL"
+>\copy</TT
+>を修正しました。(Tom)
+     </P
+><P
+>数値リテラルにおいて10進数の小数点の前後に空白が追加された場合、構文エラーが発生します。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/intarray</TT
+>演算子を使用する満足されない問い合わせにおいて、不要な<SPAN
+CLASS="QUOTE"
+>"GIN indexes do not support whole-index scans"</SPAN
+>エラーを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/pgstattuple</TT
+>関数がキャンセル割り込みに即座に応答することを確実にしました。(Tatsuhito Kasahara)
+     </P
+></LI
+><LI
+><P
+>サーバ起動時に、既存の共有メモリセグメントに対して<CODE
+CLASS="FUNCTION"
+>shmget()</CODE
+>が<TT
+CLASS="LITERAL"
+>EINVAL</TT
+>を返す状況を適切に扱うようにしました。(Tom)
+     </P
+><P
+>この振舞いはOS Xを含むBSD派生のカーネルにおいて観測されました。
+共有メモリ要求サイズが大きすぎるという警告の、完全に間違った起動失敗という結果になりました。
+     </P
+></LI
+><LI
+><P
+>Windowsにおけるsysloggerプロセス内のクラッシュする可能性を防ぎます。(Heikki)
+     </P
+></LI
+><LI
+><P
+>Windowsレジストリにおいて不完全な時間帯情報をより堅牢に扱います。(Magnus)
+     </P
+></LI
+><LI
+><P
+>Windowsにおいて既知の時間帯名称の集合を更新しました。(Magnus)
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+> release 2010jに更新しました。
+アルゼンチン、南極におけるオーストラリア、バングラディシュ、メキシコ、モロッコ、パキスタン、パレスチナ、ロシア、シリア、チュニジアにおける夏時間規則の変更、および、台湾の歴史的な修正が含まれます。
+     </P
+><P
+>また、デフォルトの時間帯省略形の集合に<TT
+CLASS="LITERAL"
+>PKST</TT
+>(パキスタン夏時間)を追加しました。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-3-12.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-3-10.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.3.12</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.3.10</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

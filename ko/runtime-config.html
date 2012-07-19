@@ -1,0 +1,474 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>서버 설정하기 </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \"서버 관리 \"\n
+HREF="admin.html"><LINK
+REL="PREVIOUS"
+TITLE = \"SSH 터널을 사용한 안전한 TCP / IP 연결\"\n
+HREF="ssh-tunnels.html"><LINK
+REL="NEXT"
+TITLE = \" 매개 변수 설정\"\n
+HREF="config-setting.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \"SSH 터널을 사용한 안전한 TCP / IP 연결\"\n
+HREF="ssh-tunnels.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" 서버 준비 및 운영 \"\n
+HREF="runtime.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \"클라이언트 인증\"\n
+HREF="client-authentication.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 매개 변수 설정\"\n
+HREF="config-setting.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="RUNTIME-CONFIG"
+></A
+>&#31532; 18 장 サーバの設定</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>18.1. <A
+HREF="config-setting.html"
+>매개 변수 설정 </A
+></DT
+><DT
+>18.2. <A
+HREF="runtime-config-file-locations.html"
+>파일 위치 </A
+></DT
+><DT
+>18.3. <A
+HREF="runtime-config-connection.html"
+>연결 및 인증 </A
+></DT
+><DD
+><DL
+><DT
+>18.3.1. <A
+HREF="runtime-config-connection.html#RUNTIME-CONFIG-CONNECTION-SETTINGS"
+>연결 설정 </A
+></DT
+><DT
+>18.3.2. <A
+HREF="runtime-config-connection.html#RUNTIME-CONFIG-CONNECTION-SECURITY"
+>보안 및 인증 </A
+></DT
+></DL
+></DD
+><DT
+>18.4. <A
+HREF="runtime-config-resource.html"
+>자원 소비 </A
+></DT
+><DD
+><DL
+><DT
+>18.4.1. <A
+HREF="runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-MEMORY"
+>메모리 </A
+></DT
+><DT
+>18.4.2. <A
+HREF="runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-KERNEL"
+>커널 자원 사용 </A
+></DT
+><DT
+>18.4.3. <A
+HREF="runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST"
+>비용 기반 Vacuum 지연 </A
+></DT
+><DT
+>18.4.4. <A
+HREF="runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER"
+>백그라운드 라이터 </A
+></DT
+><DT
+>18.4.5. <A
+HREF="runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR"
+>비동기 작업 </A
+></DT
+></DL
+></DD
+><DT
+>18.5. <A
+HREF="runtime-config-wal.html"
+>로그 선행 기입 ( WAL) </A
+></DT
+><DD
+><DL
+><DT
+>18.5.1. <A
+HREF="runtime-config-wal.html#RUNTIME-CONFIG-WAL-SETTINGS"
+>여러 설정 </A
+></DT
+><DT
+>18.5.2. <A
+HREF="runtime-config-wal.html#RUNTIME-CONFIG-WAL-CHECKPOINTS"
+>체크 포인트 </A
+></DT
+><DT
+>18.5.3. <A
+HREF="runtime-config-wal.html#RUNTIME-CONFIG-WAL-ARCHIVING"
+>아카이빙 </A
+></DT
+></DL
+></DD
+><DT
+>18.6. <A
+HREF="runtime-config-replication.html"
+>복제 </A
+></DT
+><DD
+><DL
+><DT
+>18.6.1. <A
+HREF="runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-MASTER"
+>마스터 서버 </A
+></DT
+><DT
+>18.6.2. <A
+HREF="runtime-config-replication.html#RUNTIME-CONFIG-REPLICATION-STANDBY"
+>대기 서버 </A
+></DT
+></DL
+></DD
+><DT
+>18.7. <A
+HREF="runtime-config-query.html"
+>쿼리 계획 </A
+></DT
+><DD
+><DL
+><DT
+>18.7.1. <A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-ENABLE"
+>플래너 방법 설정 </A
+></DT
+><DT
+>18.7.2. <A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS"
+>플래너 비용 상수 </A
+></DT
+><DT
+>18.7.3. <A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-GEQO"
+>유전 적인 쿼리 최적화 </A
+></DT
+><DT
+>18.7.4. <A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-OTHER"
+>기타 플래너 옵션 </A
+></DT
+></DL
+></DD
+><DT
+>18.8. <A
+HREF="runtime-config-logging.html"
+>오류 보고와 로그 취득 </A
+></DT
+><DD
+><DL
+><DT
+>18.8.1. <A
+HREF="runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-WHERE"
+>로그 대상 </A
+></DT
+><DT
+>18.8.2. <A
+HREF="runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-WHEN"
+>언제 로그를 취득 하거나 </A
+></DT
+><DT
+>18.8.3. <A
+HREF="runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-WHAT"
+>무엇을 로그에 </A
+></DT
+><DT
+>18.8.4. <A
+HREF="runtime-config-logging.html#RUNTIME-CONFIG-LOGGING-CSVLOG"
+>CSV 형식 의 로깅 사용 </A
+></DT
+></DL
+></DD
+><DT
+>18.9. <A
+HREF="runtime-config-statistics.html"
+>런타임 통계 </A
+></DT
+><DD
+><DL
+><DT
+>18.9.1. <A
+HREF="runtime-config-statistics.html#RUNTIME-CONFIG-STATISTICS-COLLECTOR"
+>문의 및 인덱스에 대한 통계 정보 수집 </A
+></DT
+><DT
+>18.9.2. <A
+HREF="runtime-config-statistics.html#RUNTIME-CONFIG-STATISTICS-MONITOR"
+>통계 모니터링 </A
+></DT
+></DL
+></DD
+><DT
+>18.10. <A
+HREF="runtime-config-autovacuum.html"
+>자동 Vacuum 작업 </A
+></DT
+><DT
+>18.11. <A
+HREF="runtime-config-client.html"
+>클라이언트 연결 기본 </A
+></DT
+><DD
+><DL
+><DT
+>18.11.1. <A
+HREF="runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT"
+>문의 동작 </A
+></DT
+><DT
+>18.11.2. <A
+HREF="runtime-config-client.html#RUNTIME-CONFIG-CLIENT-FORMAT"
+>로케일과 서식 설정 </A
+></DT
+><DT
+>18.11.3. <A
+HREF="runtime-config-client.html#RUNTIME-CONFIG-CLIENT-OTHER"
+>기타 기본 </A
+></DT
+></DL
+></DD
+><DT
+>18.12. <A
+HREF="runtime-config-locks.html"
+>잠금 관리 </A
+></DT
+><DT
+>18.13. <A
+HREF="runtime-config-compatible.html"
+>버전 과 플랫폼 호환성 </A
+></DT
+><DD
+><DL
+><DT
+>18.13.1. <A
+HREF="runtime-config-compatible.html#RUNTIME-CONFIG-COMPATIBLE-VERSION"
+>이전 PostgreSQL 버전 </A
+></DT
+><DT
+>18.13.2. <A
+HREF="runtime-config-compatible.html#RUNTIME-CONFIG-COMPATIBLE-CLIENTS"
+>플랫폼과 클라이언트 호환성 </A
+></DT
+></DL
+></DD
+><DT
+>18.14. <A
+HREF="runtime-config-error-handling.html"
+>오류 처리 </A
+></DT
+><DT
+>18.15. <A
+HREF="runtime-config-preset.html"
+>설정된 옵션 </A
+></DT
+><DT
+>18.16. <A
+HREF="runtime-config-custom.html"
+>자신의 옵션 </A
+></DT
+><DT
+>18.17. <A
+HREF="runtime-config-developer.html"
+>개발자 옵션 </A
+></DT
+><DT
+>18.18. <A
+HREF="runtime-config-short.html"
+>짧은 옵션 </A
+></DT
+></DL
+></DIV
+><P
+>  
+   데이터베이스 시스템의 동작에 영향을 주는 여러 매개 변수가 있습니다.
+   이 장의 첫 부분 에서 어떻게 구성 매개 변수를 결정하는 방법에 대해 설명 합니다.
+   이어 절에서 각 매개 변수 에 대해 자세히 설명 합니다.
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ssh-tunnels.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="config-setting.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>SSH</SPAN
+>터널을 사용한 안전한 TCP / IP 연결 </TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="admin.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>매개 변수 설정 </TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

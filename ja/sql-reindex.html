@@ -1,0 +1,585 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>REINDEX</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="REASSIGN OWNED"
+HREF="sql-reassign-owned.html"><LINK
+REL="NEXT"
+TITLE="RELEASE SAVEPOINT"
+HREF="sql-release-savepoint.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="REASSIGN OWNED"
+HREF="sql-reassign-owned.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="REASSIGN OWNED"
+HREF="sql-reassign-owned.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="RELEASE SAVEPOINT"
+HREF="sql-release-savepoint.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="RELEASE SAVEPOINT"
+HREF="sql-release-savepoint.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-REINDEX"
+></A
+>REINDEX</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN73519"
+></A
+><H2
+>&#21517;&#21069;</H2
+>REINDEX&nbsp;--&nbsp;インデックスを再構築する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN73524"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>REINDEX { INDEX | TABLE | DATABASE | SYSTEM } <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ FORCE ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73527"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>REINDEX</TT
+>は、インデックスのテーブルに保存されたデータを使用してインデックスを再構築し、古いインデックスのコピーと置き換えます。
+以下に<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>が使用される状況を示します。
+   <P
+></P
+></P><UL
+><LI
+><P
+>インデックスが破損してしまい、有効なデータがなくなった場合です。
+理論的には決して起こらないはずですが、実際には、ソフトウェアのバグやハードウェアの障害によりインデックスが破損することがあります。
+<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>はこの修復手段を提供します。
+     </P
+></LI
+><LI
+><P
+>インデックスが<SPAN
+CLASS="QUOTE"
+>"膨張状態"</SPAN
+>、つまり、多くの空、もしくは、ほとんど空のページを持つ状態になっている場合です。
+この状況は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のB-treeインデックスが特定のパターンでアクセスされた場合に起こり得ます。
+<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>を使って、使用されないページを取り除いた新しいインデックス作成すると、インデックスの領域消費量を減少することができます。
+詳細は<A
+HREF="routine-reindex.html"
+>&#38917;23.2</A
+>を参照してください。
+     </P
+></LI
+><LI
+><P
+>インデックスの格納パラメータ（フィルファクタなど）を変更し、この変更が有効かどうかを確認したい場合です。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>CONCURRENTLY</TT
+>オプションをつけたインデックス作成が失敗し、<SPAN
+CLASS="QUOTE"
+>"無効な"</SPAN
+>インデックスが残った場合です。
+こうしたインデックスは使用されませんが、<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>を使用して簡単に再作成することができます。
+<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>では同時構築ができないことに注意してください。
+運用に影響を与えずにインデックスを作成するためには、インデックスを削除してから<TT
+CLASS="COMMAND"
+>CREATE INDEX CONCURRENTLY</TT
+>コマンドを再発行しなければなりません。
+     </P
+></LI
+></UL
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73551"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>INDEX</TT
+></DT
+><DD
+><P
+>指定したインデックスを再作成します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TABLE</TT
+></DT
+><DD
+><P
+>指定したテーブルの全インデックスを再作成します。
+テーブルに2次的な<SPAN
+CLASS="QUOTE"
+>"TOAST"</SPAN
+>テーブルがあっても、同様にインデックスを再作成します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DATABASE</TT
+></DT
+><DD
+><P
+>現在のデータベースのすべてのインデックスを再作成します。
+共有システムカタログのインデックスも処理されます。
+この構文の<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>をトランザクションブロック内で実行することはできません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SYSTEM</TT
+></DT
+><DD
+><P
+>現在のデータベースのシステムカタログに対するすべてのインデックスを再作成します。
+共有システムカタログのインデックスも含みます。
+ユーザテーブルのインデックスは処理されません。
+この構文の<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>をトランザクションブロック内で実行することはできません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>インデックスを再作成するインデックス、テーブル、データベースの名前です。
+インデックスとテーブルはスキーマで修飾可能です。
+現状では、<TT
+CLASS="COMMAND"
+>REINDEX DATABASE</TT
+>と<TT
+CLASS="COMMAND"
+>REINDEX SYSTEM</TT
+>は現在のデータベースのインデックスのみを再作成することができます。
+そのため、このパラメータは現在のデータベース名と一致する必要があります。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FORCE</TT
+></DT
+><DD
+><P
+>このオプションは廃止されました。
+指定されても無視されます。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73589"
+></A
+><H2
+>注釈</H2
+><P
+>ユーザテーブル上の特定のインデックスに破損の疑いがある場合、<TT
+CLASS="COMMAND"
+>REINDEX INDEX</TT
+>を使ってそのインデックスを再構築することもできますし、<TT
+CLASS="COMMAND"
+>REINDEX TABLE</TT
+>を使ってそのテーブルのすべてのインデックスを再構築することもできます。
+  </P
+><P
+>システムテーブルのインデックスの破損を復旧する場合の手順はより複雑になります。
+この場合、システムによって破損の可能性があるインデックス自体が使用されないようにすることが重要です
+（実際は、このようなケースでは、破損したインデックスに依存していたため、サーバプロセスが起動時に強制終了してしまう可能性があります）。
+安全に復旧させるには、システムカタログ検索時のインデックスの使用を禁止する<TT
+CLASS="OPTION"
+>-P</TT
+>オプションを使用してサーバを起動しなければなりません。
+  </P
+><P
+>考えられる方法の1つは次の方法です。まず、サーバを停止して、コマンドラインから<TT
+CLASS="OPTION"
+>-P</TT
+>オプションを指定してシングルユーザ状態の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバを起動します。
+そして、再構成する範囲に応じて、<TT
+CLASS="COMMAND"
+>REINDEX DATABASE</TT
+>、<TT
+CLASS="COMMAND"
+>REINDEX SYSTEM</TT
+>、<TT
+CLASS="COMMAND"
+>REINDEX TABLE</TT
+>、または、<TT
+CLASS="COMMAND"
+>REINDEX INDEX</TT
+>コマンドを発行します。
+範囲が不明な場合は、<TT
+CLASS="COMMAND"
+>REINDEX SYSTEM</TT
+>を使用して、そのデータベースの全てのシステムインデックスを再構成してください。
+その後、シングルユーザ状態のサーバセッションを停止して、実サーバを再起動します。
+シングルユーザ状態のサーバインタフェースの操作方法についての詳細は、<A
+HREF="app-postgres.html"
+><SPAN
+CLASS="APPLICATION"
+>postgres</SPAN
+></A
+>マニュアルページを参照してください。
+  </P
+><P
+>その他、コマンドラインで<TT
+CLASS="OPTION"
+>-P</TT
+>を指定して実サーバセッションを起動することもできます。
+具体的な方法は、クライアントによって異なります。
+しかし、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>ベースのクライアントであれば、クライアントを起動する前に<TT
+CLASS="ENVAR"
+>PGOPTIONS</TT
+>環境変数を<TT
+CLASS="LITERAL"
+>-P</TT
+>に設定すれば実現できます。
+この方法では他のクライアントを締め出す必要はありませんが、修復が終わるまで破損したデータベースへの他のユーザの接続を防止する方が良いことに注意してください。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>REINDEX</TT
+>は、インデックスの中身を1から作り直すという点では、インデックスを削除してから再作成する処理と似ています。
+しかし、ロックに関しては異なります。
+<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>はインデックスの元となるテーブルの書き込みをロックしますが、読み込みはロックしません。
+また、処理中のインデックスに対する排他ロックを取得するので、そのインデックスを使用する読み込みはブロックされます。
+一方、<TT
+CLASS="COMMAND"
+>DROP INDEX</TT
+>は瞬間的に元となるテーブルの排他ロックを取得するので、書き込みも読み込みもブロックされます。
+その後に行う<TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+>では書き込みのみをロックし、読み込みはロックしません。
+インデックスは存在しないので、インデックスを使用する読み込みは発生しません。
+したがって、読み込みがブロックされることはありませんが、コストが高いシーケンシャルスキャンの使用を強制されることになります。
+  </P
+><P
+>単一インデックスまたは単一テーブルのインデックス再作成を行うには、そのインデックスまたはテーブルの所有者でなければなりません。
+データベースに対するインデックス再作成を行うには、データベースの所有者でなければなりません（したがって、この所有者は他のユーザが所有するテーブルのインデックスを再作成することができます）。
+もちろん、スーパーユーザは常にすべてのインデックス再作成を行うことができます。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.1より前まででは、<TT
+CLASS="COMMAND"
+>REINDEX DATABASE</TT
+>は名前から想像されるすべてのインデックスに対する処理ではなく、システムインデックスのみを処理していました。
+<TT
+CLASS="COMMAND"
+>REINDEX SYSTEM</TT
+>で、この以前の処理を行わせることができます。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 7.4より前までは、<TT
+CLASS="COMMAND"
+>REINDEX TABLE</TT
+>はTOASTテーブルに対して自動的に処理を行いませんでした。
+そのため、別のコマンドでインデックスを再作成しなければなりませんでした。
+現在でもこれは可能ですが、冗長です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73623"
+></A
+><H2
+>例</H2
+><P
+>単一のインデックスを再構築します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>REINDEX INDEX my_index;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>my_table</TT
+>テーブル上のすべてのインデックスを再構築します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>REINDEX TABLE my_table;</PRE
+><P>
+  </P
+><P
+>システムインデックスが有効かどうかを確認することなく、あるデータベース内の全てのインデックスを再構築します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$ <KBD
+CLASS="USERINPUT"
+>export PGOPTIONS="-P"</KBD
+>
+$ <KBD
+CLASS="USERINPUT"
+>psql broken_db</KBD
+>
+...
+broken_db=&gt; REINDEX DATABASE broken_db;
+broken_db=&gt; \q</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73634"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>はありません。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-reassign-owned.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-release-savepoint.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>REASSIGN OWNED</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>RELEASE SAVEPOINT</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,801 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>副問い合わせ式</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="ウィンドウ関数"
+HREF="functions-window.html"><LINK
+REL="NEXT"
+TITLE="行と配列の比較"
+HREF="functions-comparisons.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ウィンドウ関数"
+HREF="functions-window.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="行と配列の比較"
+HREF="functions-comparisons.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-SUBQUERY"
+>9.20. 副問い合わせ式</A
+></H1
+><P
+>  
+   本節では<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で使用できる<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>準拠の副問い合わせについて説明します。本節で記載した全ての式は結果として論理値（真/偽）を返します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-SUBQUERY-EXISTS"
+>9.20.1. <TT
+CLASS="LITERAL"
+>EXISTS</TT
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+>EXISTS (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>EXISTS</TT
+>の引数は、任意の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文または<I
+CLASS="FIRSTTERM"
+>副問い合わせ</I
+>です。副問い合わせはそれが何らかの行を返すか否かの決定のために評価されます。もし1つでも行を返すのであれば、<TT
+CLASS="TOKEN"
+>EXISTS</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>となり、副問い合わせが行を返さない場合、<TT
+CLASS="TOKEN"
+>EXISTS</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>となります。
+  </P
+><P
+>  
+   副問い合わせは、取り囲んでいる問い合わせから変数を参照することができ、その値は副問い合わせの評価時には定数として扱われます。
+  </P
+><P
+>  
+   この副問い合わせは通常、最後まで実行されず、少なくとも１つの行が返されたかどうかを判定し得るに足りる時点まで実行されます。（シーケンス関数を呼び出すような）副作用のある副問い合わせを記述することは配慮不足です。副作用が生じるかどうかは予想できません。
+  </P
+><P
+>  
+   結果は何らかの行が返されるのかのみに依存し、それらの行の内容には依存しないことから、副問い合わせの出力リストは通常重要ではありません。よく使われるコーディング規約は、全ての<TT
+CLASS="LITERAL"
+>EXISTS</TT
+>テストを<TT
+CLASS="LITERAL"
+>EXISTS(SELECT 1 WHERE ...)</TT
+>といった形式で記述することです。とは言っても、<TT
+CLASS="TOKEN"
+>INTERSECT</TT
+>を使う副問い合わせのようにこの規則には例外があります。
+  </P
+><P
+>  
+   以下の簡単な例は<TT
+CLASS="LITERAL"
+>col2</TT
+>上の内部結合に似ていますが、しかしたとえ<TT
+CLASS="LITERAL"
+>tab2</TT
+>の行といくつか一致したとしても<TT
+CLASS="LITERAL"
+>tab1</TT
+>のそれぞれの行に対して最大限１つの出力行を生成します。
+</P><PRE
+CLASS="SCREEN"
+>SELECT col1
+FROM tab1
+WHERE EXISTS (SELECT 1 FROM tab2 WHERE col2 = tab1.col2);</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-SUBQUERY-IN"
+>9.20.2. <TT
+CLASS="LITERAL"
+>IN</TT
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IN (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   右辺は括弧で括られた副問い合わせで、正確に１列を返すものでなければなりません。左辺式は評価され、副問い合わせの結果行と比較されます。副問い合わせの行のどれかと等しい場合、<TT
+CLASS="TOKEN"
+>IN</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>です。（副問い合わせが行を返さない場合を含め）等しい行が見つからない場合、結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>です。
+  </P
+><P
+>  
+   左辺の式がNULLを生じる場合、または右辺の値に等しいものがなくて少なくとも1つの右辺の行がNULLを持つ場合、<TT
+CLASS="TOKEN"
+>IN</TT
+>構文の結果は偽ではなくNULLとなることに注意してください。これは、NULL値の論理的な組み合わせに対するSQLの標準規則に従うものです。
+  </P
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>EXISTS</TT
+>と同様、副問い合わせが完全に評価されると前提してはなりません。
+  </P
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>row_constructor</I
+></TT
+> IN (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>IN</TT
+>のこの形式の左辺は、<A
+HREF="sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS"
+>&#38917;4.2.13</A
+>で説明する、行のコンストラクタです。右辺は括弧で括られた副問い合わせで、左辺の行にある式の数と正確に同じ数の列を返さなければなりません。左辺の式は副問い合わせの結果のそれぞれの行に対し、行に関して評価、比較が行われます。副問い合わせの行に等しいものが見つかった場合、<TT
+CLASS="TOKEN"
+>IN</TT
+> の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>となります。（副問い合わせが行を返さない場合を含め）等しい行が見つからない場合、結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>です。
+  </P
+><P
+>  
+   行にあるNULL値はいつもSQLの論理式の標準規則で結合されます。２つの行は対応する全ての構成要素が非NULLかつ等しい場合に等しいとみなされます。１つでも対応する構成要素が非NULLかつ等しくないものがあれば、２つの行は等しくないとみなされます。それ以外その行の比較結果は不明（NULL）です。行毎の結果すべてが不等もしくはNULLの場合、少なくとも１つのNULLがあると、<TT
+CLASS="TOKEN"
+>IN</TT
+>の結果はNULLとなります。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-SUBQUERY-NOTIN"
+>9.20.3. <TT
+CLASS="LITERAL"
+>NOT IN</TT
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> NOT IN (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   右辺は括弧で括られた副問い合わせで、正確に１つの列を返さなければなりません。左辺の式は副問い合わせ結果の行それぞれに対して評価、比較されます。（副問い合わせが行を返さない場合を含む）等しくない副問い合わせの行だけがあると、<TT
+CLASS="TOKEN"
+>NOT IN</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>です。等しい行が1つでもあれば、結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>です。
+  </P
+><P
+>  
+   左辺の式でNULLが生じる場合、または右辺の値に等しいものがなく、少なくとも１つの右辺の式がNULLを生み出す場合、<TT
+CLASS="TOKEN"
+>NOT IN</TT
+>構文の結果は真ではなくNULLとなることに注意してください。
+これは、NULL値の論理的な組み合わせに対するSQLの標準規則に従うものです。
+  </P
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>EXISTS</TT
+>と同様、副問い合わせが完全に評価されると前提してはなりません。
+  </P
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>row_constructor</I
+></TT
+> NOT IN (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>NOT IN</TT
+>のこの形式の左辺は、<A
+HREF="sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS"
+>&#38917;4.2.13</A
+>で説明する行コンストラクタです。右辺は括弧で括られた副問い合わせで、左辺の行にある式の数と正確に同じ数の列を返さなければなりません。左辺の式は副問い合わせの結果のそれぞれの行に対し、評価、比較が行われます。（副問い合わせが行を返さない場合を含め）副問い合わせの行に不等のもののみが見つかった場合、<TT
+CLASS="TOKEN"
+>NOT IN</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>となります。等しい行が１つでも見つかった場合、結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>です。
+  </P
+><P
+>  
+   行にあるNULL値はいつもSQLの論理式の標準規則で結合されます。2つの行は対応する全ての構成要素が非NULLかつ等しい場合に等しいとみなされます。１つでも構成要素が非NULLかつ等しくない場合、２つの行は等しくないとみなされます。それ以外その行の比較結果は不明（NULL）です。行毎の結果すべてが不等もしくはNULLの場合、少なくとも1つのNULLがあると、<TT
+CLASS="TOKEN"
+>NOT IN</TT
+>の結果はNULLとなります。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-SUBQUERY-ANY-SOME"
+>9.20.4. <TT
+CLASS="LITERAL"
+>ANY</TT
+>/<TT
+CLASS="LITERAL"
+>SOME</TT
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ANY (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> SOME (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   右辺は括弧で括られた副問い合わせで、正確に1つの列を返さなければなりません。左辺の式は副問い合わせの結果行それぞれに対して、指定された<TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+>を使用して評価、比較されます。なお、<TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+>は結果として論理値を生成する必要があります。真の結果が１つでもあると、<TT
+CLASS="TOKEN"
+>ANY</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>です。（副問い合わせが行を返さない場合を含む）真の結果がないと、結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>です。
+  </P
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>SOME</TT
+>は<TT
+CLASS="TOKEN"
+>ANY</TT
+>の同義語です。<TT
+CLASS="TOKEN"
+>IN</TT
+>は<TT
+CLASS="LITERAL"
+>= ANY</TT
+>と等価です。
+  </P
+><P
+>  
+   成功がなく、右辺の行が演算子の結果として１つでもNULLを生成した場合、<TT
+CLASS="TOKEN"
+>ANY</TT
+>構文の結果は偽ではなくNULLになることに注意してください。これは、NULL値の論理的な組み合わせに対するSQLの標準規則に従うものです。
+  </P
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>EXISTS</TT
+>と同様、副問い合わせが完全に評価されると前提してはなりません。
+  </P
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>row_constructor</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ANY (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)
+<TT
+CLASS="REPLACEABLE"
+><I
+>row_constructor</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> SOME (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>ANY</TT
+>のこの形式の左辺は、<A
+HREF="sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS"
+>&#38917;4.2.13</A
+>で説明されている行コンストラクタです。右辺は括弧で括られた副問い合わせで、左辺の行にある式の数と正確に同じ数の列を返さなければなりません。左辺の式は副問い合わせの結果のそれぞれの行に対し、与えられた<TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+>を使用して行に関する評価、比較が行われます。比較の結果、副問い合わせのいかなる行に対して真となる場合、<TT
+CLASS="TOKEN"
+>ANY</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>です。比較の結果、副問い合わせの全ての行に対して偽となる場合（副問い合わせが行を返さないという場合も含めて）、結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>です。比較の結果、いかなる行でも真を返さず、かつ、少なくとも１つの行がNULLを返す場合、結果はNULLになります。
+  </P
+><P
+>  
+   行比較の意味についての詳細は<A
+HREF="functions-comparisons.html#ROW-WISE-COMPARISON"
+>&#38917;9.21.5</A
+>を参照して下さい。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-SUBQUERY-ALL"
+>9.20.5. <TT
+CLASS="LITERAL"
+>ALL</TT
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ALL (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   右辺は括弧で括られた副問い合わせで、正確に１つの列を返さなければなりません。左辺の式は副問い合わせの結果行それぞれに対して、指定された<TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+>を使用して評価、比較されます。なお、<TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+>は結果として論理値を生成する必要があります。（副問い合わせが行を返さない場合を含む）全ての行が真になる場合、<TT
+CLASS="TOKEN"
+>ALL</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>です。1つでも偽の結果があると、結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>です。比較がすべての行で偽を返さず、かつ、少なくとも1つの行でNULLを返した場合、結果はNULLとなります。
+  </P
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>NOT IN</TT
+>は<TT
+CLASS="LITERAL"
+>&lt;&gt; ALL</TT
+>と等価です。
+  </P
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>EXISTS</TT
+>と同様、副問い合わせが完全に評価されると前提してはなりません。
+  </P
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>row_constructor</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ALL (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   <TT
+CLASS="TOKEN"
+>ALL</TT
+>のこの形式の左辺は、<A
+HREF="sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS"
+>&#38917;4.2.13</A
+>で説明する行コンストラクタです。右辺は括弧で括られた副問い合わせで、左辺の行にある式の数と正確に同じ数の列を返さなければなりません。左辺の式は副問い合わせの結果のそれぞれの行に対し、与えられた<TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+>を使用して行に関する評価、比較が行われます。比較した結果、すべての副問い合わせ行に対して真を返す場合（副問い合わせが行を返さないという場合も含めて）、<TT
+CLASS="TOKEN"
+>ALL</TT
+>の結果は<SPAN
+CLASS="QUOTE"
+>"true（真）"</SPAN
+>となります。比較した結果、いずれかの副問い合わせ行で偽を返す場合、この結果は<SPAN
+CLASS="QUOTE"
+>"false（偽）"</SPAN
+>となります。比較結果がすべての副問い合わせ行に対して偽を返さず、少なくとも１行でNULLを返す場合、結果はNULLとなります。
+  </P
+><P
+>  
+   行に関する比較の意味については<A
+HREF="functions-comparisons.html#ROW-WISE-COMPARISON"
+>&#38917;9.21.5</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN17341"
+>9.20.6. 行に関する比較</A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>row_constructor</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>subquery</I
+></TT
+>)</PRE
+><P
+>  
+   左辺は、<A
+HREF="sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS"
+>&#38917;4.2.13</A
+>で説明されている行コンストラクタです。右辺は括弧で括られた副問い合わせで、左辺の行とまったく同じ数の列を返さなければなりません。さらに、副問い合わせは複数行を返すことはできません（行をまったく返さない場合、結果はNULLとみなされます）。左辺は副問い合わせの結果の単一行に対し行全体で評価、比較が行われます。
+  </P
+><P
+>  
+   行に関する比較の意味についての詳細は<A
+HREF="functions-comparisons.html#ROW-WISE-COMPARISON"
+>&#38917;9.21.5</A
+>を参照してください。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-window.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-comparisons.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ウィンドウ関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>行と配列の比較</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

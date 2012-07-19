@@ -1,0 +1,464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL / pgSQL - SQL 수속 언어 </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \" 서버 프로그래밍 \"\n
+HREF="server-programming.html"><LINK
+REL="PREVIOUS"
+TITLE = \" 수속 언어의 설치 \"\n
+HREF="xplang-install.html"><LINK
+REL="NEXT"
+TITLE = \" 설명 \"\n
+HREF="plpgsql-overview.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" 수속 언어의 설치 \"\n
+HREF="xplang-install.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" 절차 언어 \"\n
+HREF="xplang.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" PL / Tcl - Tcl 절차 언어 \"\n
+HREF="pltcl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 설명 \"\n
+HREF="plpgsql-overview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLPGSQL"
+></A
+>&#31532; 39 장 <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>절차 언어 </H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>39.1. <A
+HREF="plpgsql-overview.html"
+>개요 </A
+></DT
+><DD
+><DL
+><DT
+>39.1.1. <A
+HREF="plpgsql-overview.html#PLPGSQL-ADVANTAGES"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>를 사용 의 장점 </A
+></DT
+><DT
+>39.1.2. <A
+HREF="plpgsql-overview.html#PLPGSQL-ARGS-RESULTS"
+>인자와 결과 데이터 형식 지원 </A
+></DT
+></DL
+></DD
+><DT
+>39.2. <A
+HREF="plpgsql-structure.html"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>구조 </A
+></DT
+><DT
+>39.3. <A
+HREF="plpgsql-declarations.html"
+>선언 </A
+></DT
+><DD
+><DL
+><DT
+>39.3.1. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-PARAMETERS"
+>함수 인수 선언 </A
+></DT
+><DT
+>39.3.2. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-ALIAS"
+><TT
+CLASS="LITERAL"
+>ALIAS</TT
+></A
+></DT
+><DT
+>39.3.3. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-TYPE"
+>형식의 복사본 </A
+></DT
+><DT
+>39.3.4. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-ROWTYPES"
+>행 형식 </A
+></DT
+><DT
+>39.3.5. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-RECORDS"
+>레코드 형식 </A
+></DT
+><DT
+>39.3.6. <A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-COLLATION"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>변수의 데이터 </A
+></DT
+></DL
+></DD
+><DT
+>39.4. <A
+HREF="plpgsql-expressions.html"
+>식 </A
+></DT
+><DT
+>39.5. <A
+HREF="plpgsql-statements.html"
+>기본 적인 문장 </A
+></DT
+><DD
+><DL
+><DT
+>39.5.1. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-ASSIGNMENT"
+>할당 </A
+></DT
+><DT
+>39.5.2. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-SQL-NORESULT"
+>결과를 ​​수반하지 않는 명령을 실행 </A
+></DT
+><DT
+>39.5.3. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-SQL-ONEROW"
+>단일 행 결과 를 돌려주는 쿼리 실행 </A
+></DT
+><DT
+>39.5.4. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN"
+>동적 명령 </A
+></DT
+><DT
+>39.5.5. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-DIAGNOSTICS"
+>결과 스테이터스의 취득 </A
+></DT
+><DT
+>39.5.6. <A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-NULL"
+>전혀 아무것도 </A
+></DT
+></DL
+></DD
+><DT
+>39.6. <A
+HREF="plpgsql-control-structures.html"
+>제어 구조 </A
+></DT
+><DD
+><DL
+><DT
+>39.6.1. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-STATEMENTS-RETURNING"
+>함수에서 복귀 </A
+></DT
+><DT
+>39.6.2. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-CONDITIONALS"
+>조건부 </A
+></DT
+><DT
+>39.6.3. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-CONTROL-STRUCTURES-LOOPS"
+>간단한 루프 </A
+></DT
+><DT
+>39.6.4. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-RECORDS-ITERATING"
+>쿼리 결과에 의한 반복 </A
+></DT
+><DT
+>39.6.5. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-FOREACH-ARRAY"
+>배열을 순회 </A
+></DT
+><DT
+>39.6.6. <A
+HREF="plpgsql-control-structures.html#PLPGSQL-ERROR-TRAPPING"
+>오류 포착 </A
+></DT
+></DL
+></DD
+><DT
+>39.7. <A
+HREF="plpgsql-cursors.html"
+>커서 </A
+></DT
+><DD
+><DL
+><DT
+>39.7.1. <A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-DECLARATIONS"
+>커서 변수 선언 </A
+></DT
+><DT
+>39.7.2. <A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-OPENING"
+>커서를 열 </A
+></DT
+><DT
+>39.7.3. <A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-USING"
+>커서 사용하기 </A
+></DT
+><DT
+>39.7.4. <A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-FOR-LOOP"
+>커서 결과에 대한 루프 </A
+></DT
+></DL
+></DD
+><DT
+>39.8. <A
+HREF="plpgsql-errors-and-messages.html"
+>오류 및 메시지 </A
+></DT
+><DT
+>39.9. <A
+HREF="plpgsql-trigger.html"
+>트리거 프로 시저 </A
+></DT
+><DT
+>39.10. <A
+HREF="plpgsql-implementation.html"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>의 비결 </A
+></DT
+><DD
+><DL
+><DT
+>39.10.1. <A
+HREF="plpgsql-implementation.html#PLPGSQL-VAR-SUBST"
+>변수 치환 </A
+></DT
+><DT
+>39.10.2. <A
+HREF="plpgsql-implementation.html#PLPGSQL-PLAN-CACHING"
+>계획 캐시 </A
+></DT
+></DL
+></DD
+><DT
+>39.11. <A
+HREF="plpgsql-development-tips.html"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>에 의한 개발 팁 </A
+></DT
+><DT
+>39.12. <A
+HREF="plpgsql-porting.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+>PL / SQL 에서 이식 </A
+></DT
+><DD
+><DL
+><DT
+>39.12.1. <A
+HREF="plpgsql-porting.html#AEN55373"
+>이식 예제 </A
+></DT
+><DT
+>39.12.2. <A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-OTHER"
+>기타 사항 </A
+></DT
+><DT
+>39.12.3. <A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-APPENDIX"
+>부록 </A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="xplang-install.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-overview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>절차 언어의 설치 </TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="server-programming.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>개요 </TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

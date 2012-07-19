@@ -1,0 +1,441 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ロールの属性</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データベースロール"
+HREF="user-manag.html"><LINK
+REL="PREVIOUS"
+TITLE="データベースロール"
+HREF="database-roles.html"><LINK
+REL="NEXT"
+TITLE="ロールのメンバ資格"
+HREF="role-membership.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベースロール"
+HREF="database-roles.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベースロール"
+HREF="user-manag.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 20&#31456;データベースロール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベースロール"
+HREF="user-manag.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ロールのメンバ資格"
+HREF="role-membership.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ROLE-ATTRIBUTES"
+>20.2. ロールの属性</A
+></H1
+><P
+>データベースロールは、権限を定義し、クライアント認証システムと相互作用する数多くの属性を持つことができます。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>ログイン権限</DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>LOGIN</TT
+>属性を持つロールのみがデータベース接続の初期ロール名として使用できます。
+<TT
+CLASS="LITERAL"
+>LOGIN</TT
+> 属性を持つロールは<SPAN
+CLASS="QUOTE"
+>"データベースユーザ"</SPAN
+>と同じであるとみなすことができます。
+ログイン権限を持つロールの作成方法は、以下のいずれかです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> LOGIN;
+CREATE USER <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</PRE
+><P>
+（<TT
+CLASS="COMMAND"
+>CREATE USER</TT
+>はデフォルトで <TT
+CLASS="LITERAL"
+>LOGIN</TT
+>を持ち、<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>は持たないという点を除き、<TT
+CLASS="COMMAND"
+>CREATE USER</TT
+>は<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>と同じです。）
+       </P
+></DD
+><DT
+>スーパーユーザ状態</DT
+><DD
+><P
+>ログイン権限とレプリケーションの新規接続権限を除き、データベーススーパーユーザに対する権限検査は全て行われません。
+これは危険な権限ですので、安易に使用してはいけません。
+作業のほとんどを非スーパーユーザのロールで行うことが最善です。
+新しいデータベーススーパーユーザを作成するには、<TT
+CLASS="LITERAL"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SUPERUSER</TT
+>を使用してください。
+これはスーパーユーザのロールで実行しなければなりません。
+またデフォルトでは、スーパーユーザを作成すると、ストリーミングレプリケーションを初期化することができる権限が与えられます。
+セキュリティ強化のため、<TT
+CLASS="LITERAL"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SUPERUSER NOREPLICATION</TT
+>を使用して無効にすることができます。
+       </P
+></DD
+><DT
+>データベース作成</DT
+><DD
+><P
+>（全ての権限検査が行われないスーパーユーザを除き）ロールに明示的にデータベースを作成するための権限を指定しておかねばいけません。
+そのようなロールを作るためには<TT
+CLASS="LITERAL"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> CREATEDB</TT
+>を使用してください。
+       </P
+></DD
+><DT
+>ロールの作成</DT
+><DD
+><P
+>あるロールがロールを作成するには、明示的な権限が付与されていなければなりません。
+（スーパーユーザは、すべての権限検査を迂回しますので、例外です。）
+こうしたロールを作成するには、<TT
+CLASS="LITERAL"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> CREATEROLE</TT
+>を使用してください。
+<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つロールは他のロールを変更したり削除したりすることもできます。
+また、他のロールのメンバ資格を付与したり取り上げたりすることもできます。
+しかし、スーパーユーザロールの変更、削除、メンバ資格の変更を行うにはスーパーユーザ状態が必要です。
+<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>だけでは不足しています。
+       </P
+></DD
+><DT
+>レプリケーションの新規接続</DT
+><DD
+><P
+>       
+あるロールがストリーミングレプリケーションの新規接続を実施するには、明示的な権限が付与されていなければなりません。
+ストリーミングレプリケーションを行うロールは、常に<TT
+CLASS="LITERAL"
+>LOGIN</TT
+>権限が持っていることが必要です。
+こうしたロールを作成するには、<TT
+CLASS="LITERAL"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> REPLICATION LOGIN</TT
+>を使用してください。
+       </P
+></DD
+><DT
+>パスワード</DT
+><DD
+><P
+>パスワードは、クライアント認証方法においてデータベースに接続する際にユーザにパスワードを要求する場合にのみ重要になります。 
+<TT
+CLASS="OPTION"
+>password</TT
+>と<TT
+CLASS="OPTION"
+>md5</TT
+>認証方式でパスワードが使用されます。
+データベースパスワードはオペレーティングシステムのパスワードとは異なります。
+ロール作成時に<TT
+CLASS="LITERAL"
+>CREATE ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> PASSWORD 'string'</TT
+>のようにパスワードを指定します。 
+       </P
+></DD
+></DL
+></DIV
+><P>
+
+ロール属性は、ロールを作成した後でも<TT
+CLASS="COMMAND"
+>ALTER ROLE</TT
+>コマンドで変更できます。
+詳細は<A
+HREF="sql-createrole.html"
+>CREATE ROLE</A
+>と<A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+>のマニュアルページを参照してください。
+
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>スーパーユーザ以外に<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限と<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つロールを作成することを勧めます。
+そして、このロールを使用して、データベースとロールを管理するためのすべての処理を行ってください。
+この方法によって、実際には不要な処理をスーパーユーザとして行う危険性を避けることができます。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>ロールは、<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>で説明されている実行時の設定の多くをロールごとのデフォルトに設定することもできます。  
+例えば何らかの理由で、自分が接続する時は常にインデックススキャンを無効にしたい場合（注:お勧めしません）、次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER ROLE myname SET enable_indexscan TO off;</PRE
+><P>
+このようにして設定を保存します（ただし、すぐに反映はされません）。
+以降のこのロールによる接続においては、セッションの開始の直前に<TT
+CLASS="LITERAL"
+>SET enable_indexscan TO off;</TT
+>が呼び出されたのと同様になります。
+これはデフォルトとする設定をするだけなので、設定をセッション途中いつでも変更できます。
+ロール固有のデフォルト設定を削除するには、<TT
+CLASS="LITERAL"
+>ALTER ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>rolename</I
+></TT
+> RESET <TT
+CLASS="REPLACEABLE"
+><I
+>varname</I
+></TT
+></TT
+>を使用してください。
+呼び出されることがありませんので、<TT
+CLASS="LITERAL"
+>LOGIN</TT
+>権限を持たないロールにロール固有のデフォルトを持たせることに意味がないことに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="database-roles.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="role-membership.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データベースロール</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="user-manag.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ロールのメンバ資格</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

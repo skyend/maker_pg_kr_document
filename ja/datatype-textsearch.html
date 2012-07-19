@@ -1,0 +1,534 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テキスト検索に関する型</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ型"
+HREF="datatype.html"><LINK
+REL="PREVIOUS"
+TITLE="ビット列データ型"
+HREF="datatype-bit.html"><LINK
+REL="NEXT"
+TITLE="UUID型"
+HREF="datatype-uuid.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ビット列データ型"
+HREF="datatype-bit.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 8&#31456;データ型</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="UUID型"
+HREF="datatype-uuid.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DATATYPE-TEXTSEARCH"
+>8.11. テキスト検索に関する型</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、自然言語の<I
+CLASS="FIRSTTERM"
+>文書</I
+>の集合を通して検索を行い<I
+CLASS="FIRSTTERM"
+>問い合わせ</I
+>に最も合致する文書を見つける機能である全文検索をサポートするために設計された2つのデータ型を提供します。
+<TT
+CLASS="TYPE"
+>tsvector</TT
+>型はテキスト検索に最適化された形式で文書を表現します。
+<TT
+CLASS="TYPE"
+>tsquery</TT
+>型は同様に問い合わせを表現します。
+<A
+HREF="textsearch.html"
+>&#31532;12&#31456;</A
+>ではこの機能を詳しく説明します。
+また、<A
+HREF="functions-textsearch.html"
+>&#38917;9.13</A
+>では、関連する関数や演算子を要約します。
+
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DATATYPE-TSVECTOR"
+>8.11.1. <TT
+CLASS="TYPE"
+>tsvector</TT
+></A
+></H2
+><P
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>の値は重複がない<I
+CLASS="FIRSTTERM"
+>字句単位</I
+>のソート済みリストです。
+また、これらの単語は同じ単語の変種を吸収するために<I
+CLASS="FIRSTTERM"
+>正規化</I
+>が行われます（詳細は<A
+HREF="textsearch.html"
+>&#31532;12&#31456;</A
+>を参照）。
+以下の例に示すようにソートと重複除去は入力の際に自動的になされます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 'a fat cat sat on a mat and ate a fat rat'::tsvector;
+                      tsvector
+----------------------------------------------------
+ 'a' 'and' 'ate' 'cat' 'fat' 'mat' 'on' 'rat' 'sat'</PRE
+><P>
+
+空白文字または句読点を含む字句単位を表現するには、引用符でくくってください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT $$the lexeme '    ' contains spaces$$::tsvector;
+                 tsvector                  
+-------------------------------------------
+ '    ' 'contains' 'lexeme' 'spaces' 'the'</PRE
+><P>
+
+（この例と次の例では、リテラル内の二重引用符記号が含まれることによる混乱を防ぐためにドル引用符付け文字列を使用します。）
+引用符およびバックスラッシュが埋め込まれている場合は、以下のように二重にしなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT $$the lexeme 'Joe''s' contains a quote$$::tsvector;
+                    tsvector                    
+------------------------------------------------
+ 'Joe''s' 'a' 'contains' 'lexeme' 'quote' 'the'</PRE
+><P>
+
+オプションとして、字句要素に整数の<I
+CLASS="FIRSTTERM"
+>位置</I
+>を付けることもできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 'a:1 fat:2 cat:3 sat:4 on:5 a:6 mat:7 and:8 ate:9 a:10 fat:11 rat:12'::tsvector;
+                                  tsvector
+-------------------------------------------------------------------------------
+ 'a':1,6,10 'and':8 'ate':9 'cat':3 'fat':2,11 'mat':7 'on':5 'rat':12 'sat':4</PRE
+><P>
+
+位置は通常、元の単語の文書中の位置を示します。
+位置情報を<I
+CLASS="FIRSTTERM"
+>近接順序</I
+>に使用することができます。
+位置の値は1から16383までで、これより大きな値は警告なく16383に設定されます。
+同一字句要素に対する重複する位置項目は破棄されます。
+    </P
+><P
+>位置を持つ字句単位はさらに<I
+CLASS="FIRSTTERM"
+>重み</I
+>付きのラベルを付与することができます。
+ラベルは<TT
+CLASS="LITERAL"
+>A</TT
+>、<TT
+CLASS="LITERAL"
+>B</TT
+>、<TT
+CLASS="LITERAL"
+>C</TT
+>、<TT
+CLASS="LITERAL"
+>D</TT
+>を取ることができます。
+<TT
+CLASS="LITERAL"
+>D</TT
+>はデフォルトですので、以下の結果には現れません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 'a:1A fat:2B,4C cat:5D'::tsvector;
+          tsvector          
+----------------------------
+ 'a':1A 'cat':5 'fat':2B,4C</PRE
+><P>
+
+典型的に重みは、例えば、表題の単語には本文の単語と異なる印をつけるといった、文書構造を反映させるために使用されます。
+テキスト検索の順序付け関数は異なる重み印に異なる優先度を割り当てることができます。
+    </P
+><P
+><TT
+CLASS="TYPE"
+>tsvector</TT
+>型自体は正規化を行わないことを理解することは重要です。
+与えられる単語はアプリケーションで適切に正規化されていると仮定しています。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>select 'The Fat Rats'::tsvector;
+      tsvector      
+--------------------
+ 'Fat' 'Rats' 'The'</PRE
+><P>
+
+ほとんどの英文テキスト検索アプリケーションでは、上の単語は正規化されていないとみなされますが、<TT
+CLASS="TYPE"
+>tsvector</TT
+>は気にしません。
+検索が適切に行われるように単語を正規化するために、生の文書テキストは通常<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>経由で渡されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT to_tsvector('english', 'The Fat Rats');
+   to_tsvector   
+-----------------
+ 'fat':2 'rat':3</PRE
+><P>
+
+繰り返しますが、詳細は<A
+HREF="textsearch.html"
+>&#31532;12&#31456;</A
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DATATYPE-TSQUERY"
+>8.11.2. <TT
+CLASS="TYPE"
+>tsquery</TT
+></A
+></H2
+><P
+><TT
+CLASS="TYPE"
+>tsquery</TT
+>の値には検索される字句単位が格納され、それらは<TT
+CLASS="LITERAL"
+>&amp;</TT
+> (論理積)、<TT
+CLASS="LITERAL"
+>|</TT
+> (論理和)、<TT
+CLASS="LITERAL"
+>!</TT
+>(否定)論理演算子を遵守することで組み合わせられます。
+括弧を使用して演算子を強制的にグループ化することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 'fat &amp; rat'::tsquery;
+    tsquery    
+---------------
+ 'fat' &amp; 'rat'
+
+SELECT 'fat &amp; (rat | cat)'::tsquery;
+          tsquery          
+---------------------------
+ 'fat' &amp; ( 'rat' | 'cat' )
+
+SELECT 'fat &amp; rat &amp; ! cat'::tsquery;
+        tsquery         
+------------------------
+ 'fat' &amp; 'rat' &amp; !'cat'</PRE
+><P>
+
+括弧がないと、<TT
+CLASS="LITERAL"
+>!</TT
+> (否定)が最も強く、次に<TT
+CLASS="LITERAL"
+>&amp;</TT
+> (論理積)、そして<TT
+CLASS="LITERAL"
+>|</TT
+> (論理和)という強さで結合されます。
+    </P
+><P
+>省略することもできますが、<TT
+CLASS="TYPE"
+>tsquery</TT
+>内の字句単位に1つ以上の重み文字をもったラベルを付けることができます。
+これにより、こうした一致に関する重みの1つを持つ<TT
+CLASS="TYPE"
+>tsvector</TT
+>字句要素のみに一致するように制限させることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 'fat:ab &amp; cat'::tsquery;
+    tsquery
+------------------
+ 'fat':AB &amp; 'cat'</PRE
+><P>
+    </P
+><P
+>    
+同時に、<TT
+CLASS="TYPE"
+>tsquery</TT
+>内の字句単位は、前置一致を指定するため<TT
+CLASS="LITERAL"
+>*</TT
+>でラベルを付けることができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 'super:*'::tsquery;
+  tsquery  
+-----------
+ 'super':*</PRE
+><P>
+この問い合わせは、<SPAN
+CLASS="QUOTE"
+>"super"</SPAN
+>で始まる<TT
+CLASS="TYPE"
+>tsvector</TT
+>内のいかなる単語とも一致します。接頭語はテキスト検索の設定により、最初に処理されることに注意してください。これはこの比較が真を返すことを意味します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT to_tsvector( 'postgraduate' ) @@ to_tsquery( 'postgres:*' );
+ ?column? 
+----------
+ t
+(1 row)</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>postgres</TT
+>が<TT
+CLASS="LITERAL"
+>postgr</TT
+>という語幹になるためです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT to_tsquery('postgres:*');
+ to_tsquery 
+------------
+ 'postgr':*
+(1 row)</PRE
+><P>
+
+このため<TT
+CLASS="LITERAL"
+>postgraduate</TT
+>に一致します。
+
+    </P
+><P
+>字句単位の引用符規則は前に説明した<TT
+CLASS="TYPE"
+>tsvector</TT
+>における字句単位と同じです。
+また、<TT
+CLASS="TYPE"
+>tsvector</TT
+>同様、必要な単語の正規化は<TT
+CLASS="TYPE"
+>tsquery</TT
+>型に変換する前に行う必要があります。
+こうした正規化の実行には<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>関数が簡便です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT to_tsquery('Fat:ab &amp; Cats');
+    to_tsquery    
+------------------
+ 'fat':AB &amp; 'cat'</PRE
+><P>
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="datatype-bit.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="datatype-uuid.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ビット列データ型</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="datatype.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>UUID</ACRONYM
+>型</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,479 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>サンプルプログラム</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ラージオブジェクト"
+HREF="largeobjects.html"><LINK
+REL="PREVIOUS"
+TITLE="サーバ側の関数"
+HREF="lo-funcs.html"><LINK
+REL="NEXT"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバ側の関数"
+HREF="lo-funcs.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ラージオブジェクト"
+HREF="largeobjects.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 32&#31456;ラージオブジェクト</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ラージオブジェクト"
+HREF="largeobjects.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LO-EXAMPLESECT"
+>32.5. サンプルプログラム</A
+></H1
+><P
+><A
+HREF="lo-examplesect.html#LO-EXAMPLE"
+>&#20363;32-1</A
+>は、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>を使ったラージオブジェクトインタフェースの使い方を示すサンプルプログラムです。
+プログラムの一部はコメントアウトされていますが、読者にわかりやすいようにそのまま残してあります。
+このプログラムは、ソース配布物内の<TT
+CLASS="FILENAME"
+>src/test/examples</TT
+>にあります。</P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="LO-EXAMPLE"
+></A
+><P
+><B
+>&#20363; 32-1. <SPAN
+CLASS="APPLICATION"
+>Libpq</SPAN
+>を使用したラージオブジェクトのサンプルプログラム</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>/*--------------------------------------------------------------
+ *
+ * testlo.c--
+ *    libpqによるラージオブジェクトを使用する試験
+ *
+ * Copyright (c) 1994, Regents of the University of California
+ *
+ *--------------------------------------------------------------
+ */
+#include &#60;stdio.h&#62;
+#include "libpq-fe.h"
+#include "libpq/libpq-fs.h"
+
+#define BUFSIZE          1024
+
+/*
+ * importFile
+ *    "in_filename"ファイルをラージオブジェクト"lobjOid"としてデータベースにインポートする。
+ *
+ */
+Oid
+importFile(PGconn *conn, char *filename)
+{
+    Oid         lobjId;
+    int         lobj_fd;
+    char        buf[BUFSIZE];
+    int         nbytes,
+                tmp;
+    int         fd;
+
+    /*
+     * 読み込むファイルを開く
+     */
+    fd = open(filename, O_RDONLY, 0666);
+    if (fd &#60; 0)
+    {                           /* error */
+        fprintf(stderr, "cannot open unix file %s\n", filename);
+    }
+    }
+
+    /*
+     * ラージオブジェクトを作成する
+     */
+    lobjId = lo_creat(conn, INV_READ | INV_WRITE);
+    if (lobjId == 0)
+        fprintf(stderr, "cannot create large object\n");
+
+    lobj_fd = lo_open(conn, lobjId, INV_WRITE);
+
+    /*
+     * Unixファイルから読み込み、転置ファイルへ書き出す
+     */
+    while ((nbytes = read(fd, buf, BUFSIZE)) &#62; 0)
+    {
+        tmp = lo_write(conn, lobj_fd, buf, nbytes);
+        if (tmp &#60; nbytes)
+            fprintf(stderr, "error while reading large object\n");
+    }
+
+    (void) close(fd);
+    (void) lo_close(conn, lobj_fd);
+
+    return lobjId;
+}
+
+void
+pickout(PGconn *conn, Oid lobjId, int start, int len)
+{
+    int         lobj_fd;
+    char       *buf;
+    int         nbytes;
+    int         nread;
+
+    lobj_fd = lo_open(conn, lobjId, INV_READ);
+    if (lobj_fd &#60; 0)
+    {
+        fprintf(stderr, "cannot open large object %d\n",
+                lobjId);
+    }
+
+    lo_lseek(conn, lobj_fd, start, SEEK_SET);
+    buf = malloc(len + 1);
+
+    nread = 0;
+    while (len - nread &#62; 0)
+    {
+        nbytes = lo_read(conn, lobj_fd, buf, len - nread);
+        buf[nbytes] = ' ';
+        fprintf(stderr, "&#62;&#62;&#62; %s", buf);
+        nread += nbytes;
+    }
+    free(buf);
+    fprintf(stderr, "\n");
+    lo_close(conn, lobj_fd);
+}
+
+void
+overwrite(PGconn *conn, Oid lobjId, int start, int len)
+{
+    int         lobj_fd;
+    char       *buf;
+    int         nbytes;
+    int         nwritten;
+    int         i;
+
+    lobj_fd = lo_open(conn, lobjId, INV_WRITE);
+    if (lobj_fd &#60; 0)
+    {
+        fprintf(stderr, "cannot open large object %d\n",
+                lobjId);
+    }
+
+    lo_lseek(conn, lobj_fd, start, SEEK_SET);
+    buf = malloc(len + 1);
+
+    for (i = 0; i &#60; len; i++)
+        buf[i] = 'X';
+    buf[i] = ' ';
+
+    nwritten = 0;
+    while (len - nwritten &#62; 0)
+    {
+        nbytes = lo_write(conn, lobj_fd, buf + nwritten, len - nwritten);
+        nwritten += nbytes;
+    }
+    free(buf);
+    fprintf(stderr, "\n");
+    lo_close(conn, lobj_fd);
+}
+
+/*
+ * exportFile
+ *    ラージオブジェクト"lobjOid"を"out_filename"ファイルにエクスポートする。
+ *
+ */
+void
+exportFile(PGconn *conn, Oid lobjId, char *filename)
+{
+    int         lobj_fd;
+    char        buf[BUFSIZE];
+    int         nbytes,
+                tmp;
+    int         fd;
+
+    /*
+     * ラージオブジェクトを作成する
+     */
+    lobj_fd = lo_open(conn, lobjId, INV_READ);
+    if (lobj_fd &#60; 0)
+    {
+        fprintf(stderr, "cannot open large object %d\n",
+                lobjId);
+    }
+
+    /*
+     * 書き込むファイルを開く
+     */
+    fd = open(filename, O_CREAT | O_WRONLY, 0666);
+    if (fd &#60; 0)
+    {                           /* エラー時 */
+        fprintf(stderr, "cannot open unix file %s\n",
+                filename);
+    }
+
+    /*
+     * 転置ファイルから読み込み、Unixファイルへ書き出す。
+     */
+    while ((nbytes = lo_read(conn, lobj_fd, buf, BUFSIZE)) &#62; 0)
+    {
+        tmp = write(fd, buf, nbytes);
+        if (tmp &#60; nbytes)
+        {
+            fprintf(stderr, "error while writing %s\n",
+                    filename);
+        }
+    }
+
+    (void) lo_close(conn, lobj_fd);
+    (void) close(fd);
+
+    return;
+}
+
+void
+exit_nicely(PGconn *conn)
+{
+    PQfinish(conn);
+    exit(1);
+}
+
+int
+main(int argc, char **argv)
+{
+    char       *in_filename,
+               *out_filename;
+    char       *database;
+    Oid         lobjOid;
+    PGconn     *conn;
+    PGresult   *res;
+
+    if (argc != 4)
+    {
+        fprintf(stderr, "Usage: %s database_name in_filename out_filename\n",
+                argv[0]);
+        exit(1);
+    }
+
+    database = argv[1];
+    in_filename = argv[2];
+    out_filename = argv[3];
+
+    /*
+     * 接続を設定する
+     */
+    conn = PQsetdb(NULL, NULL, NULL, NULL, database);
+
+    /* バックエンドとの接続が成功したかどうか確認する */
+    if (PQstatus(conn) == CONNECTION_BAD)
+    {
+        fprintf(stderr, "Connection to database '%s' failed.\n", database);
+        fprintf(stderr, "%s", PQerrorMessage(conn));
+        exit_nicely(conn);
+    }
+
+    res = PQexec(conn, "begin");
+    PQclear(res);
+
+    printf("importing file %s\n", in_filename);
+/*  lobjOid = importFile(conn, in_filename); */
+    lobjOid = lo_import(conn, in_filename);
+/*
+    printf("as large object %d.\n", lobjOid);
+
+    printf("picking out bytes 1000-2000 of the large object\n");
+    pickout(conn, lobjOid, 1000, 1000);
+
+    printf("overwriting bytes 1000-2000 of the large object with X's\n");
+    overwrite(conn, lobjOid, 1000, 1000);
+*/
+
+    printf("exporting large object to file %s\n", out_filename);
+/*    exportFile(conn, lobjOid, out_filename); */
+    lo_export(conn, lobjOid, out_filename);
+
+    res = PQexec(conn, "end");
+    PQclear(res);
+    PQfinish(conn);
+    exit(0);
+}</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="lo-funcs.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>サーバ側の関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="largeobjects.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

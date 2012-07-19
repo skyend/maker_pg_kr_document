@@ -1,0 +1,450 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テーブルとインデックス</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="PREVIOUS"
+TITLE="導入"
+HREF="textsearch-intro.html"><LINK
+REL="NEXT"
+TITLE="テキスト検索の制御"
+HREF="textsearch-controls.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="導入"
+HREF="textsearch-intro.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 12&#31456;全文検索</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="テキスト検索の制御"
+HREF="textsearch-controls.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEXTSEARCH-TABLES"
+>12.2. テーブルとインデックス</A
+></H1
+><P
+>  前の節の例では、単純な文字列定数を使った全文検索照合を説明しました。この節では、テーブルのデータを検索する方法、そしてインデックスを使う方法を示します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-TABLES-SEARCH"
+>12.2.1. テーブルを検索する</A
+></H2
+><P
+>   インデックスがなくても全文検索をすることは可能です。<TT
+CLASS="STRUCTFIELD"
+>body</TT
+>フィールド中の<TT
+CLASS="LITERAL"
+>friend</TT
+>という単語を含む行の<TT
+CLASS="STRUCTNAME"
+>title</TT
+>を印刷する単純な問合わせは次のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT title
+FROM pgweb
+WHERE to_tsvector('english', body) @@ to_tsquery('english', 'friend');</PRE
+><P>
+    同時に、これは、<TT
+CLASS="LITERAL"
+>friends</TT
+>、<TT
+CLASS="LITERAL"
+>friendly</TT
+>のように、関連する単語を見つけ出します。これらはすべて同じ正規化された語彙素に帰結するからです。
+   </P
+><P
+>   上の問合わせは<TT
+CLASS="LITERAL"
+>english</TT
+>設定を使って文字列をパースして正規化することを指定しています。別の方法としては、設定パラメータを省略することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT title
+FROM pgweb
+WHERE to_tsvector(body) @@ to_tsquery('friend');</PRE
+><P>
+
+この問い合わせは<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TEXT-SEARCH-CONFIG"
+>default_text_search_config</A
+>で設定された設定を使用します。
+   </P
+><P
+>   もっと複雑な例として、<TT
+CLASS="LITERAL"
+>create</TT
+>と<TT
+CLASS="LITERAL"
+>table</TT
+>を<TT
+CLASS="STRUCTNAME"
+>title</TT
+>または<TT
+CLASS="STRUCTNAME"
+>body</TT
+>に含む文書のうち新しい順に10個選ぶというものを示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT title
+FROM pgweb
+WHERE to_tsvector(title || ' ' || body) @@ to_tsquery('create &amp; table')
+ORDER BY last_mod_date DESC
+LIMIT 10;</PRE
+><P>
+
+	細かいことですが、この例では、ふたつのうち一つのフィールドに<TT
+CLASS="LITERAL"
+>NULL</TT
+>を含む行を探すために必要な<CODE
+CLASS="FUNCTION"
+>coalesce</CODE
+>関数の呼び出しを省略しています。
+   </P
+><P
+>   これらの問合わせはインデックスなしでも動きますが、たまに実行する一時的な問合わせ用を除くと、たいていの用途には、たぶん不定期のその場その場の検索を除いて遅すぎます。実用上は、インデックスを作成することが必要なのが普通です。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-TABLES-INDEX"
+>12.2.2. インデックスの作成</A
+></H2
+><P
+>    テキスト検索を高速化するために、<ACRONYM
+CLASS="ACRONYM"
+>GIN</ACRONYM
+>インデックス(<A
+HREF="textsearch-indexes.html"
+>&#38917;12.9</A
+>)を作ることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX pgweb_idx ON pgweb USING gin(to_tsvector('english', body));</PRE
+><P>
+
+	2引数バージョンの<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>を使っていることに注意してください。設定名を指定するテキスト検索関数だけが、式インデックス(<A
+HREF="indexes-expressional.html"
+>&#38917;11.7</A
+>)で使えます。これは、インデックス内容が、<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TEXT-SEARCH-CONFIG"
+>default_text_search_config</A
+>の影響を受けないためです。もし影響を受けるとすると、異なるテキスト検索設定で作られた<TT
+CLASS="TYPE"
+>tsvector</TT
+>を持つエントリの間でインデックス内容が首尾一貫しなくなるからです。そして、どのエントリがどのようにして作られたのか、推測する方法はないでしょう。そのようなインデックスを正しくダンプ、リストアするのは不可能でしょう。
+   </P
+><P
+>    上記のインデックスでは、2引数バージョンの<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>が使われているので、同じ設定名の2引数バージョンの<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>を使う問合わせ参照だけがそのインデックスを使います。すなわち、<TT
+CLASS="LITERAL"
+>WHERE to_tsvector('english', body) @@ 'a &amp; b'</TT
+>はインデックスが使えますが、<TT
+CLASS="LITERAL"
+>WHERE to_tsvector(body) @@ 'a &amp; b'</TT
+>は使えません。これにより、インデックスエントリを作ったときの設定と、同じ設定のときだけインデックスが使われることが保証されます。
+   </P
+><P
+>  他の列によって設定名が指定されたより複雑な式インデックスを作ることができます。すなわち、
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX pgweb_idx ON pgweb USING gin(to_tsvector(config_name, body));</PRE
+><P>
+
+    ここで、<TT
+CLASS="LITERAL"
+>config_name</TT
+>は<TT
+CLASS="LITERAL"
+>pgweb</TT
+>テーブルの列です。これによって、各々のインデックスエントリで使用された設定を記録しつつ、同じインデックスの中で異なる設定を混在させることができます。これは、例えば文書の集まりが異なる言語の文書を含む場合に有用です。繰り返しになりますが、インデックスを使うよう考慮されている問合わせは、合致するように書かれなければなりません。すなわち、
+
+    <TT
+CLASS="LITERAL"
+>WHERE to_tsvector(config_name, body) @@ 'a &amp; b'</TT
+>.
+   </P
+><P
+>    インデックスには、列を連結することさえできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX pgweb_idx ON pgweb USING gin(to_tsvector('english', title || ' ' || body));</PRE
+><P>
+   </P
+><P
+>   別の方法として、<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>の出力を保持する別の<TT
+CLASS="TYPE"
+>tsvector</TT
+>列を作る方法があります。この例では、<TT
+CLASS="LITERAL"
+>title</TT
+>と<TT
+CLASS="LITERAL"
+>body</TT
+>を連結、<CODE
+CLASS="FUNCTION"
+>coalesce</CODE
+>を使って、一つのフィールドが<TT
+CLASS="LITERAL"
+>NULL</TT
+>であっても他のフィールドがインデックス付けされることを保証しています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE pgweb ADD COLUMN textsearchable_index_col tsvector;
+UPDATE pgweb SET textsearchable_index_col =
+     to_tsvector('english', coalesce(title,'') || ' ' || coalesce(body,''));</PRE
+><P>
+
+そして、<ACRONYM
+CLASS="ACRONYM"
+>GIN</ACRONYM
+>インデックスを作って検索速度を上げます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX textsearch_idx ON pgweb USING gin(textsearchable_index_col);</PRE
+><P>
+
+これで、高速全文検索を実行する準備ができました。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT title
+FROM pgweb
+WHERE textsearchable_index_col @@ to_tsquery('create &amp; table')
+ORDER BY last_mod_date DESC
+LIMIT 10;</PRE
+><P>
+   </P
+><P
+>   <TT
+CLASS="TYPE"
+>tsvector</TT
+>形式を保存するために別の列を使う場合、<TT
+CLASS="LITERAL"
+>title</TT
+>あるいは<TT
+CLASS="LITERAL"
+>body</TT
+>が変更されたら<TT
+CLASS="TYPE"
+>tsvector</TT
+>列を最新の状態にいつでも維持するためにトリガを作る必要があります。<A
+HREF="textsearch-features.html#TEXTSEARCH-UPDATE-TRIGGERS"
+>&#38917;12.4.3</A
+>にその方法が説明されています。
+   </P
+><P
+>   別列方式が式インデックスに勝る点の一つは、インデックスを使うために問合わせの中でテキスト検索設定を明示的に指定する必要がないことです。上の例で示したように、問合わせは<TT
+CLASS="VARNAME"
+>default_text_search_config</TT
+>に依存できます。もう一つの利点は、インデックスの合致を検証するために<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>を再実行する必要がないのでより高速だという事です。(この点はGINインデックスを使うときよりも、GiSTインデックスを使う場合に重要です。<A
+HREF="textsearch-indexes.html"
+>&#38917;12.9</A
+>参照。)しかしながら、式インデックス方式はセットアップがより容易で、<TT
+CLASS="TYPE"
+>tsvector</TT
+>表現を明示的に保存する必要がないので、ディスクスペースの消費が少ないです。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="textsearch-intro.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="textsearch-controls.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>導入</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>テキスト検索の制御</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,398 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.1.14</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.1.15"
+HREF="release-8-1-15.html"><LINK
+REL="NEXT"
+TITLE="リリース8.1.13"
+HREF="release-8-1-13.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.1.15"
+HREF="release-8-1-15.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.1.13"
+HREF="release-8-1-13.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-1-14"
+>E.81. リリース8.1.14</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2008-09-22</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.1.13に対し、各種の不具合を修正したものです。
+8.1メジャーリリースにおける新機能については<A
+HREF="release-8-1.html"
+>&#38917;E.95</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN121047"
+>E.81.1. バージョン8.1.14への移行</A
+></H2
+><P
+>8.1.Xからの移行ではダンプ/リストアは不要です。
+しかし、8.1.2より前のバージョンからアップグレードする場合は、8.1.2のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN121050"
+>E.81.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>局所ロックのカウンタを32ビットから64ビットに広げました。(Tom)
+     </P
+><P
+>これは、かなり長いトランザクションでカウンタがオーバーフローし、想定外の<SPAN
+CLASS="QUOTE"
+>"すでに保持済のロックである"</SPAN
+>というエラーになるという報告に対応したものです。
+     </P
+></LI
+><LI
+><P
+>GiSTインデックススキャン中に出力タプルが重複する可能性を修正しました。(Teodor)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>または<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>で生成されるタプルが対象のテーブルの現在の行型に一致するか確認するために、エグゼキュータ起動の際の検査を追加しました。(Tom)
+     </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER COLUMN TYPE</TT
+>の後にこれまでキャッシュしていた計画を再利用した場合、こうした状況が起こります。
+データ破壊やその結果発生するクラッシュをこの検査により防ぎます。
+     </P
+></LI
+><LI
+><P
+>まず時間帯引数を時間帯省略形として解釈し、これまでのように他の方法を取らずに、それが失敗した場合にのみ完全な時間帯名称として解釈するように<TT
+CLASS="LITERAL"
+>AT TIME ZONE</TT
+>を修正しました。(Tom)
+     </P
+><P
+>タイムスタンプ入力関数は常にこの順序であいまいな時間帯名の解決を行っていました。
+<TT
+CLASS="LITERAL"
+>AT TIME ZONE</TT
+>も同様にすることで一貫性が向上し、そして、8.1で混入された互換性に関する不具合を修正します。
+過去のバージョンの<TT
+CLASS="LITERAL"
+>AT TIME ZONE</TT
+>では省略形<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>のみ</I
+></SPAN
+>を受け付けていましたので、あいまいな場合に8.0以前と同様な動作をするようになりました。
+     </P
+></LI
+><LI
+><P
+>64ビットプラットフォームで稼働している場合、日付時刻入力関数が正しく整数オーバーフローを検知できるよう修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>非常に長いログメッセージをsyslogに書き出す際の性能を向上しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>SELECT DISTINCT ON</TT
+>問い合わせに対するカーソルの後方スキャンにおける不具合を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>入れ子状の副問い合わせ式がある場合のプランナの不具合を修正しました。(Tom)
+     </P
+><P
+>外側の副問い合わせが親問い合わせに直接の依存性がなく、内側の副問い合わせが依存性がある場合、外側の値が新しい親問い合わせの行に対して再計算されなくなる可能性がありました。
+     </P
+></LI
+><LI
+><P
+>プランナが論理型の結果を生成する<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>式を、式の内容に関係なく、常に2つのグループになると推定することを修正しました。(Tom)
+     </P
+><P
+>これにより、<TT
+CLASS="REPLACEABLE"
+><I
+>col</I
+></TT
+> <TT
+CLASS="LITERAL"
+>IS NULL</TT
+>などの特定の論理試験に対して、通常の<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>推定より非常により良く精度が上がります。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>FOR</TT
+>ループの対象値が複合型のフィールドを含むレコードである場合に失敗しないようにPL/pgSQLを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>Tcl 8.5で正しく動作するようPL/Tclを修正しました。
+また、Tcl間でやりとりされるデータの符号化方式についてより注意を払うように修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>Python 2.5で動作するようPL/Pythonを修正しました。
+     </P
+><P
+>これは、8.2の開発期間で行われた修正を後方に反映したものです。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>および<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>がSQLコマンドの送信に失敗した後に報告するエラーを改良しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+>が<TT
+CLASS="LITERAL"
+>restart</TT
+>の間正しくpostmasterのコマンドライン引数を保持するように修正しました。(Bruce)
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+>リリース2008f（アルゼンチン、バハマ、ブラジル、モーリシャス、モロッコ、パキスタン、パレスチナ、パラグアイにおける夏時間規則の変更）まで更新しました。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-1-15.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-1-13.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.1.15</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.1.13</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>非同期通知</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="PREVIOUS"
+TITLE="近道インタフェース"
+HREF="libpq-fastpath.html"><LINK
+REL="NEXT"
+TITLE="COPYコマンド関連関数"
+HREF="libpq-copy.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="近道インタフェース"
+HREF="libpq-fastpath.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 31&#31456;<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="COPYコマンド関連関数"
+HREF="libpq-copy.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LIBPQ-NOTIFY"
+>31.7. 非同期通知</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>と<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>コマンドを使用した、非同期通知をサポートします。
+クライアントセッションは、<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>コマンドを使用して処理対象とする特定の通知チャネルを登録します。
+（通知監視を取り止めるには<TT
+CLASS="COMMAND"
+>UNLISTEN</TT
+>コマンドを使用します。）
+任意のセッションでそのチャネル名による<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>コマンドが実行されると、特定チャネルを監視しているすべてのセッションは非同期に通知を受け取ります。
+監視者に追加データを通信するために<SPAN
+CLASS="QUOTE"
+>"ペイロード"</SPAN
+>文字列を渡すことができます。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>アプリケーションは、通常のSQLによる問い合わせと同じように<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>、<TT
+CLASS="COMMAND"
+>UNLISTEN</TT
+>および<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>コマンドを発行することができます。  
+<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>メッセージの到着は、続いて<CODE
+CLASS="FUNCTION"
+>PQnotifies</CODE
+>を呼び出せば検出できます。
+
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQnotifies</CODE
+>関数は、サーバから受信した通知メッセージの未処理リストから次の通知を返します。  
+保留中の通知がなくなればヌルポインタを返します。
+<CODE
+CLASS="FUNCTION"
+>PQnotifies</CODE
+>が通知を返すと、その通知は処理済みとみなされ、通知リストから取り除かれます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>PGnotify *PQnotifies(PGconn *conn);
+
+typedef struct pgNotify
+{
+    char *relname;              /* 通知チャネル名 */
+    int  be_pid;                /* 通知元サーバプロセスのプロセスID */
+    char *extra;                /* 通知ペイロード文字列 */
+} PGnotify;</PRE
+><P>
+<CODE
+CLASS="FUNCTION"
+>PQnotifies</CODE
+>で返された<TT
+CLASS="STRUCTNAME"
+>PGnotify</TT
+>オブジェクトの処理が終わったら、<CODE
+CLASS="FUNCTION"
+>PQfreemem</CODE
+>を使用して確実に解放してください。
+<TT
+CLASS="STRUCTNAME"
+>PGnotify</TT
+>ポインタを解放することは重要です。
+<TT
+CLASS="STRUCTFIELD"
+>relname</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>extra</TT
+>フィールドは別の割り当てを表していません。
+(これらのフィールド名は歴史的なものです。特にチャネル名はリレーション名と関係するものである必要はありません。)
+  </P
+><P
+><A
+HREF="libpq-example.html#LIBPQ-EXAMPLE-2"
+>&#20363;31-2</A
+>で非同期通知を使用したサンプルプログラムを示しています。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQnotifies()</CODE
+>は実際にサーバのデータを読み出すわけではありません。
+これは単に、他の<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>関数が吸収してしまっていた通知メッセージを返すだけです。
+<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の以前のリリースでは、通知メッセージを適切な時点で確実に受け取るには、空の問い合わせでも何でも、とにかく一定時間ごとに問い合わせを送り、そして<CODE
+CLASS="FUNCTION"
+>PQexec()</CODE
+>を実行するたびに<CODE
+CLASS="FUNCTION"
+>PQnotifies()</CODE
+>を検査するしかありませんでした。
+今でもこの方法は動作しますが、処理能力の無駄使いをすることになるのでやめておくべきでしょう。
+  </P
+><P
+>実行すべき問い合わせがない時に通知メッセージを検査するよい方法は、まず<CODE
+CLASS="FUNCTION"
+>PQconsumeInput()</CODE
+>を呼び出し、それから<CODE
+CLASS="FUNCTION"
+>PQnotifies()</CODE
+>を検査することです。
+サーバからのデータの到着を<CODE
+CLASS="FUNCTION"
+>select()</CODE
+>で待つことができ、不必要な動作で<ACRONYM
+CLASS="ACRONYM"
+>CPU</ACRONYM
+>パワーを消費してしまうことがありません。
+（<CODE
+CLASS="FUNCTION"
+>select()</CODE
+>で使用するファイル記述子番号の取得については、<CODE
+CLASS="FUNCTION"
+>PQsocket()</CODE
+>を参照してください。）
+なお、これは問い合わせに<CODE
+CLASS="FUNCTION"
+>PQsendQuery</CODE
+>と<CODE
+CLASS="FUNCTION"
+>PQgetResult</CODE
+>を使った時でも、またはおなじみの<CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>を使った時でも動作します。  
+しかし通知がコマンドの処理中に届いていないかどうか、<CODE
+CLASS="FUNCTION"
+>PQgetResult</CODE
+>あるいは<CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>の実行ごとに<CODE
+CLASS="FUNCTION"
+>PQnotifies()</CODE
+>を調べることを忘れないようにしておくべきです。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libpq-fastpath.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libpq-copy.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>近道インタフェース</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンド関連関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

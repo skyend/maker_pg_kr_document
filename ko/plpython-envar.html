@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>환경 변수 </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \" PL / Python - Python 수속 언어 \"\n
+HREF="plpython.html"><LINK
+REL="PREVIOUS"
+TITLE = \" 유틸리티 함수 \"\n
+HREF="plpython-util.html"><LINK
+REL="NEXT"
+TITLE = \"서버 프로그래밍 인터페이스 \"\n
+HREF="spi.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" 유틸리티 함수 \"\n
+HREF="plpython-util.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" PL / Python - Python 수속 언어 \"\n
+HREF="plpython.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 42 장 PL/Python - Python手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" PL / Python - Python 수속 언어 \"\n
+HREF="plpython.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \"서버 프로그래밍 인터페이스 \"\n
+HREF="spi.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPYTHON-ENVAR"
+>42.10 환경 변수 </A
+></H1
+><P
+>Python 인터프리터 에 의해 허용 되는 환경 변수 의 일부는 또한 PL / Python 의 동작을 변경하는 데 사용할 수 있습니다 .
+이들은 예를 들어 시작 스크립트 등 주로 PostgreSQL 서버 프로세스 환경에서 설정 해야 합니다.
+사용 가능한 환경 변수는 Python 버전에 따라 다릅니다.
+자세한 내용은 Python 문서를 참조 하십시오.
+적절한 버전의 Python 임을 가정 하지만 장의 집필 시점에서는 다음 환경 변수를 PL / Python 에 영향을 줍니다.
+   <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONHOME</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONPATH</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONY2K</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONOPTIMIZE</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONDEBUG</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONVERBOSE</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONCASEOK</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONDONTWRITEBYTECODE</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONIOENCODING</TT
+></P
+></LI
+><LI
+><P
+><TT
+CLASS="ENVAR"
+>PYTHONUSERBASE</TT
+></P
+></LI
+></UL
+><P>
+
+（<TT
+CLASS="COMMAND"
+>python</TT
+>매뉴얼 페이지 에 나열된 환경 변수 일부 명령 라인 인터프리터 에서만 영향을 포함 Python 인터프리터에 영향을주지 는 PL / Python 의 제어를 넘은 Python 의 자세한 구현이 있는 것 같습니다. ）
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpython-util.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="spi.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>유틸리티 함수 </TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpython.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>서버 프로그래밍 인터페이스 </TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

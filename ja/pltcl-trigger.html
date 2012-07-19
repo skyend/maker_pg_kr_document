@@ -1,0 +1,503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/Tclのトリガプロシージャ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/Tclからのデータベースアクセス"
+HREF="pltcl-dbaccess.html"><LINK
+REL="NEXT"
+TITLE="モジュールとunknownコマンド"
+HREF="pltcl-unknown.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Tclからのデータベースアクセス"
+HREF="pltcl-dbaccess.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 40&#31456;PL/Tcl - Tcl手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Tcl - Tcl手続き言語"
+HREF="pltcl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="モジュールとunknownコマンド"
+HREF="pltcl-unknown.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLTCL-TRIGGER"
+>40.6. PL/Tclのトリガプロシージャ</A
+></H1
+><P
+>トリガプロシージャをPL/Tclで作成することができます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、トリガとして呼び出されるプロシージャは、<TT
+CLASS="LITERAL"
+>trigger</TT
+>型の戻り値を返す引数のない関数として宣言する必要があります。
+    </P
+><P
+>トリガマネージャからの情報は、以下の変数内に格納されてプロシージャ本体に渡されます。
+
+     <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="VARNAME"
+>$TG_name</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>文によるトリガ名。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$TG_relid</TT
+></DT
+><DD
+><P
+>そのトリガプロシージャ呼び出しが発生したテーブルのオブジェクトID。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$TG_table_name</TT
+></DT
+><DD
+><P
+>そのトリガプロシージャ呼び出しが発生したテーブルの名前。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$TG_table_schema</TT
+></DT
+><DD
+><P
+>そのトリガプロシージャ呼び出しが発生したテーブルのスキーマ。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$TG_relatts</TT
+></DT
+><DD
+><P
+>先頭に空のリスト要素を持つ、テーブルの列名のTclリスト。
+<SPAN
+CLASS="APPLICATION"
+>Tcl</SPAN
+>の<CODE
+CLASS="FUNCTION"
+>lsearch</CODE
+>コマンドを使用して、そのリストから列名を検索することで、最初の列を1とした要素番号が返されます。
+これは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>での通常の列の番号付けと同じです。
+（また空のリスト要素は、右側の列の属性番号を正しくするために、削除された列の位置に現れます。）
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$TG_when</TT
+></DT
+><DD
+><P
+>トリガイベントの種類に応じた、<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>、<TT
+CLASS="LITERAL"
+>AFTER</TT
+>または<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>という文字列。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$TG_level</TT
+></DT
+><DD
+><P
+>トリガイベントの種類に応じた、<TT
+CLASS="LITERAL"
+>ROW</TT
+>または<TT
+CLASS="LITERAL"
+>STATEMENT</TT
+>という文字列。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$TG_op</TT
+></DT
+><DD
+><P
+>トリガイベントの種類に応じた、<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、または<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>の文字列。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$NEW</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>動作の場合は新しいテーブル行の値を、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>動作の場合は空を持つ連想配列。
+配列のインデックスは列名です。
+NULLの列はこの配列内には現れません。
+文レベルのトリガに対しては設定されません。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$OLD</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>動作の場合は古いテーブル行の値を、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>動作の場合は空を持つ連想配列。
+配列のインデックスは列名です。
+NULLの列はこの配列内には現れません。
+文レベルのトリガに対しては設定されません。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>$args</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>文で指定された、プロシージャへの引数のTclリスト。
+この引数は、プロシージャ本体から<TT
+CLASS="LITERAL"
+>$1</TT
+> ... <TT
+CLASS="LITERAL"
+>$<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+></TT
+>としてもアクセスすることができます。
+	</P
+></DD
+></DL
+></DIV
+><P>
+    </P
+><P
+>トリガプロシージャからの戻り値は、<TT
+CLASS="LITERAL"
+>OK</TT
+>という文字列、<TT
+CLASS="LITERAL"
+>SKIP</TT
+>という文字列、<TT
+CLASS="LITERAL"
+>array get</TT
+> Tclコマンドによって返されるリストの内の1つを取ることができます。
+戻り値が<TT
+CLASS="LITERAL"
+>OK</TT
+>の場合、トリガを発行した操作（<TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>）は正常に処理されます。
+<TT
+CLASS="LITERAL"
+>SKIP</TT
+>はトリガマネージャにこの行に対する操作を何も出力せずに中止するように通知します。
+リストが返された場合は、PL/Tclに対し、変更した行を挿入するようにトリガマネージャに返すことを通知します。
+これは、<TT
+CLASS="VARNAME"
+>$NEW</TT
+>内で与えられる行ではなく変更された行が挿入される、行レベルの<TT
+CLASS="LITERAL"
+>BEFORE</TT
+> <TT
+CLASS="COMMAND"
+>INSERT</TT
+>または<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>トリガ、または、返される行が<TT
+CLASS="COMMAND"
+>INSERT RETURNING</TT
+>および<TT
+CLASS="COMMAND"
+>UPDATE RETURNING</TT
+>コマンドをサポートするために使用される、行レベルの<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+> <TT
+CLASS="COMMAND"
+>INSERT</TT
+>または<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>トリガでのみ有意です。
+この他の種類のトリガでは戻り値は無視されます。
+    </P
+><P
+>ここで、テーブル内の整数値としてその行に対する更新数を記録させる、小さめのトリガプロシージャの例を示します。
+新規の行が挿入された場合は、その値はゼロに初期化され、その後の各更新操作時に1が加算されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION trigfunc_modcount() RETURNS trigger AS $$
+    switch $TG_op {
+        INSERT {
+            set NEW($1) 0
+        }
+        UPDATE {
+            set NEW($1) $OLD($1)
+            incr NEW($1)
+        }
+        default {
+            return OK
+        }
+    }
+    return [array get NEW]
+$$ LANGUAGE pltcl;
+
+CREATE TABLE mytab (num integer, description text, modcnt integer);
+
+CREATE TRIGGER trig_mytab_modcount BEFORE INSERT OR UPDATE ON mytab
+    FOR EACH ROW EXECUTE PROCEDURE trigfunc_modcount('modcnt');</PRE
+><P>
+
+トリガプロシージャ自身は列名を認識していない点に注目してください。
+これはトリガの引数として与えられます。
+これにより、このトリガプロシージャを別のテーブルで再利用することができます。
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="pltcl-dbaccess.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pltcl-unknown.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PL/Tclからのデータベースアクセス</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="pltcl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>モジュールと<CODE
+CLASS="FUNCTION"
+>unknown</CODE
+>コマンド</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

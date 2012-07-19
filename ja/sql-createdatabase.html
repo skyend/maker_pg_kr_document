@@ -1,0 +1,680 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE DATABASE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE CONVERSION"
+HREF="sql-createconversion.html"><LINK
+REL="NEXT"
+TITLE="CREATE DOMAIN"
+HREF="sql-createdomain.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE CONVERSION"
+HREF="sql-createconversion.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE CONVERSION"
+HREF="sql-createconversion.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE DOMAIN"
+HREF="sql-createdomain.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE DOMAIN"
+HREF="sql-createdomain.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATEDATABASE"
+></A
+>CREATE DATABASE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN64772"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE DATABASE&nbsp;--&nbsp;新しいデータベースを作成する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN64777"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    [ [ WITH ] [ OWNER [=] <TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+> ]
+           [ TEMPLATE [=] <TT
+CLASS="REPLACEABLE"
+><I
+>template</I
+></TT
+> ]
+           [ ENCODING [=] <TT
+CLASS="REPLACEABLE"
+><I
+>encoding</I
+></TT
+> ]
+           [ LC_COLLATE [=] <TT
+CLASS="REPLACEABLE"
+><I
+>lc_collate</I
+></TT
+> ]
+           [ LC_CTYPE [=] <TT
+CLASS="REPLACEABLE"
+><I
+>lc_ctype</I
+></TT
+> ]
+           [ TABLESPACE [=] <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+> ]
+           [ CONNECTION LIMIT [=] <TT
+CLASS="REPLACEABLE"
+><I
+>connlimit</I
+></TT
+> ] ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64787"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>は新しい<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースを作成します。
+  </P
+><P
+>データベースを作成するには、スーパーユーザ、もしくは<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>という特別な権限を持つユーザである必要があります。
+<A
+HREF="sql-createuser.html"
+>CREATE USER</A
+>を参照してください。
+  </P
+><P
+>通常、データベースの作成者がその新しいデータベースの所有者になります。
+スーパーユーザは、<TT
+CLASS="OPTION"
+>OWNER</TT
+>句を使用することにより、他のユーザを所有者とするデータベースを作成できます。
+スーパーユーザは、特別な権限を保持していないユーザを所有者とするデータベースを作成できます。
+スーパーユーザではない<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限を保持するユーザは、自分自身を所有者とするデータベースのみ作成できます。
+  </P
+><P
+>デフォルトでは、新しいデータベースは標準システムデータベース<TT
+CLASS="LITERAL"
+>template1</TT
+>を複製することによって作成されます。
+他のテンプレートを指定するには、<TT
+CLASS="LITERAL"
+>TEMPLATE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+>と記述します。
+特に、<TT
+CLASS="LITERAL"
+>TEMPLATE template0</TT
+>と記述することで、そのバージョンの<SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+>によって定義済みの標準オブジェクトのみを持つ、新しいデータベースを作ることができます。
+これは、<TT
+CLASS="LITERAL"
+>template1</TT
+>に独自にインストールして追加したオブジェクトをコピーしたくない場合に便利です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64805"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>作成するデータベースの名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>use_name</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベースを所有するデータベースユーザの名前です。
+デフォルト設定（つまり、コマンドを実行したユーザ）を使用する場合は<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>と指定します。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>template</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベースを作成元となるテンプレートの名前です。
+デフォルトテンプレート（<TT
+CLASS="LITERAL"
+>template1</TT
+>）を使う場合は、<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>と指定します。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>encoding</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベースで使われる文字セット符号化方式です。
+文字列定数（例えば<TT
+CLASS="LITERAL"
+>'SQL_ASCII'</TT
+>）、整数の符号化方式番号、デフォルトの符号化方式（すなわちテンプレートデータベースの符号化方式）を使う<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>のいずれかを指定します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバでサポートされる文字セットについては<A
+HREF="multibyte.html#MULTIBYTE-CHARSET-SUPPORTED"
+>&#38917;22.3.1</A
+>で説明します。
+この他の制限については後述します。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>lc_collate</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベースで使用する照合順（<TT
+CLASS="LITERAL"
+>LC_COLLATE</TT
+>）です。
+これは、たとえばORDER BYを持つ問い合わせなどにおいて文字列に適用されるソート順やテキスト型の列に対するインデックスで使用される順序に影響します。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>lc_ctype</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベースで使用する文字のクラス（<TT
+CLASS="LITERAL"
+>LC_CTYPE</TT
+>）です。
+これは、たとえば小文字、大文字、数字といった文字の分類に影響します。
+デフォルトではテンプレートデータベースの文字クラスを使用します。
+さらなる制限に関しては後で説明します。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベースに関連付けされるデフォルトのテーブル空間名です。テンプレートデータベースのテーブル空間を使用する場合は、<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>と指定します。
+このテーブル空間が、このデータベースで作成されるオブジェクトのデフォルトのテーブル空間となります。
+詳細は<A
+HREF="sql-createtablespace.html"
+>CREATE TABLESPACE</A
+>を参照してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>connlimit</I
+></TT
+></DT
+><DD
+><P
+>このデータベースで確立できる同時接続数です。
+-1（デフォルト）は無制限を意味します。
+       </P
+></DD
+></DL
+></DIV
+><P
+>省略可能なパラメータは、任意の順番で記述できます。上記の順番で記述しなくても構いません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64860"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>はトランザクションブロックの内側では実行できません。
+   </P
+><P
+>ほとんどの場合、<SPAN
+CLASS="QUOTE"
+>"could not initialize database directory"</SPAN
+>という行が含まれるエラーは、データディレクトリの権限不足、ディスク容量不足などファイルシステムについての問題に関連するものです。
+   </P
+><P
+>データベースを削除するには<A
+HREF="sql-dropdatabase.html"
+>DROP DATABASE</A
+>を使用してください。
+   </P
+><P
+><A
+HREF="app-createdb.html"
+><SPAN
+CLASS="APPLICATION"
+>createdb</SPAN
+></A
+>プログラムは利便性のために提供される、このコマンドのラッパプログラムです。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>template1</TT
+>以外のデータベースの名前をテンプレートに指定してデータベースをコピーすることは可能ですが、これは（まだ）一般的に使用する<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="COMMAND"
+>COPY DATABASE</TT
+>"</SPAN
+>機能として意図されているわけではありません。
+主な制限は、コピー中に他のセッションからテンプレートデータベースへの接続ができないことです。
+<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>は、開始した時に他の接続があると失敗します。
+テンプレートデータベースへの新規接続は<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>が完了するまでロックされます。
+詳細は<A
+HREF="manage-ag-templatedbs.html"
+>&#38917;21.3</A
+>を参照してください。
+  </P
+><P
+>新しいデータベース用に指定される文字セット符号化方式は選択されたロケール設定（<TT
+CLASS="LITERAL"
+>LC_COLLATE</TT
+>および<TT
+CLASS="LITERAL"
+>LC_CTYPE</TT
+>）と互換性がなければなりません。
+ロケールが<TT
+CLASS="LITERAL"
+>C</TT
+>（や同等の<TT
+CLASS="LITERAL"
+>POSIX</TT
+>）であれば、すべての符号化方式が許されますが、他のロケール設定では適切に動作する符号化方式は1つしかありません。
+（しかしWindowsではUTF-8符号化方式をすべてのロケールで使用することができます。）
+<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>では、ロケール設定に関係なくスーパーユーザが<TT
+CLASS="LITERAL"
+>SQL_ASCII</TT
+>符号化方式を指定することを許していますが、こうした選択は廃止予定であり、データベース内にロケールと互換性がない符号化方式でデータが格納された場合、文字列関数の誤動作を多く引き起こします。
+  </P
+><P
+>符号化方式とロケール設定はテンプレートデータベースのこれらの設定と一致しなければなりません。
+ただしtemplate0がテンプレートとして使用される場合は例外です。
+他のデータベースには指定された符号化方式と一致しないデータを含む可能性や<TT
+CLASS="LITERAL"
+>LC_COLLATE</TT
+>および<TT
+CLASS="LITERAL"
+>LC_CTYPE</TT
+>がソート順序に影響するようなインデックスを含む可能性があることがこの理由です。
+こうしたデータをコピーすると、新しい設定から見るとデータベースが破損する結果となります。
+しかし<TT
+CLASS="LITERAL"
+>template0</TT
+>には影響を受けるデータやインデックスが含まれていないことが分かっています。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>CONNECTION LIMIT</TT
+>は厳密な制限ではありません。
+データベース向けの接続<SPAN
+CLASS="QUOTE"
+>"スロット"</SPAN
+>が1つ残っていた時に同時に2つの新しいセッション開始要求があった場合、両方とも失敗する可能性があります。
+また、この制限はスーパーユーザには強制されません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64891"
+></A
+><H2
+>例</H2
+><P
+>新しいデータベースを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE DATABASE lusiadas;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>salesapp</TT
+>ユーザを所有者、<TT
+CLASS="LITERAL"
+>salesspace</TT
+>をデフォルトのテーブル空間として<TT
+CLASS="LITERAL"
+>sales</TT
+>データベースを作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE DATABASE sales OWNER salesapp TABLESPACE salesspace;</PRE
+><P>
+  </P
+><P
+>ISO-8859-1文字セットをサポートする<TT
+CLASS="LITERAL"
+>music</TT
+>データベースを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE DATABASE music ENCODING 'LATIN1' TEMPLATE template0;</PRE
+><P>
+
+この例における<TT
+CLASS="LITERAL"
+>TEMPLATE template0</TT
+>句は、<TT
+CLASS="LITERAL"
+>template1</TT
+>の符号化方式がISO-8859-1ではない場合にのみ必要です。
+符号化方式を変更するには同様に<TT
+CLASS="LITERAL"
+>LC_COLLATE</TT
+>と<TT
+CLASS="LITERAL"
+>LC_CTYPE</TT
+>を新たに設定する必要があるかもしれないことに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64907"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>文はありません。 
+データベースは、実装で生成が定義されるカタログと同等のものです。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64911"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-alterdatabase.html"
+>ALTER DATABASE</A
+>, <A
+HREF="sql-dropdatabase.html"
+>DROP DATABASE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createconversion.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createdomain.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE CONVERSION</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE DOMAIN</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

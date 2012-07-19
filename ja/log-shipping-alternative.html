@@ -1,0 +1,433 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>この他のログシッピングの方法</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"><LINK
+REL="PREVIOUS"
+TITLE="フェールオーバ"
+HREF="warm-standby-failover.html"><LINK
+REL="NEXT"
+TITLE="ホットスタンバイ"
+HREF="hot-standby.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="フェールオーバ"
+HREF="warm-standby-failover.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 25&#31456;高可用性、負荷分散およびレプリケーション</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ホットスタンバイ"
+HREF="hot-standby.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LOG-SHIPPING-ALTERNATIVE"
+>25.4. この他のログシッピングの方法</A
+></H1
+><P
+>これまでの節で説明した組込みのスタンバイモードの他の方法として、アーカイブ場所を順次問い合わせる<TT
+CLASS="VARNAME"
+>restore_command</TT
+>を使用する方法があります。
+これはバージョン8.4以前では唯一の利用可能な選択肢でした。
+この設定では、スタンバイ操作で必要とするポーリングを自身で実施しますので、<TT
+CLASS="VARNAME"
+>standby_mode</TT
+>を無効にします。
+このリファレンス実装として<A
+HREF="pgstandby.html"
+>pg_standby</A
+>を参照してください。
+   </P
+><P
+>このモードでは、サーバは1度に1つのWALファイルを適用することに注意してください。
+このため問い合わせ用にスタンバイサーバを使用する場合(ホットスタンバイを参照)、マスタにおける動作とそれがスタンバイで可視になるまでの間に、WALファイルをみたすために必要とする時間に相当する、遅延が存在します。
+<TT
+CLASS="VARNAME"
+>archive_timeout</TT
+>を使用して遅延を短くすることができます。
+また、この方法とストリーミングレプリケーションと組み合わせることができないことにも注意してください。
+   </P
+><P
+>プライマリおよびスタンバイサーバの両方で発生する操作は通常の継続的なアーカイブ処理とリカバリ処理です。
+2つのデータベースサーバが連携する唯一の点は、両者が共有するWALファイルのアーカイブです。
+プライマリがアーカイブに書き出し、スタンバイがアーカイブから読み取ります。
+注意して他のプライマリサーバ由来のWALアーカイブが混在しないことを確実にしなければなりません。
+さもないと混乱が発生します。
+スタンバイ操作でのみ必要なものですので、アーカイブは必ずしも巨大になりません。
+   </P
+><P
+>2つの疎結合サーバを協調させる秘訣は簡単で、スタンバイサーバにて使用される<TT
+CLASS="VARNAME"
+>restore_command</TT
+>です。
+これは次のWALファイルを問い合わせ、それをプライマリから利用可能になるまで待機します。
+この<TT
+CLASS="VARNAME"
+>restore_command</TT
+>はスタンバイサーバの<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>ファイルで指定されます。
+通常のリカバリ処理はWALアーカイブからファイルを要求し、ファイルが利用できなければ失敗を報告します。
+スタンバイ処理では、次のWALファイルを入手できないことは異常ではありませんので、スタンバイは利用可能になるまで待機しなければなりません。
+<TT
+CLASS="LITERAL"
+>.backup</TT
+>または<TT
+CLASS="LITERAL"
+>.history</TT
+>で終わるファイルについては、待機する必要はなく、非ゼロの終了コードを返さなければなりません。
+<TT
+CLASS="VARNAME"
+>restore_command</TT
+>を待機させるには、次のWALファイルの存在を確認した後にループする独自のスクリプトを作成することで実現できます。
+また、<TT
+CLASS="VARNAME"
+>restore_command</TT
+>に割り込み、ループを終了させ、ファイルが存在しないというエラーをスタンバイサーバに返す、フェールオーバを発生させる何らかの方法がなければなりません。
+これがリカバリ処理を停止しますので、スタンバイサーバは通常のサーバになります。
+   </P
+><P
+><TT
+CLASS="VARNAME"
+>restore_command</TT
+>の擬似コードの一例は以下です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>triggered = false;
+while (!NextWALFileReady() &amp;&amp; !triggered)
+{
+    sleep(100000L);         /* wait for ~0.1 sec */
+    if (CheckForExternalTrigger())
+        triggered = true;
+}
+if (!triggered)
+        CopyWALFileForRecovery();</PRE
+><P>
+   </P
+><P
+>待機を行う<TT
+CLASS="VARNAME"
+>restore_command</TT
+>の実例は<A
+HREF="pgstandby.html"
+>pg_standby</A
+>モジュール内で提供されています。
+これは上記のロジックをどのように正確に実装するかについての参照として使用すべきです。
+また、これを特定の設定または環境をサポートするため必要に応じて拡張することができます。
+   </P
+><P
+>フェールオーバを通知する手段は計画・設計段階で重要な部分です。
+考えられる選択肢の1つは<TT
+CLASS="VARNAME"
+>restore_command</TT
+>です。
+これは各WALファイルに対して1度実行されるものですが、<TT
+CLASS="VARNAME"
+>restore_command</TT
+>を実行するプロセスは各ファイルに対して起動・終了します。
+このようにデーモンやサーバプロセスはありませんので、シグナルやシグナルハンドラを使用することはできません。
+したがって、<TT
+CLASS="VARNAME"
+>restore_command</TT
+>はフェールオーバの通知には適していません。
+特にプライマリサーバ上の既知の<TT
+CLASS="VARNAME"
+>archive_timeout</TT
+>設定と連係して使用できるならば、単純なタイムアウト機能を使用することができます。
+しかし、これはネットワーク障害や高負荷なプライマリサーバによりフェールオーバが始まってしまうため、どちらかというとエラーになりやすいものです。
+実現可能ならば、明示的な通知用ファイルの作成などの通知機構の方が理想的です。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="WARM-STANDBY-CONFIG"
+>25.4.1. 実装</A
+></H2
+><P
+>この代替方式を使用してスタンバイサーバを構築する短めの手順を以下に示します。
+各段階の詳細については、注記していますので、前の節を参照してください。
+    <P
+></P
+></P><OL
+TYPE="1"
+><LI
+><P
+>できる限り同じようにプライマリシステムとスタンバイシステムを設定してください。
+同じリリースレベルの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の同一コピーの導入も含みます。
+      </P
+></LI
+><LI
+><P
+>プライマリサーバで、継続的アーカイブをスタンバイサーバ上のディレクトリ上にWALをアーカイブするように設定してください。
+プライマリサーバで、<A
+HREF="runtime-config-wal.html#GUC-ARCHIVE-MODE"
+>archive_mode</A
+>、<A
+HREF="runtime-config-wal.html#GUC-ARCHIVE-COMMAND"
+>archive_command</A
+>および<A
+HREF="runtime-config-wal.html#GUC-ARCHIVE-TIMEOUT"
+>archive_timeout</A
+>が適切に設定されていることを確認してください（<A
+HREF="continuous-archiving.html#BACKUP-ARCHIVING-WAL"
+>&#38917;24.3.1</A
+>を参照してください）。
+      </P
+></LI
+><LI
+><P
+>プライマリサーバでベースバックアップを作成（<A
+HREF="continuous-archiving.html#BACKUP-BASE-BACKUP"
+>&#38917;24.3.2</A
+>を参照してください）し、スタンバイサーバでこのデータをロードしてください。
+      </P
+></LI
+><LI
+><P
+>スタンバイサーバで、上記の通り待機を行う<TT
+CLASS="VARNAME"
+>restore_command</TT
+>を指定した<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>を使用して、ローカルなWALアーカイブからリカバリ処理を実行してください（<A
+HREF="continuous-archiving.html#BACKUP-PITR-RECOVERY"
+>&#38917;24.3.3</A
+>を参照してください）。
+      </P
+></LI
+></OL
+><P>
+   </P
+><P
+>リカバリ処理はWALアーカイブを読み取り専用として扱います。
+このため、WALファイルがスタンバイシステムにコピーされた後、スタンバイデータベースサーバによる読み取りと同時にWALファイルをテープにコピーすることができます。
+このように、高可用性スタンバイサーバの実行を、災害からのリカバリを目的とした長期的な保管と同時に行うことができます。
+   </P
+><P
+>試験のためにプライマリサーバとスタンバイサーバを同じシステムで稼動させることができます。
+これによりサーバ堅牢性が向上することも、高可用性と呼べることもありません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="WARM-STANDBY-RECORD"
+>25.4.2. レコードベースのログシッピング</A
+></H2
+><P
+>この代替手法を用いたレコード単位のログシッピングの実装も可能ですが、利用者側の開発が必要です。
+さらに、完全なWALファイルが転送された後のみで、変更がホットスタンバイ問い合わせで可視になります。
+   </P
+><P
+>外部プログラムから、WALの現在の終了点のファイル名と正確なバイトオフセットを見つけ出す<CODE
+CLASS="FUNCTION"
+>pg_xlogfile_name_offset()</CODE
+>関数（<A
+HREF="functions-admin.html"
+>&#38917;9.24</A
+>を参照）を呼び出すことができます。
+そして、WALファイルに直接アクセスし、直前の既知のWAL終了点から現在の終了点までのデータをスタンバイサーバにコピーすることができます。
+この方法では、データ損失期間はコピー処理プログラムの実行周期となります。
+非常に短くすることができますし、部分的に使用されたセグメントファイルを強制的にアーカイブするため無駄な帯域もありません。
+スタンバイサーバの<TT
+CLASS="VARNAME"
+>restore_command</TT
+>スクリプトがWALファイル全体しか扱うことができないことに注意してください。
+このため、逐次的にコピーしたデータは通常はスタンバイサーバで利用することができません。
+プライマリサーバが停止した時のみこれを使用します。
+その場合、プライマリサーバが立ち上がる前に、最後の部分的なWALファイルがセカンダリサーバに渡されます。
+この処理の正しい実装では、データコピープログラムと<TT
+CLASS="VARNAME"
+>restore_command</TT
+>スクリプトとの連係が必要です。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>バージョン9.0から、同じ利点をより少ない設定で実現できるストリーミングレプリケーション(<A
+HREF="warm-standby.html#STREAMING-REPLICATION"
+>&#38917;25.2.5</A
+>参照)を使用することができます。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="warm-standby-failover.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="hot-standby.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>フェールオーバ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="high-availability.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ホットスタンバイ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

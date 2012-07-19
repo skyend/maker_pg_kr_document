@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>書式</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"><LINK
+REL="PREVIOUS"
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"><LINK
+REL="NEXT"
+TITLE="サーバ内部からのエラーの報告"
+HREF="error-message-reporting.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 47&#31456;PostgreSQLコーディング規約</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバ内部からのエラーの報告"
+HREF="error-message-reporting.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SOURCE-FORMAT"
+>47.1. 書式</A
+></H1
+><P
+>ソースコードの書式では、タブを4カラムとするスペーシングを使用し、現在はタブを保存しています（つまりタブをスペースに展開しません）。
+各論理インデントのレベルは、さらに1つのタブストップです。
+   </P
+><P
+>   
+配置規則（括弧の位置など）はBSDの慣例に従います。
+特に<TT
+CLASS="LITERAL"
+>if</TT
+>、<TT
+CLASS="LITERAL"
+>while</TT
+>、<TT
+CLASS="LITERAL"
+>switch</TT
+>などの制御ブロックのための中括弧はそれ自身を一行で表します。
+   </P
+><P
+>コードが80カラムのウィンドウで読み易くなるように1行の長さを制限してください。
+（これは80カラムを超えてはならないことを意味していません。
+例えば、任意の場所にある長いエラーメッセージ文字列をコードが80カラムに収まるように改行を含めても、おそらく可読性を向上させることはありません。）
+   </P
+><P
+>   
+C++形式のコメント（<TT
+CLASS="LITERAL"
+>//</TT
+>コメント）は使用しないでください。
+厳密なANSI Cコンパイラはそれらを受け付けません。
+同じ理由で、中間ブロックで新規の変数を宣言するようなC++拡張を使用しないでください。
+   </P
+><P
+>   
+複数行に渡るコメントブロックの推奨書式は以下のようになります。
+    
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/*
+ * コメントテキストはここから始まり
+ * ここまで続きます
+ */</PRE
+><P>
+列1で始まるコメントブロックは<SPAN
+CLASS="APPLICATION"
+>pgindent</SPAN
+>によるのと同じ通りに維持されますが、字下げされたコメントブロックを、あたかも平文テキストのように還流します。
+ある字下げブロックの中で改行を維持したい場合は以下のようにダッシュを追加します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>    /*----------
+     * コメントテキストはここから始まり
+     * ここまで続きます
+     *----------
+     */</PRE
+><P>
+   </P
+><P
+>登録されたパッチは完全にはこの書式規則に従う必要はありませんが、そのようにすることを勧めます。
+登録されるコードは次のリリースの前に<SPAN
+CLASS="APPLICATION"
+>pgindent</SPAN
+>を通します。
+ですので、他の書式規則に従って作成して、見た目を良くすることに意味がありません。
+優れたパッチに関する原則は、<SPAN
+CLASS="QUOTE"
+>"新しいコードがその前後にある既存のコードのように見える"</SPAN
+>ことです。
+   </P
+><P
+><TT
+CLASS="FILENAME"
+>src/tools</TT
+>ディレクトリには、確実に上記の規約に従った書式になることを補助する、<SPAN
+CLASS="PRODUCTNAME"
+>emacs</SPAN
+>、<SPAN
+CLASS="PRODUCTNAME"
+>xemacs</SPAN
+>、<SPAN
+CLASS="PRODUCTNAME"
+>vim</SPAN
+>エディタで使用できるサンプルの設定ファイルがあります。
+または、<SPAN
+CLASS="APPLICATION"
+>vi</SPAN
+>内で下記のようにコマンドを実行してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>:set ts=4</PRE
+><P>
+   </P
+><P
+>テキスト閲覧ツール<SPAN
+CLASS="APPLICATION"
+>more</SPAN
+>と<SPAN
+CLASS="APPLICATION"
+>less</SPAN
+>では以下のようにすればタブを適切に表示させることができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>more -x4
+less -x4</PRE
+><P>
+
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="source.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="error-message-reporting.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PostgreSQLコーディング規約</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="source.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>サーバ内部からのエラーの報告</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

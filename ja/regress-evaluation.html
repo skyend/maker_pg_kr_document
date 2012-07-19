@@ -1,0 +1,499 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テストの評価</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リグレッションテスト"
+HREF="regress.html"><LINK
+REL="PREVIOUS"
+TITLE="テストの実行"
+HREF="regress-run.html"><LINK
+REL="NEXT"
+TITLE="各種の比較用ファイル"
+HREF="regress-variant.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="テストの実行"
+HREF="regress-run.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リグレッションテスト"
+HREF="regress.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 30&#31456;リグレッションテスト</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リグレッションテスト"
+HREF="regress.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="各種の比較用ファイル"
+HREF="regress-variant.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="REGRESS-EVALUATION"
+>30.2. テストの評価</A
+></H1
+><P
+>    
+適正にインストールされ、かつ、すべての機能が使用できるような<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>インストレーションであっても、浮動小数点の表現やメッセージ内の単語順など、プラットフォーム特有の誤差のために<SPAN
+CLASS="QUOTE"
+>"失敗"</SPAN
+>することがあります。 
+現在のテストは単純に、（基準となる）参照用システムで生成した出力との<TT
+CLASS="COMMAND"
+>diff</TT
+>を取ることで結果の検証を行っているため、システムの些細な違いにも反応します。  
+結果が<SPAN
+CLASS="QUOTE"
+>"失敗"</SPAN
+>となった場合は、予測された結果と実際の結果との差分を必ず評価してください。 
+それらの差異が重大ではないことが判明することもあります。  
+なお、すべてのテストが成功するように、サポートするすべてのプラットフォームに対する正確な参照ファイルの保守に努めています。
+   </P
+><P
+>    
+実際のリグレッションテストの出力は、<TT
+CLASS="FILENAME"
+>src/test/regress/results</TT
+>ディレクトリ内のファイルに書き込まれます。 
+テストスクリプトは<TT
+CLASS="COMMAND"
+>diff</TT
+>を使用して、各出力ファイルと<TT
+CLASS="FILENAME"
+>src/test/regress/expected</TT
+>ディレクトリ内の参照用出力とを比較します。  
+あらゆる差異は調査用に<TT
+CLASS="FILENAME"
+>src/test/regress/regression.diffs</TT
+>に保存されます。
+（あるいは、自分で<TT
+CLASS="COMMAND"
+>diff</TT
+>を実行することもできます。）
+   </P
+><P
+>    
+何らかの理由で、特定のプラットフォームが指定した試験で<SPAN
+CLASS="QUOTE"
+>"失敗"</SPAN
+>し、その出力の調査により結果の方が有効であると確信できた場合、新しい比較用ファイルを追加し、今後の試験で失敗の報告が発生しないようにすることができます。
+詳細は<A
+HREF="regress-variant.html"
+>&#38917;30.3</A
+>を参照してください。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36078"
+>30.2.1. エラーメッセージの違い</A
+></H2
+><P
+>     
+リグレッションテストのいくつかは、意図的に無効な入力値を使用します。  
+エラーメッセージは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のコードによるもの、または使用しているプラットフォームの関数によるものがあります。 
+後者の場合、プラットフォームによって違いがあるかもしれませんが、似たような内容になるはずです。 
+これらのメッセージの違いによりリグレッションテストは<SPAN
+CLASS="QUOTE"
+>"失敗"</SPAN
+>する可能性がありますが、これらは検査で確認できます。 
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36083"
+>30.2.2. ロケールの違い</A
+></H2
+><P
+>     
+Cロケール以外の照合順序のロケールで初期化されたサーバに対してテストを実行する際には、ソート順やその後に発生する失敗に違いが生じる可能性があります。
+リグレッションテストスイートはこの問題を解決するために、多くのロケールを処理するための代替の結果ファイルを提供するように設定されています。  
+    </P
+><P
+>     
+一時的なインストレーションを使用して、異なるロケールのテストを実行するためには、以下の例のように、<TT
+CLASS="COMMAND"
+>make</TT
+>コマンドラインに適切なロケール関連の環境変数を渡してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gmake check LANG=de_DE.utf8</PRE
+><P>
+     
+（リグレッションテストのドライバは<TT
+CLASS="ENVAR"
+>LC_ALL</TT
+>を設定しないため、この変数を使ってロケールを選択することはできません。）
+ロケール無しを使用するためには、すべてのロケール関連の環境変数を設定しない（または、それらを<TT
+CLASS="LITERAL"
+>C</TT
+>に設定する）か、もしくは以下の特殊な起動を行います。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gmake check NO_LOCALE=1</PRE
+><P>
+     
+既存のインストレーションに対してテストを実行する場合は、ロケール設定は既存のインストレーションによって決まります。
+変更するためには、<TT
+CLASS="COMMAND"
+>initdb</TT
+>に適切なオプションを渡して、異なるロケールでデータベースクラスタを初期化してください。
+    </P
+><P
+>     
+実際に実運用で使用されるロケールおよび符号化方式に関連した部分のコードが検証されますので、一般的にはやはり、実運用で使用されるロケール設定でリグレッションテストを実行することを推奨します。
+オペレーティングシステム環境に依存して、結果が失敗する場合もありますが、少なくとも実際のアプリケーションを実行する時に想定されるロケール固有の動作を知ることができます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36094"
+>30.2.3. 日付と時刻の違い</A
+></H2
+><P
+>     
+日付と時刻の結果のほとんどはタイムゾーンの環境に依存します。
+参照ファイルはタイムゾーン <TT
+CLASS="LITERAL"
+>PST8PDT</TT
+> (Berkeley, California) 用に生成されているため、このタイムゾーン設定で実行されていないテストは明らかに失敗します。
+リグレッションテストのドライバは、適切な結果を保証するために、環境変数<TT
+CLASS="ENVAR"
+>PGTZ</TT
+>に<TT
+CLASS="LITERAL"
+>PST8PDT</TT
+>を設定します。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36100"
+>30.2.4. 浮動小数点数の違い</A
+></H2
+><P
+>     
+いくつかのテストでは、64ビット（<TT
+CLASS="TYPE"
+>double precision</TT
+>型）の浮動小数点数値をテーブルの列から取り出して計算を行います。 
+<TT
+CLASS="TYPE"
+>double precision</TT
+>列における数学演算関数では、異なった結果が発生する場合があることが知られています。  
+<TT
+CLASS="LITERAL"
+>float8</TT
+>と<TT
+CLASS="LITERAL"
+>geometry</TT
+>テストは特に、プラットフォーム間、またはコンパイラの最適化の設定による小さな違いが起こりやすくなります。 
+これらの違い、通常は小数点以下10桁目以降の相違の、実際の影響度を判断するためには、人間の目で実際に確認する必要があります。 
+    </P
+><P
+>     
+いくつかのシステムではマイナス0を<TT
+CLASS="LITERAL"
+>-0</TT
+>と表示することがあり、その他のシステムでは単に<TT
+CLASS="LITERAL"
+>0</TT
+>と表示します。
+    </P
+><P
+>     
+いくつかのシステムでは、現在の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のコードが想定しているメカニズムと異なるために、<CODE
+CLASS="FUNCTION"
+>pow()</CODE
+>と<CODE
+CLASS="FUNCTION"
+>exp()</CODE
+>でエラーを発生する場合があります。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36114"
+>30.2.5. 行の順序の違い</A
+></H2
+><P
+>同じ行の出力が、参照ファイルで記述されている順序とは異なっている場合があります。  
+ほとんどの場合、これは厳密に言ってバグではありません。  
+ほとんどのリグレッションテストは、各<TT
+CLASS="LITERAL"
+>SELECT</TT
+>文に対して<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を使用するほど規則に厳しくなく、そのため、結果の行の順序はSQLの仕様に従って、明確に決まっていません。
+実際には、同じソフトウェアで同じデータを用いて同じ問い合わせで参照しているので、すべてのプラットフォームで同じ順序の結果が返されるため、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>がないことは問題ではないと言えます。  
+しかし、問い合わせによっては、プラットフォーム間の順序の違いが起こる可能性があります。
+インストール済みのサーバに対して試験を行う場合、C以外のロケール、独自の<TT
+CLASS="VARNAME"
+>work_mem</TT
+>や独自のプランナ用のコストパラメータなどデフォルト以外のパラメータ設定により順序の違いが生じる可能性があります。
+    </P
+><P
+>したがって、順序の違いを見つけた場合、問い合わせに<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>が含まれていて順序が影響を及ぼす場合以外は、気にする必要はありません。
+ただし、将来のリリースにおいて、偽の<SPAN
+CLASS="QUOTE"
+>"失敗"</SPAN
+>を取り除くために特定の問い合わせに<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を追加していた場合には、ご一報ください。
+    </P
+><P
+>このような問題を避けるために、なぜ我々がすべてのリグレッションテストに対して明示的に順序を指定しないのか、疑問に思うかもしれません。
+その理由は、ソートが必要がない場合であってもソートされた結果を生成する問い合わせ計画を実行しようとすることによって、リグレッションテストの意義が増すわけではなく、むしろ減るからです。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36126"
+>30.2.6. スタック長の不足</A
+></H2
+><P
+>     
+<TT
+CLASS="LITERAL"
+>errors</TT
+>テストが<TT
+CLASS="LITERAL"
+>select infinite_recurse()</TT
+>コマンドでサーバをクラッシュさせた場合、プラットフォームのプロセススタックサイズが<A
+HREF="runtime-config-resource.html#GUC-MAX-STACK-DEPTH"
+>max_stack_depth</A
+> パラメータが示す値よりも小さいことを意味します。
+これは、スタックサイズ制限を高くして（デフォルトの<TT
+CLASS="VARNAME"
+>max_stack_depth</TT
+>での推奨値は4メガバイト）サーバを実行することで修正することができます。
+これを行うことができない場合、<TT
+CLASS="VARNAME"
+>max_stack_depth</TT
+>の値を少なくすることが代替方法です。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36134"
+>30.2.7. <SPAN
+CLASS="QUOTE"
+>"乱数"</SPAN
+> テスト</A
+></H2
+><P
+>     
+<TT
+CLASS="LITERAL"
+>random</TT
+>テストスクリプトは、無作為な結果を生成することを目的としています。
+randomリグレッションテストは稀に失敗に終わることがあります。  
+次のように、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>diff results/random.out expected/random.out</PRE
+><P>
+     
+と入力すると、ほんの数行だけの差異が生じるはずです。
+繰り返し失敗しない限り、気に留める必要はありません。  
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="regress-run.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="regress-variant.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>テストの実行</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="regress.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>各種の比較用ファイル</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

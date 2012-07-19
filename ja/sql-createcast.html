@@ -1,0 +1,896 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE CAST</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE AGGREGATE"
+HREF="sql-createaggregate.html"><LINK
+REL="NEXT"
+TITLE="CREATE COLLATION"
+HREF="sql-createcollation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE AGGREGATE"
+HREF="sql-createaggregate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE AGGREGATE"
+HREF="sql-createaggregate.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE COLLATION"
+HREF="sql-createcollation.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE COLLATION"
+HREF="sql-createcollation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATECAST"
+></A
+>CREATE CAST</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN64407"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE CAST&nbsp;--&nbsp;新しいキャストを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN64412"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE CAST (<TT
+CLASS="REPLACEABLE"
+><I
+>source_type</I
+></TT
+> AS <TT
+CLASS="REPLACEABLE"
+><I
+>target_type</I
+></TT
+>)
+    WITH FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>argument_type</I
+></TT
+> [, ...])
+    [ AS ASSIGNMENT | AS IMPLICIT ]
+
+CREATE CAST (<TT
+CLASS="REPLACEABLE"
+><I
+>source_type</I
+></TT
+> AS <TT
+CLASS="REPLACEABLE"
+><I
+>target_type</I
+></TT
+>)
+    WITHOUT FUNCTION
+    [ AS ASSIGNMENT | AS IMPLICIT ]
+
+CREATE CAST (<TT
+CLASS="REPLACEABLE"
+><I
+>source_type</I
+></TT
+> AS <TT
+CLASS="REPLACEABLE"
+><I
+>target_type</I
+></TT
+>)
+    WITH INOUT
+    [ AS ASSIGNMENT | AS IMPLICIT ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECAST-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE CAST</TT
+>を使用すると、新しいキャストを定義できます。
+キャストは、2つのデータ型間の変換処理方法を指定するものです。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT CAST(42 AS float8);</PRE
+><P>
+この文を実行すると、事前に指定された関数（この場合<TT
+CLASS="LITERAL"
+>float8(int4)</TT
+>）が呼び出され、整数定数42が<TT
+CLASS="TYPE"
+>float8</TT
+>型に変換されます
+（適切なキャストが定義されていない場合、変換処理は失敗します）。
+  </P
+><P
+>2つのデータ型を<I
+CLASS="FIRSTTERM"
+>バイナリ強制互換</I
+>とすることができます。
+これは、関数をまったく呼び出さなくても、<SPAN
+CLASS="QUOTE"
+>"自由に"</SPAN
+>変換を行うことができることを意味します。
+ただし、対応する値は、同じ内部表現を使用している必要があります。
+例えば、データ型<TT
+CLASS="TYPE"
+>text</TT
+>と<TT
+CLASS="TYPE"
+>varchar</TT
+>には、両方向でバイナリ互換性があります。
+バイナリ強制互換性は対称関係を必要としていません。
+例えば、現在の実装では<TT
+CLASS="TYPE"
+>xml</TT
+>から<TT
+CLASS="TYPE"
+>text</TT
+>へのキャストは自由に行うことができますが、逆方向では少なくとも構文検査を行う関数が必要です。
+（2つの型が両方向でバイナリ強制互換であることは、バイナリ互換性と呼ばれます。）
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>WITH INOUT</TT
+>構文を使用して<I
+CLASS="FIRSTTERM"
+>I/O変換キャスト</I
+>としてキャスト定義を行うことができます。
+I/O変換キャストは、元データ型の出力関数を呼び出し、その結果文字列を対象データ型の入力関数に渡すことで行われます。
+多くの一般的な場合では、この機能により変換用に別個のキャスト関数を作成する必要性がなくなります。
+I/O変換キャストは通常の関数を基にしたキャストと同様に動作します。ただ実装が異なるだけです。
+  </P
+><P
+>デフォルトでは、キャストは明示的なキャスト要求があった場合のみ発生します。
+明示的なキャスト要求の構文は、<TT
+CLASS="LITERAL"
+>CAST(<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> AS <TT
+CLASS="REPLACEABLE"
+><I
+>typename</I
+></TT
+>)</TT
+>、もしくは、<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+><TT
+CLASS="LITERAL"
+>::</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>typename</I
+></TT
+>式です。
+  </P
+><P
+>キャストに<TT
+CLASS="LITERAL"
+>AS ASSIGNMENT</TT
+>オプションを付けると、対象データ型の列に代入する際、暗黙的にそのキャストを発生させるように設定できます。
+例えば、<TT
+CLASS="LITERAL"
+>foo.f1</TT
+>が<TT
+CLASS="TYPE"
+>text</TT
+>型の列であるとします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO foo (f1) VALUES (42);</PRE
+><P>
+<TT
+CLASS="TYPE"
+>integer</TT
+>型を<TT
+CLASS="TYPE"
+>text</TT
+>型に変換するキャストに<TT
+CLASS="LITERAL"
+>AS ASSIGNMENT</TT
+>オプションが付けられていれば、上記のSQL文が実行できます。
+しかし、<TT
+CLASS="LITERAL"
+>AS ASSIGNMENT</TT
+>オプションが付いていなければ、実行できません
+（一般的に、この種のキャストは<I
+CLASS="FIRSTTERM"
+>代入キャスト</I
+>と呼ばれています）。
+  </P
+><P
+>キャストに<TT
+CLASS="LITERAL"
+>AS IMPLICIT</TT
+>オプションを付けると、代入の場合だけでなく、式の中にある場合でも、全てのコンテキストで暗黙的にそのキャストを呼び出すように設定できます。
+（一般的に、この種のキャストは<I
+CLASS="FIRSTTERM"
+>暗黙キャスト</I
+>と呼ばれています。）
+例えば次のような問い合わせを考えてみます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 2 + 4.0;</PRE
+><P>
+パーサはまず定数にそれぞれ<TT
+CLASS="TYPE"
+>integer</TT
+>と<TT
+CLASS="TYPE"
+>numeric</TT
+>であると印を付けます。
+システムカタログには、<TT
+CLASS="TYPE"
+>integer</TT
+> <TT
+CLASS="LITERAL"
+>+</TT
+> <TT
+CLASS="TYPE"
+>numeric</TT
+>という演算子はありませんが、<TT
+CLASS="TYPE"
+>numeric</TT
+> <TT
+CLASS="LITERAL"
+>+</TT
+> <TT
+CLASS="TYPE"
+>numeric</TT
+>という演算子は存在します。
+したがって、<TT
+CLASS="TYPE"
+>integer</TT
+>から<TT
+CLASS="TYPE"
+>numeric</TT
+>へのキャストが利用可能であり、そのキャストに<TT
+CLASS="LITERAL"
+>AS IMPLICIT</TT
+>が付いていればこの問い合わせは成功します（実際このようになっています）。
+パーサは暗黙的なキャストを行い、問い合わせをあたかも次のように記載されたものとして解決します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT CAST ( 2 AS numeric ) + 4.0;</PRE
+><P>
+  </P
+><P
+>ここで、カタログはまた<TT
+CLASS="TYPE"
+>numeric</TT
+>から<TT
+CLASS="TYPE"
+>integer</TT
+>へのキャストも提供しています。
+もしこのキャストに<TT
+CLASS="LITERAL"
+>AS IMPLICIT</TT
+>が付いていたら（実際は付いていません）、パーサは上のように解釈するか、それとも、<TT
+CLASS="TYPE"
+>numeric</TT
+>定数を<TT
+CLASS="TYPE"
+>integer</TT
+>にキャストし、<TT
+CLASS="TYPE"
+>integer</TT
+> <TT
+CLASS="LITERAL"
+>+</TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>という演算子を適用するかを選択しなければなりません。
+どちらがより良いかという知見がなければ、選択をあきらめ、問い合わせがあいまいであると宣告します。
+2つのキャストの内1つのみが暗黙的であるという事実が、パーサに、<TT
+CLASS="TYPE"
+>numeric</TT
+>と<TT
+CLASS="TYPE"
+>integer</TT
+>が混在する式を<TT
+CLASS="TYPE"
+>numeric</TT
+>として扱うという適切な解決方法を知らせる方法です。
+これに関する組み込まれた知見は存在しません。
+  </P
+><P
+>暗黙キャストは、多用しない方が賢明です。
+暗黙的キャストを使用し過ぎると、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコマンドを思わぬ意味に解釈してしまう原因になります。
+また、複数の解釈が可能なため、コマンドをまったく解読できなくなってしまう可能性もあります。
+経験的には、2つのデータ型が同一の一般的なデータ型のカテゴリに属しており、変換によって情報が保持される場合のみ、暗黙キャストを呼び出し可能にするのが良い方法と思われます。
+例えば、<TT
+CLASS="TYPE"
+>int2</TT
+>型から<TT
+CLASS="TYPE"
+>int4</TT
+>型へのキャストは、暗黙キャストにするのが妥当ですが、<TT
+CLASS="TYPE"
+>float8</TT
+>型から<TT
+CLASS="TYPE"
+>int4</TT
+>型へのキャストは、代入キャストのみにすべきと思われます。
+<TT
+CLASS="TYPE"
+>text</TT
+>型から<TT
+CLASS="TYPE"
+>int4</TT
+>型への変換のような、カテゴリを越えるデータ型のキャストは、明示的にのみ使用するのが適切です。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>上で説明した通り防ぐことができないあいまいさを引き起こす、型の集合の中で複数の暗黙的なキャストを提供することが、有用性や標準との互換性上の理由により必要となることがまれにあります。
+パーサは、こうした状況でも望ましい動作の提供を補助できる<I
+CLASS="FIRSTTERM"
+>型カテゴリ</I
+>と<I
+CLASS="FIRSTTERM"
+>好まれる型</I
+>に基づいた発見的手法を用意しています。
+詳細は<A
+HREF="sql-createtype.html"
+>CREATE TYPE</A
+>を参照してください。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>キャストを作成するには、変換元または変換先のデータ型を所有している必要があります。
+また、バイナリ強制互換性を持つキャストを作成できるのは、スーパーユーザのみです
+（バイナリ強制互換性があるキャスト変換を誤って使用するとサーバがクラッシュしてしまう可能性が高いことから、この制限が付けられました）。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64498"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>source_type</I
+></TT
+></DT
+><DD
+><P
+>キャストする変換元のデータ型の名前です。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>target_type</I
+></TT
+></DT
+><DD
+><P
+>キャストする変換先のデータ型の名前です。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>argument_type</I
+></TT
+> [, ...])</DT
+><DD
+><P
+>この関数はキャストを実行するために使用します。
+関数名はスキーマ修飾することができます。
+スキーマ修飾されていない場合、関数はスキーマ検索パスから検索されます。
+関数の結果のデータ型は、キャストの変換先のデータ型と一致する必要があります。
+引数については後で説明します。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WITHOUT FUNCTION</TT
+></DT
+><DD
+><P
+>変換元データ型から変換先データ型への間に、バイナリ強制互換性があることを示します。
+この場合、キャストを実行するのに関数は必要ありません。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WITH INOUT</TT
+></DT
+><DD
+><P
+>キャストが、元データ型の出力関数を呼び出し、その結果文字列を対象データ型の入力関数に渡すことで行われる、I/O変換キャストであることを示します。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>AS ASSIGNMENT</TT
+></DT
+><DD
+><P
+>代入コンテキストで、暗黙的にキャストを呼び出せることを示します。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>AS IMPLICIT</TT
+></DT
+><DD
+><P
+>任意のコンテキストで、暗黙的にキャストを呼び出せることを示します。
+      </P
+></DD
+></DL
+></DIV
+><P
+>キャストを実装する関数は1〜3個の引数を取ることができます。
+1番目の引数型はキャストの変換元データ型と同一、または、変換元データ型からのバイナリ強制互換を持つ型でなければなりません。
+2番目の引数（もしあれば）は、<TT
+CLASS="TYPE"
+>integer</TT
+>型でなければなりません。変換先の型に関連付けられた型修飾子を指定します。
+型修飾子がない場合は<TT
+CLASS="LITERAL"
+>-1</TT
+>を指定します。
+3番目の引数（もしあれば）は、<TT
+CLASS="TYPE"
+>boolean</TT
+>型でなければなりません。キャストが明示的なキャストであれば<TT
+CLASS="LITERAL"
+>true</TT
+>を、それ以外であれば<TT
+CLASS="LITERAL"
+>false</TT
+>を指定します
+（奇妙な話ですが、標準SQLでは、明示的キャストと暗黙的キャストとの間で異なる振舞いを要求する場合があります。
+この引数はそのようなキャストを実装しなければならない関数用に提供されています。
+独自のデータ型をこの流儀に従うように設計することは勧められません）。
+  </P
+><P
+>キャスト関数の戻り値は、キャストの対象型と同一またはバイナリ強制互換性を持たなければなりません。
+  </P
+><P
+>通常、キャストにおける変換元データ型と変換先データ型は異なる必要があります。
+しかし、2つ以上の引数を持つ関数でキャストを実装した場合は、変換元と変換先とで同一のデータ型を持つキャストを宣言することができます。
+これは、システムカタログにおいて型固有の長さ強制関数を表現するために使用されています。
+このように指定された関数は、型の値を強制的に2番目の引数で与えられた型修飾子の値にするために使用されます
+（文法上、型修飾子を持つのは特定の組み込みデータ型のみなので、この機能は変換先のデータ型がユーザ定義のものである場合には役に立ちません。
+ここでは、説明を完全にするために言及しています）。
+  </P
+><P
+>キャストが変換元と変換先のデータ型が異なり、複数の引数を取る関数を持つ場合、あるデータ型から他のデータ型への変換と長さの強制を1つの操作にまとめたものをサポートします。
+引数を1つしか取らない場合は、型修飾子を使用して型を強制するために、データ型間の変換と修飾子の適用という2つのキャスト操作が必要となります。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECAST-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+>ユーザ定義のキャストを削除するには<A
+HREF="sql-dropcast.html"
+>DROP CAST</A
+>を使用してください。
+  </P
+><P
+>データ型を双方向に変更可能にするには、双方向のキャストを明示的に宣言する必要があることに注意してください。
+  </P
+><P
+>ユーザ定義型と標準文字列型（<TT
+CLASS="TYPE"
+>text</TT
+>、<TT
+CLASS="TYPE"
+>varchar</TT
+>、<TT
+CLASS="TYPE"
+>char(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</TT
+>）、文字列カテゴリ内と定義されたユーザ定義型との間のキャストを作成することは、通常必要ありません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はこのために自動的なI/O変換キャストを提供します。
+この文字列への自動キャストは代入キャストとして扱われますが、文字列型からの入出力変換キャストは明示的なキャストのみです。
+この振舞いは独自のキャストを宣言して自動キャストを置き換えることで変更することができます。
+しかし、通常このようにするのは、この変換を標準の代入のみまたは明示的のみの設定よりもより呼び出しやすくしたい場合に限られます。
+他にも、型の入出力関数と異なる動作で変換したいという理由もあるかもしれません。
+しかし、これは非常に驚かされるものであり、そうすべきかどうか熟考すべきです。
+（組み込み型のごく一部は実際変換用に異なった振舞いをしますが、ほとんどは標準SQLの仕様のためのものです。）
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 7.3より前のバージョンでは、データ型と同じ名前を持ち、そのデータ型を返し、異なるデータ型の引数を1つ取る関数は、自動的にキャスト関数とみなされていました。
+この慣習は、スキーマを導入し、システムカタログでバイナリ強制互換性によるキャストを実現可能にしたことにより、廃止されました。 
+組み込みキャスト関数は、まだこの命名規則に従っています。
+しかし、他のキャスト同様、<TT
+CLASS="LITERAL"
+>pg_cast</TT
+>システムカタログにキャストとして示されている必要があります。 
+  </P
+><P
+>必須ではありませんが、キャストを実装する関数には変換先のデータ型の名前を付けるという以前からの慣習に従っておくことを推奨します。
+多くのユーザは<TT
+CLASS="REPLACEABLE"
+><I
+>typename</I
+></TT
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>)という関数スタイルの記法でデータ型のキャストを行っています。
+この記法は、キャストを実装している関数の呼び出しに他なりません。
+キャストとして特別に扱っているわけではないのです。
+ユーザが作成した変換関数の名前がこの慣習に従っていないと、他のユーザがとまどうことになります。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は引数として異なる型を取る同じ名前の関数をオーバーロードすることができるので、様々な型から特定の変換先型への変換関数の名前を全て変換先の型名にしても特に問題は発生しません。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>実際のところ、先ほどの段落は単純化しすぎたものです。
+関数呼び出し式が実際の関数と一致しない状態でキャスト要求として扱われる状況が2つ存在します。
+関数呼び出し<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>)が実際の関数に正確に一致せず、<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>がデータ型の名前であり、<TT
+CLASS="STRUCTNAME"
+>pg_cast</TT
+>が<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>の型からその型へのバイナリ強制互換のキャストを提供する場合、この呼び出しはバイナリ強制互換キャストとして処理されます。
+この例外は、実際の関数が存在しなくても、関数のような構文でバイナリ強制互換キャストを呼び出すことができるように作成されました。
+同様に、<TT
+CLASS="STRUCTNAME"
+>pg_cast</TT
+>に項目がないが、文字列型との間のキャストが存在する場合、この呼び出しは入出力変換キャストとして処理されます。
+この例外により関数のような構文で入出力変換キャストができるようになります。
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この例外にも例外があります。
+複合型から文字列型へのI/O変換キャストでは関数構文を使用して呼び出すことができず、明示的なキャスト構文（<TT
+CLASS="LITERAL"
+>CAST</TT
+>記法または<TT
+CLASS="LITERAL"
+>::</TT
+>記法のいずれか）で記述しなければなりません
+この例外は、自動提供I/O変換キャストを導入した後、関数または列参照を意図した時に非常に簡単に間違って呼び出されることが判明したため追加されました。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECAST-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+>関数<TT
+CLASS="LITERAL"
+>int4(bigint)</TT
+>を使用した<TT
+CLASS="TYPE"
+>bigint</TT
+>型から<TT
+CLASS="TYPE"
+>int4</TT
+>型への代入キャストを作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE CAST (bigint AS int4) WITH FUNCTION int4(bigint) AS ASSIGNMENT;</PRE
+><P>
+（このキャストは、システムに既に定義されています。）
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECAST-COMPAT"
+></A
+><H2
+>互換性</H2
+><P
+>SQLではバイナリ強制互換性があるデータ型や実装関数の追加の引数について規定されていません。さらに、<TT
+CLASS="LITERAL"
+>AS IMPLICIT</TT
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+これらの点以外では、<TT
+CLASS="COMMAND"
+>CREATE CAST</TT
+>は標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>に準拠しています。
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATECAST-SEEALSO"
+></A
+><H2
+>関連項目</H2
+><P
+>   <A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>,
+   <A
+HREF="sql-createtype.html"
+>CREATE TYPE</A
+>,
+   <A
+HREF="sql-dropcast.html"
+>DROP CAST</A
+>
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createaggregate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createcollation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE AGGREGATE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE COLLATION</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

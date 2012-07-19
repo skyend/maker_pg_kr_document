@@ -1,0 +1,1004 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>宣言</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/pgSQLの構造"
+HREF="plpgsql-structure.html"><LINK
+REL="NEXT"
+TITLE="式"
+HREF="plpgsql-expressions.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQLの構造"
+HREF="plpgsql-structure.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="式"
+HREF="plpgsql-expressions.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-DECLARATIONS"
+>39.3. 宣言</A
+></H1
+><P
+>ブロック内で使用される全ての変数はそのブロックの宣言部で宣言されなければなりません。
+（唯一の例外は、<TT
+CLASS="LITERAL"
+>FOR</TT
+>ループである整数値の範囲に渡って繰り返されるループ変数で、これは、自動的に整数型変数として宣言されます。
+同様に、カーソルの結果に対して繰り返し適用される<TT
+CLASS="LITERAL"
+>FOR</TT
+>ループのループ変数はレコード変数として自動的に宣言されます。）
+    </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数は、<TT
+CLASS="TYPE"
+>integer</TT
+>、<TT
+CLASS="TYPE"
+>varchar</TT
+>、<TT
+CLASS="TYPE"
+>char</TT
+>といった、任意のSQLデータ型を持つことができます。
+    </P
+><P
+>変数宣言の例を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>user_id integer;
+quantity numeric(5);
+url varchar;
+myrow tablename%ROWTYPE;
+myfield tablename.columnname%TYPE;
+arow RECORD;</PRE
+><P>
+    </P
+><P
+>変数宣言の一般的な構文は以下の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> CONSTANT </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation_name</I
+></TT
+> </SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+> NOT NULL </SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+> { DEFAULT | := } <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> </SPAN
+>];</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句が指定された場合、ブロックに入った時に変数に代入される初期値を指定します。
+<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句が指定されない場合、変数は<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>のNULL値に初期化されます。 
+<TT
+CLASS="LITERAL"
+>CONSTANT</TT
+>オプションにより、そのブロック内でその値が不変になるように、その変数への初期化後の代入は禁止されます。
+<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>オプションは、変数として使用するための照合を指定します（<A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-COLLATION"
+>&#38917;39.3.6</A
+>を参照してください）。
+<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>が指定された場合、NULL値の代入は実行時エラーになります。
+<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>として宣言した変数は全て、非NULLのデフォルト値を指定しなければなりません。
+     </P
+><P
+>変数のデフォルト値はブロックに入る度に評価され、変数に代入されます（関数を呼び出す時に一度だけではありません）。
+ですから、例えば<TT
+CLASS="LITERAL"
+>now()</TT
+>を<TT
+CLASS="TYPE"
+>timestamp</TT
+>型の変数に代入することで、その変数には関数をプリコンパイルした時刻ではなく、関数呼び出し時の現在時刻が格納されます。
+     </P
+><P
+>例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>quantity integer DEFAULT 32;
+url varchar := 'http://mysite.com';
+user_id CONSTANT integer := 10;</PRE
+><P>
+     </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-DECLARATION-PARAMETERS"
+>39.3.1. 関数引数の宣言</A
+></H2
+><P
+>関数に渡されるパラメータの名前には<TT
+CLASS="LITERAL"
+>$1</TT
+>、<TT
+CLASS="LITERAL"
+>$2</TT
+>という識別子が付けられます。
+省略することもできますが、<TT
+CLASS="LITERAL"
+>$n</TT
+>というパラメータ名に別名を宣言することができ、可読性が向上します。
+別名、数字による識別子の両方とも引数の値を参照する時に使用することができます。
+     </P
+><P
+>別名を作成する方法は2つあり、望ましい方法は<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドの中でパラメータを命名するものです。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION sales_tax(subtotal real) RETURNS real AS $$
+BEGIN
+    RETURN subtotal * 0.06;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+他の方法は、宣言構文を用いて別名を明確に宣言するものです。
+これは <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.0より前では、唯一の方法です。
+
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> ALIAS FOR $<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>;</PRE
+><P>
+
+以下にこの方法による例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION sales_tax(real) RETURNS real AS $$
+DECLARE
+    subtotal ALIAS FOR $1;
+BEGIN
+    RETURN subtotal * 0.06;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この二例は完全に同等ではありません。
+最初の例では、<TT
+CLASS="LITERAL"
+>subtotal</TT
+>を<TT
+CLASS="LITERAL"
+>sales_tax.subtotal</TT
+>で参照できますが、次の例ではできません
+（その代わり、内部ブロックにラベルを付与すれば、<TT
+CLASS="LITERAL"
+>subtotal</TT
+>をラベルで修飾することができます）。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+>さらに数例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION instr(varchar, integer) RETURNS integer AS $$
+DECLARE
+    v_string ALIAS FOR $1;
+    index ALIAS FOR $2;
+BEGIN
+    -- v_string とインデックスを使用した何らかの演算を行なう
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE FUNCTION concat_selected_fields(in_t sometablename) RETURNS text AS $$
+BEGIN
+    RETURN in_t.f1 || in_t.f3 || in_t.f5 || in_t.f7;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数が出力パラメータと共に宣言されると、通常の入力パラメータと同様に、出力パラメータには<TT
+CLASS="LITERAL"
+>$<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+></TT
+>というパラメータ名と任意の別名が与えられます。
+出力パラメータは実質的には最初がNULL値の変数であり、関数の実行中に値が指定されるはずです。
+出力パラメータの最後の値は戻り値です。
+例えば、消費税の例題は、次のようにすることもできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION sales_tax(subtotal real, OUT tax real) AS $$
+BEGIN
+    tax := subtotal * 0.06;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+
+<TT
+CLASS="LITERAL"
+>RETURNS real</TT
+>を省略したことに注意してください。
+含めることもできますが、冗長になります。
+     </P
+><P
+>出力パラメータは複数の値を返す時に最も有用になります。
+簡単な例題を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION sum_n_product(x int, y int, OUT sum int, OUT prod int) AS $$
+BEGIN
+    sum := x + y;
+    prod := x * y;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+
+<A
+HREF="xfunc-sql.html#XFUNC-OUTPUT-PARAMETERS"
+>&#38917;35.4.4</A
+>で述べたように、この方法は関数の結果に対する匿名のレコード型を実質的に作成します。
+<TT
+CLASS="LITERAL"
+>RETURNS</TT
+>句が与えられた時は、<TT
+CLASS="LITERAL"
+>RETURNS record</TT
+>と言わなければなりません。
+     </P
+><P
+>     
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数を宣言する他の方法として、<TT
+CLASS="LITERAL"
+>RETURNS TABLE</TT
+>を伴うことが挙げられます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION extended_sales(p_itemno int)
+RETURNS TABLE(quantity int, total numeric) AS $$
+BEGIN
+    RETURN QUERY SELECT quantity, quantity * price FROM sales
+                 WHERE itemno = p_itemno;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+
+これは、１つ、またはそれ以上の<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータを宣言すること、および<TT
+CLASS="LITERAL"
+>RETURNS SETOF <TT
+CLASS="REPLACEABLE"
+><I
+>何らかのデータ型</I
+></TT
+></TT
+>を指定することと全く等価です。
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数の戻り値が多様型（<TT
+CLASS="TYPE"
+>anyelement</TT
+>、<TT
+CLASS="TYPE"
+>anyarray</TT
+>、<TT
+CLASS="TYPE"
+>anynonarray</TT
+>または<TT
+CLASS="TYPE"
+>anyenum</TT
+>）として宣言されると、特別な<TT
+CLASS="LITERAL"
+>$0</TT
+>パラメータが作成されます。
+このデータ型が、実際の入力型から推定（<A
+HREF="extend-type-system.html#EXTEND-TYPES-POLYMORPHIC"
+>&#38917;35.2.5</A
+>を参照）された関数の実際の戻り値型です。
+<TT
+CLASS="LITERAL"
+>$0</TT
+>はNULLで初期化され、関数内で変更することができます。
+ですので、必須ではありませんが、これを戻り値を保持するために使用しても構いません。
+また<TT
+CLASS="LITERAL"
+>$0</TT
+>に別名を付与することもできます。
+例えば、以下の関数は<TT
+CLASS="LITERAL"
+>+</TT
+>演算子を持つ任意のデータ型に対して稼働します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION add_three_values(v1 anyelement, v2 anyelement, v3 anyelement)
+RETURNS anyelement AS $$
+DECLARE
+    result ALIAS FOR $0;
+BEGIN
+    result := v1 + v2 + v3;
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+     </P
+><P
+>1つ以上の出力パラメータを多様型として宣言することにより、同様の結果を得ることができます。
+この場合、特殊な<TT
+CLASS="LITERAL"
+>$0</TT
+>パラメータは使用されません。
+出力パラメータ自身が同じ目的を果たします。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION add_three_values(v1 anyelement, v2 anyelement, v3 anyelement,
+                                 OUT sum anyelement)
+AS $$
+BEGIN
+    sum := v1 + v2 + v3;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+     </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-DECLARATION-ALIAS"
+>39.3.2. <TT
+CLASS="LITERAL"
+>ALIAS</TT
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>newname</I
+></TT
+> ALIAS FOR <TT
+CLASS="REPLACEABLE"
+><I
+>oldname</I
+></TT
+>;</PRE
+><P
+><TT
+CLASS="LITERAL"
+>ALIAS</TT
+>構文は前節で示したものより一般的です。
+関数の引数だけではなく、任意の変数に別名を宣言することができます。
+この現実的な使用は主に、トリガプロシージャにおける<TT
+CLASS="VARNAME"
+>NEW</TT
+>や<TT
+CLASS="VARNAME"
+>OLD</TT
+>など、前もって決まった名前の変数に別の名前を割り当てることです。
+   </P
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DECLARE
+  prior ALIAS FOR old;
+  updated ALIAS FOR new;</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ALIAS</TT
+>は同じオブジェクトを命名する2つの異なる手段を提供しますので、無制限に使用すると混乱を招くかもしれません。
+前もって決まっている名前を上書きする目的に限定して使用することが最善です。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-DECLARATION-TYPE"
+>39.3.3. 型のコピー</A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>variable</I
+></TT
+>%TYPE</PRE
+><P
+><TT
+CLASS="TYPE"
+>%TYPE</TT
+>は変数やテーブル列のデータ型を提供します。
+これを使用してデータベース値を保持する変数を宣言することができます。
+例えば、<TT
+CLASS="TYPE"
+>users</TT
+>テーブルに<TT
+CLASS="TYPE"
+>user_id</TT
+>という列があるものとします。
+<TT
+CLASS="LITERAL"
+>users.user_id</TT
+>と同じデータ型の変数を宣言するには、以下のように記述します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>user_id users.user_id%TYPE;</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>%TYPE</TT
+>を使用することで、参照する構造のデータ型を把握する必要がなくなります。
+また、これが最も重要なことですが、参照される項目のデータ型が将来変更された（例えば、user_idのテーブル定義を<TT
+CLASS="TYPE"
+>integer</TT
+>から<TT
+CLASS="TYPE"
+>real</TT
+>に変更した）場合でも、関数定義を変更する必要をなくすことができます。
+   </P
+><P
+>内部変数用のデータ型は呼び出す度に変わるかもしれませんので<TT
+CLASS="LITERAL"
+>%TYPE</TT
+>は特に多様関数で有用です。
+関数の引数や結果用のプレースホルダに<TT
+CLASS="LITERAL"
+>%TYPE</TT
+>を適用することで、適切な変数を作成することができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-DECLARATION-ROWTYPES"
+>39.3.4. 行型</A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+><TT
+CLASS="LITERAL"
+>%ROWTYPE</TT
+>;
+<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>composite_type_name</I
+></TT
+>;</PRE
+><P
+>複合型の変数は、<I
+CLASS="FIRSTTERM"
+>行</I
+>変数（または<I
+CLASS="FIRSTTERM"
+>行型</I
+>変数）と呼ばれます。
+こういった変数には、問い合わせの列集合が変数の型宣言と一致する限り、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>や<TT
+CLASS="COMMAND"
+>FOR</TT
+>問い合わせの結果の行全体を保持することができます。
+行変数の個々のフィールド値には、例えば、<TT
+CLASS="LITERAL"
+>rowvar.field</TT
+>といったドット記法を使用してアクセスすることができます。
+   </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+><TT
+CLASS="LITERAL"
+>%ROWTYPE</TT
+>という記法を使用して、既存のテーブルやビューの行と同じ型を持つ行変数を宣言することができます。
+もしくは、複合型の名前を付与して宣言することができます。
+（全てのテーブルは、同じ名前の関連する複合型を持ちますので、実際のところ<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、<TT
+CLASS="LITERAL"
+>%ROWTYPE</TT
+>と書いても書かなくても問題にはなりません。
+しかし、<TT
+CLASS="LITERAL"
+>%ROWTYPE</TT
+>の方がより移植性が高まります。）
+   </P
+><P
+>関数へのパラメータとして複合型（テーブル行全体）を取ることができます。
+その場合、対応する識別子<TT
+CLASS="LITERAL"
+>$<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+></TT
+>は行変数であり、そのフィールドを、例えば、<TT
+CLASS="LITERAL"
+>$1.user_id</TT
+>で選択することができます。
+   </P
+><P
+>テーブル行のユーザ定義の属性のみに行型変数でアクセスすることができます。
+OIDやその他のシステム属性にはアクセスできません（ビューからの行があり得るためです）。
+行型のフィールドは、例えば<TT
+CLASS="TYPE"
+>char(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</TT
+>などのテーブルのフィールドの大きさやデータ型の精度を継承します。
+   </P
+><P
+>以下に複合型を使用する例を示します。
+<TT
+CLASS="STRUCTNAME"
+>table1</TT
+>及び<TT
+CLASS="STRUCTNAME"
+>table2</TT
+>は、
+少なくとも言及するフィールドを有する既存のテーブルです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION merge_fields(t_row table1) RETURNS text AS $$
+DECLARE
+    t2_row table2%ROWTYPE;
+BEGIN
+    SELECT * INTO t2_row FROM table2 WHERE ... ;
+    RETURN t_row.f1 || t2_row.f3 || t_row.f5 || t2_row.f7;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT merge_fields(t.*) FROM table1 t WHERE ... ;</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-DECLARATION-RECORDS"
+>39.3.5. レコード型</A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RECORD;</PRE
+><P
+>レコード変数は行型変数と似ていますが、事前に定義された構造を持っていません。
+これは<TT
+CLASS="COMMAND"
+>SELECT</TT
+>や<TT
+CLASS="COMMAND"
+>FOR</TT
+>コマンドの間で代入された行の実際の行構造を取ります。
+レコード変数の副構造は、代入を行う度に変更できます。
+つまり、レコード変数は、最初に代入されるまで副構造を持たず、したがって、フィールドへのアクセスを試みると実行時エラーが発生します。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>RECORD</TT
+>は本当のデータ型ではなく、単なるプレースホルダであることに注意してください。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数が<TT
+CLASS="TYPE"
+>record</TT
+>型を返す時、この関数ではレコード変数を使用してその結果を保持することができますが、これはレコード変数としての概念とはまったく異なることを認識すべきです。
+両方とも、関数の作成段階では実際の行構造は不明です。
+しかし、レコード変数はその場その場でその行構造を変更できるにもかかわらず、<TT
+CLASS="TYPE"
+>record</TT
+>を返す関数では呼び出し元の問い合わせが解析された時点で実際の構造は決定されます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-DECLARATION-COLLATION"
+>39.3.6. <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数の照合</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数が照合可能なデータ型のパラメータを 1つ以上保有する場合、<A
+HREF="collation.html"
+>&#38917;22.2</A
+>に記述したように、実際の引数に割り当てられた照合に従って、関数呼び出し毎に照合が識別されます。
+照合の識別に成功した場合（すなわち、引数の間に事実上の照合における衝突がない場合）、照合可能な全てのパラメータは事実上の照合を有するとして扱われます。
+これは関数内部において、照合に依存する操作の作用に影響します。
+以下の例を考えてください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION less_than(a text, b text) RETURNS boolean AS $$
+BEGIN
+    RETURN a &lt; b;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT less_than(text_field_1, text_field_2) FROM table1;
+SELECT less_than(text_field_1, text_field_2 COLLATE "C") FROM table1;</PRE
+><P>
+
+第一の使用法において<CODE
+CLASS="FUNCTION"
+>less_than</CODE
+>は、<TT
+CLASS="STRUCTFIELD"
+>text_field_1</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>text_field_2</TT
+>の比較のための通常の照合として用いられます。
+第二の使用法においては、<TT
+CLASS="LITERAL"
+>C</TT
+>照合として用いられます。
+   </P
+><P
+>さらに、識別された照合は、照合可能なデータ型の全ての局所変数の照合としても仮定されます。
+したがって、この関数は下に記述する関数と差異なく作動します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION less_than(a text, b text) RETURNS boolean AS $$
+DECLARE
+    local_a text := a;
+    local_b text := b;
+BEGIN
+    RETURN local_a &lt; local_b;
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+   </P
+><P
+>照合可能なデータ型のパラメータが存在しない場合、または、それらで共通する照合順序を識別できない場合、パラメータと局所変数は自身のデータ型のデフォルトの照合順序（通常これはデータベースのデフォルトの照合順序ですが、ドメイン型の変数の場合は異なるかもしれません）を使用します。
+   </P
+><P
+>照合可能なデータ型の局所変数は、宣言内で<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>オプションを含めることにより、別の照合と関連づけることができます。
+例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DECLARE
+    local_a text COLLATE "en_US";</PRE
+><P>
+
+このオプションは上記ルールにより、変数に他の方法で付与されるはずであった照合を上書きします。
+   </P
+><P
+>また当然ながら、強制的に特定の操作において特定の照合順序を使用したい場合、明示的な<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句を関数内部に記述することができます。
+例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION less_than_c(a text, b text) RETURNS boolean AS $$
+BEGIN
+    RETURN a &lt; b COLLATE "C";
+END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+
+単純な SQL コマンドで起こるように、これはテーブルの列、パラメータ、または式の中の局所変数に関連づけられた照合を上書きします
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-structure.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-expressions.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の構造</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>式</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,3987 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>パターンマッチ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="ビット文字列関数と演算子"
+HREF="functions-bitstring.html"><LINK
+REL="NEXT"
+TITLE="データ型書式設定関数"
+HREF="functions-formatting.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ビット文字列関数と演算子"
+HREF="functions-bitstring.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ型書式設定関数"
+HREF="functions-formatting.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-MATCHING"
+>9.7. パターンマッチ</A
+></H1
+><P
+>   
+    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には、パターンマッチを行うに際して3つの異なった手法があります。伝統的な<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>演算子、これより新しい<CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>演算子（SQL:1999で追加されました）、および<ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+>様式の正規表現です。基本の<SPAN
+CLASS="QUOTE"
+>"この文字列はこのパターンに一致するか？"</SPAN
+>を別としても、一致した部分文字列を取り出したり置換したり、そして一致部分で文字列を分割する関数が用意されています。
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>    
+     上記の手法では検索できないようなパターンマッチが必要な場合は、PerlもしくはTclでユーザ定義関数を作成することを検討してください。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-LIKE"
+>9.7.1. <CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+> LIKE <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>ESCAPE <TT
+CLASS="REPLACEABLE"
+><I
+>escape-character</I
+></TT
+></SPAN
+>]
+<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+> NOT LIKE <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>ESCAPE <TT
+CLASS="REPLACEABLE"
+><I
+>escape-character</I
+></TT
+></SPAN
+>]</PRE
+><P
+>    
+      <CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>式は供給された<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>に<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>が一致すれば真を返します（想像される通り、<CODE
+CLASS="FUNCTION"
+>NOT LIKE</CODE
+>式は<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>式が真を返す場合には偽を返し、その逆もまた同じです。同等の式として<TT
+CLASS="LITERAL"
+>NOT (<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+> LIKE <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>)</TT
+>とも表現できます）。
+    </P
+><P
+>    
+     <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>がパーセント記号もしくはアンダースコアを含んでいない場合patternは自身の文字列そのものです。この場合<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>式は等号演算子のように振舞います。<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>の中にあるアンダースコア（<TT
+CLASS="LITERAL"
+>_</TT
+>）は任意の一文字との一致を意味し、パーセント記号（<TT
+CLASS="LITERAL"
+>%</TT
+>）は0文字以上の並びとの一致を意味します。
+    </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'abc' LIKE 'abc'    <I
+CLASS="LINEANNOTATION"
+>true</I
+>
+'abc' LIKE 'a%'     <I
+CLASS="LINEANNOTATION"
+>true</I
+>
+'abc' LIKE '_b_'    <I
+CLASS="LINEANNOTATION"
+>true</I
+>
+'abc' LIKE 'c'      <I
+CLASS="LINEANNOTATION"
+>false</I
+></PRE
+><P>
+   </P
+><P
+>   
+   <CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>によるパターン一致は常に文字列全体に対して行われます。
+従って、文字列内の任意位置における並びと一致させたい場合には、パーセント記号を先頭と末尾に付ける必要があります。
+   </P
+><P
+>   
+    他の文字の一致に使用するのではなく、アンダースコアやパーセント記号そのものを一致させたい場合には、<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>の中のそれぞれのアンダースコアとパーセント記号の前にエスケープ文字を付けなければなりません。デフォルトのエスケープ文字はバックスラッシュですが、<TT
+CLASS="LITERAL"
+>ESCAPE</TT
+>句で他の文字を指定することができます。エスケープ文字そのものを一致させるにはエスケープ文字を2つ書きます。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+    もし<A
+HREF="runtime-config-compatible.html#GUC-STANDARD-CONFORMING-STRINGS"
+>standard_conforming_strings</A
+>パラメータをoffにしていた場合、リテラル文字列定数に記述するバックスラッシュは2倍必要となります。詳細は<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-STRINGS"
+>&#38917;4.1.2.1</A
+>を参照してください。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>   
+    同時に<TT
+CLASS="LITERAL"
+>ESCAPE ''</TT
+>と記述することでエスケープ文字を選択しないことも可能です。
+これにより、事実上エスケープ機構が働かなくなります。つまり、パターン内のアンダースコアおよびパーセント記号の特別な意味を解除することはできなくなります。
+   </P
+><P
+>   
+    現在のロケールに従って大文字小文字を区別しない一致を行うのであれば、<TT
+CLASS="TOKEN"
+>LIKE</TT
+>の代わりに<TT
+CLASS="TOKEN"
+>ILIKE</TT
+>キーワードを使うことができます。これは標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>ではなく、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+   </P
+><P
+>   
+    <TT
+CLASS="LITERAL"
+>~~</TT
+>演算子は<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>式と等価で、<TT
+CLASS="LITERAL"
+>~~*</TT
+>は<CODE
+CLASS="FUNCTION"
+>ILIKE</CODE
+>に対応します。また<CODE
+CLASS="FUNCTION"
+>NOT LIKE</CODE
+>および<CODE
+CLASS="FUNCTION"
+>NOT ILIKE</CODE
+>を表す<TT
+CLASS="LITERAL"
+>!~~</TT
+>および<TT
+CLASS="LITERAL"
+>!~~*</TT
+>演算子があります。これら全ての演算子は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>固有のものです。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-SIMILARTO-REGEXP"
+>9.7.2. <CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>正規表現</A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+> SIMILAR TO <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>ESCAPE <TT
+CLASS="REPLACEABLE"
+><I
+>escape-character</I
+></TT
+></SPAN
+>]
+<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+> NOT SIMILAR TO <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>ESCAPE <TT
+CLASS="REPLACEABLE"
+><I
+>escape-character</I
+></TT
+></SPAN
+>]</PRE
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>演算子は、そのパターンが与えられた文字列に一致するかどうかにより、真もしくは偽を返します。これは、標準SQLの正規表現定義を使用してパターンを解釈するという点以外は、<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>に類似しています。SQLの正規表現は、<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>表記と一般的な正規表現の表記とを混ぜ合わせたようなものになっています。
+   </P
+><P
+>   
+   <CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>と同様、<CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>演算子は、そのパターンが文字列全体に一致した場合のみ処理を行います。これは、パターンが文字列の一部分であっても一致する、一般的な正規表現の動作とは異なっています。また、<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>と同様、<CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>では、<TT
+CLASS="LITERAL"
+>%</TT
+>および<TT
+CLASS="LITERAL"
+>_</TT
+>を、それぞれ任意の文字列および任意の単一文字を意味するワイルドカード文字として使用します（これらは、POSIX正規表現での<TT
+CLASS="LITERAL"
+>.*</TT
+>および<TT
+CLASS="LITERAL"
+>.</TT
+>に相当します）。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>から取り入れた上記の機能に加え、<CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>では、以下のようにPOSIX正規表現から取り入れたパターンマッチメタ文字もサポートしています。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>     
+      <TT
+CLASS="LITERAL"
+>|</TT
+>は、二者択一（2つの選択肢のうちいずれか）を意味します。
+     </P
+></LI
+><LI
+><P
+>     
+      <TT
+CLASS="LITERAL"
+>*</TT
+>は、直前の項目の0回以上複数の繰り返しを意味します。
+     </P
+></LI
+><LI
+><P
+>     
+      <TT
+CLASS="LITERAL"
+>+</TT
+>は、直前の項目の1回以上複数の繰り返しを意味します。
+     </P
+></LI
+><LI
+><P
+>     
+      <TT
+CLASS="LITERAL"
+>?</TT
+>は、直前の項目の0回もしくは1回の繰り返しを意味します。
+     </P
+></LI
+><LI
+><P
+>     
+      <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+>は、直前の項目の正確な<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>回の繰り返しを意味します。
+     </P
+></LI
+><LI
+><P
+>     
+      <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,}</TT
+>は、直前の項目の<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>回以上の繰り返しを意味します。
+     </P
+></LI
+><LI
+><P
+>     
+      <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+>は、直前の項目の<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>回以上かつ<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>回以下の繰り返しを意味します。
+     </P
+></LI
+><LI
+><P
+>     
+      丸括弧<TT
+CLASS="LITERAL"
+>()</TT
+>は、項目を1つの論理項目にグループ化することができます。 
+     </P
+></LI
+><LI
+><P
+>     
+       大括弧式<TT
+CLASS="LITERAL"
+>[...]</TT
+>は、POSIX正規表現と同様に文字クラスを指定します。
+     </P
+></LI
+></UL
+><P>
+
+    
+    <CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>ではピリオド（<TT
+CLASS="LITERAL"
+>.</TT
+>）はメタ文字ではないことに注意してください。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>と同様、バックスラッシュは全てのメタ文字の特殊な意味を無効にします。
+また、異なるエスケープ文字を<TT
+CLASS="LITERAL"
+>ESCAPE</TT
+>で指定することが可能です。
+   </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'abc' SIMILAR TO 'abc'      <I
+CLASS="LINEANNOTATION"
+>true</I
+>
+'abc' SIMILAR TO 'a'        <I
+CLASS="LINEANNOTATION"
+>false</I
+>
+'abc' SIMILAR TO '%(b|d)%'  <I
+CLASS="LINEANNOTATION"
+>true</I
+>
+'abc' SIMILAR TO '(b|c)%'   <I
+CLASS="LINEANNOTATION"
+>false</I
+></PRE
+><P>
+   </P
+><P
+>   
+    3つのパラメータを持つ<CODE
+CLASS="FUNCTION"
+>substring</CODE
+>関数、<CODE
+CLASS="FUNCTION"
+>substring(<TT
+CLASS="PARAMETER"
+>string</TT
+> from <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+> for <TT
+CLASS="REPLACEABLE"
+><I
+>escape-character</I
+></TT
+>)</CODE
+>を使用して、SQL正規表現パターンに一致する部分文字列を取り出すことができます。<TT
+CLASS="LITERAL"
+>SIMILAR TO</TT
+>と同様、指定したパターンがデータ文字列全体に一致する必要があります。一致しない場合、関数は終了し、NULLを返します。一致した場合に返されるべきパターンの一部を示すために、エスケープ文字の後に二重引用符（<TT
+CLASS="LITERAL"
+>"</TT
+>）を繋げたものを2つパターンに含める必要があります。これらの印で括られたパターンの一部に一致するテキストが返されます。
+   </P
+><P
+>   
+    例：<TT
+CLASS="LITERAL"
+>#&quot;</TT
+>を使用して返される文字列を区切ります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>substring('foobar' from '%#"o_b#"%' for '#')   <I
+CLASS="LINEANNOTATION"
+>oob</I
+>
+substring('foobar' from '#"o_b#"%' for '#')    <I
+CLASS="LINEANNOTATION"
+>NULL</I
+></PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-POSIX-REGEXP"
+>9.7.3. <ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+>正規表現</A
+></H2
+><P
+>   
+    <A
+HREF="functions-matching.html#FUNCTIONS-POSIX-TABLE"
+>&#34920;9-11</A
+>に、POSIX正規表現を使ったパターン一致に使用可能な演算子を列挙します。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-POSIX-TABLE"
+></A
+><P
+><B
+>&#34920; 9-11. 正規表現マッチ演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>~</TT
+> </TD
+><TD
+>正規表現に一致、大文字小文字の区別あり</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'thomas' ~ '.*thomas.*'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>~*</TT
+> </TD
+><TD
+>正規表現に一致、大文字小文字の区別なし</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'thomas' ~* '.*Thomas.*'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>!~</TT
+> </TD
+><TD
+>正規表現に一致しない、大文字小文字の区別あり</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'thomas' !~ '.*Thomas.*'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>!~*</TT
+> </TD
+><TD
+>正規表現に一致しない、大文字小文字の区別なし</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'thomas' !~* '.*vadim.*'</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>    
+     <ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+>正規表現は、パターンマッチという意味合いでは、<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>および<CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>演算子よりもさらに強力です。<TT
+CLASS="COMMAND"
+>egrep</TT
+>、<TT
+CLASS="COMMAND"
+>sed</TT
+>、あるいは<TT
+CLASS="COMMAND"
+>awk</TT
+>のような多くのUnixツールはここで解説しているのと類似したパターンマッチ言語を使用しています。
+    </P
+><P
+>    
+     正規表現とは文字列の集合（<I
+CLASS="FIRSTTERM"
+>正規集合</I
+>）の簡略された定義である文字が連なっているものです。ある文字列が正規表現で記述された正規集合の要素になっていれば、その文字列は正規表現に一致していると呼ばれます。<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>と同様、正規表現言語で特殊文字とされているもの以外、パターン文字は文字列と完全に一致されます。
+     
+     
+     とは言っても、正規表現は<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>関数が使用するのとは異なる特殊文字を使用します。<CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+>関数のパターンと違って正規表現は、明示的に正規表現が文字列の最初または最後からと位置指定されていない限り文字列内のどの位置でも一致を行えます。
+    </P
+><P
+>    
+     例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'abc' ~ 'abc'    <I
+CLASS="LINEANNOTATION"
+>true</I
+>
+'abc' ~ '^a'     <I
+CLASS="LINEANNOTATION"
+>true</I
+>
+'abc' ~ '(b|d)'  <I
+CLASS="LINEANNOTATION"
+>true</I
+>
+'abc' ~ '^(b|c)' <I
+CLASS="LINEANNOTATION"
+>false</I
+></PRE
+><P>
+    </P
+><P
+>    
+     <ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+>パターン言語について以下により詳しく説明します。
+    </P
+><P
+>    
+     2つのパラメータを持つ<CODE
+CLASS="FUNCTION"
+>substring</CODE
+>関数、<CODE
+CLASS="FUNCTION"
+>substring(<TT
+CLASS="PARAMETER"
+>string</TT
+> from <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>)</CODE
+>を使用して、POSIX正規表現パターンに一致する部分文字列を取り出すことができます。この関数は、一致するものがない場合にはNULLを返し、ある場合はパターンにマッチしたテキストの一部を返します。しかし、任意の丸括弧を持つパターンの場合、最初の丸括弧内部分正規表現（左丸括弧が最初に来るもの）に一致するテキストの一部が返されます。この例外を起こさずにパターン中に丸括弧を使用したいのであれば、常に正規表現全体を丸括弧で囲むことができます。パターン内の抽出対象の部分文字列より前に丸括弧が必要な場合、後述の捕捉されない丸括弧を参照してください。
+    </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>substring('foobar' from 'o.b')     <I
+CLASS="LINEANNOTATION"
+>oob</I
+>
+substring('foobar' from 'o(.)b')   <I
+CLASS="LINEANNOTATION"
+>o</I
+></PRE
+><P>
+   </P
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>regexp_replace</CODE
+>関数は、POSIX正規表現パターンに一致する部分文字列を新規テキストと置換します。
+構文は、<CODE
+CLASS="FUNCTION"
+>regexp_replace</CODE
+>（<TT
+CLASS="REPLACEABLE"
+><I
+>source</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>replacement</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+> </SPAN
+>]）です。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>にマッチしない場合は、<TT
+CLASS="REPLACEABLE"
+><I
+>source</I
+></TT
+>文字列がそのまま返されます。
+一致すると、マッチ部分文字列を<TT
+CLASS="REPLACEABLE"
+><I
+>replacement</I
+></TT
+>文字列で置換した<TT
+CLASS="REPLACEABLE"
+><I
+>source</I
+></TT
+>文字列が返されます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>replacement</I
+></TT
+>は<TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>を含むことができます。
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>は、<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>番目に丸括弧で括られたパターンの部分表現に一致する元の部分文字列を示す、1から9までの数です。
+<TT
+CLASS="LITERAL"
+>\&amp;</TT
+>が含まれた場合、パターン全体と一致する部分文字列が挿入されることを示します。
+置換テキスト内にリテラルバックスラッシュを挿入する必要にある時は<TT
+CLASS="LITERAL"
+>\\</TT
+>と記述します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+>パラメータは、関数の動作を変更するゼロもしくはそれ以上の1文字フラグを含むオプションのテキスト文字列です。フラグ<TT
+CLASS="LITERAL"
+>i</TT
+>は大文字小文字を区別しない一致を指定する一方、フラグ<TT
+CLASS="LITERAL"
+>g</TT
+>は、最初に一致したもののみではなく、それぞれ一致した部分文字列の置換を指定します。その他の有効なフラグは<A
+HREF="functions-matching.html#POSIX-EMBEDDED-OPTIONS-TABLE"
+>&#34920;9-19</A
+>に記述されています。
+    </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>regexp_replace('foobarbaz', 'b..', 'X')
+                                   <I
+CLASS="LINEANNOTATION"
+>fooXbaz</I
+>
+regexp_replace('foobarbaz', 'b..', 'X', 'g')
+                                   <I
+CLASS="LINEANNOTATION"
+>fooXX</I
+>
+regexp_replace('foobarbaz', 'b(..)', E'X\\1Y', 'g')
+                                   <I
+CLASS="LINEANNOTATION"
+>fooXarYXazY</I
+></PRE
+><P>
+   </P
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>regexp_matches</CODE
+>関数はPOSIX正規表現パターンマッチの結果捕捉された全ての部分文字列のテキスト配列を返します。<CODE
+CLASS="FUNCTION"
+>regexp_matches</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>
+     [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+> </SPAN
+>])の構文になります。
+     この関数は何も行を返さない、1行を返す、複数行を返すといったことができます。下記の<TT
+CLASS="LITERAL"
+>g</TT
+>フラグを参照して下さい。
+     もし<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>に対して一致しない場合、関数は行を返しません。もし、パターンが丸括弧に括られた部分文字列を含まない場合、結果はパターン全体に一致する部分文字列を含む単一要素のテキスト配列となります。もし、パターンが丸括弧に括られた部分文字列を含む場合、関数はパターンの<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>番目に丸括弧で括られた部分文字列に一致する、<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>番目の要素が部分文字列であるテキスト配列を返します（<SPAN
+CLASS="QUOTE"
+>"捕捉されない"</SPAN
+>丸括弧は数えません）。<TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+>パラメータは、関数の動作を変更するゼロもしくは複数の単一文字フラグを含むオプションのテキスト文字列です。フラグ<TT
+CLASS="LITERAL"
+>g</TT
+>は関数に、最初のマッチだけでなく文字列の中で全てのマッチを検出させ、それら一致の行を返させます。その他有効なフラグは<A
+HREF="functions-matching.html#POSIX-EMBEDDED-OPTIONS-TABLE"
+>&#34920;9-19</A
+>に記載されています。
+    </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT regexp_matches('foobarbequebaz', '(bar)(beque)');
+ regexp_matches 
+----------------
+ {bar,beque}
+(1 row)
+
+SELECT regexp_matches('foobarbequebazilbarfbonk', '(b[^b]+)(b[^b]+)', 'g');
+ regexp_matches 
+----------------
+ {bar,beque}
+ {bazil,barf}
+(2 rows)
+
+SELECT regexp_matches('foobarbequebaz', 'barbeque');
+ regexp_matches 
+----------------
+ {barbeque}
+(1 row)</PRE
+><P>
+   </P
+><P
+>    
+    副問い合わせを使用することで、<CODE
+CLASS="FUNCTION"
+>regexp_matches()</CODE
+>が常に1行しか返さないように強制することが可能です。
+    これは、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>対象のリストに対し、マッチするものが無い場合であっても全ての行を返したい場合に特に有用です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT col1, (SELECT regexp_matches(col2, '(bar)(beque)')) FROM tab;</PRE
+><P>
+   </P
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>regexp_split_to_table</CODE
+>関数はPOSIX正規表現パターンを区切り文字として使用し、文字列を分割します。<CODE
+CLASS="FUNCTION"
+>regexp_split_to_table</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>
+     [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+> </SPAN
+>])の構文になります。<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>に一致しない場合、関数は<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>を返します。少なくともひとつの一致があれば、それぞれの一致に対して関数は最後のマッチの終わり（あるいは文字列の始め）から最初のマッチまでのテキストを返します。もはやマッチしなくなると最後のマッチの終わりから文字列の最後までテキストを返します。
+     <TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+>パラメータは、関数の動作を変更するゼロもしくは複数の単一文字フラグを含むオプションのテキスト文字列です。<CODE
+CLASS="FUNCTION"
+>regexp_split_to_table</CODE
+>は<A
+HREF="functions-matching.html#POSIX-EMBEDDED-OPTIONS-TABLE"
+>&#34920;9-19</A
+>で記載されているフラグをサポートします。
+    </P
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>regexp_split_to_array</CODE
+>関数は、<CODE
+CLASS="FUNCTION"
+>regexp_split_to_array</CODE
+>がその結果を<TT
+CLASS="TYPE"
+>text</TT
+>配列で返すことを除いて、<CODE
+CLASS="FUNCTION"
+>regexp_split_to_table</CODE
+>と同じ動作をします。<CODE
+CLASS="FUNCTION"
+>regexp_split_to_array</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>
+     [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+> </SPAN
+>])の構文になります。
+    </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>&#13;SELECT foo FROM regexp_split_to_table('the quick brown fox jumped over the lazy dog', E'\\s+') AS foo;
+  foo   
+--------
+ the    
+ quick  
+ brown  
+ fox    
+ jumped 
+ over   
+ the    
+ lazy   
+ dog    
+(9 rows)
+
+SELECT regexp_split_to_array('the quick brown fox jumped over the lazy dog', E'\\s+');
+              regexp_split_to_array             
+------------------------------------------------
+ {the,quick,brown,fox,jumped,over,the,lazy,dog}
+(1 row)
+
+SELECT foo FROM regexp_split_to_table('the quick brown fox', E'\\s*') AS foo;
+ foo 
+-----
+ t         
+ h         
+ e         
+ q         
+ u         
+ i         
+ c         
+ k         
+ b         
+ r         
+ o         
+ w         
+ n         
+ f         
+ o         
+ x         
+(16 rows)</PRE
+><P>
+   </P
+><P
+>   
+    最後の例が明らかにしているように、regexp分割関数は文字列の最初あるいは終わり、もしくは前のマッチの直後に発生する長さを持たないマッチを無視します。<CODE
+CLASS="FUNCTION"
+>regexp_matches</CODE
+>で実装されたregexpマッチの厳格な定義にこれは相容れませんが、実務上は最も使い勝手の良い動作です。Perlのような他のソフトウェアシステムも似たような定義を使用します。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="POSIX-SYNTAX-DETAILS"
+>9.7.3.1. 正規表現の詳細</A
+></H3
+><P
+>   
+    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の正規表現はHenry Spencerにより書かれたソフトウェアパッケージを使用して実装されています。以下に説明する正規表現の多くの部分は同氏のマニュアルから一字一句複製したものです。
+   </P
+><P
+>   
+    <ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+> 1003.2の定義によると、正規表現（<ACRONYM
+CLASS="ACRONYM"
+>RE</ACRONYM
+>）には2つの形式があるとされます。<I
+CLASS="FIRSTTERM"
+>拡張</I
+><ACRONYM
+CLASS="ACRONYM"
+>RE</ACRONYM
+>もしくは<ACRONYM
+CLASS="ACRONYM"
+>ERE</ACRONYM
+>（大まかにいって<TT
+CLASS="COMMAND"
+>egrep</TT
+>に代表されるもの）、および<I
+CLASS="FIRSTTERM"
+>基本</I
+><ACRONYM
+CLASS="ACRONYM"
+>RE</ACRONYM
+>もしくは<ACRONYM
+CLASS="ACRONYM"
+>BRE</ACRONYM
+>（大まかにいって<TT
+CLASS="COMMAND"
+>ed</TT
+>に代表されるもの）です。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は両方の形式をサポートし、さらに、POSIX標準にはないけれどもPerlやTclなどのプログラミング言語で利用できることから広く使用されるようになった、いくつかの拡張もサポートしています。本書では、非POSIX拡張を使用した<ACRONYM
+CLASS="ACRONYM"
+>RE</ACRONYM
+>を<I
+CLASS="FIRSTTERM"
+>高度な</I
+><ACRONYM
+CLASS="ACRONYM"
+>RE</ACRONYM
+>もしくは<ACRONYM
+CLASS="ACRONYM"
+>ARE</ACRONYM
+>と呼びます。AREはEREの正確な上位セットですが、BREとは複数の記法上の非互換な点があります（さらに非常に多くの制限が課されています）。まず、AREとERE形式について説明し、そして、AREにのみ適用される機能の注意を、さらにBREとの違いについて説明します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は常に、まず正規表現はARE規則に従うと推測します。しかし、REパターンの前に、<A
+HREF="functions-matching.html#POSIX-METASYNTAX"
+>&#38917;9.7.3.4</A
+>に記載されているような<I
+CLASS="FIRSTTERM"
+>埋め込みオプション</I
+>を追加することにより、より限られたERE、あるいはBRE規則を選択することができます。これは、<ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+>1003.2の規則を正確に期待しているアプリケーションとの互換性に関して有用です。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>   
+    正規表現は<TT
+CLASS="LITERAL"
+>|</TT
+>で区切られた、1つまたは複数の<I
+CLASS="FIRSTTERM"
+>ブランチ</I
+>として定義されます。ブランチのいずれか1つに一致すれば一致したことになります。
+   </P
+><P
+>   
+    ブランチはゼロ個以上の<I
+CLASS="FIRSTTERM"
+>量化アトム</I
+>もしくは<I
+CLASS="FIRSTTERM"
+>制約</I
+>の連結です。最初のものにマッチに、次に第２番目のものにマッチを、というふうに一致します。なお、空のブランチは空文字列に一致します。
+   </P
+><P
+>   
+    量化アトムとは、単一の<I
+CLASS="FIRSTTERM"
+>量指定子</I
+>が後ろに付く<I
+CLASS="FIRSTTERM"
+>アトム</I
+>のことです。量指定子がないと、アトムに一致するものが一致したことになります。量指定子がある場合、アトムとの一致が何回あるかで一致したことになります。<I
+CLASS="FIRSTTERM"
+>アトム</I
+>は、<A
+HREF="functions-matching.html#POSIX-ATOMS-TABLE"
+>&#34920;9-12</A
+>に示したもののいずれかを取ることができます。<A
+HREF="functions-matching.html#POSIX-QUANTIFIERS-TABLE"
+>&#34920;9-13</A
+>に設定可能な量指定子とその意味を示します。
+   </P
+><P
+>   
+    <I
+CLASS="FIRSTTERM"
+>制約</I
+>は空文字に、特定の条件に合う場合のみに一致します。
+    アトムを使用できるところには制約を使用することができます。
+    ただしその後に量指定子を付けることはできません。
+    単純な制約を<A
+HREF="functions-matching.html#POSIX-CONSTRAINTS-TABLE"
+>&#34920;9-14</A
+>に示します。後で他のいくつかの制約を説明します。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="POSIX-ATOMS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-12. 正規表現のアトム</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>アトム</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>(</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>re</I
+></TT
+><TT
+CLASS="LITERAL"
+>)</TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>re</I
+></TT
+> は任意の正規表現で、）<TT
+CLASS="REPLACEABLE"
+><I
+>re</I
+></TT
+>とのマッチに適合するもです。 マッチは可能である報告用と意味づけられます。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>(?:</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>re</I
+></TT
+><TT
+CLASS="LITERAL"
+>)</TT
+> </TD
+><TD
+>上と同じ。ただし、一致は報告用と意味づけられません。（<SPAN
+CLASS="QUOTE"
+>"捕捉されない"</SPAN
+>括弧の集合）（AREのみ）</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>.</TT
+> </TD
+><TD
+>任意の1文字に一致します。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>[</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>chars</I
+></TT
+><TT
+CLASS="LITERAL"
+>]</TT
+> </TD
+><TD
+> 
+        <I
+CLASS="FIRSTTERM"
+>ブラケット式</I
+>。
+        <TT
+CLASS="REPLACEABLE"
+><I
+>chars</I
+></TT
+>のいずれか1つに一致します
+       （詳細は<A
+HREF="functions-matching.html#POSIX-BRACKET-EXPRESSIONS"
+>&#38917;9.7.3.2</A
+>を参照してください）。
+       </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>k</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>k</I
+></TT
+>は英数字以外です。）普通の文字として指定した文字に一致します。例えば、<TT
+CLASS="LITERAL"
+>\\</TT
+>はバックスラッシュ文字です。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>c</I
+></TT
+> </TD
+><TD
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>c</I
+></TT
+>は英数字です
+       （おそらく他の文字が後に続きます）。
+       <I
+CLASS="FIRSTTERM"
+>エスケープ</I
+>です。
+       <A
+HREF="functions-matching.html#POSIX-ESCAPE-SEQUENCES"
+>&#38917;9.7.3.3</A
+>を参照してください
+       （AREのみ、EREとBREではこれは<TT
+CLASS="REPLACEABLE"
+><I
+>c</I
+></TT
+>に一致します）。
+       </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>{</TT
+> </TD
+><TD
+>直後に数字以外がある場合、左中括弧<TT
+CLASS="LITERAL"
+>{</TT
+>に一致します。
+直後に数字が続く場合、<TT
+CLASS="REPLACEABLE"
+><I
+>bound</I
+></TT
+>（後述）の始まりです。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> </TD
+><TD
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>は他に意味を持たない1文字です。
+<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>に一致します。</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    REはバックスラッシュ<TT
+CLASS="LITERAL"
+>\</TT
+>を終端とすることはできません。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+    もし<A
+HREF="runtime-config-compatible.html#GUC-STANDARD-CONFORMING-STRINGS"
+>standard_conforming_strings</A
+>パラメータをoffにしていた場合、リテラル文字列定数に記述するバックスラッシュは2倍必要となります。詳細は<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-STRINGS"
+>&#38917;4.1.2.1</A
+>を参照してください。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="POSIX-QUANTIFIERS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-13. 正規表現量指定子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>量指定子</TH
+><TH
+>マッチ</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>*</TT
+> </TD
+><TD
+> アトムの0個以上複数の並びに一致 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+> アトムの1個以上複数の並びに一致 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>?</TT
+> </TD
+><TD
+> アトムの0個または1個の並びに一致 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+> </TD
+><TD
+> アトムの正確に<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>個の並びに一致 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,}</TT
+> </TD
+><TD
+> アトムの<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>個以上の並びに一致 </TD
+></TR
+><TR
+><TD
+>       <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+> </TD
+><TD
+> アトムの<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>個以上<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>以下の並びに一致。
+<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>は<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>を超えることはできません。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>*?</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>*</TT
+>の最短マッチを行うバージョン </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+?</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+>の最短マッチを行うバージョン </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>??</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>?</TT
+>の最短マッチを行うバーション </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>}?</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+>の最短マッチを行うバージョン </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,}?</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,}</TT
+>の最短マッチを行うバーション </TD
+></TR
+><TR
+><TD
+>       <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+><TT
+CLASS="LITERAL"
+>}?</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+>の最短マッチを行うバーション </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>...</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+>を使用する形式は<I
+CLASS="FIRSTTERM"
+>バウンド</I
+>として知られています。バウンド内の<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>という数は符号なし10進整数であり、0以上255以下の値を取ることができます。
+   </P
+><P
+>   
+     <I
+CLASS="FIRSTTERM"
+>最短マッチを行う</I
+>量指定子（AREのみで使用可能）は、対応する通常の（<I
+CLASS="FIRSTTERM"
+>欲張りの</I
+>）ものと同じものに一致しますが、最大のマッチではなく最小のマッチを取ります。
+詳細は<A
+HREF="functions-matching.html#POSIX-MATCHING-RULES"
+>&#38917;9.7.3.5</A
+>を参照してください。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     量指定子の直後に量指定子を続けることはできません。例えば<TT
+CLASS="LITERAL"
+>**</TT
+>は無効です。
+量指定子から式や副式を始めることはできず、また、<TT
+CLASS="LITERAL"
+>^</TT
+>や<TT
+CLASS="LITERAL"
+>|</TT
+>の直後に付けることもできません。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="POSIX-CONSTRAINTS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-14. 正規表現制約</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>制約</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>^</TT
+> </TD
+><TD
+>文字列の先頭に一致</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>$</TT
+> </TD
+><TD
+>文字列の末尾に一致</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>(?=</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>re</I
+></TT
+><TT
+CLASS="LITERAL"
+>)</TT
+> </TD
+><TD
+><I
+CLASS="FIRSTTERM"
+>先行肯定検索</I
+>は、<TT
+CLASS="REPLACEABLE"
+><I
+>re</I
+></TT
+>に一致する部分文字列から始まる任意の場所に一致します（AREのみ）。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>(?!</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>re</I
+></TT
+><TT
+CLASS="LITERAL"
+>)</TT
+> </TD
+><TD
+><I
+CLASS="FIRSTTERM"
+>先行否定検索</I
+>は、<TT
+CLASS="REPLACEABLE"
+><I
+>re</I
+></TT
+>に一致しない部分文字列から始まる任意の場所に一致します（AREのみ）。</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    先行検索制約には<I
+CLASS="FIRSTTERM"
+>後方参照</I
+>（<A
+HREF="functions-matching.html#POSIX-ESCAPE-SEQUENCES"
+>&#38917;9.7.3.3</A
+>を参照）を含めることはできません。また、その中の括弧は全て取り込むものではないとみなされます。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="POSIX-BRACKET-EXPRESSIONS"
+>9.7.3.2. ブラケット式</A
+></H3
+><P
+>   
+    <I
+CLASS="FIRSTTERM"
+>ブラケット式</I
+>とは、<TT
+CLASS="LITERAL"
+>[]</TT
+>内の文字のリストです。通常これはそのリスト内の任意の1文字に一致します（しかし、以降を参照してください）。リストが<TT
+CLASS="LITERAL"
+>^</TT
+>から始まる場合、そのリストの残りには<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ない</I
+></SPAN
+>任意の1文字に一致します。リスト内の2文字が<TT
+CLASS="LITERAL"
+>-</TT
+>で区切られていた場合、これは2つ（を含む）の間にある文字範囲全体を表す省略形となります。例えば、<ACRONYM
+CLASS="ACRONYM"
+>ASCII</ACRONYM
+>における<TT
+CLASS="LITERAL"
+>[0-9]</TT
+>は全ての数字に一致します。例えば<TT
+CLASS="LITERAL"
+>a-c-e</TT
+>といった、終端を共有する2つの範囲は不正です。範囲は並びの照合順に非常に依存しています。ですので、移植予定のプログラムではこれに依存してはなりません。
+   </P
+><P
+>   
+    このリストに<TT
+CLASS="LITERAL"
+>]</TT
+>そのものを含めるには、それを先頭文字（もしそれが使用されれば<TT
+CLASS="LITERAL"
+>^</TT
+>の後）にしてください。<TT
+CLASS="LITERAL"
+>-</TT
+>そのものを含めるには、それを先頭もしくは末尾の文字とするか、範囲の2番目の終端としてください。<TT
+CLASS="LITERAL"
+>-</TT
+>を範囲の最初の終端で使用するには、<TT
+CLASS="LITERAL"
+>[.</TT
+>と<TT
+CLASS="LITERAL"
+>.]</TT
+>でそれを囲み、照合要素（後述）にしてください。
+    これら文字と、<TT
+CLASS="LITERAL"
+>[</TT
+>（次段落を参照）のなんらかの組み合わせ、およびエスケープ（AREのみ）を例外として、他の全ての特殊文字はブラケット式内では特殊な意味を持ちません。特に、<TT
+CLASS="LITERAL"
+>\</TT
+>はEREとBRE規則に従う場合は特別でなくなります。しかし、AREでは（エスケープの始まりとして）特別な意味を持ちます。
+   </P
+><P
+>   
+    ブラケット式内に、照合要素（文字、単一文字であるかのように照合する複数文字の並び、もしくはそれぞれの照合並びの名前）が<TT
+CLASS="LITERAL"
+>[.</TT
+>と<TT
+CLASS="LITERAL"
+>.]</TT
+>の間にあると、その照合要素の文字の並びを意味します。この並びはブラケット式のリストの一要素として取り扱われます。このことにより、ブラケット式は要素を照合する複数文字を含むブラケット式を1文字以上に一致させることができます。例えば、照合並びが<TT
+CLASS="LITERAL"
+>ch</TT
+>照合要素を含む場合、正規表現<TT
+CLASS="LITERAL"
+>[[.ch.]]*c</TT
+>は<TT
+CLASS="LITERAL"
+>chchcc</TT
+>という文字の最初の5文字に一致します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     今のところ、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は複数文字照合要素をサポートしません。この情報は将来の振舞いの可能性を説明したものです。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>   
+    ブラケット式内の<TT
+CLASS="LITERAL"
+>[=</TT
+>と<TT
+CLASS="LITERAL"
+>=]</TT
+>の間に照合要素は<I
+CLASS="FIRSTTERM"
+>同値クラス</I
+>です。全ての照合要素の文字の並びが自身を含むものと等価であることを示します（他に等価な照合要素がある場合、<TT
+CLASS="LITERAL"
+>[.</TT
+>と<TT
+CLASS="LITERAL"
+>.]</TT
+>で囲まれたかのように扱われます）。例えば、<TT
+CLASS="LITERAL"
+>[[=o=]]</TT
+>、<TT
+CLASS="LITERAL"
+>[[=^=]]</TT
+>および<TT
+CLASS="LITERAL"
+>[o^]</TT
+>が全て同意語であれば、<TT
+CLASS="LITERAL"
+>o</TT
+>と<TT
+CLASS="LITERAL"
+>^</TT
+>は同値クラスのメンバです。同値クラスは範囲の終端にはなりません。
+   </P
+><P
+>   
+    ブラケット式内では、<TT
+CLASS="LITERAL"
+>[:</TT
+>と<TT
+CLASS="LITERAL"
+>:]</TT
+>の間にある文字クラスの名称は、そのクラスに属する全ての文字のリストを意味します。標準文字クラス名は、<TT
+CLASS="LITERAL"
+>alnum</TT
+>、<TT
+CLASS="LITERAL"
+>alpha</TT
+>、<TT
+CLASS="LITERAL"
+>blank</TT
+>、<TT
+CLASS="LITERAL"
+>cntrl</TT
+>、<TT
+CLASS="LITERAL"
+>digit</TT
+>、<TT
+CLASS="LITERAL"
+>graph</TT
+>、<TT
+CLASS="LITERAL"
+>lower</TT
+>、<TT
+CLASS="LITERAL"
+>print</TT
+>、<TT
+CLASS="LITERAL"
+>punct</TT
+>、<TT
+CLASS="LITERAL"
+>space</TT
+>、<TT
+CLASS="LITERAL"
+>upper</TT
+>、<TT
+CLASS="LITERAL"
+>xdigit</TT
+>です。これらは<SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ctype</SPAN
+></SPAN
+>で定義された文字クラスを意味します。ロケールは別のものを提供可能です。文字クラスは範囲の終端では使用することができません。
+   </P
+><P
+>   
+    ブラケット式には2つの特殊な場合があります。<TT
+CLASS="LITERAL"
+>[[:&lt;:]]</TT
+>と<TT
+CLASS="LITERAL"
+>[[:&gt;:]]</TT
+>というブラケット式は、先頭と終端の単語がそれぞれ空文字であることに一致する制約です。単語は、単語文字が前後に付かない単語文字の並びとして定義されます。単語文字とは1つの<TT
+CLASS="LITERAL"
+>alnum</TT
+>文字です（<SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>ctype</SPAN
+></SPAN
+>で定義されています）。これは、<ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+> 1003.2との互換性はありますが、そこでは定義されていない式です。ですので、他システムへ移植予定のソフトウェアでの使用には注意が必要です。通常後述の制約エスケープの方がよく使われます。これはもはや標準ではありませんが、入力しやすいものです。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="POSIX-ESCAPE-SEQUENCES"
+>9.7.3.3. 正規表現エスケープ</A
+></H3
+><P
+>   
+    <I
+CLASS="FIRSTTERM"
+>エスケープ</I
+>とは、<TT
+CLASS="LITERAL"
+>\</TT
+>から始まり英数字がその後に続く特殊な並びです。エスケープには、文字エントリ、クラス省略、制約エスケープ、後方参照といった様々な変種があります。<TT
+CLASS="LITERAL"
+>\</TT
+>の後に英数字が続くけれども、有効なエスケープを構成しない並びはAREでは不正です。EREにはエスケープはありません。ブラケット式の外側では、<TT
+CLASS="LITERAL"
+>\</TT
+>の後に英数字が続く並びは単に普通の文字としてその文字を意味します。ブラケット式の内側では、<TT
+CLASS="LITERAL"
+>\</TT
+>は普通の文字です（この文字はEREとARE間の非互換性の1つです）。
+   </P
+><P
+>   
+    <I
+CLASS="FIRSTTERM"
+>文字エントリエスケープ</I
+>は非印字文字やRE内でその他の不便な文字の指定を簡略化するために存在します。これらを<A
+HREF="functions-matching.html#POSIX-CHARACTER-ENTRY-ESCAPES-TABLE"
+>&#34920;9-15</A
+>に示します
+   </P
+><P
+>   
+    <I
+CLASS="FIRSTTERM"
+>クラス省略エスケープ</I
+>は、あるよく使用される文字クラスの省略形を提供します。これらを<A
+HREF="functions-matching.html#POSIX-CLASS-SHORTHAND-ESCAPES-TABLE"
+>&#34920;9-16</A
+>に示します。
+   </P
+><P
+>   
+    <I
+CLASS="FIRSTTERM"
+>制約エスケープ</I
+>は、指定した条件に合う場合に空文字に一致する制約をエスケープとして表したものです。これらを<A
+HREF="functions-matching.html#POSIX-CONSTRAINT-ESCAPES-TABLE"
+>&#34920;9-17</A
+>に示します。
+   </P
+><P
+>   
+    <I
+CLASS="FIRSTTERM"
+>後方参照</I
+>（<TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>）は、直前に括弧で囲まれた副式によって一致された、<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>番目の同一文字列に一致します（<A
+HREF="functions-matching.html#POSIX-CONSTRAINT-BACKREF-TABLE"
+>&#34920;9-18</A
+>を参照してください）。例えば、<TT
+CLASS="LITERAL"
+>([bc])\1</TT
+>は<TT
+CLASS="LITERAL"
+>bb</TT
+>もしくは<TT
+CLASS="LITERAL"
+>cc</TT
+>に一致しますが、<TT
+CLASS="LITERAL"
+>bc</TT
+>や<TT
+CLASS="LITERAL"
+>cb</TT
+>には一致しません。REでは副式全体は後方参照の前になければなりません。副式は開括弧の順番で番号付けされます。取り込まない括弧は副式を定義しません。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     エスケープの先頭の<TT
+CLASS="LITERAL"
+>\</TT
+>をSQL文字定数としてパターンに入力する時には二重にしなければならないことを忘れないでください。以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'123' ~ E'^\\d{3}' <I
+CLASS="LINEANNOTATION"
+>true</I
+></PRE
+><P>
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="POSIX-CHARACTER-ENTRY-ESCAPES-TABLE"
+></A
+><P
+><B
+>&#34920; 9-15. 正規表現文字エントリエスケープ</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>エスケープ</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\a</TT
+> </TD
+><TD
+>C言語と同じ警報（ベル）文字</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\b</TT
+> </TD
+><TD
+>C言語と同じバックスペース</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\B</TT
+> </TD
+><TD
+> バックスラッシュの必要な二重化回数を減らすためのバックスラッシュ（<TT
+CLASS="LITERAL"
+>\</TT
+>）の同義語</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\c</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>は任意の文字で）その下位5ビットが<TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>と同一、その他のビットが0となる文字 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\e</TT
+> </TD
+><TD
+>照合順名が<TT
+CLASS="LITERAL"
+>ESC</TT
+>となる文字、それに失敗したら、033という8進数値を持つ文字。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\f</TT
+> </TD
+><TD
+>C言語と同じ改ページ</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\n</TT
+> </TD
+><TD
+>C言語と同じ改行</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\r</TT
+> </TD
+><TD
+>C言語と同じ復帰</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\t</TT
+> </TD
+><TD
+>C言語と同じ水平タブ</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\u</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>wxyz</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>wxyz</I
+></TT
+>は正確に4桁の16進数で）使用マシンのバイト順序付けで表した、<TT
+CLASS="LITERAL"
+>U+</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>wxyz</I
+></TT
+>というUTF16（16ビット、Unicode）文字</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\U</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>stuvwxyz</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>stuvwxyz</I
+></TT
+>は正確に8桁の16進数です。）32ビットにUnicodeが拡張されるという仮説のために確保
+       </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\v</TT
+> </TD
+><TD
+>C言語と同じ垂直タブ</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\x</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>hhh</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>hhh</I
+></TT
+>は任意の16進数の並びで）その文字の16進数値が<TT
+CLASS="LITERAL"
+>0x</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>hhh</I
+></TT
+>となる文字（使用される16進数の桁数にかかわらず単一の文字）
+       </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\0</TT
+> </TD
+><TD
+>その値が<TT
+CLASS="LITERAL"
+>0</TT
+>（NULLバイト）となる文字</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>xy</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>xy</I
+></TT
+>は正確に2桁の8進数で、<I
+CLASS="FIRSTTERM"
+>後方参照</I
+>ではない）その値が<TT
+CLASS="LITERAL"
+>0</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>xy</I
+></TT
+>となる文字</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>xyz</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>xyz</I
+></TT
+>は正確に3桁の8進数で、<I
+CLASS="FIRSTTERM"
+>後方参照</I
+>ではない）その値が<TT
+CLASS="LITERAL"
+>0</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>xyz</I
+></TT
+>となる文字</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    16進数の桁とは<TT
+CLASS="LITERAL"
+>0</TT
+>-<TT
+CLASS="LITERAL"
+>9</TT
+>、<TT
+CLASS="LITERAL"
+>a</TT
+>-<TT
+CLASS="LITERAL"
+>f</TT
+>、<TT
+CLASS="LITERAL"
+>A</TT
+>-<TT
+CLASS="LITERAL"
+>F</TT
+>です。8進数の桁とは<TT
+CLASS="LITERAL"
+>0</TT
+>-<TT
+CLASS="LITERAL"
+>7</TT
+>です。
+   </P
+><P
+>   
+    この文字エントリエスケープは常に普通の文字と解釈されます。例えば、<TT
+CLASS="LITERAL"
+>\135</TT
+>はASCIIの<TT
+CLASS="LITERAL"
+>]</TT
+>となり、<TT
+CLASS="LITERAL"
+>\135</TT
+>はブラケット式の終端にはなりません。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="POSIX-CLASS-SHORTHAND-ESCAPES-TABLE"
+></A
+><P
+><B
+>&#34920; 9-16. 正規表現クラス省略エスケープ</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>エスケープ</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\d</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>[[:digit:]]</TT
+> </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\s</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>[[:space:]]</TT
+> </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\w</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>[[:alnum:]_]</TT
+>
+       
+       （アンダースコアが含まれることに注意）
+       </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\D</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>[^[:digit:]]</TT
+> </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\S</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>[^[:space:]]</TT
+> </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\W</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>[^[:alnum:]_]</TT
+>
+       
+       （アンダースコアが含まれることに注意）
+       </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    ブラケット式内では、<TT
+CLASS="LITERAL"
+>\d</TT
+>、<TT
+CLASS="LITERAL"
+>\s</TT
+>、および<TT
+CLASS="LITERAL"
+>\w</TT
+>はその外側の大括弧を失い、<TT
+CLASS="LITERAL"
+>\D</TT
+>、<TT
+CLASS="LITERAL"
+>\S</TT
+>および<TT
+CLASS="LITERAL"
+>\W</TT
+>は不正です（ですから、例えば<TT
+CLASS="LITERAL"
+>[a-c\d]</TT
+>は<TT
+CLASS="LITERAL"
+>[a-c[:digit:]]</TT
+>と同じになります。また、<TT
+CLASS="LITERAL"
+>[a-c\D]</TT
+>は<TT
+CLASS="LITERAL"
+>[a-c^[:digit:]]</TT
+>と同じになり、不正です）。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="POSIX-CONSTRAINT-ESCAPES-TABLE"
+></A
+><P
+><B
+>&#34920; 9-17. 正規表現制約エスケープ</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>エスケープ</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\A</TT
+> </TD
+><TD
+>文字列の先頭にのみ一致します（<TT
+CLASS="LITERAL"
+>^</TT
+>との違いについては<A
+HREF="functions-matching.html#POSIX-MATCHING-RULES"
+>&#38917;9.7.3.5</A
+>を参照してください）。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\m</TT
+> </TD
+><TD
+> 単語の先頭にのみ一致します。 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\M</TT
+> </TD
+><TD
+> 単語の末尾にのみ一致します。 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\y</TT
+> </TD
+><TD
+> 単語の先頭もしくは末尾にのみ一致します。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\Y</TT
+> </TD
+><TD
+>単語の先頭もしくは末尾以外の場所にのみ一致します。</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\Z</TT
+> </TD
+><TD
+>文字列の末尾にのみ一致します（<TT
+CLASS="LITERAL"
+>$</TT
+>との違いについては<A
+HREF="functions-matching.html#POSIX-MATCHING-RULES"
+>&#38917;9.7.3.5</A
+>を参照してください）。</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    単語は前述の<TT
+CLASS="LITERAL"
+>[[:&lt;:]]</TT
+>と<TT
+CLASS="LITERAL"
+>[[:&gt;:]]</TT
+>の規定通りに定義されます。ブラケット式内では制約エスケープは不正です。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="POSIX-CONSTRAINT-BACKREF-TABLE"
+></A
+><P
+><B
+>&#34920; 9-18. 正規表現後方参照</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>エスケープ</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>は非ゼロの数です。）副式の<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>番目への後方参照</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>mnn</I
+></TT
+> </TD
+><TD
+>（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>は非ゼロの数です。<TT
+CLASS="REPLACEABLE"
+><I
+>nn</I
+></TT
+>でさらに桁を指定します。<TT
+CLASS="REPLACEABLE"
+><I
+>mnn</I
+></TT
+>10進数値は取り込み括弧の数よりも多くてはなりません。）副式の<TT
+CLASS="REPLACEABLE"
+><I
+>mnn</I
+></TT
+>番目への後方参照</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     8進数の文字エントリエスケープと後方参照の間には曖昧性があります。上でヒントとして示したようにこれは以下の発見的手法で解決されます。先頭の0は常に8進数エスケープを示します。その後に数字が続かない単一の非ゼロ数字は常に後方参照として解釈されます。ゼロから始まらない複数数字の並びは、適切な副式の後にあれば（つまり、その番号が後方参照用の範囲内にあれば）後方参照として解釈されます。さもなくば、8進数として解釈されます。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="POSIX-METASYNTAX"
+>9.7.3.4. 正規表現メタ構文</A
+></H3
+><P
+>   
+    上述の主構文の他に、特殊な形式や雑多な構文的な機能が使用可能です。
+   </P
+><P
+>   
+    REは、2つの特殊な<I
+CLASS="FIRSTTERM"
+>決定子</I
+>前置詞のどちらかから始まります。REが<TT
+CLASS="LITERAL"
+>***:</TT
+>から始まるものであれば、REの残りはAREと解釈されます。(<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はREをAREとして推測するため、通常は影響を受けません。ただし、正規表現関数に対して<TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+>パラメータを指定されたEREやBREモードでは影響を受けます。)
+    REが<TT
+CLASS="LITERAL"
+>***=</TT
+>から始まるものであれば、REの残りは、全ての文字を普通の文字とみなしたリテラル文字列と解釈されます。
+   </P
+><P
+>   
+    AREは<I
+CLASS="FIRSTTERM"
+>埋め込みオプション</I
+>から始められます。<TT
+CLASS="LITERAL"
+>(?</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>xyz</I
+></TT
+><TT
+CLASS="LITERAL"
+>)</TT
+>という並びで残りのREに影響するオプションを指定します（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>xyz</I
+></TT
+>は1つ以上の英字です）。このオプションは、事前に決定されたオプションを上書きします。&mdash; 特に、正規表現演算子、もしくは正規表現関数に与えられた<TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+>パラメータにより示される大文字小文字の区別を上書きします。使用可能なオプション文字を<A
+HREF="functions-matching.html#POSIX-EMBEDDED-OPTIONS-TABLE"
+>&#34920;9-19</A
+>に示します。これらの同じオプション文字が、正規表現関数の<TT
+CLASS="REPLACEABLE"
+><I
+>flags</I
+></TT
+>パラメータで使用されることに注意して下さい。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="POSIX-EMBEDDED-OPTIONS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-19. ARE埋め込みオプション文字</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>オプション</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>b</TT
+> </TD
+><TD
+> 残りのREはBRE </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>c</TT
+> </TD
+><TD
+> 大文字小文字を区別する一致（演算子で規定される大文字小文字の区別よりこの指定が優先されます）。 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>e</TT
+> </TD
+><TD
+> 残りのREはERE </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>i</TT
+> </TD
+><TD
+> 大文字小文字を区別しない一致（<A
+HREF="functions-matching.html#POSIX-MATCHING-RULES"
+>&#38917;9.7.3.5</A
+>を参照）（演算子で規定される大文字小文字の区別よりこの指定が優先されます）。 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>m</TT
+> </TD
+><TD
+> <TT
+CLASS="LITERAL"
+>n</TT
+>の歴史的な同義語 </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>n</TT
+> </TD
+><TD
+> 改行を区別する一致（<A
+HREF="functions-matching.html#POSIX-MATCHING-RULES"
+>&#38917;9.7.3.5</A
+>を参照）</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>p</TT
+> </TD
+><TD
+> 部分的な改行を区別する一致（<A
+HREF="functions-matching.html#POSIX-MATCHING-RULES"
+>&#38917;9.7.3.5</A
+>を参照）</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>q</TT
+> </TD
+><TD
+> 残りのREはリテラル（<SPAN
+CLASS="QUOTE"
+>"引用符付けされた"</SPAN
+>）文字列、全て普通の文字</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>s</TT
+> </TD
+><TD
+> 改行を区別しないマッチ（デフォルト）</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>t</TT
+> </TD
+><TD
+> 厳しめの構文（デフォルト、後述） </TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>w</TT
+> </TD
+><TD
+> 部分的な改行区別の逆（<SPAN
+CLASS="QUOTE"
+>"ワイアード"</SPAN
+>）マッチ（<A
+HREF="functions-matching.html#POSIX-MATCHING-RULES"
+>&#38917;9.7.3.5</A
+>を参照）</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>x</TT
+> </TD
+><TD
+> 拡張構文（後述） </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    埋め込みオプションはその並びの終端<TT
+CLASS="LITERAL"
+>)</TT
+>で有効になります。AREの先頭（もし<TT
+CLASS="LITERAL"
+>***:</TT
+>決定子があればその後）でのみ利用可能です。
+   </P
+><P
+>   
+    全ての文字が意味を持つ、通常の（<I
+CLASS="FIRSTTERM"
+>厳しめの</I
+>）RE構文に加え、<TT
+CLASS="LITERAL"
+>x</TT
+>埋め込みオプションを指定することで利用できる<I
+CLASS="FIRSTTERM"
+>拡張</I
+>構文があります。拡張構文では、RE内の空白文字は無視され、<TT
+CLASS="LITERAL"
+>#</TT
+>とその後の改行（もしくはREの終端）の間の全ての文字も同様です。これにより、段落付けや複雑なREのコメント付けが可能になります。基本規則に対して3つの例外があります。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>      
+       直前に<TT
+CLASS="LITERAL"
+>\</TT
+>が付いた空白文字もしくは<TT
+CLASS="LITERAL"
+>#</TT
+>は保持されます。
+      </P
+></LI
+><LI
+><P
+>      
+       ブラケット式内の空白文字もしくは<TT
+CLASS="LITERAL"
+>#</TT
+>は保持されます。
+      </P
+></LI
+><LI
+><P
+>      
+       <TT
+CLASS="LITERAL"
+>(?:</TT
+>などの複数文字シンボルでは、空白文字とコメントは不正です。
+      </P
+></LI
+></UL
+><P>
+
+    
+    ここでの空白文字とは、空白、タブ、改行、<TT
+CLASS="REPLACEABLE"
+><I
+>スペース</I
+></TT
+>文字クラスに属する文字です。
+   </P
+><P
+>   
+    最後に、AREのブラケット式の外側では、<TT
+CLASS="LITERAL"
+>(?#</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>ttt</I
+></TT
+><TT
+CLASS="LITERAL"
+>)</TT
+>という並びはコメントになります（ここで<TT
+CLASS="REPLACEABLE"
+><I
+>ttt</I
+></TT
+>は<TT
+CLASS="LITERAL"
+>)</TT
+>を含まない任意のテキストです）。繰り返しになりますが、これは<TT
+CLASS="LITERAL"
+>(?:</TT
+>などの複数文字シンボルの文字間では使用できません。こうしたコメントは実用性というより歴史的所産です。そのため、この使用は勧めません。代わりに拡張構文を使用してください。
+   </P
+><P
+>   
+    初めに<TT
+CLASS="LITERAL"
+>***=</TT
+>決定子が指定され、ユーザの入力がREではなくリテラルとして扱われる場合、これらのメタ構文拡張は使用<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>できません</I
+></SPAN
+>。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="POSIX-MATCHING-RULES"
+>9.7.3.5. 正規表現マッチ規則</A
+></H3
+><P
+>   
+    REが文字列の中の1つ以上の部分文字列と一致する場合において、REは最初にマッチが始まった部分文字列と一致します。その位置からまた1つ以上の部分文字列とマッチした際は、正規表現は<I
+CLASS="FIRSTTERM"
+>最短マッチを行わない（欲張り型）</I
+>か<I
+CLASS="FIRSTTERM"
+>最短マッチを行う（非欲張り型）</I
+>かによって、最長一致もしくは最短一致の文字列のどちらかに一致します
+   </P
+><P
+>   
+    REが最長マッチかどうかは以下の規則によって決まります。
+    <P
+></P
+></P><UL
+><LI
+><P
+>      
+       ほとんどのアトムおよび全ての式は欲張り属性を持ちません（これらは変動する量のテキストにまったく一致しないからです）。
+      </P
+></LI
+><LI
+><P
+>      
+       REを括弧で括ることは欲張りかどうかを変更しません。
+      </P
+></LI
+><LI
+><P
+>      
+       <TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+>もしくは<TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>}?</TT
+>といった固定繰り返し数の量指定子を持つ量指定付きアトムは、アトム自身と同一の欲張りさを持ちます（まったく持たない可能性もあります）。
+      </P
+></LI
+><LI
+><P
+>      
+       他の通常の量指定子（<TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+><TT
+CLASS="LITERAL"
+>}</TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>が等しい場合も含みます）を持つ量指定付きアトムは欲張り型です（最長マッチを使用します）。
+      </P
+></LI
+><LI
+><P
+>      
+       他の非欲張り型量指定子（<TT
+CLASS="LITERAL"
+>{</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+><TT
+CLASS="LITERAL"
+>,</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+><TT
+CLASS="LITERAL"
+>}?</TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>が等しい場合も含みます）を持つ量指定付きアトムは非欲張り型です（最短マッチを使用します）。
+      </P
+></LI
+><LI
+><P
+>      
+       最上位レベルの<TT
+CLASS="LITERAL"
+>|</TT
+>演算子を持たないREであるブランチは、最初の欲張り属性を持つ量指定付きアトムと同一の欲張り属性を持ちます。
+      </P
+></LI
+><LI
+><P
+>      
+       <TT
+CLASS="LITERAL"
+>|</TT
+>演算子で接続された2つ以上のブランチからなるREは常に欲張り型です。
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+>   
+    上の規則は、個々の量指定付きアトムだけではなく、量指定付きアトムを複数含むブランチやRE全体の欲張り属性に関連します。つまり、ブランチやRE全体が<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>全体として</I
+></SPAN
+>最長または最短の部分文字列に一致するという方法でマッチ処理が行われます。全体のマッチの長さが決まると、特定の部分式に一致する部分がその部分式の欲張り属性によって決まります。この時、RE内でより前にある部分式が後にある部分式よりも高い優先度を持ちます。
+   </P
+><P
+>   
+    この意味の例を示します。
+</P><PRE
+CLASS="SCREEN"
+>SELECT SUBSTRING('XY1234Z', 'Y*([0-9]{1,3})');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>123</SAMP
+>
+SELECT SUBSTRING('XY1234Z', 'Y*?([0-9]{1,3})');
+<I
+CLASS="LINEANNOTATION"
+>Result: </I
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>1</SAMP
+></PRE
+><P>
+    最初の例では、<TT
+CLASS="LITERAL"
+>Y*</TT
+>が欲張り型であるため、REは全体として欲張り型です。マッチは<TT
+CLASS="LITERAL"
+>Y</TT
+>の位置から始まり、そこから可能な限り最長の文字列に一致します。つまり<TT
+CLASS="LITERAL"
+>Y123</TT
+>となります。出力は括弧で括られた部分、つまり<TT
+CLASS="LITERAL"
+>123</TT
+>となります。2番目の例では、<TT
+CLASS="LITERAL"
+>Y*?</TT
+>が非欲張り型のため、REは全体として非欲張り型です。マッチは<TT
+CLASS="LITERAL"
+>Y</TT
+>の位置から始まり、そこから可能な限り最短の文字列に一致します。つまり<TT
+CLASS="LITERAL"
+>Y1</TT
+>となります。部分式<TT
+CLASS="LITERAL"
+>[0-9]{1,3}</TT
+>は欲張り型ですが、決定された一致する全体の長さを変更することはできません。したがって、強制的に<TT
+CLASS="LITERAL"
+>1</TT
+>に一致することになります。
+   </P
+><P
+>   
+    まとめると、REが欲張り型部分式と非欲張り型部分式の両方を持つ場合、全体のマッチ長はRE全体に割り当てられる属性に応じて、最長マッチ長か最短マッチ長のどちらかになります。部分式に割り当てられた属性は、部分式の中でどれだけの量をその部分式の中で<SPAN
+CLASS="QUOTE"
+>"消費"</SPAN
+>できるかのみに影響します。
+   </P
+><P
+>   
+    <TT
+CLASS="LITERAL"
+>{1,1}</TT
+>および<TT
+CLASS="LITERAL"
+>{1,1}?</TT
+>量指定子を副式もしくはRE全体に使用して、それぞれ、欲張りか欲張りでないかを強制することが可能です。
+   </P
+><P
+>   
+    マッチの長さは照合要素ではなく文字列で測られます。空文字列はまったく一致する要素がない文字列よりも長いと考えられます。例えば、<TT
+CLASS="LITERAL"
+>bb*</TT
+>は<TT
+CLASS="LITERAL"
+>abbbc</TT
+>の真中の3文字と一致し、<TT
+CLASS="LITERAL"
+>(week|wee)(night|knights)</TT
+>は<TT
+CLASS="LITERAL"
+>weeknights</TT
+>の全ての10文字と一致し、<TT
+CLASS="LITERAL"
+>abc</TT
+>に対して<TT
+CLASS="LITERAL"
+>(.*).*</TT
+>が一致されると、括弧内の部分正規表現は3つの文字全てに一致し、<TT
+CLASS="LITERAL"
+>bc</TT
+>に対して<TT
+CLASS="LITERAL"
+>(a*)*</TT
+>が一致されると、全体のREと括弧内の正規表現は空文字列に一致します。
+   </P
+><P
+>   
+    もし大文字小文字を区別しない一致が指定されると、アルファベット文字の大文字小文字の区別がまったくなくなったのと同じ効果を与えます。ブラケット式の外側にアルファベットの大文字小文字が混ざった通常の文字が出てきた場合、例えば、<TT
+CLASS="LITERAL"
+>x</TT
+>が<TT
+CLASS="LITERAL"
+>[xX]</TT
+>となるように大文字小文字ともにブラケット式に実質的に転換されます。ブラケット式の中に現れた時は、（例えば）<TT
+CLASS="LITERAL"
+>[x]</TT
+>が<TT
+CLASS="LITERAL"
+>[xX]</TT
+>となり、また<TT
+CLASS="LITERAL"
+>[^x]</TT
+>が<TT
+CLASS="LITERAL"
+>[^xX]</TT
+>となるように、全ての大文字小文字それぞれの対がブラケット式に追加されます。
+   </P
+><P
+>   
+    改行を区別するマッチが指定されると、<TT
+CLASS="LITERAL"
+>.</TT
+>と<TT
+CLASS="LITERAL"
+>^</TT
+>を使用するブラケット式は（REが明示的に調整されていたとしてもマッチが改行をまたがらないようにするために）改行文字に一致しなくなります。また、<TT
+CLASS="LITERAL"
+>^</TT
+>と<TT
+CLASS="LITERAL"
+>$</TT
+>はそれぞれ改行直後と直前の空文字列に一致し、さらに、それぞれ文字列の先頭と末尾に一致します。しかし、AREエスケープの<TT
+CLASS="LITERAL"
+>\A</TT
+>と<TT
+CLASS="LITERAL"
+>\Z</TT
+>は、継続して、文字列の先頭と末尾<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>のみ</I
+></SPAN
+>に一致します。
+   </P
+><P
+>   
+    部分的に改行を区別するマッチが指定されると、<TT
+CLASS="LITERAL"
+>.</TT
+>とブラケット式は改行を区別する一致を行うようになりますが、<TT
+CLASS="LITERAL"
+>^</TT
+>と<TT
+CLASS="LITERAL"
+>$</TT
+>は変更されません。
+   </P
+><P
+>   
+    部分的に改行を区別する逆マッチが指定されると、<TT
+CLASS="LITERAL"
+>^</TT
+>と<TT
+CLASS="LITERAL"
+>$</TT
+>は改行を区別する一致を行うようになりますが、<TT
+CLASS="LITERAL"
+>.</TT
+>とブラケット式は変更されません。これはあまり有用ではありません。対称性のために提供されています。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="POSIX-LIMITS-COMPATIBILITY"
+>9.7.3.6. 制限と互換性</A
+></H3
+><P
+>   
+    本実装ではREの長さに関する制限はありません。しかし、移植性を高めたいプログラムでは、256バイトを超えるREを使用すべきではありません。POSIX互換の実装ではそうしたREでは混乱する可能性があります。
+   </P
+><P
+>   
+    AREの機能のうち、POSIX EREと実質的な非互換性があるのは、<TT
+CLASS="LITERAL"
+>\</TT
+>がブラケット式の内側で特殊な意味を失わないという点のみです。他の全てのARE機能は、POSIX EREでは不正、未定義、未指定な効果となる構文を使用しています。決定子の<TT
+CLASS="LITERAL"
+>***</TT
+>構文などはBREおよびEREのPOSIX構文にはありません。
+   </P
+><P
+>   
+    多くのARE式はPerlから拝借したものです。しかし、いくつかは整理され、Perlの拡張のいくつかは存在しません。注意すべき非互換性には、<TT
+CLASS="LITERAL"
+>\b</TT
+>、<TT
+CLASS="LITERAL"
+>\B</TT
+>、改行の取り扱いに関する特殊な措置の欠落、改行を区別する一致に影響する点について補足したブラケット式の追加、括弧と先行検索制約内の後方参照についての制限、最長/最短（最初に一致するではなく）マッチのセマンティックがあります。
+   </P
+><P
+>   
+    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リリース7.4より前で認知された、AREとERE構文間で大きな非互換が2つあります。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>      
+       AREでは、<TT
+CLASS="LITERAL"
+>\</TT
+>の後に英数字が続くものはエスケープもしくはエラーとなります。以前のリリースでは、これは単に、英数字を記述する他の方法でした。これは、大きな問題にはならないはずです。以前のリリースではこうした並びを記述する理由がないからです。
+      </P
+></LI
+><LI
+><P
+>      
+       AREでは、<TT
+CLASS="LITERAL"
+>\</TT
+>は<TT
+CLASS="LITERAL"
+>[]</TT
+>内でも特別な文字です。したがって、ブラケット式では<TT
+CLASS="LITERAL"
+>\</TT
+>を<TT
+CLASS="LITERAL"
+>\\</TT
+>と記述しなければなりません。
+      </P
+></LI
+></UL
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="POSIX-BASIC-REGEXES"
+>9.7.3.7. 基本正規表現</A
+></H3
+><P
+>   
+    BREはEREといくつかの面において異なります。BREにおいては、
+<TT
+CLASS="LITERAL"
+>|</TT
+>、<TT
+CLASS="LITERAL"
+>+</TT
+>、<TT
+CLASS="LITERAL"
+>?</TT
+>は普通の文字であり、それらの機能と等価なものはありません。
+バウンドの区切りは<TT
+CLASS="LITERAL"
+>\{</TT
+>と<TT
+CLASS="LITERAL"
+>\}</TT
+>であり、<TT
+CLASS="LITERAL"
+>{</TT
+>と<TT
+CLASS="LITERAL"
+>}</TT
+>自身は普通の文字です。
+副式を入れ子にするための括弧は<TT
+CLASS="LITERAL"
+>\(</TT
+>と<TT
+CLASS="LITERAL"
+>\)</TT
+>であり、<TT
+CLASS="LITERAL"
+>(</TT
+>と<TT
+CLASS="LITERAL"
+>)</TT
+>自身は普通の文字です。
+<TT
+CLASS="LITERAL"
+>^</TT
+>は、REの先頭にある場合や括弧内の副式の先頭の場合を除き、普通の文字です。
+<TT
+CLASS="LITERAL"
+>$</TT
+>は、REの末尾にある場合や括弧内の副式の末尾の場合を除き、普通の文字です。
+また、<TT
+CLASS="LITERAL"
+>*</TT
+>はREの先頭にある場合や括弧内の副式の先頭にある場合には普通の文字になります（その前に<TT
+CLASS="LITERAL"
+>^</TT
+>が付いている可能性もあります）。
+最後に、1桁の後方参照を使用することができ、また、BREにおいては、<TT
+CLASS="LITERAL"
+>\&lt;</TT
+>と<TT
+CLASS="LITERAL"
+>\&gt;</TT
+>はそれぞれ<TT
+CLASS="LITERAL"
+>[[:&lt;:]]</TT
+>と<TT
+CLASS="LITERAL"
+>[[:&gt;:]]</TT
+>と同義です。
+   </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-bitstring.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-formatting.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ビット文字列関数と演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データ型書式設定関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

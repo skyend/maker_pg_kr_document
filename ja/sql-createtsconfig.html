@@ -1,0 +1,364 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE TEXT SEARCH CONFIGURATION</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE TABLESPACE"
+HREF="sql-createtablespace.html"><LINK
+REL="NEXT"
+TITLE="CREATE TEXT SEARCH DICTIONARY"
+HREF="sql-createtsdictionary.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE TABLESPACE"
+HREF="sql-createtablespace.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE TABLESPACE"
+HREF="sql-createtablespace.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE TEXT SEARCH DICTIONARY"
+HREF="sql-createtsdictionary.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE TEXT SEARCH DICTIONARY"
+HREF="sql-createtsdictionary.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATETSCONFIG"
+></A
+>CREATE TEXT SEARCH CONFIGURATION</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN68336"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE TEXT SEARCH CONFIGURATION&nbsp;--&nbsp;新しいテキスト検索設定を定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN68341"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> (
+    PARSER = <TT
+CLASS="REPLACEABLE"
+><I
+>parser_name</I
+></TT
+> |
+    COPY = <TT
+CLASS="REPLACEABLE"
+><I
+>source_config</I
+></TT
+>
+)</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68346"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TEXT SEARCH CONFIGURATION</TT
+>は新しいテキスト検索設定を作成します。
+テキスト検索設定は、文字列をトークンに分割するためのテキスト検索パーサを指定すると共に、どのトークンを検索対象とするかを決定するために使用する辞書を特定します。
+  </P
+><P
+>パーサのみが指定された場合、新しいテキスト検索設定の初期状態では、トークン型と辞書との対応付けが存在しません。
+そのため、すべての単語が無視されます。
+この設定を実用できるようにするためには、後で<TT
+CLASS="COMMAND"
+>ALTER TEXT SEARCH CONFIGURATION</TT
+>コマンドを使用して、対応付けを作成しなければなりません。
+この他に、既存のテキスト検索設定を複製することも可能です。
+  </P
+><P
+>スキーマ名が指定された場合、テキスト検索設定は指定されたスキーマ内に作成されます。
+さもなくば、現在のスキーマ内に作成されます。
+  </P
+><P
+>テキスト検索設定を定義したユーザが所有者になります。
+  </P
+><P
+>詳細は<A
+HREF="textsearch.html"
+>&#31532;12&#31456;</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68356"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>作成するテキスト検索設定の名称です。
+名前をスキーマ修飾することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>parser_name</I
+></TT
+></DT
+><DD
+><P
+>この設定で使用するテキスト検索パーサの名称です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>source_config</I
+></TT
+></DT
+><DD
+><P
+>複製するテキスト検索設定の名称です。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68374"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="LITERAL"
+>PARSER</TT
+>と<TT
+CLASS="LITERAL"
+>COPY</TT
+>オプションを同時に使用することはできません。
+既存の設定が複製される場合は、パーサの設定も複製されるためです。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68379"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>CREATE TEXT SEARCH CONFIGURATION</TT
+>文はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68383"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-altertsconfig.html"
+>ALTER TEXT SEARCH CONFIGURATION</A
+>, <A
+HREF="sql-droptsconfig.html"
+>DROP TEXT SEARCH CONFIGURATION</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createtablespace.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createtsdictionary.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE TABLESPACE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE TEXT SEARCH DICTIONARY</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

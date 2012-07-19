@@ -1,0 +1,839 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>サーバの管理</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="永続性がない設定"
+HREF="non-durability.html"><LINK
+REL="NEXT"
+TITLE="  ソースコードからインストール"
+HREF="installation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="PART"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="永続性がない設定"
+HREF="non-durability.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="sql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="クライアントインタフェース"
+HREF="client-interfaces.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="  ソースコードからインストール"
+HREF="installation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="ADMIN"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+>III. サーバの管理</H1
+><DIV
+CLASS="PARTINTRO"
+><A
+NAME="AEN23265"
+></A
+><P
+>ここでは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベース管理者にとって関心のある事項を扱います。
+これには、ソフトウェアのインストール、サーバの設定や構成、ユーザやデータベースの管理、および保守作業が含まれます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバを個人的に使用している場合もそうですが、特に業務で使用している場合は、ここで扱う事項に精通している必要があります。
+   </P
+><P
+>ここに記載された情報は、大体において新規ユーザが読み進めるべき順番に並べられています。
+ただ、章ごとに内容が独立していますので、必要に応じて個々の章を読むこともできます。
+ここでの情報は、項目単位で限定して説明されています。
+特定のコマンドについて完全な説明を知りたい場合は、<A
+HREF="reference.html"
+>&#12497;&#12540;&#12488;VI</A
+>を参照してください。
+   </P
+><P
+>最初の数章は、これからサーバを構築する新規ユーザにも読めるように、前提知識がなくても理解できるようになっています。
+残りの部分では調整や管理について記されていますが、その資料は読者が<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースシステムの一般的な使用について理解していることを前提としています。
+詳細な情報については<A
+HREF="tutorial.html"
+>&#12497;&#12540;&#12488;I</A
+>や<A
+HREF="sql.html"
+>&#12497;&#12540;&#12488;II</A
+>を参照することをお勧めします。
+   </P
+></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>15&#31456;<A
+HREF="installation.html"
+>ソースコードからインストール</A
+></DT
+><DD
+><DL
+><DT
+>15.1. <A
+HREF="install-short.html"
+>簡易版</A
+></DT
+><DT
+>15.2. <A
+HREF="install-requirements.html"
+>必要条件</A
+></DT
+><DT
+>15.3. <A
+HREF="install-getsource.html"
+>ソースの入手</A
+></DT
+><DT
+>15.4. <A
+HREF="install-procedure.html"
+>インストール手順</A
+></DT
+><DT
+>15.5. <A
+HREF="install-post.html"
+>インストール後の設定作業</A
+></DT
+><DT
+>15.6. <A
+HREF="supported-platforms.html"
+>サポートされるプラットフォーム</A
+></DT
+><DT
+>15.7. <A
+HREF="installation-platform-notes.html"
+>プラットフォーム特有の覚書</A
+></DT
+></DL
+></DD
+><DT
+>16&#31456;<A
+HREF="install-windows.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>におけるソースコードからのインストール</A
+></DT
+><DD
+><DL
+><DT
+>16.1. <A
+HREF="install-windows-full.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>Visual C++</SPAN
+>または<SPAN
+CLASS="PRODUCTNAME"
+>Platform SDK</SPAN
+>を使用した構築</A
+></DT
+><DT
+>16.2. <A
+HREF="install-windows-libpq.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>Visual C++</SPAN
+>または<SPAN
+CLASS="PRODUCTNAME"
+>Borland C++</SPAN
+>を使用した<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の構築</A
+></DT
+></DL
+></DD
+><DT
+>17&#31456;<A
+HREF="runtime.html"
+>サーバの準備と運用</A
+></DT
+><DD
+><DL
+><DT
+>17.1. <A
+HREF="postgres-user.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウント</A
+></DT
+><DT
+>17.2. <A
+HREF="creating-cluster.html"
+>データベースクラスタの作成</A
+></DT
+><DT
+>17.3. <A
+HREF="server-start.html"
+>データベースサーバの起動</A
+></DT
+><DT
+>17.4. <A
+HREF="kernel-resources.html"
+>カーネルリソースの管理</A
+></DT
+><DT
+>17.5. <A
+HREF="server-shutdown.html"
+>サーバのシャットダウン</A
+></DT
+><DT
+>17.6. <A
+HREF="upgrading.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>クラスタのアップグレード処理</A
+></DT
+><DT
+>17.7. <A
+HREF="preventing-server-spoofing.html"
+>サーバのなりすまし防止</A
+></DT
+><DT
+>17.8. <A
+HREF="encryption-options.html"
+>暗号化オプション</A
+></DT
+><DT
+>17.9. <A
+HREF="ssl-tcp.html"
+>SSLによる安全なTCP/IP接続</A
+></DT
+><DT
+>17.10. <A
+HREF="ssh-tunnels.html"
+><SPAN
+CLASS="APPLICATION"
+>SSH</SPAN
+>トンネルを使った安全なTCP/IP接続</A
+></DT
+></DL
+></DD
+><DT
+>18&#31456;<A
+HREF="runtime-config.html"
+>サーバの設定</A
+></DT
+><DD
+><DL
+><DT
+>18.1. <A
+HREF="config-setting.html"
+>パラメータの設定</A
+></DT
+><DT
+>18.2. <A
+HREF="runtime-config-file-locations.html"
+>ファイルの場所</A
+></DT
+><DT
+>18.3. <A
+HREF="runtime-config-connection.html"
+>接続と認証</A
+></DT
+><DT
+>18.4. <A
+HREF="runtime-config-resource.html"
+>資源の消費</A
+></DT
+><DT
+>18.5. <A
+HREF="runtime-config-wal.html"
+>ログ先行書き込み（WAL）</A
+></DT
+><DT
+>18.6. <A
+HREF="runtime-config-replication.html"
+>レプリケーション</A
+></DT
+><DT
+>18.7. <A
+HREF="runtime-config-query.html"
+>問い合わせ計画</A
+></DT
+><DT
+>18.8. <A
+HREF="runtime-config-logging.html"
+>エラー報告とログ取得</A
+></DT
+><DT
+>18.9. <A
+HREF="runtime-config-statistics.html"
+>実行時統計情報</A
+></DT
+><DT
+>18.10. <A
+HREF="runtime-config-autovacuum.html"
+>自動Vacuum作業</A
+></DT
+><DT
+>18.11. <A
+HREF="runtime-config-client.html"
+>クライアント接続デフォルト</A
+></DT
+><DT
+>18.12. <A
+HREF="runtime-config-locks.html"
+>ロック管理</A
+></DT
+><DT
+>18.13. <A
+HREF="runtime-config-compatible.html"
+>バージョンとプラットフォーム互換性</A
+></DT
+><DT
+>18.14. <A
+HREF="runtime-config-error-handling.html"
+>エラー処理</A
+></DT
+><DT
+>18.15. <A
+HREF="runtime-config-preset.html"
+>設定済みのオプション</A
+></DT
+><DT
+>18.16. <A
+HREF="runtime-config-custom.html"
+>独自のオプション</A
+></DT
+><DT
+>18.17. <A
+HREF="runtime-config-developer.html"
+>開発者向けのオプション</A
+></DT
+><DT
+>18.18. <A
+HREF="runtime-config-short.html"
+>短いオプション</A
+></DT
+></DL
+></DD
+><DT
+>19&#31456;<A
+HREF="client-authentication.html"
+>クライアント認証</A
+></DT
+><DD
+><DL
+><DT
+>19.1. <A
+HREF="auth-pg-hba-conf.html"
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイル</A
+></DT
+><DT
+>19.2. <A
+HREF="auth-username-maps.html"
+>ユーザ名マップ</A
+></DT
+><DT
+>19.3. <A
+HREF="auth-methods.html"
+>認証方式</A
+></DT
+><DT
+>19.4. <A
+HREF="client-authentication-problems.html"
+>認証における問題点</A
+></DT
+></DL
+></DD
+><DT
+>20&#31456;<A
+HREF="user-manag.html"
+>データベースロール</A
+></DT
+><DD
+><DL
+><DT
+>20.1. <A
+HREF="database-roles.html"
+>データベースロール</A
+></DT
+><DT
+>20.2. <A
+HREF="role-attributes.html"
+>ロールの属性</A
+></DT
+><DT
+>20.3. <A
+HREF="role-membership.html"
+>ロールのメンバ資格</A
+></DT
+><DT
+>20.4. <A
+HREF="perm-functions.html"
+>関数とトリガのセキュリティ</A
+></DT
+></DL
+></DD
+><DT
+>21&#31456;<A
+HREF="managing-databases.html"
+>データベース管理</A
+></DT
+><DD
+><DL
+><DT
+>21.1. <A
+HREF="manage-ag-overview.html"
+>概要</A
+></DT
+><DT
+>21.2. <A
+HREF="manage-ag-createdb.html"
+>データベースの作成</A
+></DT
+><DT
+>21.3. <A
+HREF="manage-ag-templatedbs.html"
+>テンプレートデータベース</A
+></DT
+><DT
+>21.4. <A
+HREF="manage-ag-config.html"
+>データベースの設定</A
+></DT
+><DT
+>21.5. <A
+HREF="manage-ag-dropdb.html"
+>データベースの削除</A
+></DT
+><DT
+>21.6. <A
+HREF="manage-ag-tablespaces.html"
+>テーブル空間</A
+></DT
+></DL
+></DD
+><DT
+>22&#31456;<A
+HREF="charset.html"
+>多言語対応</A
+></DT
+><DD
+><DL
+><DT
+>22.1. <A
+HREF="locale.html"
+>ロケールのサポート</A
+></DT
+><DT
+>22.2. <A
+HREF="collation.html"
+>照合サポート</A
+></DT
+><DT
+>22.3. <A
+HREF="multibyte.html"
+>文字セットサポート</A
+></DT
+></DL
+></DD
+><DT
+>23&#31456;<A
+HREF="maintenance.html"
+>定常的なデータベース保守作業</A
+></DT
+><DD
+><DL
+><DT
+>23.1. <A
+HREF="routine-vacuuming.html"
+>定常的なバキューム作業</A
+></DT
+><DT
+>23.2. <A
+HREF="routine-reindex.html"
+>定常的なインデックスの再作成</A
+></DT
+><DT
+>23.3. <A
+HREF="logfile-maintenance.html"
+>ログファイルの保守</A
+></DT
+></DL
+></DD
+><DT
+>24&#31456;<A
+HREF="backup.html"
+>バックアップとリストア</A
+></DT
+><DD
+><DL
+><DT
+>24.1. <A
+HREF="backup-dump.html"
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>によるダンプ</A
+></DT
+><DT
+>24.2. <A
+HREF="backup-file.html"
+>ファイルシステムレベルのバックアップ</A
+></DT
+><DT
+>24.3. <A
+HREF="continuous-archiving.html"
+>継続的アーカイブとポイントインタイムリカバリ（PITR）</A
+></DT
+></DL
+></DD
+><DT
+>25&#31456;<A
+HREF="high-availability.html"
+>高可用性、負荷分散およびレプリケーション</A
+></DT
+><DD
+><DL
+><DT
+>25.1. <A
+HREF="different-replication-solutions.html"
+>様々な解法の比較</A
+></DT
+><DT
+>25.2. <A
+HREF="warm-standby.html"
+>ログシッピングスタンバイサーバ</A
+></DT
+><DT
+>25.3. <A
+HREF="warm-standby-failover.html"
+>フェールオーバ</A
+></DT
+><DT
+>25.4. <A
+HREF="log-shipping-alternative.html"
+>この他のログシッピングの方法</A
+></DT
+><DT
+>25.5. <A
+HREF="hot-standby.html"
+>ホットスタンバイ</A
+></DT
+></DL
+></DD
+><DT
+>26&#31456;<A
+HREF="recovery-config.html"
+>リカバリの設定</A
+></DT
+><DD
+><DL
+><DT
+>26.1. <A
+HREF="archive-recovery-settings.html"
+>アーカイブリカバリの設定</A
+></DT
+><DT
+>26.2. <A
+HREF="recovery-target-settings.html"
+>リカバリ対象の設定</A
+></DT
+><DT
+>26.3. <A
+HREF="standby-settings.html"
+>スタンバイサーバの設定</A
+></DT
+></DL
+></DD
+><DT
+>27&#31456;<A
+HREF="monitoring.html"
+>データベース活動状況の監視</A
+></DT
+><DD
+><DL
+><DT
+>27.1. <A
+HREF="monitoring-ps.html"
+>標準的なUnixツール</A
+></DT
+><DT
+>27.2. <A
+HREF="monitoring-stats.html"
+>統計情報コレクタ</A
+></DT
+><DT
+>27.3. <A
+HREF="monitoring-locks.html"
+>ロックの表示</A
+></DT
+><DT
+>27.4. <A
+HREF="dynamic-trace.html"
+>動的追跡</A
+></DT
+></DL
+></DD
+><DT
+>28&#31456;<A
+HREF="diskusage.html"
+>ディスク使用量の監視</A
+></DT
+><DD
+><DL
+><DT
+>28.1. <A
+HREF="disk-usage.html"
+>ディスク使用量の決定</A
+></DT
+><DT
+>28.2. <A
+HREF="disk-full.html"
+>ディスク容量不足による問題</A
+></DT
+></DL
+></DD
+><DT
+>29&#31456;<A
+HREF="wal.html"
+>信頼性とログ先行書き込み</A
+></DT
+><DD
+><DL
+><DT
+>29.1. <A
+HREF="wal-reliability.html"
+>信頼性</A
+></DT
+><DT
+>29.2. <A
+HREF="wal-intro.html"
+>ログ先行書き込み(<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>)</A
+></DT
+><DT
+>29.3. <A
+HREF="wal-async-commit.html"
+>非同期コミット</A
+></DT
+><DT
+>29.4. <A
+HREF="wal-configuration.html"
+><ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>の設定</A
+></DT
+><DT
+>29.5. <A
+HREF="wal-internals.html"
+>WALの内部</A
+></DT
+></DL
+></DD
+><DT
+>30&#31456;<A
+HREF="regress.html"
+>リグレッションテスト</A
+></DT
+><DD
+><DL
+><DT
+>30.1. <A
+HREF="regress-run.html"
+>テストの実行</A
+></DT
+><DT
+>30.2. <A
+HREF="regress-evaluation.html"
+>テストの評価</A
+></DT
+><DT
+>30.3. <A
+HREF="regress-variant.html"
+>各種の比較用ファイル</A
+></DT
+><DT
+>30.4. <A
+HREF="regress-coverage.html"
+>テストが網羅する範囲の検証</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="non-durability.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="installation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>永続性がない設定</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ソースコードからインストール</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

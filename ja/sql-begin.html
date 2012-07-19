@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>BEGIN</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ANALYZE"
+HREF="sql-analyze.html"><LINK
+REL="NEXT"
+TITLE="CHECKPOINT"
+HREF="sql-checkpoint.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ANALYZE"
+HREF="sql-analyze.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ANALYZE"
+HREF="sql-analyze.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CHECKPOINT"
+HREF="sql-checkpoint.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CHECKPOINT"
+HREF="sql-checkpoint.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-BEGIN"
+></A
+>BEGIN</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN63229"
+></A
+><H2
+>&#21517;&#21069;</H2
+>BEGIN&nbsp;--&nbsp;トランザクションブロックを開始する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN63234"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>BEGIN [ WORK | TRANSACTION ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>transaction_mode</I
+></TT
+> [, ...] ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>transaction_mode</I
+></TT
+>は以下のいずれかです。</SPAN
+></SPAN
+>
+
+    ISOLATION LEVEL { SERIALIZABLE | REPEATABLE READ | READ COMMITTED | READ UNCOMMITTED }
+    READ WRITE | READ ONLY
+    [ NOT ] DEFERRABLE</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63239"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>BEGIN</TT
+>はトランザクションブロックを初期化します。
+<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>コマンド以降の文は全て、明示的な<A
+HREF="sql-commit.html"
+>COMMIT</A
+>もしくは<A
+HREF="sql-rollback.html"
+>ROLLBACK</A
+>が与えられるまで、単一のトランザクションの中で実行されます。
+デフォルト（<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>がない場合）は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はトランザクションを<SPAN
+CLASS="QUOTE"
+>"自動コミット"</SPAN
+>で実行します。
+つまり、各文はそれぞれ固有のトランザクションの中で実行され、文の終わりで暗黙的にコミットが実行されます（これは実行が成功した場合です。失敗した場合はロールバックされます）。
+
+  </P
+><P
+>トランザクションブロック内では、文はより迅速に実行されます。
+なぜなら、トランザクションの開始やコミットは、CPUとディスクにかなり高い負荷をかけるからです。
+また、1つのトランザクションで複数の文を実行することは、複数の関連するテーブルを更新する際、確実に一貫性を保つためにも役立ちます。
+関連する更新の中に完了していないものが存在する中間的な状態が、他のセッションから参照できなくなるからです。
+  </P
+><P
+>隔離レベル、読み書きモード、または遅延モードが指定されている場合、新しいトランザクションは、<A
+HREF="sql-set-transaction.html"
+>SET TRANSACTION</A
+>が実行された時と同様の特性を持ちます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63252"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>WORK</TT
+><BR><TT
+CLASS="LITERAL"
+>TRANSACTION</TT
+></DT
+><DD
+><P
+>	省略可能なキーワードです。これらは何も効果がありません。
+
+     </P
+></DD
+></DL
+></DIV
+><P
+>BEGIN文のこの他のパラメータについては、<A
+HREF="sql-set-transaction.html"
+>SET TRANSACTION</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63264"
+></A
+><H2
+>注釈</H2
+><P
+><A
+HREF="sql-start-transaction.html"
+>START TRANSACTION</A
+>には<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>と同じ機能があります。
+  </P
+><P
+>トランザクションを終了させるには<A
+HREF="sql-commit.html"
+>COMMIT</A
+>または<A
+HREF="sql-rollback.html"
+>ROLLBACK</A
+>を使用してください。
+  </P
+><P
+>トランザクションブロック内で<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>を発行すると、警告メッセージが表示されます。
+ただし、トランザクションの状態には影響ありません。
+トランザクションブロック内でトランザクションを入れ子にするには、セーブポイントを使用してください
+（詳しくは<A
+HREF="sql-savepoint.html"
+>SAVEPOINT</A
+>を参照してください）。
+  </P
+><P
+>後方互換性の保持のため、連続する<TT
+CLASS="REPLACEABLE"
+><I
+>transaction_modes</I
+></TT
+>間のカンマは省略することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63277"
+></A
+><H2
+>例</H2
+><P
+>トランザクションブロックを開始します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63281"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>BEGIN</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+標準SQLの<A
+HREF="sql-start-transaction.html"
+>START TRANSACTION</A
+>コマンドと等価です。
+このマニュアルページには互換性に関する詳細な情報が含まれます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>DEFERRABLE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>transaction_mode</I
+></TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の言語拡張です。
+  </P
+><P
+>埋め込みSQLでは、<TT
+CLASS="LITERAL"
+>BEGIN</TT
+>というキーワードを異なった目的に使用しています。
+データベースアプリケーションを移植する時は、トランザクションの意味で使用されているのかどうかに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63293"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-commit.html"
+>COMMIT</A
+>, <A
+HREF="sql-rollback.html"
+>ROLLBACK</A
+>, <A
+HREF="sql-start-transaction.html"
+>START TRANSACTION</A
+>, <A
+HREF="sql-savepoint.html"
+>SAVEPOINT</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-analyze.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-checkpoint.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ANALYZE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CHECKPOINT</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

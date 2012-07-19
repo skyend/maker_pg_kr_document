@@ -1,0 +1,405 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テーブル空間</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データベース管理"
+HREF="managing-databases.html"><LINK
+REL="PREVIOUS"
+TITLE="データベースの削除"
+HREF="manage-ag-dropdb.html"><LINK
+REL="NEXT"
+TITLE="多言語対応"
+HREF="charset.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベースの削除"
+HREF="manage-ag-dropdb.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベース管理"
+HREF="managing-databases.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 21&#31456;データベース管理</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベース管理"
+HREF="managing-databases.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="多言語対応"
+HREF="charset.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MANAGE-AG-TABLESPACES"
+>21.6. テーブル空間</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のテーブル空間により、データベース管理者はデータベースオブジェクトを表すファイルを格納できるファイルシステム上の場所を定義することができます。
+テーブル空間を一度作成すると、データベースオブジェクトを作成する時に名前により参照することができます。
+  </P
+><P
+>テーブル空間を使用することで、管理者は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>インストレーションのディスクレイアウトを制御することができます。
+これは、少なくとも2つの点で有用です。
+1つは、クラスタを初期化したパーティションもしくはボリュームの容量が不足し、拡張を行うことができない場合、システムを再構成するまで、別のパーティションにテーブル空間を作成して、このテーブル空間を使用することができます。
+  </P
+><P
+>もう1つは、テーブル空間により、管理者はデータベースオブジェクトの使用パターンに基づいてデータ格納場所を調整することができることです。
+例えば、非常によく使用されるインデックスを、例えば、高価なソリッドステートディスクなどの高速・高可用性ディスクに格納することができます。
+同時に、めったに使用されない保存用のデータや性能が求められていない保存用のデータを格納するテーブルを低価格・低速ディスクシステムに格納することもできます。
+  </P
+><P
+>テーブル空間を定義するには<A
+HREF="sql-createtablespace.html"
+>CREATE TABLESPACE</A
+>コマンドを使用してください。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLESPACE fastspace LOCATION '/mnt/sda1/postgresql/data';</PRE
+><P>
+この場所は、既存かつ空のディレクトリでなければならず、また、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>オペレーティングシステムユーザが所有していなければなりません。
+その後に、テーブル空間内に作成されるオブジェクトは全てこのディレクトリ以下のファイルに格納されます。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>通常、論理ファイルシステム内の個々のファイルの場所を制御することができませんので、1つの論理ファイルシステムに複数のテーブル空間を作成することは意味がありません。
+しかし、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にはこうした制限はありません。
+実際、システムのファイルシステムの境を直接意識しません。
+単に使用することを宣言したディレクトリにファイルを格納します。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>テーブル空間自体の生成はデータベーススーパーユーザが行う必要があります。
+しかし、その後に、データベース一般ユーザにそのテーブル空間を使用させることができます。
+これを行うには、ユーザにテーブル空間に対する<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限を与えてください。
+  </P
+><P
+>テーブル、インデックス、およびデータベース全体は特定のテーブル空間に割り当て可能です。
+これを行うには、指定テーブル空間に<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限を持つユーザが関連するコマンドにテーブル空間をパラメータとして渡す必要があります。
+例えば、以下は<TT
+CLASS="LITERAL"
+>space1</TT
+>テーブル空間にあるテーブルを作成しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE foo(i int) TABLESPACE space1;</PRE
+><P>
+  </P
+><P
+>他の方法として、以下のように<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TABLESPACE"
+>default_tablespace</A
+>パラメータの使用があります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET default_tablespace = space1;
+CREATE TABLE foo(i int);</PRE
+><P>
+<TT
+CLASS="VARNAME"
+>default_tablespace</TT
+>が空文字以外の何かに設定された場合、この値が、明示的なテーブル空間の指定がない<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>コマンドや<TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+>コマンドの暗黙的な <TT
+CLASS="LITERAL"
+>TABLESPACE</TT
+>句として適用されます。
+  </P
+><P
+><A
+HREF="runtime-config-client.html#GUC-TEMP-TABLESPACES"
+>temp_tablespaces</A
+>というパラメータも存在します。
+これは、一時テーブルとそのインデックス、大規模データ集合のソートなどを目的に使用される一時ファイルの場所を決定するものです。
+これは、テーブル空間名を1つだけ指定するものではなく、テーブル空間名のリストを取ることができます。
+このため、一時的なオブジェクトに関連する負荷を、複数のテーブル空間にわたって分散することができます。
+一時的なオブジェクトを作成する度に、このリストから無作為に要素が選択されます。
+  </P
+><P
+>データベースに関連付けされたテーブル空間は、そのデータベースのシステムカタログを格納するために使用されます。
+さらに、<TT
+CLASS="LITERAL"
+>TABLESPACE</TT
+>句を付けずに、または、（適切な）<TT
+CLASS="VARNAME"
+>default_tablespace</TT
+>や<TT
+CLASS="VARNAME"
+>temp_tablespaces</TT
+>で指定された選択肢がなければ、データベース内に作成されたテーブルやインデックスのデフォルトのテーブル空間としても使用されます。
+テーブル空間の指定なしで作成されたデータベースは、コピー元のテンプレートデータベースのテーブル空間と同じものを使用します。
+  </P
+><P
+>データベースクラスタが初期化される時に2つのテーブル空間が自動的に作成されます。
+<TT
+CLASS="LITERAL"
+>pg_global</TT
+>テーブル空間は共有システムカタログ用に使用されます。
+<TT
+CLASS="LITERAL"
+>pg_default</TT
+>テーブル空間は<TT
+CLASS="LITERAL"
+>template1</TT
+>と<TT
+CLASS="LITERAL"
+>template0</TT
+>データベースのデフォルトテーブル空間です
+（したがって、<TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>の<TT
+CLASS="LITERAL"
+>TABLESPACE</TT
+>句で変更されない限り、このテーブル空間が同様に他のデータベースに対するデフォルトのテーブル空間になります）。
+  </P
+><P
+>テーブル空間は、一度作成すると、要求しているユーザが十分な権限を持っていれば全てのデータベースから使用することができます。
+これは、テーブル空間を使用する全てのデータベースの全てのオブジェクトが削除されるまで、そのテーブル空間を削除することができないことを意味します。
+  </P
+><P
+>空のテーブル空間を削除するには、<A
+HREF="sql-droptablespace.html"
+>DROP TABLESPACE</A
+>コマンドを使用してください。
+  </P
+><P
+>既存のテーブル空間群を求めるには、以下の例のように<TT
+CLASS="STRUCTNAME"
+>pg_tablespace</TT
+>を確認してください。
+</P><PRE
+CLASS="SYNOPSIS"
+>SELECT spcname FROM pg_tablespace;</PRE
+><P>
+また、<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>プログラムの<TT
+CLASS="LITERAL"
+>\db</TT
+>メタコマンドも既存のテーブル空間を列挙する際に役に立ちます。
+  </P
+><P
+>テーブル空間の実装を単純化するために、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はシンボリックリンクを使用します。
+これは、テーブル空間はシンボリックリンクをサポートするシステムで<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>のみ</I
+></SPAN
+>使用することができるということを意味します。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>$PGDATA/pg_tblspc</TT
+>ディレクトリには、そのクラスタで定義された非組み込みテーブル空間1つひとつを指し示すシンボリックリンクがあります。
+推奨はしませんが、こうしたリンクを手作業で再定義してテーブル空間のレイアウトを調整することができます。
+2点警告します。
+これをサーバが実行している時に行わないでください。
+また、サーバを再起動した後に、新しい場所で<TT
+CLASS="STRUCTNAME"
+>pg_tablespace</TT
+>カタログを更新してください。
+（これを行わないと、<TT
+CLASS="LITERAL"
+>pg_dump</TT
+>が古いテーブル空間の場所を示したままになってしまいます。）
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="manage-ag-dropdb.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="charset.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データベースの削除</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="managing-databases.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>多言語対応</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

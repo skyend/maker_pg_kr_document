@@ -1,0 +1,558 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テストの実行</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リグレッションテスト"
+HREF="regress.html"><LINK
+REL="PREVIOUS"
+TITLE="リグレッションテスト"
+HREF="regress.html"><LINK
+REL="NEXT"
+TITLE="テストの評価"
+HREF="regress-evaluation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リグレッションテスト"
+HREF="regress.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リグレッションテスト"
+HREF="regress.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 30&#31456;リグレッションテスト</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リグレッションテスト"
+HREF="regress.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="テストの評価"
+HREF="regress-evaluation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="REGRESS-RUN"
+>30.1. テストの実行</A
+></H1
+><P
+>   
+リグレッションテストは既にインストールされ稼働中のサーバや、ビルドツリー内の一時的なインストレーションに対して実行することができます。
+さらに、テストの実行には<SPAN
+CLASS="QUOTE"
+>"並行"</SPAN
+>と<SPAN
+CLASS="QUOTE"
+>"連続"</SPAN
+>モードがあります。
+連続モードでは個々のテストスクリプトを単独で実行し、並行モードでは複数のサーバプロセスを実行し、テストをグループ化して並行的に実行します。
+並行テストではプロセス間通信とロック機能が正常に作動しているかをテストします。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN35981"
+>30.1.1. 一時的なインストレーションに対するテストの実行</A
+></H2
+><P
+>   
+構築後、インストール前に並行リグレッションテストを行う場合には、最上位のディレクトリで以下のように入力してください。  
+</P><PRE
+CLASS="SCREEN"
+>gmake check</PRE
+><P>
+   
+（または、<TT
+CLASS="FILENAME"
+>src/test/regress</TT
+>ディレクトリに移動して、そこで実行してください。）
+実行すると、ユーザ定義のトリガ関数のサンプルなど、複数の補助的なファイルがまず作成され、それからテストドライバのスクリプトを実行します。  
+終了したら以下のような表示がされるはずです。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="COMPUTEROUTPUT"
+>=======================
+ All 115 tests passed.
+=======================</SAMP
+></PRE
+><P>
+   
+これが表示されなければ、テストは失敗したことになります。
+<SPAN
+CLASS="QUOTE"
+>"失敗"</SPAN
+>を深刻な問題であると推測する前に、以下の <A
+HREF="regress-evaluation.html"
+>&#38917;30.2</A
+> を参照してください。
+
+  </P
+><P
+>    
+この試験方法では、一時的にサーバを起動させるため、rootユーザでは動作しません
+（サーバはrootでは起動しません）。 
+rootで構築作業を行ったとしても、すべてを最初からやり直す必要はありません。
+リグレッションテストのディレクトリを他のユーザから書き込み可能にし、そのユーザでログインしてテストを再実行してください。 
+例えば、以下のようにします。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>root# </SAMP
+><KBD
+CLASS="USERINPUT"
+>chmod -R a+w src/test/regress</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>root# </SAMP
+><KBD
+CLASS="USERINPUT"
+>su - joeuser</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>joeuser$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>cd <TT
+CLASS="REPLACEABLE"
+><I
+>top-level build directory</I
+></TT
+></KBD
+>
+<SAMP
+CLASS="PROMPT"
+>joeuser$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>gmake check</KBD
+></PRE
+><P>
+    
+（この方法には<SPAN
+CLASS="QUOTE"
+>"セキュリティリスク"</SPAN
+>が1つだけあります。
+それは、別のユーザがこっそりリグレッションテストの結果を変更することが可能ということです。 
+ユーザ権限の付与には常識を働かせてください。）
+
+   </P
+><P
+>    
+あるいは、インストール後にテストを実行することも可能です。
+   </P
+><P
+>    
+古い<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のインストレーションが既に存在している場所に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>をインストールするように構築した場合、新しいバージョンをインストールする前に<TT
+CLASS="LITERAL"
+>gmake check</TT
+>を行うと、新しいプログラムがインストール済みの共有ライブラリを使用しようとするために試験が失敗することになります。
+（典型的な症状は、未定義シンボルに関するエラーメッセージです。）
+古いインストレーションを上書きする前に試験を行いたいのであれば、<TT
+CLASS="LITERAL"
+>configure --disable-rpath</TT
+>で構築する必要があります。
+しかし、このオプションを最終的なインストレーションで使用することは推奨しません。
+   </P
+><P
+>    
+並行リグレッションテストは、実行したユーザのユーザIDを使用して相当数のプロセスを起動します。 
+現在、最大で20個の並行テストスクリプトが同時に実行されますが、これは合計40個のプロセスが実行されることを意味します。
+各テストスクリプトに対して、1つのサーバプロセスと1つの<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>プロセスが存在するためです。
+ですので、使用するシステムでユーザ当たりのプロセス数に制限を加えている場合は、その上限が少なくとも50程度であることを確認してください。
+さもないと、並行テストにおいて、ランダムに発生しているように見える失敗が発生するかもしれません。  
+この上限を変更できない場合は、<TT
+CLASS="LITERAL"
+>MAX_CONNECTIONS</TT
+>パラメータを編集して、並行度を減らすことができます。
+例えば、以下は同時実行数を10以下で実行します。
+</P><PRE
+CLASS="SCREEN"
+>gmake MAX_CONNECTIONS=10 check</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36012"
+>30.1.2. 既存のインストレーションに対するテストの実行</A
+></H2
+><P
+>   
+インストール（<A
+HREF="installation.html"
+>&#31532;15&#31456;</A
+>を参照）後にテストを実行するには、<A
+HREF="runtime.html"
+>&#31532;17&#31456;</A
+>で説明したようにデータ領域を初期化し、サーバを起動させ、そして以下を入力してください。
+</P><PRE
+CLASS="SCREEN"
+>gmake installcheck</PRE
+><P>
+もしくは、並行テストの場合は以下を入力してください。
+</P><PRE
+CLASS="SCREEN"
+>gmake installcheck-parallel</PRE
+><P>
+   
+テストは、<TT
+CLASS="ENVAR"
+>PGHOST</TT
+>環境変数と<TT
+CLASS="ENVAR"
+>PGPORT</TT
+>環境変数で指定がない限り、ローカルホストのサーバに接続し、デフォルトのポート番号を使用します。
+  </P
+><P
+>   
+ソース配布には、オプションとなっている手続き言語と一部の<TT
+CLASS="FILENAME"
+>contrib</TT
+>モジュールに対するリグレッションテストも含まれています。
+現在、これらのテストはインストール済みのサーバに対してのみ使用することができます。
+構築されインストールされたすべての手続き言語に対してテストを実行するには、構築ツリーの<TT
+CLASS="FILENAME"
+>src/pl</TT
+>ディレクトリに移動し、以下を実行してください。
+</P><PRE
+CLASS="SCREEN"
+>gmake installcheck</PRE
+><P>
+   
+また、これを<TT
+CLASS="FILENAME"
+>src/pl</TT
+>のいずれかのサブディレクトリで実行して、1つの手続き言語のみに対するテストを行うこともできます。
+テストが提供されているすべての<TT
+CLASS="FILENAME"
+>contrib</TT
+>モジュールに対するテストを実行するには、構築ツリーの<TT
+CLASS="FILENAME"
+>contrib</TT
+>ディレクトリに移動し、以下を実行してください。
+</P><PRE
+CLASS="SCREEN"
+>gmake installcheck</PRE
+><P>
+   
+事前に<TT
+CLASS="FILENAME"
+>contrib</TT
+>モジュールが構築されインストールされていなければなりません。
+また、これを<TT
+CLASS="FILENAME"
+>contrib</TT
+>のサブディレクトリで実行して、1つのモジュールのみに対してテストを行うことができます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36031"
+>30.1.3. ホットスタンバイのテスト</A
+></H2
+><P
+>   
+ソース配布は、ホットスタンバイの静的な挙動に対するリグレッションテストも含んでいます。
+これらのテストは、稼働しているプライマリサーバと、ファイルベースのログ転送、またはストリーミングレプリケーションによって新規のWALの変更を受け付けられる稼働中のスタンバイサーバを必要とします。
+これらのサーバは、自動的に作成されませんし、ここにはセットアップのドキュメントもありません。
+必要なコマンドや関連する問題について記述されている、既存のドキュメントのさまざまなセクションを参照してください。
+  </P
+><P
+>   
+最初に、"regression"という名前のデータベースをプライマリに作成します。
+</P><PRE
+CLASS="SCREEN"
+>psql -h primary -c "CREATE DATABASE regression"</PRE
+><P>
+   
+次に、準備されているスクリプト<TT
+CLASS="FILENAME"
+>src/test/regress/sql/hs_primary_setup.sql</TT
+>をregressionデータベース上で実行し、以下のように変更をスタンバイに伝播させます。
+</P><PRE
+CLASS="SCREEN"
+>psql -h primary -f src/test/regress/sql/hs_primary_setup.sql regression</PRE
+><P>
+   
+ここで、試験用のデフォルト接続がスタンバイサーバの試験環境であることを確認してください。
+そしてリグレッションテスト用のディレクトリから<TT
+CLASS="LITERAL"
+>standbycheck</TT
+>ターゲットを実行してください。
+</P><PRE
+CLASS="SCREEN"
+>cd src/test/regress
+gmake standbycheck</PRE
+><P>
+  </P
+><P
+>   
+いくつかの極端な挙動を、スクリプトを用いることでプライマリサーバ上で生成することができます：
+<TT
+CLASS="FILENAME"
+>src/test/regress/sql/hs_primary_extremes.sql</TT
+>によって、スタンバイのテストのための挙動を実現できます。
+  </P
+><P
+>   
+今後のリリースでさらに自動化された試験ができるようになるかもしれません。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36043"
+>30.1.4. ロケールと符号化方式</A
+></H2
+><P
+>デフォルトでは、一時的なインストレーションに対するテストは、現在の環境で定義されたロケールと<TT
+CLASS="COMMAND"
+>initdb</TT
+>で決定される対応するデータベース符号化方式を使用します。
+異なるロケールを試験する際は、以下の例のように適切な環境変数を設定することが有用です。
+</P><PRE
+CLASS="SCREEN"
+>gmake check LANG=C
+gmake check LC_COLLATE=en_US.utf8 LC_CTYPE=fr_CA.utf8</PRE
+><P>
+実装上の理由のため、<TT
+CLASS="ENVAR"
+>LC_ALL</TT
+>はこの目的には動作しません。
+この他のロケール関連の環境変数は動作します。
+   </P
+><P
+>既存のインストレーションに対するテストでは、ロケールは既存のデータベースクラスタによって決まり、テスト実行時に別の値に設定することができません。
+   </P
+><P
+>また、以下の例のように<TT
+CLASS="ENVAR"
+>ENCODING</TT
+>変数を設定することで明示的にデータベース符号化方式を選択することができます。
+</P><PRE
+CLASS="SCREEN"
+>gmake check LANG=C ENCODING=EUC_JP</PRE
+><P>
+この方法でデータベース符号化方式を設定することは、通常ロケールがCだった場合にのみ意味があります。
+この他の場合、ロケールから自動的に符号化方式が選択されます。
+ロケールと一致しない符号化方式を指定してもエラーになるだけです。
+   </P
+><P
+>符号化方式は一時的なインストレーションに対するテストでも既存のインストレーションに対するテストでも設定することができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN36054"
+>30.1.5. 追加のテスト</A
+></H2
+><P
+>プラットフォームに依存する、または非常に時間がかかる可能性があるという理由で、リグレッションテスト一式にはデフォルトでは動作しないテストがいくつか含まれています。
+<TT
+CLASS="ENVAR"
+>EXTRA_TESTS</TT
+>変数を設定することでこれらの追加テストやその他のテストを実行することができます。
+例えば、<TT
+CLASS="LITERAL"
+>numeric_big</TT
+>テストを以下のように実行します。
+</P><PRE
+CLASS="SCREEN"
+>gmake check EXTRA_TESTS=numeric_big</PRE
+><P>
+以下のように照合順序テストを実行します。
+</P><PRE
+CLASS="SCREEN"
+>gmake check EXTRA_TESTS=collate.linux.utf8 LANG=en_US.utf8</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>collate.linux.utf8</TT
+>テストは、Linux/glibcプラットフォームにおいてUTF-8符号化方式を使用するデータベースで実行した場合のみ動作します。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="regress.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="regress-evaluation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リグレッションテスト</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="regress.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>テストの評価</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

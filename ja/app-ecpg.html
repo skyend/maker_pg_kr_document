@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ecpg</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PostgreSQLクライアントアプリケーション"
+HREF="reference-client.html"><LINK
+REL="PREVIOUS"
+TITLE="dropuser"
+HREF="app-dropuser.html"><LINK
+REL="NEXT"
+TITLE="pg_basebackup"
+HREF="app-pgbasebackup.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="dropuser"
+HREF="app-dropuser.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="dropuser"
+HREF="app-dropuser.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pg_basebackup"
+HREF="app-pgbasebackup.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pg_basebackup"
+HREF="app-pgbasebackup.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="APP-ECPG"
+></A
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN78072"
+></A
+><H2
+>&#21517;&#21069;</H2
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>&nbsp;--&nbsp;埋め込みSQL用Cプリプロセッサを使用する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN78078"
+></A
+><H2
+>&#27010;&#35201;</H2
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+> [<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>...]  <TT
+CLASS="REPLACEABLE"
+><I
+>file</I
+></TT
+>... </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="APP-ECPG-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+>は、Cプログラム用の埋め込みSQLプリプロセッサです。
+SQL呼び出しを特殊な関数呼び出しに置き換えることによって、埋め込みSQL文を含むCプログラムを、通常のCコードに変換します。
+これにより、出力ファイルは、どのようなCコンパイラツールを使用しても処理することができます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+>は、コマンドラインで指定される各入力ファイルを対応するCの出力ファイルに変換します。
+入力ファイルに<TT
+CLASS="FILENAME"
+>.pgc</TT
+>という拡張子を付けておくと、出力ファイル名の拡張子が<TT
+CLASS="FILENAME"
+>.c</TT
+>に置き換えられるので便利です。
+入力ファイルの拡張子が<TT
+CLASS="FILENAME"
+>.pgc</TT
+>でない場合、そのファイルのフルネームの末尾に<TT
+CLASS="LITERAL"
+>.c</TT
+>を追加したものが出力ファイル名となります。
+出力ファイル名は、<TT
+CLASS="OPTION"
+>-o</TT
+>オプションによって上書きすることもできます。
+  </P
+><P
+>このマニュアルページでは埋め込みSQL言語については説明しません。
+<A
+HREF="ecpg.html"
+>&#31532;33&#31456;</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN78098"
+></A
+><H2
+>オプション</H2
+><P
+>   <TT
+CLASS="COMMAND"
+>ecpg</TT
+>は、以下のコマンドライン引数を受け付けます。
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="OPTION"
+>-c</TT
+></DT
+><DD
+><P
+>SQLコードから有効なCコードを自動的に生成します。
+現在、このオプションは<TT
+CLASS="LITERAL"
+>EXEC SQL TYPE</TT
+>に対して使用できます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-C <TT
+CLASS="REPLACEABLE"
+><I
+>mode</I
+></TT
+></TT
+></DT
+><DD
+><P
+>互換モードを設定します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>mode</I
+></TT
+>は<TT
+CLASS="LITERAL"
+>INFORMIX</TT
+>もしくは<TT
+CLASS="LITERAL"
+>INFORMIX_SE</TT
+>のどちらかを取ることができます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-D <TT
+CLASS="REPLACEABLE"
+><I
+>symbol</I
+></TT
+></TT
+></DT
+><DD
+><P
+>Cプリプロセッサのシンボルを定義します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-i</TT
+></DT
+><DD
+><P
+>同様にシステムインクルードファイルも解析します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-I <TT
+CLASS="REPLACEABLE"
+><I
+>directory</I
+></TT
+></TT
+></DT
+><DD
+><P
+>追加のインクルード用パスを指定します。
+これは、<TT
+CLASS="LITERAL"
+>EXEC SQL INCLUDE</TT
+>を使用してインクルードされるファイルを検索する際に使用されます。
+デフォルトでは順に、<TT
+CLASS="FILENAME"
+>.</TT
+>（現行ディレクトリ）、<TT
+CLASS="FILENAME"
+>/usr/local/include</TT
+>、コンパイル時に定義される<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のインクルードディレクトリ（デフォルトでは<TT
+CLASS="FILENAME"
+>/usr/local/pgsql/include</TT
+>）、<TT
+CLASS="FILENAME"
+>/usr/include</TT
+>です。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-o <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+>が全ての出力を<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>に書き込むことを指定します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-r <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+></TT
+></DT
+><DD
+><P
+>実行時の動作を選択します。
+以下のいずれかを<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>として取ることができます。
+       <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="OPTION"
+>no_indicator</TT
+></DT
+><DD
+><P
+>指示子を使用せずにNULL値を表す特殊な値を使用します。
+歴史的にこの方式を使用したデータベースが存在します。
+         </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>prepare</TT
+></DT
+><DD
+><P
+>すべての文を使用する前に準備します。
+libecpgは準備済みの文のキャッシュを保持し、再実行される場合に文を再利用します。
+キャッシュが満杯になった場合、libecpgは最も古い文を解放します。
+         </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>questionmarks</TT
+></DT
+><DD
+><P
+>互換性という理由でクエスチョンマークをプレースホルダとして許します。
+これは長い間デフォルトとして使用されていました。
+         </P
+></DD
+></DL
+></DIV
+><P></P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-t</TT
+></DT
+><DD
+><P
+>トランザクションの自動コミットを有効にします。
+このモードでは、各SQLコマンドは明示的なトランザクションブロックの内部にない限り、自動的にコミットされます。
+デフォルトのモードでは、<TT
+CLASS="COMMAND"
+>EXEC SQL COMMIT</TT
+>が発行された時にのみコマンドがコミットされます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-v</TT
+></DT
+><DD
+><P
+>バージョンやインクルード用パスなどの補足情報を表示します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>--version</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>のバージョンを表示し、終了します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>--help</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>のコマンドライン引数の使用方法を表示し、終了します。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN78195"
+></A
+><H2
+>注釈</H2
+><P
+>前処理されたCコードファイルをコンパイルする際、コンパイラは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のインクルードディレクトリ内にある<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+>ヘッダファイルを検索できるようにしなければなりません。
+そのため、コンパイラの呼び出し時に、<TT
+CLASS="OPTION"
+>-I</TT
+>オプションを使用しなければならない可能性があります（例：<TT
+CLASS="LITERAL"
+>-I/usr/local/pgsql/include</TT
+>）。
+  </P
+><P
+>SQLが埋め込まれたCプログラムには、<TT
+CLASS="LITERAL"
+>-L/usr/local/pgsql/lib -lecpg</TT
+>リンカオプションを使用するなどして、<TT
+CLASS="FILENAME"
+>libecpg</TT
+>ライブラリをリンクする必要があります。
+  </P
+><P
+>使用するシステムにおいて上記の2つに対応するディレクトリを調べるには、<A
+HREF="app-pgconfig.html"
+>pg_config</A
+>を使用します。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN78207"
+></A
+><H2
+>例</H2
+><P
+>埋め込みSQLを使用した<TT
+CLASS="FILENAME"
+>prog1.pgc</TT
+>というCソースファイルがある場合、次のコマンドを順番に実行すれば、実行可能プログラムを作成することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ecpg prog1.pgc
+cc -I/usr/local/pgsql/include -c prog1.c
+cc -o prog1 prog1.o -L/usr/local/pgsql/lib -lecpg</PRE
+><P></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="app-dropuser.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="app-pgbasebackup.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>dropuser</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference-client.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>pg_basebackup</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

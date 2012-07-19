@@ -1,0 +1,2083 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>評価式</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLの構文"
+HREF="sql-syntax.html"><LINK
+REL="PREVIOUS"
+TITLE="語彙の構成"
+HREF="sql-syntax-lexical.html"><LINK
+REL="NEXT"
+TITLE="関数呼び出し"
+HREF="sql-syntax-calling-funcs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="語彙の構成"
+HREF="sql-syntax-lexical.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLの構文"
+HREF="sql-syntax.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 4&#31456;SQLの構文</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの構文"
+HREF="sql-syntax.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数呼び出し"
+HREF="sql-syntax-calling-funcs.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SQL-EXPRESSIONS"
+>4.2. 評価式</A
+></H1
+><P
+>評価式は、例えば<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドの目的リストとして、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>や<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>の新しい列の値として、もしくはいくつかのコマンドの検索条件として様々な文脈の中で使われます。
+評価式の結果は、テーブル式の結果（つまりテーブル）から区別するために、<I
+CLASS="FIRSTTERM"
+>スカラ</I
+>と呼ばれることもあります。
+したがって、評価式は<I
+CLASS="FIRSTTERM"
+>スカラ式</I
+>（またはもっと簡単に<I
+CLASS="FIRSTTERM"
+>式</I
+>）とも呼ばれます。
+式の構文によって、算術、論理、集合などの演算を行う基本的な部分で値の計算を行うことができます。
+  </P
+><P
+>評価式は下記のうちのいずれかです。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>定数あるいはリテラル値
+     </P
+></LI
+><LI
+><P
+>列の参照
+     </P
+></LI
+><LI
+><P
+>関数宣言の本体やプリペアド文における、位置パラメータ参照
+     </P
+></LI
+><LI
+><P
+>添字付きの式
+     </P
+></LI
+><LI
+><P
+>フィールド選択式
+     </P
+></LI
+><LI
+><P
+>演算子の呼び出し
+     </P
+></LI
+><LI
+><P
+>関数呼び出し
+     </P
+></LI
+><LI
+><P
+>集約式
+     </P
+></LI
+><LI
+><P
+>     
+      ウィンドウ関数呼び出し
+     </P
+></LI
+><LI
+><P
+>型キャスト
+     </P
+></LI
+><LI
+><P
+>照合順序(collation)式
+     </P
+></LI
+><LI
+><P
+>スカラ副問い合わせ
+     </P
+></LI
+><LI
+><P
+>配列コンストラクタ
+     </P
+></LI
+><LI
+><P
+>行コンストラクタ
+     </P
+></LI
+><LI
+><P
+>      （副式をグループ化したり優先順位を変更するのに使用される）括弧で囲まれた別の評価式
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+>これ以外にも、式として分類されるけれども一般的な構文規約には従わない、いくつかの構成要素があります。
+これらは一般的に関数あるいは演算子の意味を持ちます。
+<A
+HREF="functions.html"
+>&#31532;9&#31456;</A
+>の該当部分で説明されています。
+例を挙げると<TT
+CLASS="LITERAL"
+>IS NULL</TT
+>句があります。
+  </P
+><P
+><A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS"
+>&#38917;4.1.2</A
+>で既に定数については説明しました。
+続く節では残りのオプションについて説明します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1811"
+>4.2.1. 列の参照</A
+></H2
+><P
+>列は、下記のような形式で参照することができます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>correlation</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>columnname</I
+></TT
+></PRE
+><P>
+   </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>correlation</I
+></TT
+>は、テーブル名（スキーマで修飾されている場合もあります）、あるいは<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で定義されたテーブルの別名です。
+相関名と区切り用のドットは、もし列名が現在の問い合わせで使われる全てのテーブルを通して一意である場合は省略することができます。
+（<A
+HREF="queries.html"
+>&#31532;7&#31456;</A
+>も参照してください）。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1823"
+>4.2.2. 位置パラメータ</A
+></H2
+><P
+>位置パラメータ参照は、外部からSQL文に渡される値を示すために使用されます。
+パラメータはSQL関数定義およびプリペアド問い合わせの中で使用されます。
+また、クライアントライブラリの中には、SQLコマンド文字列とデータ値を分離して指定できる機能をサポートするものもあります。
+この場合、パラメータは行外データ値を参照するために使用されます。
+パラメータ参照の形式は以下の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+>$<TT
+CLASS="REPLACEABLE"
+><I
+>number</I
+></TT
+></PRE
+><P>
+   </P
+><P
+>例えば、関数 <CODE
+CLASS="FUNCTION"
+>dept</CODE
+> の定義が以下のようにされたとします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION dept(text) RETURNS dept
+    AS $$ SELECT * FROM dept WHERE name = $1 $$
+    LANGUAGE SQL;</PRE
+><P>
+
+ここで<TT
+CLASS="LITERAL"
+>$1</TT
+>は関数が呼び出される時に最初の関数引数の値を参照します。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1837"
+>4.2.3. 添字</A
+></H2
+><P
+>配列の値を与える式の場合、特定の配列要素の値は以下のように記述することで展開されます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>[<TT
+CLASS="REPLACEABLE"
+><I
+>subscript</I
+></TT
+>]</PRE
+><P>
+また、複数の要素をまたがる（<SPAN
+CLASS="QUOTE"
+>"配列の一部分"</SPAN
+>）場合は以下のように記述することで展開されます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>[<TT
+CLASS="REPLACEABLE"
+><I
+>lower_subscript</I
+></TT
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>upper_subscript</I
+></TT
+>]</PRE
+><P>
+（ここで大括弧<TT
+CLASS="LITERAL"
+>[ ]</TT
+>はリテラルとして現れています。）
+各<TT
+CLASS="REPLACEABLE"
+><I
+>subscript</I
+></TT
+>は自身が式であり、整数値を生成しなければなりません。
+   </P
+><P
+>一般的には、配列<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>は括弧で括らなければなりませんが、添字が付いた式が単なる列参照や位置パラメータであった場合、その括弧を省略することができます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mytable.arraycolumn[4]
+mytable.two_d_column[17][34]
+$1[10:42]
+(arrayfunction(a,b))[42]</PRE
+><P>
+
+最後の例では括弧が必要です。
+配列の詳細は<A
+HREF="arrays.html"
+>&#38917;8.14</A
+>を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FIELD-SELECTION"
+>4.2.4. フィールド選択</A
+></H2
+><P
+>式が複合型（行型）の値を生成する場合、行の特定のフィールドは以下のように記述することで展開できます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>fieldname</I
+></TT
+></PRE
+><P>
+   </P
+><P
+>一般的には、行<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>は括弧で括らなければなりません。
+しかし、選択元となる式が単なるテーブル参照や位置パラメータの場合、括弧を省略することができます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mytable.mycolumn
+$1.somecolumn
+(rowfunction(a,b)).col3</PRE
+><P>
+
+   （したがって、修飾された列参照は実際のところ、単なるこのフィールド選択構文の特殊な場合です。）重要となる特殊な場合としては、複合型のテーブル列からフィールドを抽出するときです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>(compositecol).somefield
+(mytable.compositecol).somefield</PRE
+><P>
+
+    <TT
+CLASS="STRUCTFIELD"
+>compositecol</TT
+>がテーブル名でなく列名であること、または２番目の場合の<TT
+CLASS="STRUCTNAME"
+>mytable</TT
+>がスキーマ名でなくテーブル名であることを示すため丸括弧が要求されます。
+   </P
+><P
+>   
+    SELECT列のリスト(<A
+HREF="queries-select-lists.html"
+>&#38917;7.3</A
+>参照)に<TT
+CLASS="LITERAL"
+>.*</TT
+>を記述することで、複合型の全ての値を問い合わせることが可能です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>(compositecol).*</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1874"
+>4.2.5. 演算子の呼び出し</A
+></H2
+><P
+>演算子の呼び出しには以下の3構文が可能です。
+    <P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> （二項中置演算子）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> （単項前置演算子）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> （単項後置演算子）</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+>
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+>トークンは、<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-OPERATORS"
+>&#38917;4.1.3</A
+>構文規則に従うもの、もしくはキーワード<TT
+CLASS="TOKEN"
+>AND</TT
+>、<TT
+CLASS="TOKEN"
+>OR</TT
+>、<TT
+CLASS="TOKEN"
+>NOT</TT
+>のいずれか、または以下の形式の修飾された演算子名です。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="LITERAL"
+>OPERATOR(</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>schema</I
+></TT
+><TT
+CLASS="LITERAL"
+>.</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>operatorname</I
+></TT
+><TT
+CLASS="LITERAL"
+>)</TT
+></PRE
+><P>
+具体的にどんな演算子が存在し、それが単項か二項かどうかは、システムやユーザによってどんな演算子が定義されたかに依存します。
+<A
+HREF="functions.html"
+>&#31532;9&#31456;</A
+>にて、組み込み演算子について説明します。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1903"
+>4.2.6. 関数呼び出し</A
+></H2
+><P
+>関数呼び出しの構文は、関数名（スキーマ名で修飾されている場合があります）に続けてその引数を丸括弧で囲んで列挙したものです。
+
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ([<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ... </SPAN
+>]</SPAN
+>] )</PRE
+><P>
+   </P
+><P
+>例えば、以下のものは2の平方根を計算します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>sqrt(2)</PRE
+><P>
+   </P
+><P
+>組み込み関数の一覧は<A
+HREF="functions.html"
+>&#31532;9&#31456;</A
+>にあります。
+他の関数はユーザが追加できます。
+   </P
+><P
+>引数には名前を任意で付与することができます。詳細は<A
+HREF="sql-syntax-calling-funcs.html"
+>&#38917;4.3</A
+>を見て下さい。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     複合型の単一引数をとる関数はフィールド選択構文をオプショナルに使って呼び出すことができます。反対に関数形式でフィールド選択を記述することもできます。この記述方法は<TT
+CLASS="LITERAL"
+>col(table)</TT
+>や<TT
+CLASS="LITERAL"
+>table.col</TT
+>となり、どちらを使っても変わりありません。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では<SPAN
+CLASS="QUOTE"
+>"計算された領域"</SPAN
+>のエミュレートをする関数の利用が可能なため、これはSQL標準の振る舞いではなく<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>独自機能となります。詳しくは<A
+HREF="xfunc-sql.html#XFUNC-SQL-COMPOSITE-FUNCTIONS"
+>&#38917;35.4.2</A
+>を参照してください。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SYNTAX-AGGREGATES"
+>4.2.7. 集約式</A
+></H2
+><P
+><I
+CLASS="FIRSTTERM"
+>集約式</I
+>は、問い合わせによって選択される行に対して集約関数が適用されることを意味します。
+集約関数は、例えば入力の合計や平均などのように、複数の入力を単一の出力値にします。
+集約式の構文は下記のうちのいずれかです。
+
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>aggregate_name</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [ , ... ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>order_by_clause</I
+></TT
+> ] )
+<TT
+CLASS="REPLACEABLE"
+><I
+>aggregate_name</I
+></TT
+> (ALL <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [ , ... ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>order_by_clause</I
+></TT
+> ] )
+<TT
+CLASS="REPLACEABLE"
+><I
+>aggregate_name</I
+></TT
+> (DISTINCT <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [ , ... ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>order_by_clause</I
+></TT
+> ] )
+<TT
+CLASS="REPLACEABLE"
+><I
+>aggregate_name</I
+></TT
+> ( * )</PRE
+><P>
+
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>aggregate_name</I
+></TT
+>は事前に定義された集約（スキーマ名で修飾された場合もあります）、<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>はそれ自体に集約式またはウィンドウ関数呼び出しを含まない任意の値評価式、<TT
+CLASS="REPLACEABLE"
+><I
+>order_by_clause</I
+></TT
+>は後述の省略可能な<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>です。
+   </P
+><P
+>集約式の最初の構文は、それぞれの入力行に対して1回ずつ集計を呼び出します。
+<TT
+CLASS="LITERAL"
+>ALL</TT
+>はデフォルトなので、2つ目の形式は最初の形式と同じです。
+3番目の形式は、入力行の中にある式の、全ての重複しない値（複数式では重複しない値集合）の集約を呼び出します。最後の形式はそれぞれの入力行に対して1回ずつ集約を呼び出します。具体的な入力値が指定されていないため、これは一般的に<CODE
+CLASS="FUNCTION"
+>count(*)</CODE
+>集約関数でのみ役に立ちます。
+   </P
+><P
+>１つ以上の式がNULLを返した場合にその行を破棄するように、ほとんどの集約関数はNULL入力を無視します。これは、特記されていない限り、すべての組込み集約で正しいと仮定することができます。
+   </P
+><P
+>例えば、<TT
+CLASS="LITERAL"
+>count(*)</TT
+>は入力行の合計数を求めます。
+<CODE
+CLASS="FUNCTION"
+>count</CODE
+>はNULLを無視しますので、<TT
+CLASS="LITERAL"
+>count(f1)</TT
+>は<TT
+CLASS="LITERAL"
+>f1</TT
+>が非NULLである入力行の数を求めます。
+<TT
+CLASS="LITERAL"
+>count(distinct f1)</TT
+>は<TT
+CLASS="LITERAL"
+>f1</TT
+>の重複しない非NULL値の数を求めます。
+   </P
+><P
+>    通常、入力行は順序を指定されずに集計関数に与えられます。多くの場合では問題になりません。たとえば<CODE
+CLASS="FUNCTION"
+>min</CODE
+>は入力順序に関係なく同一の結果を返します。しかし一部の集約関数(<CODE
+CLASS="FUNCTION"
+>array_agg</CODE
+>および<CODE
+CLASS="FUNCTION"
+>string_agg</CODE
+>など)は入力行の順序に依存した結果を返します。こうした集約関数を使用する際は、省略可能な<TT
+CLASS="REPLACEABLE"
+><I
+>order_by_clause</I
+></TT
+>を使用して必要とする順序を指定できます。<TT
+CLASS="REPLACEABLE"
+><I
+>order_by_clause</I
+></TT
+>は、<A
+HREF="queries-order.html"
+>&#38917;7.5</A
+>で説明する問い合わせレベルの<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句と同じ構文を取りますが、その式は常に単なる式であり、出力列名や序数とすることはできません。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT array_agg(a ORDER BY b DESC) FROM table;</PRE
+><P>
+   </P
+><P
+>    複数の引数を取る集約関数を扱う場合、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句はすべての集約引数の後に指定することに注意してください。
+例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT string_agg(a, ',' ORDER BY a) FROM table;</PRE
+><P>
+であり、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT string_agg(a ORDER BY a, ',') FROM table;  -- incorrect</PRE
+><P>
+ではありません。
+    後者は構文的には有効なものですが、2つの<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>キーを持つ単一引数の集約関数の呼び出しを表しています。(2つ目のキーは定数なので役には立ちません。)
+   </P
+><P
+>    <TT
+CLASS="REPLACEABLE"
+><I
+>order_by_clause</I
+></TT
+>に加え<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>が指定された場合、すべての<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>式が集約関数の通常の引数に一致しなければなりません。つまり、<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>リストに含まれない式でソートすることはできません。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>     集計関数における<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>と<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>の指定機能はPostgreSQL独自の拡張です。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>定義済みの集約関数は<A
+HREF="functions-aggregate.html"
+>&#38917;9.18</A
+>で説明されています。
+ユーザは他の集約関数を追加することができます。 
+   </P
+><P
+>集約式は、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドの結果リストもしくは<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句内でのみ記述することができます。
+<TT
+CLASS="LITERAL"
+>WHERE</TT
+>などの他の句では許されません。
+これらの句は理論上集計結果が形成される前に評価されるためです。
+   </P
+><P
+>集約式が副問い合わせ（<A
+HREF="sql-expressions.html#SQL-SYNTAX-SCALAR-SUBQUERIES"
+>&#38917;4.2.11</A
+>と<A
+HREF="functions-subquery.html"
+>&#38917;9.20</A
+>を参照）内に現れた場合、通常集約は副問い合わせの行全体に対して評価します。
+しかし、その集約の引数が上位レベルの変数のみを持つ場合は例外です。
+その場合、上位問い合わせの行全体に対して評価します。
+全体として、その集約式は、その後、その集約を含む副問い合わせでは外部参照となり、その副問い合わせにおける評価に対しては定数として動作します。
+結果リストもしくは<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句にのみ現れるという制約は、その集約が属する問い合わせレベルに関連して適用されます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SYNTAX-WINDOW-FUNCTIONS"
+>4.2.8. ウィンドウ関数呼び出し</A
+></H2
+><P
+>   
+<I
+CLASS="FIRSTTERM"
+>ウィンドウ関数呼び出し</I
+>は、問い合わせにより選択された行のある部分に渡って集約のような機能を実現することを表します。
+通常の集約関数呼び出しと異なり、これは選択された行を1つの行にグループ化することに束縛されず、各行は別途問い合わせ出力に残ります。
+しかしウィンドウ関数は、ウィンドウ関数呼び出しのグループ化指定（<TT
+CLASS="LITERAL"
+>PARTITION BY</TT
+>リスト）に従った、現在の行のグループの一部となる行をすべてスキャンすることができます。
+ウィンドウ関数呼び出しの構文は以下のいずれかです。
+
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ([<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ... </SPAN
+>]</SPAN
+>]) OVER ( <TT
+CLASS="REPLACEABLE"
+><I
+>window_definition</I
+></TT
+> )
+<TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ([<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ... </SPAN
+>]</SPAN
+>]) OVER <TT
+CLASS="REPLACEABLE"
+><I
+>window_name</I
+></TT
+>
+<TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( * ) OVER ( <TT
+CLASS="REPLACEABLE"
+><I
+>window_definition</I
+></TT
+> )
+<TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( * ) OVER <TT
+CLASS="REPLACEABLE"
+><I
+>window_name</I
+></TT
+></PRE
+><P>
+    ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>window_definition</I
+></TT
+>は以下の構文になります。
+</P><PRE
+CLASS="SYNOPSIS"
+>[ <TT
+CLASS="REPLACEABLE"
+><I
+>existing_window_name</I
+></TT
+> ]
+[ PARTITION BY <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [, ...] ]
+[ ORDER BY <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [ ASC | DESC | USING <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ] [ NULLS { FIRST | LAST } ] [, ...] ]
+[ <TT
+CLASS="REPLACEABLE"
+><I
+>frame_clause</I
+></TT
+> ]</PRE
+><P>
+    オプションの<TT
+CLASS="REPLACEABLE"
+><I
+>frame_clause</I
+></TT
+>は次の中の１つです。
+</P><PRE
+CLASS="SYNOPSIS"
+>[ RANGE | ROWS ] <TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+>
+[ RANGE | ROWS ] BETWEEN <TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+> AND <TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+></PRE
+><P>
+    ここで<TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+>および<TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+>は以下のいずれかです。
+</P><PRE
+CLASS="SYNOPSIS"
+>UNBOUNDED PRECEDING
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> PRECEDING
+CURRENT ROW
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> FOLLOWING
+UNBOUNDED FOLLOWING</PRE
+><P>
+   </P
+><P
+>    ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>はそれ自身ウィンドウ関数呼び出しを含まないいかなる値式を表わします。
+    <TT
+CLASS="LITERAL"
+>PARTITION BY</TT
+>および<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>リストは基本的に、それらの式は常に式であって、出力列名または数値でない限り、問い合わせ全体の<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>と<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>と同じ構文と動作です。
+    <TT
+CLASS="REPLACEABLE"
+><I
+>window_name</I
+></TT
+>は、問い合わせの<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句で定義された名前付きウィンドウ仕様への参照です。名前付きウィンドウ仕様は通常単に<TT
+CLASS="LITERAL"
+>OVER</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>window_name</I
+></TT
+>で参照されますが、同時に丸括弧の内部にウィンドウ名を書くことができ、そして順序付け句とフレーム句の両方またはいずれか一方を供給します（ここでこれらの句が供給されると、参照されたウィンドウにこれらの句があってはなりません）。後者の構文は<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>句の中の既存のウィンドウ名を変更するのと同じ規則に従います（詳細は<A
+HREF="sql-select.html"
+>SELECT</A
+>マニュアルページを見てください）。
+   </P
+><P
+>    
+    <TT
+CLASS="REPLACEABLE"
+><I
+>frame_clause</I
+></TT
+>は、全てのパーティションの代わりにフレーム上で作動するウィンドウ関数に対して、<I
+CLASS="FIRSTTERM"
+>window frame</I
+>を構成する行の集合を指定します。<TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+>を省略した場合のデフォルトは<TT
+CLASS="LITERAL"
+>CURRENT ROW</TT
+>です。制限は、<TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+>を<TT
+CLASS="LITERAL"
+>UNBOUNDED FOLLOWING</TT
+>とすることができない点、<TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+>を<TT
+CLASS="LITERAL"
+>UNBOUNDED PRECEDING</TT
+>とすることができない点、および<TT
+CLASS="REPLACEABLE"
+><I
+>frame_end</I
+></TT
+>の選択は上のリストの中で<TT
+CLASS="REPLACEABLE"
+><I
+>frame_start</I
+></TT
+>の選択より先に記述することができない点です。例えば、<TT
+CLASS="LITERAL"
+>RANGE BETWEEN CURRENT ROW AND <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> PRECEDING</TT
+>は許されません。
+デフォルトのフレーム化オプションは<TT
+CLASS="LITERAL"
+>RANGE UNBOUNDED PRECEDING</TT
+>で、<TT
+CLASS="LITERAL"
+>RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</TT
+>と同じです。
+これはパーティションの開始から<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>による順序付けに沿った現在行と同等となる最後の行までのフレームをセットします。(<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>が無い場合は全ての行であることを意味します。)一般的に、<TT
+CLASS="LITERAL"
+>UNBOUNDED PRECEDING</TT
+>はパーティションの最初の行をフレームの開始点にすることを意味し、同様に<TT
+CLASS="LITERAL"
+>UNBOUNDED FOLLOWING</TT
+>はパーティションの最後の行をフレームの終わりにすることを意味します。(<TT
+CLASS="LITERAL"
+>RANGE</TT
+>あるいは<TT
+CLASS="LITERAL"
+>ROWS</TT
+>のモードに関わらずです。)<TT
+CLASS="LITERAL"
+>ROWS</TT
+>モードでは、<TT
+CLASS="LITERAL"
+>CURRENT ROW</TT
+>は現在行をフレームの開始もしくは終了とすることを意味します。しかし<TT
+CLASS="LITERAL"
+>RANGE</TT
+>モードでは、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>による順序付けに沿った現在行の最初か最後と同等な行がフレームの開始もしくは終了となります。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="LITERAL"
+>PRECEDING</TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="LITERAL"
+>FOLLOWING</TT
+>の形式は、現在のところ<TT
+CLASS="LITERAL"
+>ROWS</TT
+>モードでのみ許可されています。これは、フレームの開始もしくは終了点となる現在行の前や後に、大量の行があることを意味します。<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>は一切の変数、集計関数、あるいはウィンドウ関数を含まない整数式でなければなりません。またNULLや負数も許可されませんが、現在行を選択することになる0は指定可能です。
+   </P
+><P
+>   
+    組み込みウィンドウ関数は<A
+HREF="functions-window.html#FUNCTIONS-WINDOW-TABLE"
+>&#34920;9-44</A
+>に記載されています。その他のウィンドウ関数をユーザが追加することが可能です。また、全ての組み込み、またはユーザ定義の集約関数もウィンドウ関数として使用できます。
+   </P
+><P
+>   
+    <TT
+CLASS="LITERAL"
+>*</TT
+>を使用した構文は、例えば<TT
+CLASS="LITERAL"
+>count(*) OVER (PARTITION BY x ORDER BY y)</TT
+>のように、ウィンドウ関数として呼び出しパラメータのない集約関数を使用します。<TT
+CLASS="LITERAL"
+>*</TT
+>は習慣的に非集約ウィンドウ関数には使われません。通常の集約関数と異なり、集約ウィンドウ関数は、関数引数リストの中で<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>や<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>が使われることを許可しません。
+   </P
+><P
+>   
+    ウィンドウ関数呼び出しは問い合わせの<TT
+CLASS="LITERAL"
+>SELECT</TT
+>リストと<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句の中でのみ許可されます。
+   </P
+><P
+>   
+    更なるウィンドウ関数についての情報は
+    <A
+HREF="tutorial-window.html"
+>&#38917;3.5</A
+>,
+    <A
+HREF="functions-window.html"
+>&#38917;9.19</A
+>,
+    <A
+HREF="queries-table-expressions.html#QUERIES-WINDOW"
+>&#38917;7.2.4</A
+>にあります。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SQL-SYNTAX-TYPE-CASTS"
+>4.2.9. 型キャスト</A
+></H2
+><P
+>型キャストは、あるデータ型から他のデータ型への変換を指定します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は型キャストに2つの等価な構文を受け付けます。
+</P><PRE
+CLASS="SYNOPSIS"
+>CAST ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> AS <TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+> )
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>::<TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="LITERAL"
+>CAST</TT
+>構文はSQLに準拠したものです。
+<TT
+CLASS="LITERAL"
+>::</TT
+>を使用する構文は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で伝統的に使用されている方法です。
+   </P
+><P
+>キャストが既知の型の評価式に適用された場合、それは実行時型変換を表します。
+このキャストは、適切な型変換操作が定義されている場合のみ成功します。
+<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-GENERIC"
+>&#38917;4.1.2.7</A
+>で示すように、これと定数のキャストの使用との微妙な違いに注意してください。
+修飾されていない文字列リテラルに対するキャストは、リテラル定数値の初期に割り当てられる型を表します。
+ですから、これは（文字列リテラル定数の内容がそのデータ型の入力構文で受け付けられるのであれば）全ての型で成功します。
+   </P
+><P
+>通常（例えばテーブル列への代入時など）、評価式が生成しなければならない型に曖昧さがない場合、明示的な型キャストは省略することができます。
+その場合、システムは自動的に型キャストを適用します。
+しかし、自動キャストは、システムカタログに<SPAN
+CLASS="QUOTE"
+>"暗黙的に適用しても問題なし"</SPAN
+>と示されている場合にのみ実行されます。
+その他のキャストは明示的なキャスト構文で呼び出す必要があります。
+この制限は、知らないうちに変換が実行されてしまうことを防ぐためのものです。
+   </P
+><P
+>また、関数のような構文を使用して型キャストを指定することもできます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>typename</I
+></TT
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> )</PRE
+><P>
+しかし、これはその型の名前が関数の名前としても有効な場合にのみ動作します。
+例えば、<TT
+CLASS="LITERAL"
+>double precision</TT
+> はこの方式で使用できませんが、同等の<TT
+CLASS="LITERAL"
+>float8</TT
+>は使用できます。
+また、<TT
+CLASS="LITERAL"
+>interval</TT
+>、<TT
+CLASS="LITERAL"
+>time</TT
+>、<TT
+CLASS="LITERAL"
+>timestamp</TT
+>という名前は、構文が衝突するため、二重引用符で括った場合にのみこの方式で使用できます。
+このように、この関数のようなキャスト構文は一貫性がなくなりがちですので、おそらくアプリケーションでは使用すべきではありません
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この関数のような構文は、実際には単なる関数呼び出しです。
+2つの標準的なキャスト構文のうちの1つが実行時変換で使用されると、この構文は登録済みの関数を内部的に呼び出して変換を実行します。
+慣習的に、これらの変換関数は自身の出力型と同じ名前を持ち、これにより、<SPAN
+CLASS="QUOTE"
+>"関数のような構文"</SPAN
+>は背後にある変換用関数を直接呼び出す以上のことを行いません。
+移植性を持つアプリケーションが依存すべきものでないことは明確です。
+詳細については<A
+HREF="sql-createcast.html"
+>CREATE CAST</A
+>を参照してください。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SQL-SYNTAX-COLLATE-EXPRS"
+>4.2.10. 照合順序式</A
+></H2
+><P
+>   
+    <TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句は式の照合順序規則を上書きします。適用するため次の様に式に加えます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expr</I
+></TT
+> COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+>はおそらくスキーマ部を含む識別子です。<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句は演算子よりも優先度が低いため、必要に応じて括弧で囲います。
+   </P
+><P
+>   
+    もし照合順序が何も指定されなければ、データベースシステムは式にある列から照合順序を取得します。もし列に関する照合順序が式になければ、データベースのデフォルトの照合順序を使います。
+   </P
+><P
+>   
+    例として、よく使われる<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句による並び替え順序の上書きを挙げます。<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句を使う場合には、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a, b, c FROM tbl WHERE ... ORDER BY a COLLATE "C";</PRE
+><P>
+    
+    とします。ロケール依存を伴った関数や演算子の呼び出しに対しての上書き方法例は
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM tbl WHERE a &gt; 'foo' COLLATE "C";</PRE
+><P>
+    
+    とします。後者の場合、<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句が、処理対象と想定している入力演算子の引数に対して付与されることに注意してください。演算子や関数の呼び出しのどの引数に対して<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句が付与されるかは問題ではありません。演算子や関数により適用される照合順序は対象となる全ての引数を考慮して引き出され、そして明示的に指定された<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句がその他の全ての引数に対しての照合順序を上書きするからです。(しかし、複数の引数に対して一致しない<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句の付与はエラーとなります。詳細は<A
+HREF="collation.html"
+>&#38917;22.2</A
+>を参照してください)。このため、前述の例と同じ結果を次の様にして取得することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM tbl WHERE a COLLATE "C" &gt; 'foo';</PRE
+><P>
+    
+    ただし、これはエラーになります。正しくは次の様にします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM tbl WHERE (a &gt; 'foo') COLLATE "C";</PRE
+><P>
+    
+    なぜなら、照合順序を与えることができない<TT
+CLASS="TYPE"
+>boolean</TT
+>型となる<TT
+CLASS="LITERAL"
+>&gt;</TT
+>演算子の結果に対して。照合順序が適用されようとするからです。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SQL-SYNTAX-SCALAR-SUBQUERIES"
+>4.2.11. スカラ副問い合わせ</A
+></H2
+><P
+>スカラ副問い合わせは、正確に1行1列を返す、括弧内の通常の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせです
+（問い合わせの記述方法については<A
+HREF="queries.html"
+>&#31532;7&#31456;</A
+>を参照してください）。
+その<TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせは実行され、返される単一の値はその値の前後の評価式で使用されます。 
+1行を超える行や1列を超える列がスカラ副問い合わせ用の問い合わせとして使用された場合はエラーになります
+（しかし、ある実行時に、副問い合わせが行を返さない場合はエラーとはなりません。
+そのスカラ結果はNULLとして扱われます）。
+副問い合わせは、その周りの問い合わせ内の値を参照することができます。
+その値は副問い合わせの評価時には定数として扱われます。
+副問い合わせに関する他の式については<A
+HREF="functions-subquery.html"
+>&#38917;9.20</A
+>も参照してください。
+   </P
+><P
+>例えば、以下は各州で最も人口の多い都市を検索します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT name, (SELECT max(pop) FROM cities WHERE cities.state = states.name)
+    FROM states;</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SQL-SYNTAX-ARRAY-CONSTRUCTORS"
+>4.2.12. 配列コンストラクタ</A
+></H2
+><P
+>配列コンストラクタは、メンバー要素に対する値を用いて配列値を構築する式です。
+単純な配列コンストラクタの構成は、<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>キーワード、左大括弧<TT
+CLASS="LITERAL"
+>[</TT
+>、（カンマで区切った）配列要素値用の式のリストで、最後に右大括弧<TT
+CLASS="LITERAL"
+>]</TT
+>です。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ARRAY[1,2,3+4];
+  array
+---------
+ {1,2,7}
+(1 row)</PRE
+><P>
+    デフォルトで配列要素型は、メンバ式の型と同じで、<TT
+CLASS="LITERAL"
+>UNION</TT
+>や<TT
+CLASS="LITERAL"
+>CASE</TT
+>構文と同じ規則を使用して決定されます
+（<A
+HREF="typeconv-union-case.html"
+>&#38917;10.5</A
+>を参照してください）。これを明示的に配列コンストラクタを希望する型にキャストすることで書き換えることができます。例をあげます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ARRAY[1,2,22.7]::integer[];
+  array
+----------
+ {1,2,23}
+(1 row)</PRE
+><P>
+    これはそれぞれの式を配列型に個別にキャストするのと同じ効果があります。キャストについてより多くは<A
+HREF="sql-expressions.html#SQL-SYNTAX-TYPE-CASTS"
+>&#38917;4.2.9</A
+>を参照してください。
+   </P
+><P
+>多次元配列値は、配列コンストラクタを入れ子にすることで構築できます。
+内側のコンストラクタでは<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>キーワードは省略可能です。
+例えば、以下は同じ結果になります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ARRAY[ARRAY[1,2], ARRAY[3,4]];
+     array
+---------------
+ {{1,2},{3,4}}
+(1 row)
+
+SELECT ARRAY[[1,2],[3,4]];
+     array
+---------------
+ {{1,2},{3,4}}
+(1 row)</PRE
+><P>
+
+多次元配列は四角形配列でなければなりませんので、同一レベルの内部コンストラクタは同一次元の副配列を生成しなければなりません。外部<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>コンストラクタに適用される全てのキャストは自動的に全ての内部コンストラクタに伝播します。
+  </P
+><P
+>多次元配列コンストラクタの要素は、副<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>構文だけでなく、適切な種類の配列を生成するものをとることができます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE arr(f1 int[], f2 int[]);
+
+INSERT INTO arr VALUES (ARRAY[[1,2],[3,4]], ARRAY[[5,6],[7,8]]);
+
+SELECT ARRAY[f1, f2, '{{9,10},{11,12}}'::int[]] FROM arr;
+                     array
+------------------------------------------------
+ {{{1,2},{3,4}},{{5,6},{7,8}},{{9,10},{11,12}}}
+(1 row)</PRE
+><P>
+  </P
+><P
+>  
+   空配列を構築できますが、型を所有しない配列を持つことは不可能なので、空配列を望まれる型に明示的にキャストしなければなりません。例をあげます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ARRAY[]::integer[];
+ array
+-------
+ {}
+(1 row)</PRE
+><P>
+  </P
+><P
+>また、副問い合わせの結果から配列を構成することも可能です。
+この形式の場合、配列コンストラクタは<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>キーワードの後に括弧（大括弧ではない）で括られた副問い合わせとして記述されます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ARRAY(SELECT oid FROM pg_proc WHERE proname LIKE 'bytea%');
+                          ?column?
+-------------------------------------------------------------
+ {2011,1954,1948,1952,1951,1244,1950,2005,1949,1953,2006,31}
+(1 row)</PRE
+><P>
+副問い合わせは単一の列を返さなければなりません。
+その結果である一次元配列は、副問い合わせの出力列と一致する型を要素型とした、副問い合わせの結果内の各行を要素として持ちます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>ARRAY</TT
+>で構築された配列値の添字は、常に1から始まります。
+配列についての詳細は<A
+HREF="arrays.html"
+>&#38917;8.14</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SQL-SYNTAX-ROW-CONSTRUCTORS"
+>4.2.13. 行コンストラクタ</A
+></H2
+><P
+>行コンストラクタは、そのメンバフィールドに対する値を用いて行値（複合値とも呼ばれます）を構築する式です。
+行コンストラクタは、<TT
+CLASS="LITERAL"
+>ROW</TT
+>キーワード、左括弧、行のフィールド値用の0個以上の式（カンマ区切り）、最後に右括弧からなります。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ROW(1,2.5,'this is a test');</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>ROW</TT
+>キーワードは、1つ以上の式がリスト内にある場合は省略することができます。
+   </P
+><P
+>行コンストラクタには<TT
+CLASS="REPLACEABLE"
+><I
+>rowvalue</I
+></TT
+><TT
+CLASS="LITERAL"
+>.*</TT
+>構文を含めることができます。
+これは、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>リストの最上位レベルで<TT
+CLASS="LITERAL"
+>.*</TT
+>構文が使用された時とまったく同様に、行値の要素の列挙に展開されます。
+たとえば、テーブル<TT
+CLASS="LITERAL"
+>t</TT
+>が<TT
+CLASS="LITERAL"
+>f1</TT
+>列と<TT
+CLASS="LITERAL"
+>f2</TT
+>列を持つ場合、以下は同一です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ROW(t.*, 42) FROM t;
+SELECT ROW(t.f1, t.f2, 42) FROM t;</PRE
+><P>
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.2より前では、<TT
+CLASS="LITERAL"
+>.*</TT
+>構文は展開されませんでした。
+<TT
+CLASS="LITERAL"
+>ROW(t.*, 42)</TT
+>と記述すると、1つ目のフィールドに別の行値を持つ、2つのフィールドからなる行が作成されました。
+たいていの場合、新しい動作はより使いやすくなっています。
+入れ子状の行値という古い動作が必要であれば、<TT
+CLASS="LITERAL"
+>.*</TT
+>を使用せずに、たとえば<TT
+CLASS="LITERAL"
+>ROW(t, 42)</TT
+>といった、内部行値を記述してください。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>デフォルトでは、<TT
+CLASS="LITERAL"
+>ROW</TT
+>式により作成される値は匿名レコード型になります。
+必要に応じて、名前付きの複合型、テーブルの行型、もしくは<TT
+CLASS="COMMAND"
+>CREATE TYPE AS</TT
+>で作成された複合型にキャストすることができます。
+明示的なキャストは曖昧性を防止するために必要となることもあります。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE mytable(f1 int, f2 float, f3 text);
+
+CREATE FUNCTION getf1(mytable) RETURNS int AS 'SELECT $1.f1' LANGUAGE SQL;
+
+-- getf1()が1つしか存在しないためキャスト不要。
+SELECT getf1(ROW(1,2.5,'this is a test'));
+ getf1
+-------
+     1
+(1 row)
+
+CREATE TYPE myrowtype AS (f1 int, f2 text, f3 numeric);
+
+CREATE FUNCTION getf1(myrowtype) RETURNS int AS 'SELECT $1.f1' LANGUAGE SQL;
+
+-- ここでは、どの関数を呼び出すのかを示すためにキャストが必要。
+SELECT getf1(ROW(1,2.5,'this is a test'));
+ERROR:  function getf1(record) is not unique
+
+SELECT getf1(ROW(1,2.5,'this is a test')::mytable);
+ getf1
+-------
+     1
+(1 row)
+
+SELECT getf1(CAST(ROW(11,'this is a test',2.5) AS myrowtype));
+ getf1
+-------
+    11
+(1 row)</PRE
+><P>
+  </P
+><P
+>行コンストラクタは、複合型のテーブル列に格納する複合型の値を構築するため、あるいは複合型のパラメータを受け付ける関数に渡すために使用することができます。
+また、以下の例のように、2つの行値を比較することも、<TT
+CLASS="LITERAL"
+>IS NULL</TT
+>もしくは<TT
+CLASS="LITERAL"
+>IS NOT NULL</TT
+>で行を検査することも可能です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ROW(1,2.5,'this is a test') = ROW(1, 3, 'not the same');
+SELECT ROW(table.*) IS NULL FROM table;  -- すべてがNULLの行を検出します。</PRE
+><P>
+詳細は<A
+HREF="functions-comparisons.html"
+>&#38917;9.21</A
+>を参照してください。
+行コンストラクタは、<A
+HREF="functions-subquery.html"
+>&#38917;9.20</A
+>で説明した、副問い合わせと一緒に使用することもできます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SYNTAX-EXPRESS-EVAL"
+>4.2.14. 式の評価規則</A
+></H2
+><P
+>副式の評価の順序は定義されていません。
+特に演算子や関数の入力は、必ずしも左から右などの決まった順序で評価されるわけではありません。
+   </P
+><P
+>さらに、その式の一部を評価しただけで式の結果を判断できる場合には、他の副式がまったく評価されないこともあります。  
+例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT true OR somefunc();</PRE
+><P>
+では、（おそらく）<TT
+CLASS="LITERAL"
+>somefunc()</TT
+>は呼び出されないでしょう。
+以下の場合も同様です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT somefunc() OR true;</PRE
+><P>
+これは一部のプログラミング言語に見られる、ブーリアン演算子での左から右への<SPAN
+CLASS="QUOTE"
+>"ショートサーキット"</SPAN
+>とは異なることに注意してください。
+   </P
+><P
+>そのため、副次作用がある関数を複雑な式の一部として使用することは推奨されません。
+特に、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句および<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句で副次作用や評価順に依存するのは危険です。
+これらの句は、実行計画を作成する過程で頻繁に再処理されるからです。
+これらの句のブール式（<TT
+CLASS="LITERAL"
+>AND</TT
+>/<TT
+CLASS="LITERAL"
+>OR</TT
+>/<TT
+CLASS="LITERAL"
+>NOT</TT
+>の組み合わせ）は、ブール代数の規則で許されるあらゆる方式で再編成することができます。
+   </P
+><P
+>評価の順序を強制することが重要であれば、<TT
+CLASS="LITERAL"
+>CASE</TT
+>構文（<A
+HREF="functions-conditional.html"
+>&#38917;9.16</A
+>を参照）を使用できます。
+例えば、次の式は<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句で0除算を避ける方法としては信頼性の低いものです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ... WHERE x &gt; 0 AND y/x &gt; 1.5;</PRE
+><P>
+しかし、次のようにすれば安全です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ... WHERE CASE WHEN x &gt; 0 THEN y/x &gt; 1.5 ELSE false END;</PRE
+><P>
+このような方法で使用される<TT
+CLASS="LITERAL"
+>CASE</TT
+>構文は最適化を妨げるものなので、必要な場合にのみ使用してください
+（特に、この例では、<TT
+CLASS="LITERAL"
+>y &gt; 1.5*x</TT
+>と代わりに記述することが問題を回避するより優れた方法です。）。
+
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-syntax-lexical.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-syntax-calling-funcs.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>語彙の構成</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-syntax.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>関数呼び出し</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

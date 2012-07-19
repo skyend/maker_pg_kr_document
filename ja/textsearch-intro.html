@@ -1,0 +1,736 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>導入</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="PREVIOUS"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="NEXT"
+TITLE="テーブルとインデックス"
+HREF="textsearch-tables.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 12&#31456;全文検索</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="テーブルとインデックス"
+HREF="textsearch-tables.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEXTSEARCH-INTRO"
+>12.1. 導入</A
+></H1
+><P
+>   全文検索(または単に<I
+CLASS="FIRSTTERM"
+>テキスト検索</I
+>)は、<I
+CLASS="FIRSTTERM"
+>問合わせ</I
+>を満たす自然言語の文書を識別し、更には問合わせとの関連性の順に並び替えることができます。もっとも一般的な検索は、与えられた<I
+CLASS="FIRSTTERM"
+>検索語</I
+>を含む文書を探し、<TT
+CLASS="VARNAME"
+>問合わせ</TT
+>との<I
+CLASS="FIRSTTERM"
+>類似性</I
+>の順に返す、というものです。<TT
+CLASS="VARNAME"
+>問合わせ</TT
+>と<TT
+CLASS="VARNAME"
+>類似性</TT
+>の記法は非常に柔軟で、特定の用途に適合できます。もっとも単純な検索では、<TT
+CLASS="VARNAME"
+>問合わせ</TT
+>は単語の集合として、<TT
+CLASS="VARNAME"
+>類似性</TT
+>は文書中の問合わせ対象の単語の頻度として扱います。
+  </P
+><P
+>  テキスト検索演算子は、データベースシステムに長年存在していました。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、テキストデータ型用に、<TT
+CLASS="LITERAL"
+>~</TT
+>,<TT
+CLASS="LITERAL"
+>~*</TT
+>, <TT
+CLASS="LITERAL"
+>LIKE</TT
+>,<TT
+CLASS="LITERAL"
+>ILIKE</TT
+>の各演算子を持っています。しかし、近代的な情報システムに必要な以下の本質的な特徴を欠いています。
+  </P
+><P
+></P
+><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>	英語にさえ、言語学的なサポートがありません。派生語、たとえば<TT
+CLASS="LITERAL"
+>satisfies</TT
+>に対して<TT
+CLASS="LITERAL"
+>satisfy</TT
+>を容易に扱えないため、正規表現は十分ではありません。<TT
+CLASS="LITERAL"
+>satisfy</TT
+>を探すときは、たぶんあなたは<TT
+CLASS="LITERAL"
+>satisfies</TT
+>も探したいでしょうが、それらを含む文書は探せないかもしれません。<TT
+CLASS="LITERAL"
+>OR</TT
+>を使えば複数の派生語を検索することができますが、退屈で間違いやすいです（ある種の単語は数千の派生語を持つことがあります）。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>	検索結果を順序付け(順位付け)することができません。その結果、数千の合致する文書が見つかったような場合に非効率的です。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>	インデックスをサポートしないので毎回検索時にすべての文書を処理しなければならず、遅いです。
+    </P
+></LI
+></UL
+><P
+>  全文検索のインデックス付けでは、文書を<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>前もって処理しておき</I
+></SPAN
+>、後で素早く検索するために、インデックスを保存しておくことができます。前処理には以下があります。
+  </P
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: none"
+><P
+>     <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>文書から<I
+CLASS="FIRSTTERM"
+>トークン</I
+>を解析します</I
+></SPAN
+>。
+	 トークンを色々なクラス、たとえば数、単語、複合単語、電子メールアドレスに分けて識別することが有効です。そうすれば、扱いを変えることができます。原則として、トークンのクラスは、特定の用途に依存します。しかし、ほとんどの目的には、あらかじめ定義されたクラスの集合を使うのが適当です。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、<I
+CLASS="FIRSTTERM"
+>パーサ</I
+>を使ってこの処理段階を実行します。標準搭載のパーサが提供されますが、特別な用途にはカスタム仕様のパーサを作ることもできます。
+    </P
+></LI
+><LI
+STYLE="list-style-type: none"
+><P
+>     <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>トークンを<I
+CLASS="FIRSTTERM"
+>語彙素(lexemes)</I
+>に変換します</I
+></SPAN
+>。語彙素はトークンと同じ文字列ですが、違う形態の同じ単語が同じになるように <I
+CLASS="FIRSTTERM"
+>正規化</I
+>されています。たとえば、正規化においてはほぼ常に大文字を小文字に変換し、接尾を取り除くことが多いです(英語の<TT
+CLASS="LITERAL"
+>s</TT
+>または<TT
+CLASS="LITERAL"
+>es</TT
+>)。これにより、可能性のあるすべての変種を地道に入力すること無く、同じ単語の変化形を検索できます。また、このステップでは、あまりにありふれていて、検索の役に立たない<I
+CLASS="FIRSTTERM"
+>ストップワード</I
+>を取り除くことが多いです。(つまり、トークンは文書テキストの未加工の断片そのものであり、語彙素はインデックス付けや検索に有用と思われる単語です。)<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、<I
+CLASS="FIRSTTERM"
+>辞書</I
+>を使ってこのステップを実行します。いろいろな標準辞書が提供されています。特定の用途向けにカスタム辞書を作ることもできます。
+    </P
+></LI
+><LI
+STYLE="list-style-type: none"
+><P
+>     <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>検索に最適化された前処理済の文書を保存します</I
+></SPAN
+>。たとえば、個々の文書は、正規化された語彙素の整列済の配列として表現されます。語彙素とともに、<I
+CLASS="FIRSTTERM"
+>適合性ランキング</I
+>用に、位置情報を格納しておくことがしばしば望まれます。そうすることにより、問合わせの語を<SPAN
+CLASS="QUOTE"
+>"高密度"</SPAN
+>に含んでいる文書を、まばらに含む文書よりも高くランクづけすることができます。
+    </P
+></LI
+></UL
+><P
+>  辞書を使ってトークンの正規化を細かく制御できます。適当な辞書を用意すれば次のようなことができます。
+  </P
+><P
+></P
+><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>     インデックスしたくないストップワードの定義
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>     <SPAN
+CLASS="APPLICATION"
+>Ispell</SPAN
+>を使って、同義語を単一の単語に関連づける
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>	類語辞書(thesaurus)を使って、成句を単一の単語に関連づける
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>	<SPAN
+CLASS="APPLICATION"
+>Ispell</SPAN
+>辞書を使って、単語の変種を正規の単語に関連づける
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>	<SPAN
+CLASS="APPLICATION"
+>Snowball</SPAN
+>語幹規則を使って、単語の変種を正規の単語に関連づける
+    </P
+></LI
+></UL
+><P
+>   前処理した文書を格納するために、データ型<TT
+CLASS="TYPE"
+>tsvector</TT
+>が提供されています。また、処理済問合わせを表現するために<TT
+CLASS="TYPE"
+>tsquery</TT
+>型も提供されています(<A
+HREF="datatype-textsearch.html"
+>&#38917;8.11</A
+>)。これらのデータ型のために、多数の関数と演算子が利用できますが(<A
+HREF="functions-textsearch.html"
+>&#38917;9.13</A
+>)、もっとも重要なのは、<A
+HREF="textsearch-intro.html#TEXTSEARCH-MATCHING"
+>&#38917;12.1.2</A
+>で紹介している<TT
+CLASS="LITERAL"
+>@@</TT
+>演算子です。全文検索はインデックス(<A
+HREF="textsearch-indexes.html"
+>&#38917;12.9</A
+>)を使って高速化できます。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-DOCUMENT"
+>12.1.1. 文書とは何か?</A
+></H2
+><P
+>    <I
+CLASS="FIRSTTERM"
+>文書</I
+>は全文検索システムにおける検索の単位です。たとえば、雑誌記事やメールのメッセージです。テキスト検索エンジンは、文書をパースし、語彙素(キーワード)とそれが含まれる親文書の関連を格納できなければなりません。後で、この関連を使って問合わせ語を含む文書を検索するのに使います。
+   </P
+><P
+>   <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>での検索においては、ドキュメントはデータベースのテーブルの行内のテキストフィールドか、あるいはそのようなフィールドの組み合わせ(結合)でもよいです。そうしたフィールドはおそらく複数のテーブルに格納されていたり、動的に獲得されるものであったりします。言い換えると、文書はインデックス付けのために複数の異なる部分から構成されても良く、それらが全体としてはひとまとまりに格納されていなくても良いのです。例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT title || ' ' ||  author || ' ' ||  abstract || ' ' || body AS document
+FROM messages
+WHERE mid = 12;
+
+SELECT m.title || ' ' || m.author || ' ' || m.abstract || ' ' || d.body AS document
+FROM messages m, docs d
+WHERE mid = did AND mid = 12;</PRE
+><P>
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>     実際には、これらの例の問合わせでは、<CODE
+CLASS="FUNCTION"
+>coalesce</CODE
+>を使って、一部NULLが含まれているためにドキュメント全体がNULLになってしまうのを防ぐべきです。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>   別な方法としては、ファイルシステム上に文書を単純なテキストファイルとして格納することです。この場合、データベースは、フルテキストインデックスを格納し、検索を実行するために使うことができます。ファイルシステムから文書を取り出すためには、何かのユニークな識別子を使います。しかし、データベースの外にあるファイルを取り出すには、スーパユーザの許可か、特殊な関数のサポートが必要です。そういうわけでたいていの場合は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の中にすべてのデータを保持するのよりも不便です。また、すべてのデータをデータベースに保持することにより、文書のインデックス付けと表示の際に文書のメタデータにアクセスすることが容易になります。
+   </P
+><P
+>   テキスト検索という目的のため、各々の文書は前処理されて<TT
+CLASS="TYPE"
+>tsvector</TT
+>形式に変換しておかなければなりません。検索と順位付けはすべて<TT
+CLASS="TYPE"
+>tsvector</TT
+>表現の文書上で行われます。検索とランキングは文書の<TT
+CLASS="TYPE"
+>tsvector</TT
+>表現上で実行されます &mdash; オリジナル文書は、ユーザに表示のため選択された場合にのみ取り出される必要があります。というわけで、ここでは<TT
+CLASS="TYPE"
+>tsvector</TT
+>を文書と見なすことがよくあります。といっても、<TT
+CLASS="TYPE"
+>tsvector</TT
+>は完全な文書の縮小表現でしかありません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-MATCHING"
+>12.1.2. 基本的なテキスト照合</A
+></H2
+><P
+>   <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>における全文検索は、<TT
+CLASS="TYPE"
+>tsvector</TT
+>(文書)が、<TT
+CLASS="TYPE"
+>tsquery</TT
+>(問合わせ)に一致したら真を返す照合演算子<TT
+CLASS="LITERAL"
+>@@</TT
+>に基づいています。どちらのデータ型を先に書いても構いません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 'a fat cat sat on a mat and ate a fat rat'::tsvector @@ 'cat &amp; rat'::tsquery;
+ ?column?
+----------
+ t
+
+SELECT 'fat &amp; cow'::tsquery @@ 'a fat cat sat on a mat and ate a fat rat'::tsvector;
+ ?column?
+----------
+ f</PRE
+><P>
+   </P
+><P
+>   上記の例でわかるように、<TT
+CLASS="TYPE"
+>tsquery</TT
+>は、<TT
+CLASS="TYPE"
+>tsvector</TT
+>と違って、単なるテキストではありません。<TT
+CLASS="TYPE"
+>tsquery</TT
+>は正規化済の語彙素である検索表現を含み、AND, OR, NOT演算子を使って複数の表現を組み合わせても構いません。(詳細はこれを見てください <A
+HREF="datatype-textsearch.html"
+>&#38917;8.11</A
+>。)
+   たとえば、テキスト中の単語を正規化することにより、ユーザが入力したテキストを適切な<TT
+CLASS="TYPE"
+>tsquery</TT
+>に変換する<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>と<CODE
+CLASS="FUNCTION"
+>plainto_tsquery</CODE
+>という関数があります。同様に、文書文字列をパースして正規化するために<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>が利用できます。というわけで、実際にはテキスト検索照合はこんな感じになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT to_tsvector('fat cats ate fat rats') @@ to_tsquery('fat &amp; rat');
+ ?column? 
+----------
+ t</PRE
+><P>
+
+	この照合は、もしつぎのように書くとうまくいかないことに注意してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 'fat cats ate fat rats'::tsvector @@ to_tsquery('fat &amp; rat');
+ ?column? 
+----------
+ f</PRE
+><P>
+
+	というのも、単語<TT
+CLASS="LITERAL"
+>rats</TT
+>に対して正規化が行われないからです。<TT
+CLASS="TYPE"
+>tsvector</TT
+>の要素は、すでに正規化されている語彙素であることになっているので、<TT
+CLASS="LITERAL"
+>rats</TT
+>は<TT
+CLASS="LITERAL"
+>rat</TT
+>に一致しません。
+   </P
+><P
+>    また、<TT
+CLASS="LITERAL"
+>@@</TT
+>演算子は、<TT
+CLASS="TYPE"
+>text</TT
+>を入力として受付けるので、簡単に使うときには、明示的にテキスト文字列を<TT
+CLASS="TYPE"
+>tsvector</TT
+>または<TT
+CLASS="TYPE"
+>tsquery</TT
+>に変換することを省略できます。応用として以下のものがあります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>tsvector @@ tsquery
+tsquery  @@ tsvector
+text @@ tsquery
+text @@ text</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-INTRO-CONFIGURATIONS"
+>12.1.3. 設定</A
+></H2
+><P
+>    今までのはすべて単純なテキスト検索の例でした。すでに述べたように、全文検索機能を使えば、もっと色々なことができます。インデックス付けの際に特定の単語をスキップ(ストップワード)、同義語(synonym)処理、賢いパース処理、すなわち、単に空白区切りに基づくパース処理以上のものです。この機能は<I
+CLASS="FIRSTTERM"
+>テキスト検索設定</I
+>で制御します。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には、多くの言語用の設定があらかじめ組み込まれていますが、ユーザ設定を容易に作ることもできます。(<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="COMMAND"
+>\dF</TT
+>コマンドで、利用できる設定を表示できます。
+   </P
+><P
+>   インストールの際には、適当な設定が選ばれ、<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TEXT-SEARCH-CONFIG"
+>default_text_search_config</A
+>が<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>中にセットされます。クラスタ全体で同じ設定を使用する場合は<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>の設定値を利用できます。クラスタの設定とは異なるが、あるデータベースの中で同じ設定を使う場合には、<TT
+CLASS="COMMAND"
+>ALTER DATABASE ... SET</TT
+>を利用します。さもなければ、セッション単位で<TT
+CLASS="VARNAME"
+>default_text_search_config</TT
+>を設定できます。
+   </P
+><P
+>   設定に依存するテキスト検索関数は、オプションで<TT
+CLASS="TYPE"
+>regconfig</TT
+>引数を持っており、使用する設定を明示的に指定できます。<TT
+CLASS="VARNAME"
+>default_text_search_config</TT
+>は、この引数が省略されたときだけ使用されます。
+   </P
+><P
+>   カスタムテキスト検索設定を作り易くするため、設定はより単純なデータベースオブジェクトから作られます。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のテキスト検索機能は、4つの設定関連のデータベースオブジェクトを提供しています。
+   </P
+><P
+></P
+><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>     <I
+CLASS="FIRSTTERM"
+>テキスト検索パーサ</I
+>は、文書をトークンに分解し、トークンを分類します(たとえば、単語とか数のように)。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>     <I
+CLASS="FIRSTTERM"
+>テキスト検索辞書</I
+>はトークンを正規化された形式に変換し、ストップワードを排除します。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>     <I
+CLASS="FIRSTTERM"
+>テキスト検索テンプレート</I
+>は、現在の辞書が利用する関数を提供します(辞書は、単にテンプレートと、その引数の集合を指定するだけです)。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>     <I
+CLASS="FIRSTTERM"
+>テキスト検索設定</I
+>は、パーサと使用する辞書の集合を選択し、パーサが生成したトークンを正規化します。
+    </P
+></LI
+></UL
+><P
+>   テキスト検索パーサとテンプレートは、低レベルのC関数で作ります。したがって、新しく開発するためにはCのプログラミング能力と、データベースにインストールするためのスーパユーザ権限が必要になります。(<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の配布物の<TT
+CLASS="FILENAME"
+>contrib/</TT
+>には、追加パーサとテンプレートの例があります)。辞書と設定は、単に配下のパーサとテンプレートのパラメータを設定し、両者を結び付けるだけなので、新しい辞書と設定を作るために特別な権限は必要ありません。この章の後でカスタム辞書と設定を作る例が登場します。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="textsearch-tables.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>全文検索</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>テーブルとインデックス</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

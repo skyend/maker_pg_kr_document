@@ -1,0 +1,718 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>サンプルプログラム</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="PREVIOUS"
+TITLE="libpqプログラムの構築"
+HREF="libpq-build.html"><LINK
+REL="NEXT"
+TITLE="ラージオブジェクト"
+HREF="largeobjects.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpqプログラムの構築"
+HREF="libpq-build.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 31&#31456;<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ラージオブジェクト"
+HREF="largeobjects.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LIBPQ-EXAMPLE"
+>31.20. サンプルプログラム</A
+></H1
+><P
+>以下を含むサンプルプログラムが、ソースコード配布物内の<TT
+CLASS="FILENAME"
+>src/test/examples</TT
+>ディレクトリにあります。
+  </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="LIBPQ-EXAMPLE-1"
+></A
+><P
+><B
+>&#20363; 31-1. <SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> サンプルプログラム 1</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>/*
+ * testlibpq.c
+ *
+ 
+ *              C言語PostgreSQLフロントエンドライブラリlibpqの試験
+ */
+#include &#60;stdio.h&#62;
+#include &#60;stdlib.h&#62;
+#include &#60;libpq-fe.h&#62;
+
+static void
+exit_nicely(PGconn *conn)
+{
+    PQfinish(conn);
+    exit(1);
+}
+
+int
+main(int argc, char **argv)
+{
+    const char *conninfo;
+    PGconn     *conn;
+    PGresult   *res;
+    int         nFields;
+    int         i,
+                j;
+
+    /*
+     * ユーザがコマンドラインでパラメータを提供した場合、conninfo文字列として使用する。
+     * 提供されない場合はデフォルトでdbname=postgresを使用する。
+     * その他の接続パラメータについては環境変数やデフォルトを使用する。
+     * 
+     */
+    if (argc &#62; 1)
+        conninfo = argv[1];
+    else
+        conninfo = "dbname = postgres";
+
+    /* データベースとの接続を確立する */
+    conn = PQconnectdb(conninfo);
+
+    /* バックエンドとの接続確立に成功したかを確認する */
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        fprintf(stderr, "Connection to database failed: %s",
+                PQerrorMessage(conn));
+        exit_nicely(conn);
+    }
+
+    /*
+     * この試験ケースではカーソルを使用する。
+     * そのため、トランザクションブロック内で実行する必要がある。
+     * 全てを単一の"select * from pg_database"というPQexec()で行うこと
+     * も可能だが、例としては簡単過ぎる。
+     */
+
+    /* トランザクションブロックを開始する。 */
+    res = PQexec(conn, "BEGIN");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "BEGIN command failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+
+    /*
+    
+     * 不要になったら、メモリリークを防ぐためにPGresultをPQclearすべき。
+     */
+    PQclear(res);
+
+    /*
+     * データベースのシステムカタログpg_databaseから行を取り出す。
+     */
+    res = PQexec(conn, "DECLARE myportal CURSOR FOR select * from pg_database");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "DECLARE CURSOR failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+    PQclear(res);
+
+    res = PQexec(conn, "FETCH ALL in myportal");
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+        fprintf(stderr, "FETCH ALL failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+
+    /* まず属性名を表示する。 */
+    nFields = PQnfields(res);
+    for (i = 0; i &#60; nFields; i++)
+        printf("%-15s", PQfname(res, i));
+    printf("\n\n");
+
+    /* そして行を表示する。 */
+    for (i = 0; i &#60; PQntuples(res); i++)
+    {
+        for (j = 0; j &#60; nFields; j++)
+            printf("%-15s", PQgetvalue(res, i, j));
+        printf("\n");
+    }
+
+    PQclear(res);
+
+    /* ポータルを閉ざす。ここではエラーチェックは省略した… */
+    res = PQexec(conn, "CLOSE myportal");
+    PQclear(res);
+
+    /* トランザクションを終了する */
+    res = PQexec(conn, "END");
+    PQclear(res);
+
+    /* データベースとの接続を閉じ、後始末を行う。 */
+    PQfinish(conn);
+
+    return 0;
+}</PRE
+></DIV
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="LIBPQ-EXAMPLE-2"
+></A
+><P
+><B
+>&#20363; 31-2. <SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> サンプルプログラム 2</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>/*
+ * testlibpq2.c
+ 
+ *              非同期通知インタフェースの試験
+ *
+ 
+ * このプログラムを起動し、別ウィンドウからpsqlを使用して以下を実行してください。
+ *   NOTIFY TBL2;
+ * 4回繰り返すとこのプログラムは終了します。
+ *
+ 
+ * もう少し凝りたければ、以下を実施してください。
+ * 以下のコマンド(src/test/examples/testlibpq2.sqlで提供)でデータベースを作成します。
+ *
+ *   CREATE TABLE TBL1 (i int4);
+ *
+ *   CREATE TABLE TBL2 (i int4);
+ *
+ *   CREATE RULE r1 AS ON INSERT TO TBL1 DO
+ *     (INSERT INTO TBL2 VALUES (new.i); NOTIFY TBL2);
+ *
+ 
+ * そして、以下を4回実行してください。
+ *
+ *   INSERT INTO TBL1 VALUES (10);
+ */
+#include &#60;stdio.h&#62;
+#include &#60;stdlib.h&#62;
+#include &#60;string.h&#62;
+#include &#60;errno.h&#62;
+#include &#60;sys/time.h&#62;
+#include &#60;libpq-fe.h&#62;
+
+static void
+exit_nicely(PGconn *conn)
+{
+    PQfinish(conn);
+    exit(1);
+}
+
+int
+main(int argc, char **argv)
+{
+    const char *conninfo;
+    PGconn     *conn;
+    PGresult   *res;
+    PGnotify   *notify;
+    int         nnotifies;
+
+    /*
+    
+     * ユーザがコマンドラインでパラメータを提供した場合、conninfo文字列として使用する。
+     * 提供されない場合はデフォルトでdbname=postgresを使用する。
+     * その他の接続パラメータについては環境変数やデフォルトを使用する。
+     */
+    if (argc &#62; 1)
+        conninfo = argv[1];
+    else
+        conninfo = "dbname = postgres";
+
+    /* データベースとの接続を確立する。 */
+    conn = PQconnectdb(conninfo);
+
+    /* バックエンドとの接続確立に成功したかを確認する */
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        fprintf(stderr, "Connection to database failed: %s",
+                PQerrorMessage(conn));
+        exit_nicely(conn);
+    }
+
+    /*
+     * LISTENコマンドを発行して、INSERTルールによる通知を有効にする。
+     */
+    res = PQexec(conn, "LISTEN TBL2");
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        fprintf(stderr, "LISTEN command failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+
+    /*
+     * 不要になったら、メモリリークを防ぐためにPGresultをPQclearすべき。
+     */
+    PQclear(res);
+
+    /* 4回通知を受けたら終了する。 */
+    nnotifies = 0;
+    while (nnotifies &#60; 4)
+    {
+        /*
+         * その接続で何かが起こるまで待機する。ここでは入力待ちのために
+         * select(2)を使用する。poll()や類似機能を使用することも可能
+         * である。
+         */
+        int         sock;
+        fd_set      input_mask;
+
+        sock = PQsocket(conn);
+
+        if (sock &#60; 0)
+            break;              /* 発生してはならない。 */
+
+        FD_ZERO(&#38;input_mask);
+        FD_SET(sock, &#38;input_mask);
+
+        if (select(sock + 1, &#38;input_mask, NULL, NULL, NULL) &#60; 0)
+        {
+            fprintf(stderr, "select() failed: %s\n", strerror(errno));
+            exit_nicely(conn);
+        }
+
+        /* ここで入力を確認する。 */
+        PQconsumeInput(conn);
+        while ((notify = PQnotifies(conn)) != NULL)
+        {
+            fprintf(stderr,
+                    "ASYNC NOTIFY of '%s' received from backend PID %d\n",
+                    notify-&#62;relname, notify-&#62;be_pid);
+            PQfreemem(notify);
+            nnotifies++;
+        }
+    }
+
+    fprintf(stderr, "Done.\n");
+
+    /* データベースとの接続を閉じ、後始末を行う。 */
+    PQfinish(conn);
+
+    return 0;
+}</PRE
+></DIV
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="LIBPQ-EXAMPLE-3"
+></A
+><P
+><B
+>&#20363; 31-3. <SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> サンプルプログラム 3</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>/*
+ * testlibpq3.c
+ *      行以外のパラメータとバイナリI/Oの試験。
+ *
+ 
+ * 実行前に、以下のコマンド(src/test/examples/testlibpq3.sqlで提供)を使用して
+ * データベースを作成してください。
+ *
+ * CREATE TABLE test1 (i int4, t text, b bytea);
+ *
+ * INSERT INTO test1 values (1, 'joe''s place', '\\000\\001\\002\\003\\004');
+ * INSERT INTO test1 values (2, 'ho there', '\\004\\003\\002\\001\\000');
+ *
+ * 以下の出力が想定されます。
+ *
+ * tuple 0: got
+ *  i = (4 bytes) 1
+ *  t = (11 bytes) 'joe's place'
+ *  b = (5 bytes) \000\001\002\003\004
+ *
+ * tuple 0: got
+ *  i = (4 bytes) 2
+ *  t = (8 bytes) 'ho there'
+ *  b = (5 bytes) \004\003\002\001\000
+ */
+#include &#60;stdio.h&#62;
+#include &#60;stdlib.h&#62;
+#include &#60;string.h&#62;
+#include &#60;sys/types.h&#62;
+#include &#60;libpq-fe.h&#62;
+
+/* ntohl/htonl用 */
+#include &#60;netinet/in.h&#62;
+#include &#60;arpa/inet.h&#62;
+
+
+static void
+exit_nicely(PGconn *conn)
+{
+    PQfinish(conn);
+    exit(1);
+}
+
+/*
+ * この関数は上のコメントで定義したテーブルからバイナリフォーマットでフェッチした
+ * クエリ結果を表示します。
+ * main() 関数が2度使うので、結果を分割します。
+ */
+static void
+show_binary_results(PGresult *res)
+{
+    int         i,
+                j;
+    int         i_fnum,
+                t_fnum,
+                b_fnum;
+
+    /* 結果中の列オーダーの仮定を嫌うので PQfnumber を利用する */
+    /* PQfnumber  */
+    i_fnum = PQfnumber(res, "i");
+    t_fnum = PQfnumber(res, "t");
+    b_fnum = PQfnumber(res, "b");
+
+    for (i = 0; i &#60; PQntuples(res); i++)
+    {
+        char       *iptr;
+        char       *tptr;
+        char       *bptr;
+        int         blen;
+        int         ival;
+
+        /* 列の値を取得(NULLを出来る限り無視) */
+        iptr = PQgetvalue(res, i, i_fnum);
+        tptr = PQgetvalue(res, i, t_fnum);
+        bptr = PQgetvalue(res, i, b_fnum);
+
+        /*
+         * INT4のバイナリ表現はネットワークバイトオーダーによる。
+         * よって、ローカルバイトオーダーに合わせた方が良い。
+         */
+        ival = ntohl(*((uint32_t *) iptr));
+
+        /*
+         * TEXT型のバイナリ表現も同様にテキスト。
+         * 更にlibpqはその最後にゼロバイトを付与するので、
+         * C言語の文字列として単純に扱うことができる。
+         *
+         * BYTEA のバイト表現はバイトの集まりである。 
+         * null 埋め込みを含むのでフィールド長に注意を払わなければいけない。
+         */
+        blen = PQgetlength(res, i, b_fnum);
+
+        printf("tuple %d: got\n", i);
+        printf(" i = (%d bytes) %d\n",
+               PQgetlength(res, i, i_fnum), ival);
+        printf(" t = (%d bytes) '%s'\n",
+               PQgetlength(res, i, t_fnum), tptr);
+        printf(" b = (%d bytes) ", blen);
+        for (j = 0; j &#60; blen; j++)
+            printf("\\%03o", bptr[j]);
+        printf("\n\n");
+    }
+}
+
+int
+main(int argc, char **argv)
+{
+    const char *conninfo;
+    PGconn     *conn;
+    PGresult   *res;
+    const char *paramValues[1];
+    int         paramLengths[1];
+    int         paramFormats[1];
+    uint32_t    binaryIntVal;
+
+    /*
+     * ユーザがコマンドラインでパラメータを提供した場合、conninfo文字列として使用する。
+     * 提供されない場合はデフォルトでdbname=postgresを使用する。
+     * その他の接続パラメータについては環境変数やデフォルトを使用する。
+     */
+    if (argc &#62; 1)
+        conninfo = argv[1];
+    else
+        conninfo = "dbname = postgres";
+
+    /* データベースとの接続を確立する */
+    conn = PQconnectdb(conninfo);
+
+    /* バックエンドとの接続確立に成功したかを確認する */
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        fprintf(stderr, "Connection to database failed: %s",
+                PQerrorMessage(conn));
+        exit_nicely(conn);
+    }
+
+    /*
+     * このプログラムのポイントは、行外パラメータを持つPQexecParams()の使用方法、
+     * および、データののバイナリ転送を示すことである。
+     *
+     * この最初の例はパラメータをテキストとして渡す。
+     * しかし結果はバイナリフォーマットで受ける。
+     * 行外パラメータを使うことで、データがテキストであっても引用符付けや
+     * エスケープ処理といった多くの長たらしいゴミをなくすことができる。
+     * パラメータ値内部の引用符印に対して特殊な処理を行う必要がないことに注目して
+     * ほしい。
+     */
+
+    /* 以下が行外パラメータの値である。 */
+    paramValues[0] = "joe's place";
+
+    res = PQexecParams(conn,
+                       "SELECT * FROM test1 WHERE t = $1",
+                       1,           /* パラメータは1つ。 */
+                       NULL,        /* バックエンドにパラメータの型を推測させる。 */
+                       paramValues,
+                       NULL,        /* テキストのため、パラメータ長は不要。 */
+                       NULL,        /* デフォルトで全てのパラメータはテキスト。 */
+                       1);          /* バイナリ結果を要求。 */
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+
+    show_binary_results(res);
+
+    PQclear(res);
+
+    /*
+     * 2つ目の例は、バイナリフォームの中で整数値パラメータを渡す。
+     * そして再びバイナリフォームで結果を受け取る。
+     *
+     * バックエンドにパラメータタイプを推測させていると PQexecParams に伝えるが、
+     * クエリテキストの中にパラメータシンボルを入れることによって 強制的に決定する。
+     * これはバイナリパラメータに送るときに安全で良い大きさである。
+     */
+
+    /* 整数値 "2" をネットワークバイトオーダーに変換 */ 
+    binaryIntVal = htonl((uint32_t) 2);
+
+    /* PQexecParams 用にパラメータ配列をセットする */
+    paramValues[0] = (char *) &#38;binaryIntVal;
+    paramLengths[0] = sizeof(binaryIntVal);
+    paramFormats[0] = 1;        /* バイナリ */
+
+    res = PQexecParams(conn,
+                       "SELECT * FROM test1 WHERE i = $1::int4",
+                       1,       /* パラメータは1つ */
+                       NULL,    /* バックエンドにパラメータの型を推測させる。 */
+                       paramValues,
+                       paramLengths,
+                       paramFormats,
+                       1);      /* バイナリ結果を要求。 */
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+        fprintf(stderr, "SELECT failed: %s", PQerrorMessage(conn));
+        PQclear(res);
+        exit_nicely(conn);
+    }
+
+    show_binary_results(res);
+
+    PQclear(res);
+
+    /* データベースとの接続を閉じ、後始末を行う。 */
+    PQfinish(conn);
+
+    return 0;
+}</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libpq-build.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="largeobjects.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>プログラムの構築</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ラージオブジェクト</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

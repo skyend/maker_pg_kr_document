@@ -1,0 +1,500 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>spi</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="sepgsql"
+HREF="sepgsql.html"><LINK
+REL="NEXT"
+TITLE="sslinfo"
+HREF="sslinfo.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="sepgsql"
+HREF="sepgsql.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="sslinfo"
+HREF="sslinfo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CONTRIB-SPI"
+>F.39. spi</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>spi</SPAN
+>モジュールは、SPIおよびトリガを使用した、動作可能な例を複数提供します。
+これらの関数は独自の何らかの価値を持つものですが、目的に応じて変更するための例としてより有用です。
+関数は任意のテーブルと使用できるほど一般的なものですが、トリガを作成する場合は（後述のように）テーブル名とフィールド名を指定する必要があります。
+ </P
+><P
+>以下で説明する関数グループのそれぞれは、別々にインストールすることができる拡張として提供されます。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138026"
+>F.39.1. refint &mdash; 参照整合性を実装する関数</A
+></H2
+><P
+><CODE
+CLASS="FUNCTION"
+>check_primary_key()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>check_foreign_key()</CODE
+>は、外部キー制約を検査するために使用されます。
+（当然ながら、この機能はかなり前に組み込みの外部キー機能に取って代わりました。しかし例としてはまだ有用です。）
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>check_primary_key()</CODE
+>は参照テーブルを検査します。
+使用方法は、この関数を使用する<TT
+CLASS="LITERAL"
+>BEFORE INSERT OR UPDATE</TT
+>トリガを他のテーブルを参照するテーブルに作成することです。
+トリガ引数は、外部キーを形成する参照テーブルの列名、被参照テーブル名、プライマリ/一意キーを形成する被参照テーブルの列名です。
+複数の外部キーを扱うためには、各参照に対してトリガを作成してください。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>check_foreign_key()</CODE
+>は被参照テーブルを検査します。
+使用方法は、この関数を使用する<TT
+CLASS="LITERAL"
+>BEFORE DELETE OR UPDATE</TT
+>トリガを他のテーブルで参照されるテーブルに作成することです。
+トリガ引数は、この関数が検査を実行しなければならない参照テーブル数、参照キーが見つかった場合の動作（<TT
+CLASS="LITERAL"
+>cascade</TT
+> &mdash; 参照行を削除、<TT
+CLASS="LITERAL"
+>restrict</TT
+> &mdash; 参照キーが存在する場合トランザクションをアボート、<TT
+CLASS="LITERAL"
+>setnull</TT
+> &mdash;参照キーフィールドをNULLに設定）、プライマリ/一意キーを形成するトリガを発行したテーブルの列名、参照テーブルの名前と列名（最初の引数で指定された数のテーブル分繰り返す）です。
+プライマリ/一意キー列はNOT NULLと指定されていなければならず、また、一意性インデックスを持つべきであることに注意してください。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>refint.example</TT
+>に例があります。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138042"
+>F.39.2. timetravel &mdash; 時間旅行を実装する関数</A
+></H2
+><P
+>かなり前に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は各タプルで挿入時間、削除時間を保持する時間旅行機能が組み込まれました。
+これをこれらの関数を使用して模擬することができます。
+これらの関数を使用するためには、<TT
+CLASS="TYPE"
+>abstime</TT
+>型の、タプルの挿入日付（start_date）および変更/削除日付（stop_date）を格納するために2つの列をテーブルに追加しなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE mytab (
+        ...             ...
+        start_date      abstime,
+        stop_date       abstime
+        ...             ...
+);</PRE
+><P>
+
+この列には好みの名前を付けることができますが、以下の説明ではstart_date、stop_dateを使用します。
+  </P
+><P
+>新しく行が挿入される時、start_dateは通常現在時刻に、stop_dateは<TT
+CLASS="LITERAL"
+>infinity</TT
+>に設定されるはずです。
+挿入されるデータにおけるこれらの列がNULLの場合、トリガは自動的にこれらの値を置き換えます。
+一般的には、これらの列に非NULLのデータを明示的に挿入することは、ダンプデータの再ロードを行う時にしかないはずです。
+  </P
+><P
+>stop_dateが<TT
+CLASS="LITERAL"
+>infinity</TT
+>のstop_dateを持つタプルは<SPAN
+CLASS="QUOTE"
+>"現在有効"</SPAN
+>で、変更可能です。
+トリガが防止するため、有限のstop_dateを持つタプルを変更することはできません。
+（変更する必要がある場合は、以下のように時間旅行を無効にすることができます。）
+  </P
+><P
+>変更可能な行では、更新時、更新されようとしているタプルのstop_dateのみが（現在時刻に）変更され、変更されたデータを持った新しいタプルが挿入されます。
+この新しいタプルのstart_dateは現在時刻となり、stop_dateは<TT
+CLASS="LITERAL"
+>infinity</TT
+>になります。
+  </P
+><P
+>削除では実際にタプルの削除は行われず、そのstop_dateが現在時刻になります。
+  </P
+><P
+><SPAN
+CLASS="QUOTE"
+>"現在有効"</SPAN
+>なタプルを問い合わせるには、問い合わせのWHERE条件に<TT
+CLASS="LITERAL"
+>stop_date = 'infinity'</TT
+>を含めてください。
+（これをビューに組み込もうと考えるかもしれません。）
+同様に、start_dateとstop_dateに適切な条件を付けることで任意の時点で有効だったタプルを問い合わせることもできます。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>timetravel()</CODE
+>は、こうした動作をサポートする、一般的なトリガ関数です。
+時間旅行を行うテーブル毎にこの関数を使用した<TT
+CLASS="LITERAL"
+>BEFORE INSERT OR UPDATE OR DELETE</TT
+>トリガを作成してください。
+2つのトリガ引数で、start_dateとstop_date列の実際の名前を指定してください。
+省略可能ですが、1から3つの引数を追加して指定することもできます。
+これらは<TT
+CLASS="TYPE"
+>text</TT
+>型の列を参照しなければなりません。
+トリガは現在のユーザ名を、INSERT時に最初の列、UPDATE時に2番目の列、DELETE時に3番目の列に格納します。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>set_timetravel()</CODE
+>により、テーブル単位で時間旅行を有効または無効にすることができます。
+<TT
+CLASS="LITERAL"
+>set_timetravel('mytab', 1)</TT
+>は<TT
+CLASS="LITERAL"
+>mytab</TT
+>テーブルの時間旅行を有効にします。
+<TT
+CLASS="LITERAL"
+>set_timetravel('mytab', 0)</TT
+>は<TT
+CLASS="LITERAL"
+>mytab</TT
+>テーブルの時間旅行を無効にします。
+時間旅行が無効な時、start_dateとstop_date列を自由に変更することができます。
+有効状態は現在のデータベースセッション内で局所的な状態であることに注意してください。
+新規セッションでは常に、すべてのテーブルの時間旅行は有効状態で始まります。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>get_timetravel()</CODE
+>は、状態変更を行うことなく、時間旅行の状態を返します。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>timetravel.example</TT
+>に例が存在します。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138073"
+>F.39.3. autoinc &mdash; フィールド自動増分用の関数</A
+></H2
+><P
+><CODE
+CLASS="FUNCTION"
+>autoinc()</CODE
+>は、整数型フィールドにシーケンスの次の値を格納するトリガです。
+これは、組み込みの<SPAN
+CLASS="QUOTE"
+>"連番列"</SPAN
+>機能と一部重複しますが、同一ではありません。
+<CODE
+CLASS="FUNCTION"
+>autoinc()</CODE
+>は挿入時に別のフィールド値に置き換える試みを上書きし、さらに省略可能ですが、更新時にフィールドを増加させるために使用することもできます。
+  </P
+><P
+>使用方法は、この関数を使用する<TT
+CLASS="LITERAL"
+>BEFORE INSERT</TT
+>（または <TT
+CLASS="LITERAL"
+>BEFORE INSERT OR UPDATE</TT
+>）トリガを作成することです。
+2つのトリガ引数、変更する整数型列の名前と値を生み出すシーケンスオブジェクトの名前を指定します。
+（実際、自動増分列を複数更新したい場合、これらの名前の組み合わせを任意の数指定することができます。）
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>autoinc.example</TT
+>に例があります。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138084"
+>F.39.4. insert_username &mdash; 誰がテーブルを変更したかを追跡する関数</A
+></H2
+><P
+><CODE
+CLASS="FUNCTION"
+>insert_username()</CODE
+>は現在のユーザ名をテキスト型のフィールドに格納するトリガです。
+これはテーブル内のある行を最後に変更したユーザを追跡する際に有用です。
+  </P
+><P
+>使用方法は、この関数を使用する<TT
+CLASS="LITERAL"
+>BEFORE INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>またはその両方のトリガを作成することです。
+1つのトリガ引数、変更するテキスト型の列の名前を指定してください。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>insert_username.example</TT
+>に例があります。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138093"
+>F.39.5. moddatetime &mdash; 最終更新時刻を追跡する関数</A
+></H2
+><P
+><CODE
+CLASS="FUNCTION"
+>moddatetime()</CODE
+>は現在時刻を<TT
+CLASS="TYPE"
+>timestamp</TT
+>型のフィールドに格納するトリガです。
+これは、テーブル内のある行の最終更新時刻を追跡する際に有用です。
+  </P
+><P
+>使用方法は、この関数を使用する<TT
+CLASS="LITERAL"
+>BEFORE UPDATE</TT
+>トリガを作成することです。
+1つのトリガ引数、変更する列名を指定してください。
+この列は<TT
+CLASS="TYPE"
+>timestamp</TT
+>型または<TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+>型でなければなりません。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>moddatetime.example</TT
+>に例があります。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sepgsql.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sslinfo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>sepgsql</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>sslinfo</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,466 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>auto_explain</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="auth_delay"
+HREF="auth-delay.html"><LINK
+REL="NEXT"
+TITLE="btree_gin"
+HREF="btree-gin.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="auth_delay"
+HREF="auth-delay.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="btree_gin"
+HREF="btree-gin.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AUTO-EXPLAIN"
+>F.3. auto_explain</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>auto_explain</TT
+>モジュールは、手動で<A
+HREF="sql-explain.html"
+>EXPLAIN</A
+>の実行を必要とせず、自動的に遅い文の実行計画をログ記録する手段を提供します。
+大きなアプリケーションにおける最適化されていない問い合わせを追跡するのに特に有用です。
+ </P
+><P
+>このモジュールはSQLでアクセスできる関数を提供しません。使用するには、サーバに単に読み込ませます。ある個別のセッションに読み込ませることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>LOAD 'auto_explain';</PRE
+><P>
+
+（実行するためにはスーパーユーザでなければなりません。）より一般的な使用方法は、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>の<A
+HREF="runtime-config-resource.html#GUC-SHARED-PRELOAD-LIBRARIES"
+>shared_preload_libraries</A
+>に<TT
+CLASS="LITERAL"
+>auto_explain</TT
+>を含めて、すべてのセッションで事前にロードしておくことです。すると、想定外に低速な問い合わせを発生時に何も行うことなく追跡することができます。当然ながらこのためのオーバーヘッドという代償があります。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131366"
+>F.3.1. 設定パラメータ</A
+></H2
+><P
+><TT
+CLASS="FILENAME"
+>auto_explain</TT
+>の動作を制御するいくつかの構成パラメータが存在します。デフォルトの動作は何もしないことなので、なんらかの結果を望むのであれば少なくとも<TT
+CLASS="VARNAME"
+>auto_explain.log_min_duration</TT
+>を設定しなければならないことに注意してください。
+ </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="VARNAME"
+>auto_explain.log_min_duration</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="VARNAME"
+>auto_explain.log_min_duration</TT
+>は、文の実行計画がログに記録されるようになる、ミリ秒単位の最小の文実行時間です。これをゼロにすれば、すべての計画が記録されます。マイナス1（デフォルト）は計画の記録を無効にします。例えば、<TT
+CLASS="LITERAL"
+>250ms</TT
+>に設定すると、250ms以上実行する文すべてが記録されます。スーパーユーザのみがこの設定を変更することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>auto_explain.log_analyze</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="VARNAME"
+>auto_explain.log_analyze</TT
+>は、実行計画のログが取得されたときに出力されるものとして、単に<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>出力ではなく、<TT
+CLASS="COMMAND"
+>EXPLAIN ANALYZE</TT
+>出力を行います。このパラメータはデフォルトで無効です。スーパユーザのみ、この設定を変更できます。
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>このパラメータが有効の場合、計画ノードごとの時間的調整は事実上ログされるまで如何に時間が掛かろうと、全ての実行文に対して引き起こります。極端に性能上のマイナスの影響が起こり得ます。
+      </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>auto_explain.log_verbose</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="VARNAME"
+>auto_explain.log_verbose</TT
+>は、実行計画のログが取得されたときに出力されるものとして、単に<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>出力ではなく、<TT
+CLASS="COMMAND"
+>EXPLAIN VERBOSE</TT
+>出力を行います。このパラメータはデフォルトで無効です。スーパユーザのみ、この設定を変更できます。
+     </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>auto_explain.log_buffers</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="VARNAME"
+>auto_explain.log_buffers</TT
+>により、実行計画のログを記録するときに、単なる<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>出力よりも<TT
+CLASS="COMMAND"
+>EXPLAIN (ANALYZE, BUFFERS)</TT
+>出力で記録するようになります。このパラメータはデフォルトで無効です。スーパーユーザのみがこの設定を変更することができます。<TT
+CLASS="VARNAME"
+>auto_explain.log_analyze</TT
+>パラメータが設定されていなければ、このパラメータは効果がありません。
+     </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>auto_explain.log_format</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="VARNAME"
+>auto_explain.log_format</TT
+>は使用する<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>出力書式を選びます。許容される値は<TT
+CLASS="LITERAL"
+>text</TT
+>、<TT
+CLASS="LITERAL"
+>xml</TT
+>、<TT
+CLASS="LITERAL"
+>json</TT
+>、<TT
+CLASS="LITERAL"
+>yaml</TT
+>です。デフォルトはtextです。スーパーユーザのみがこの設定を変更することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>auto_explain.log_nested_statements</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="VARNAME"
+>auto_explain.log_nested_statements</TT
+>により、入れ子状の文（関数内から実行される文）を考慮して記録するようになります。無効ならば、最上位の問い合わせ計画のみが記録されます。このパラメータはデフォルトで無効です。スーパーユーザのみがこの設定を変更することができます。
+     </P
+></DD
+></DL
+></DIV
+><P
+>これらパラメータを<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイルに設定するためには、<A
+HREF="runtime-config-custom.html#GUC-CUSTOM-VARIABLE-CLASSES"
+>custom_variable_classes</A
+>に<TT
+CLASS="LITERAL"
+>auto_explain</TT
+>を追加する必要があります。典型的な使用法は以下のようになります。
+  </P
+><PRE
+CLASS="PROGRAMLISTING"
+># postgresql.conf
+shared_preload_libraries = 'auto_explain'
+
+custom_variable_classes = 'auto_explain'
+auto_explain.log_min_duration = '3s'</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131452"
+>F.3.2. 例</A
+></H2
+><PRE
+CLASS="PROGRAMLISTING"
+>postgres=# LOAD 'auto_explain';
+postgres=# SET auto_explain.log_min_duration = 0;
+postgres=# SELECT count(*)
+           FROM pg_class, pg_index
+           WHERE oid = indrelid AND indisunique;</PRE
+><P
+>これにより、以下のようなログ出力が作成されます。
+  </P
+><PRE
+CLASS="SCREEN"
+>LOG:  duration: 3.651 ms  plan:
+  Query Text: SELECT count(*)
+              FROM pg_class, pg_index
+              WHERE oid = indrelid AND indisunique;
+  Aggregate  (cost=16.79..16.80 rows=1 width=0) (actual time=3.626..3.627 rows=1 loops=1)
+    -&#62;  Hash Join  (cost=4.17..16.55 rows=92 width=0) (actual time=3.349..3.594 rows=92 loops=1)
+          Hash Cond: (pg_class.oid = pg_index.indrelid)
+          -&#62;  Seq Scan on pg_class  (cost=0.00..9.55 rows=255 width=4) (actual time=0.016..0.140 rows=255 loops=1)
+          -&#62;  Hash  (cost=3.02..3.02 rows=92 width=4) (actual time=3.238..3.238 rows=92 loops=1)
+                Buckets: 1024  Batches: 1  Memory Usage: 4kB
+                -&#62;  Seq Scan on pg_index  (cost=0.00..3.02 rows=92 width=4) (actual time=0.008..3.187 rows=92 loops=1)
+                      Filter: indisunique</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131457"
+>F.3.3. 作者</A
+></H2
+><P
+>   板垣 貴裕 <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:itagaki.takahiro.at.oss.ntt.co.jp"
+>itagaki.takahiro.at.oss.ntt.co.jp</A
+>&#62;</CODE
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="auth-delay.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="btree-gin.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>auth_delay</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>btree_gin</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

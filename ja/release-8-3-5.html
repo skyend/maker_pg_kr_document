@@ -1,0 +1,506 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.3.5</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.3.6"
+HREF="release-8-3-6.html"><LINK
+REL="NEXT"
+TITLE="リリース8.3.4"
+HREF="release-8-3-4.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.3.6"
+HREF="release-8-3-6.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.3.4"
+HREF="release-8-3-4.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-3-5"
+>E.42. リリース8.3.5</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2008-11-03</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.3.4に対し、各種の不具合を修正したものです。
+8.3メジャーリリースにおける新機能については<A
+HREF="release-8-3.html"
+>&#38917;E.47</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115825"
+>E.42.1. バージョン8.3.5への移行</A
+></H2
+><P
+>8.3.Xからの移行ではダンプ/リストアは不要です。
+しかし、8.3.1より前のバージョンからアップグレードする場合は、8.3.1のリリースノートを参照してください。
+またこれまでの8.3.Xリリースを実行している場合は、アップグレード後にすべてのGiSTインデックスを<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>することを勧めます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115829"
+>E.42.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>削除後に間違ったインデックス項目を<SPAN
+CLASS="QUOTE"
+>"dead"</SPAN
+>と印付けたことによるGiSTインデックスの破損を修正しました。(Teodor)
+     </P
+><P
+>これによりインデックス検索は存在するはずの行の検索に失敗します。
+破損したインデックスは<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>を使用して修正することができます。
+     </P
+></LI
+><LI
+><P
+>クライアントの符号化方式が翻訳されたエラーメッセージを表すことができない時のバックエンドのクラッシュを修正しました。(Tom)
+     </P
+><P
+>以前にも同様の問題に対応しましたが、<SPAN
+CLASS="QUOTE"
+>"等価な文字を持たない"</SPAN
+>メッセージ自体が変換されない場合にまだ失敗しました。
+今回の修正では、こうした状況を検知した時、翻訳を無効にし、通常のASCIIエラーメッセージを送信します。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>bytea</TT
+>からXML対応付けにおけるクラッシュの可能性を修正しました。(Michael McMaster)
+     </P
+></LI
+><LI
+><P
+>トリガから深い入れ子状態の関数が呼び出された時にクラッシュする可能性を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> <TT
+CLASS="LITERAL"
+>IN</TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>expression-list</I
+></TT
+>)問い合わせの最適化を改良しました。(Tom。Robert Haasの発案に基づいた。)
+     </P
+><P
+>8.2.xおよび8.3.xでは、右辺に問い合わせ変数が存在する状況を取扱う効率が過去のバージョンより落ちていました。
+今回の修正では、こうした状況における振舞いを8.1に戻しました。
+     </P
+></LI
+><LI
+><P
+>副<TT
+CLASS="LITERAL"
+>SELECT</TT
+>が<TT
+CLASS="LITERAL"
+>FROM</TT
+>、複数行の<TT
+CLASS="LITERAL"
+>VALUES</TT
+>リスト、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>リスト内の関数呼び出し内に存在する場合の、間違ったルール問い合わせの展開を修正しました。(Tom)
+     </P
+><P
+>この問題のよくある徴候は、<SPAN
+CLASS="QUOTE"
+>"unrecognized node type"</SPAN
+>というエラーです。
+     </P
+></LI
+><LI
+><P
+>GiSTインデックスの<TT
+CLASS="LITERAL"
+>IS NULL</TT
+>検索の再スキャン中のアサート失敗を修正しました。(Teodor)
+     </P
+></LI
+><LI
+><P
+>ハッシュされた集約計画の再スキャン中のメモリリークを修正しました。(Neil)
+     </P
+></LI
+><LI
+><P
+>新しく定義されたPL/pgSQLトリガ関数が通常の関数として呼び出された場合に報告されるエラーを確実なものにしました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>がファイルコピーを始める前に強制的にチェックポイントを行います。(Heikki)
+     </P
+><P
+>これにより、元のデータベースにおいてファイルが最近削除された場合に失敗する可能性を防止します。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>ALTER SET TABLESPACE</TT
+>を使ってテーブルを別のテーブル空間に移動する時に<TT
+CLASS="STRUCTFIELD"
+>relfilenode</TT
+>番号が衝突する可能性を防止します。(Heikki)
+     </P
+><P
+>このコマンドは、先のディレクトリで未使用であることが確認されたファイル名を選ばずに、既存のファイル名を再使用しようとしていました。
+     </P
+></LI
+><LI
+><P
+>1つの問い合わせ項目がテキストの先頭の単語に一致した場合、テキスト検索の間違った見出し生成を修正しました。(Sushant Sinha)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="OPTION"
+>--enable-integer-datetimes</TT
+>で構築された場合、ISO以外の日付書式を使用した時の時間間隔値における不適切な秒端数表示を修正しました。(Ron Mayer)
+     </P
+></LI
+><LI
+><P
+>エスケープされていた場合であっても<TT
+CLASS="LITERAL"
+>ILIKE</TT
+>が大文字小文字を区別せずに文字を比較するようにしました。(Andrew)
+     </P
+></LI
+><LI
+><P
+>文のログ処理によって<TT
+CLASS="COMMAND"
+>DISCARD</TT
+>が適切に取り扱われることを確実にしました。(Tom)
+     </P
+></LI
+><LI
+><P
+>PITR復旧中の前回完了したトランザクション時刻のログ処理の間違いを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>渡されたタプルとタプル記述子が異なる列数を持っていた場合に<CODE
+CLASS="FUNCTION"
+>SPI_getvalue</CODE
+>および<CODE
+CLASS="FUNCTION"
+>SPI_getbinval</CODE
+>が適切に動作することを確実にしました。(Tom)
+     </P
+><P
+>テーブルに列が追加または削除された場合、こうした状況は正常です。
+しかしこの2つの関数は適切に扱っていませんでした。
+起こり得る唯一の結果は間違ったエラーが示されることです。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>SessionReplicationRole</TT
+>を<TT
+CLASS="LITERAL"
+>PGDLLIMPORT</TT
+>として印をつけました。
+このためWindows上の<SPAN
+CLASS="APPLICATION"
+>Slony</SPAN
+>で使用することができます。(Magnus)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の<TT
+CLASS="LITERAL"
+>gsslib</TT
+>パラメータを使用している時の小さなメモリリークを修正しました。(Magnus)
+     </P
+><P
+>パラメータ文字列で使用された領域が接続が閉じた時に開放されてませんでした
+     </P
+></LI
+><LI
+><P
+>必要に応じて<SPAN
+CLASS="APPLICATION"
+>libgssapi</SPAN
+>が<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>にリンクされることを確実にしました。(Markus Schaaf)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>の<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>解析を修正しました。(Michael)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>pg_ctl restart</TT
+>の最近の破損を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>pg_control</TT
+>がバイナリモードで開かれることを確実にしました。(Itagaki Takahiro)
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_controldata</SPAN
+>および<SPAN
+CLASS="APPLICATION"
+>pg_resetxlog</SPAN
+>はこれを正しく行っていませんでした。
+このためWindowsで失敗しました。
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+>リリース2008i（アルゼンチン、ブラジル、モーリシャス、シリアにおける夏時間規則の変更）まで更新しました。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-3-6.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-3-4.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.3.6</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.3.4</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

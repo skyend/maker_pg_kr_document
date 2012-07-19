@@ -1,0 +1,6574 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>psql</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PostgreSQLクライアントアプリケーション"
+HREF="reference-client.html"><LINK
+REL="PREVIOUS"
+TITLE="pg_restore"
+HREF="app-pgrestore.html"><LINK
+REL="NEXT"
+TITLE="reindexdb"
+HREF="app-reindexdb.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pg_restore"
+HREF="app-pgrestore.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pg_restore"
+HREF="app-pgrestore.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="reindexdb"
+HREF="app-reindexdb.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="reindexdb"
+HREF="app-reindexdb.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="APP-PSQL"
+></A
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN80168"
+></A
+><H2
+>&#21517;&#21069;</H2
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>対話的ターミナル
+    </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN80175"
+></A
+><H2
+>&#27010;&#35201;</H2
+><P
+><TT
+CLASS="COMMAND"
+>psql</TT
+> [<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>...] [<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+>
+    [<TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+>]]</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN80184"
+></A
+><H2
+>説明</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>とは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のターミナル型フロントエンドです。
+対話的に問い合わせを入力し、それを<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に対して発行して、結果を確認することができます。
+また、ファイルから入力を読み込むことも可能です。
+さらに、スクリプトの記述を簡便化したり、様々なタスクを自動化したりする、いくつものメタコマンドとシェルに似た各種の機能を備えています。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="R1-APP-PSQL-3"
+></A
+><H2
+>オプション</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="OPTION"
+>-a</TT
+><BR><TT
+CLASS="OPTION"
+>--echo-all</TT
+></DT
+><DD
+><P
+>読み込んだ全ての行を標準出力に表示します。
+これは対話式モードよりもスクリプト処理の際に有用です。
+<TT
+CLASS="VARNAME"
+>ECHO</TT
+>変数を<TT
+CLASS="LITERAL"
+>all</TT
+>に設定するのと同じ意味を持ちます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-A</TT
+><BR><TT
+CLASS="OPTION"
+>--no-align</TT
+></DT
+><DD
+><P
+>位置揃えなしの出力モードに切り替えます
+（デフォルトの出力モードは位置揃えありです）。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-c <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--command=<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+></TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>に対し、<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>という1つのコマンド文字列を実行し、終了するよう指示します。
+このコマンドはシェルスクリプト内で有用です。
+このオプションを使用すると起動ファイル（<TT
+CLASS="FILENAME"
+>psqlrc</TT
+> and <TT
+CLASS="FILENAME"
+>~/.psqlrc</TT
+>）は無視されます。
+      </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>は、サーバで完全に解析可能な（つまり、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>特有の機能は含まない）コマンド文字列、もしくは、バックスラッシュコマンド1つである必要があります。
+このため、このオプションでは<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>と<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>メタコマンドを混在させることはできません。
+これらを同時に使用するには、<TT
+CLASS="LITERAL"
+>echo '\x \\ SELECT * FROM foo;' | psql</TT
+>のようにパイプを使って文字列を<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>に渡します（<TT
+CLASS="LITERAL"
+>\\</TT
+>はメタコマンドの区切り文字です。）。
+      </P
+><P
+>コマンド文字列が複数のSQLコマンドを含む場合、トランザクションを複数に分ける<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>/<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>コマンドが明示的に文字列内に含まれない限り、それらのコマンドは1つのトランザクションで処理されます。
+これは、同じ文字列を<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の標準入力として渡した場合の動作とは異なります。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-d <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--dbname=<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></TT
+></DT
+><DD
+><P
+>接続するデータベースの名前を指定します。
+コマンドラインでオプション以外の最初の引数として<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+>を指定するのと同じ効力を持ちます。
+      </P
+><P
+>このパラメータに<TT
+CLASS="SYMBOL"
+>=</TT
+>記号が含まれる場合、<TT
+CLASS="PARAMETER"
+>conninfo</TT
+>文字列として扱われます。
+詳しくは<A
+HREF="libpq-connect.html"
+>&#38917;31.1</A
+>を参照してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-e</TT
+><BR><TT
+CLASS="OPTION"
+>--echo-queries</TT
+></DT
+><DD
+><P
+>サーバに送られたコマンドを標準出力にも送ります。
+<TT
+CLASS="VARNAME"
+>ECHO</TT
+>変数を<TT
+CLASS="LITERAL"
+>queries</TT
+>に設定するのと同じ効力を持ちます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-E</TT
+><BR><TT
+CLASS="OPTION"
+>--echo-hidden</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>\d</TT
+>やその他のバックスラッシュコマンドによって生成される実際の問い合わせを表示します。
+これを使って、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の内部動作を調べることができます。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>内部から<TT
+CLASS="VARNAME"
+>ECHO_HIDDEN</TT
+>変数を設定するのと同じ効力を持ちます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-f <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--file=<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+></DT
+><DD
+><P
+>対話式にコマンドを読み取るのではなく、<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>ファイルをコマンドのソースとして使用します。
+このファイルの処理が終了した後、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は終了します。
+これは<TT
+CLASS="COMMAND"
+>\i</TT
+>内部コマンドとほぼ同じ効力を持ちます。
+      </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>に<TT
+CLASS="LITERAL"
+>-</TT
+>（ハイフン）を指定すると、標準入力から読み取られます。
+      </P
+><P
+>このオプションを指定するのと、<TT
+CLASS="LITERAL"
+>psql &lt; <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+>と入力するのでは、微妙に動作が異なります。
+一般的には、両者とも期待通りの動作を行いますが、<TT
+CLASS="LITERAL"
+>-f</TT
+>を使用した場合は、エラーメッセージに行番号を付けるなどの機能がいくつか有効になります。
+また、このオプションを使用した場合、起動時のオーバーヘッドが減少する可能性が若干あります。
+一方、シェルの入力リダイレクションを使用する方法では、（理論的には）全て手作業で入力した場合の出力とまったく同一な出力になることが保証されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-F <TT
+CLASS="REPLACEABLE"
+><I
+>separator</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--field-separator=<TT
+CLASS="REPLACEABLE"
+><I
+>separator</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>separator</I
+></TT
+>を位置揃えを行わない出力におけるフィールド区切り文字として使用します。
+<TT
+CLASS="COMMAND"
+>\pset fieldsep</TT
+>もしくは<TT
+CLASS="COMMAND"
+>\f</TT
+>と同じ効力を持ちます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-h <TT
+CLASS="REPLACEABLE"
+><I
+>hostname</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--host=<TT
+CLASS="REPLACEABLE"
+><I
+>hostname</I
+></TT
+></TT
+></DT
+><DD
+><P
+>サーバを実行しているマシンのホスト名を指定します。
+この値がスラッシュから始まる場合、Unixドメインソケット用のディレクトリとして使用されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-H</TT
+><BR><TT
+CLASS="OPTION"
+>--html</TT
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>表形式を有効にします。
+<TT
+CLASS="LITERAL"
+>\pset format html</TT
+>もしくは<TT
+CLASS="COMMAND"
+>\H</TT
+>コマンドと同じ効力を持ちます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-l</TT
+><BR><TT
+CLASS="OPTION"
+>--list</TT
+></DT
+><DD
+><P
+>利用可能な全てのデータベースを一覧表示し、終了します。
+この他の接続に関連しないオプションは無視されます。
+<TT
+CLASS="COMMAND"
+>\list</TT
+>内部コマンドと似た効力を持ちます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-L <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--log-file=<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+></DT
+><DD
+><P
+>すべての問い合わせの出力を通常の出力先に出力し、さらにファイル<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>に書き出します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-n</TT
+><BR><TT
+CLASS="OPTION"
+>--no-readline</TT
+></DT
+><DD
+><P
+>行編集用のreadlineを使用しません。また履歴も使用しません。
+コピー＆ペースト時のタブ展開を無効にするために有用かもしれません。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-o <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--output=<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+></DT
+><DD
+><P
+>全ての問い合わせの出力を<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>ファイルに書き込みます。
+これは<TT
+CLASS="COMMAND"
+>\o</TT
+>コマンドと同じ効力を持ちます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-p <TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--port=<TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></TT
+></DT
+><DD
+><P
+>サーバが接続監視を行っているTCPポートもしくはローカルUnixドメインソケットファイルの拡張子を指定します。
+<TT
+CLASS="ENVAR"
+>PGPORT</TT
+>環境変数の値、環境変数が設定されていない場合はコンパイル時に指定した値（通常は5432）がデフォルト値となります。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-P <TT
+CLASS="REPLACEABLE"
+><I
+>assignment</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--pset=<TT
+CLASS="REPLACEABLE"
+><I
+>assignment</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>\pset</TT
+>形式により表示オプションを指定します。
+ここでは空白ではなく等号を使って名前と値を区切っていることに注意してください。
+たとえば、出力形式をLaTeXにする場合、<TT
+CLASS="LITERAL"
+>-P format=latex</TT
+>と入力します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-q</TT
+><BR><TT
+CLASS="OPTION"
+>--quiet</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>がメッセージ出力なしで処理を行うように指示します。
+デフォルトでは、ウェルカム（welcome）メッセージや各種の出力情報が表示されますが、
+このオプションを使用した場合、これらのメッセージが表示されません。
+<TT
+CLASS="OPTION"
+>-c</TT
+>オプションと併用すると便利です。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>内で<TT
+CLASS="VARNAME"
+>QUIET</TT
+>変数を設定した場合も、同じ効力を得ることができます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-R <TT
+CLASS="REPLACEABLE"
+><I
+>separator</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--record-separator=<TT
+CLASS="REPLACEABLE"
+><I
+>separator</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>separator</I
+></TT
+>を位置揃えを行わない出力におけるレコード区切り文字として使用します。
+これは<TT
+CLASS="COMMAND"
+>\pset recordsep</TT
+>コマンドと同じです。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-s</TT
+><BR><TT
+CLASS="OPTION"
+>--single-step</TT
+></DT
+><DD
+><P
+>シングルステップモードで実行します。
+これは各コマンドがサーバに送信される前に、ユーザに対して実行するかキャンセルするかについて確認を求めることを意味します。
+スクリプトのデバッグを行う時に使用してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-S</TT
+><BR><TT
+CLASS="OPTION"
+>--single-line</TT
+></DT
+><DD
+><P
+>シングル行モードで実行します。このモードでは、セミコロンと同じように改行もSQLコマンドの終端として扱われます。
+      </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>このモードはどうしてもこのような方式を使用したいユーザ向けに用意されたものです。無理に使用する必要はありません。
+特に、1行に<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>とメタコマンドを混在させる場合、経験の浅いユーザにとってその実行順番は必ずしもわかりやすいものではありません。
+      </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-t</TT
+><BR><TT
+CLASS="OPTION"
+>--tuples-only</TT
+></DT
+><DD
+><P
+>列名と結果の行数フッタなどの表示を無効にします。
+これは、<TT
+CLASS="COMMAND"
+>\t</TT
+>コマンドとまったく同じ効力を持ちます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-T <TT
+CLASS="REPLACEABLE"
+><I
+>table_options</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--table-attr=<TT
+CLASS="REPLACEABLE"
+><I
+>table_options</I
+></TT
+></TT
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>の<CODE
+CLASS="SGMLTAG"
+>table</CODE
+>タグで使用されるオプションを指定します。
+詳細は<TT
+CLASS="COMMAND"
+>\pset</TT
+>を参照してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-U <TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--username=<TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+></TT
+></DT
+><DD
+><P
+>デフォルトのユーザではなく<TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+>ユーザとしてデータベースに接続します
+（当然、指定したユーザがデータベースに接続する権限を持っていなければなりません）。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-v <TT
+CLASS="REPLACEABLE"
+><I
+>assignment</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--set=<TT
+CLASS="REPLACEABLE"
+><I
+>assignment</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--variable=<TT
+CLASS="REPLACEABLE"
+><I
+>assignment</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>\set</TT
+>内部コマンドのように、変数の代入を行います。
+値がある場合、コマンド上では、名前と値を等号（=）で区切る必要があることに注意してください。
+等号を指定しないと変数が未設定の状態になります。
+値なしの変数を設定するには、値を指定しないで等号のみ使用してください。
+これらの代入は起動時の非常に早い段階で行われます。
+そのため、内部で使用するために予約されている変数は後で上書きされる可能性があります。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-V</TT
+><BR><TT
+CLASS="OPTION"
+>--version</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のバージョンを表示し、終了します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-w</TT
+><BR><TT
+CLASS="OPTION"
+>--no-password</TT
+></DT
+><DD
+><P
+>パスワードの入力を促しません。
+サーバがパスワード認証を必要とし、かつ、<TT
+CLASS="FILENAME"
+>.pgpass</TT
+>ファイルなどの他の方法が利用できない場合、接続試行は失敗します。
+バッチジョブやパスワードを入力するユーザが存在しない場合にこのオプションは有用かもしれません。
+      </P
+><P
+>このオプションがセッション全体にわたって設定され続けることに注意してください。
+このため<TT
+CLASS="COMMAND"
+>\connect</TT
+>メタコマンドの使用に関しても初期接続試行と同様に影響します。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-W</TT
+><BR><TT
+CLASS="OPTION"
+>--password</TT
+></DT
+><DD
+><P
+>データベースに接続する前に、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は強制的にパスワード入力を促します。
+      </P
+><P
+>サーバがパスワード認証を要求する場合<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は自動的にパスワード入力を促しますので、これが重要になることはありません。
+しかし、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は、サーバにパスワードが必要かどうかを判断するための接続試行を無駄に行います。
+こうした余計な接続試行を防ぐために<TT
+CLASS="OPTION"
+>-W</TT
+>の入力が有意となる場合もあります。
+      </P
+><P
+>このオプションがセッション全体に対して残ることに注意してください。
+このため初期接続試行と同様に<TT
+CLASS="COMMAND"
+>\connect</TT
+>メタコマンドの使用にも影響を与えます。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-x</TT
+><BR><TT
+CLASS="OPTION"
+>--expanded</TT
+></DT
+><DD
+><P
+>拡張テーブル形式モードを有効にします。
+これは<TT
+CLASS="COMMAND"
+>\x</TT
+>コマンドと同じです。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-X,</TT
+><BR><TT
+CLASS="OPTION"
+>--no-psqlrc</TT
+></DT
+><DD
+><P
+>起動用ファイル（<TT
+CLASS="FILENAME"
+>psqlrc</TT
+>ファイルもしくはユーザ用の<TT
+CLASS="FILENAME"
+>~/.psqlrc</TT
+>ファイル）を読み込みません。
+      </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-1</TT
+><BR><TT
+CLASS="OPTION"
+>--single-transaction</TT
+></DT
+><DD
+><P
+><TT
+CLASS="OPTION"
+>-f</TT
+>オプションを使用して<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>がスクリプトを実行する時、このオプションを併記すると、スクリプトを<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>/<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>で囲み、単一トランザクション内でスクリプトを実行します。
+これにより確実にすべてのコマンドが完全に成功するか、変更がまったく行われないかのいずれかになります。
+       </P
+><P
+>スクリプト内部で<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>、<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>、<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>を使用している場合、このオプションは想定した効果をもたらしません。
+また、スクリプト内部にトランザクションブロック内部で実行することができないコマンドが含まれている場合、このオプションを指定することで、そのコマンドは失敗（そしてそのためにトランザクション全体が失敗）します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-?</TT
+><BR><TT
+CLASS="OPTION"
+>--help</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のコマンドライン引数に関するヘルプを表示し、終了します。
+      </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN80529"
+></A
+><H2
+>終了状態</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は、正常に終了した時には0を、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>にとって致命的なエラー（メモリ不足やファイルが見つからないなど）が発生した時には1を、セッションが対話式でない状態でサーバとの接続が不完全になった時には2を、<TT
+CLASS="VARNAME"
+>ON_ERROR_STOP</TT
+>変数が設定されている状態でスクリプトでエラーが発生した時には3をシェルに返します。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN80535"
+></A
+><H2
+>使用方法</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="R2-APP-PSQL-CONNECTING"
+></A
+><H3
+>データベースへの接続</H3
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の正式なクライアントアプリケーションです。
+データベースに接続するには、接続するデータベース名、ホスト名、サーバのポート番号、接続する際に使用するユーザ名がわかっていなければなりません。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>では、それらをコマンドラインオプションで指定することができます。接続するデータベース名は<TT
+CLASS="OPTION"
+>-d</TT
+>、ホスト名は<TT
+CLASS="OPTION"
+>-h</TT
+>、サーバのポート番号は<TT
+CLASS="OPTION"
+>-p</TT
+>、接続するユーザ名は<TT
+CLASS="OPTION"
+>-U</TT
+>を使用してそれぞれ指定します。
+オプションに属さない引数がある場合、それはデータベース名（データベース名が与えられている場合にはユーザ名）とみなされます。
+これらのオプションは全て指定されている必要はありません。指定されていない時はデフォルト値が使用されます。
+ホスト名を省略した場合、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はUnixドメインソケット経由でローカルホストにあるサーバに、Unixドメインソケットを持たないマシンでは<TT
+CLASS="LITERAL"
+>localhost</TT
+>へのTCP/IP経由で接続します。
+デフォルトのポート番号はコンパイル時に設定されます。
+データベースサーバは同じデフォルト値を使用するので、多くの場合、ポートは指定する必要はありません。
+デフォルトのユーザ名とデータベース名は、Unixのユーザ名です。
+任意のユーザ名で全てのデータベースに接続できるわけではありません。
+データベース管理者は、接続権限をユーザに知らせておかなければなりません。
+    </P
+><P
+>デフォルトがまったく適用できない時は、入力の手間を省くために、環境変数<TT
+CLASS="ENVAR"
+>PGDATABASE</TT
+>、<TT
+CLASS="ENVAR"
+>PGHOST</TT
+>、<TT
+CLASS="ENVAR"
+>PGPORT</TT
+>、<TT
+CLASS="ENVAR"
+>PGUSER</TT
+>に適当な値を設定することもできます。
+（この他の環境変数については、<A
+HREF="libpq-envars.html"
+>&#38917;31.13</A
+>を参照してください。）
+また、<TT
+CLASS="FILENAME"
+>~/.pgpass</TT
+>ファイルを使用すれば、定常的なパスワードの入力を防ぐことができ、便利です。
+詳細は<A
+HREF="libpq-pgpass.html"
+>&#38917;31.14</A
+>を参照してください。
+    </P
+><P
+>他の接続パラメータの指定方法として<TT
+CLASS="PARAMETER"
+>conninfo</TT
+>文字列があります。
+これは、データベース名の代わりに使用されます。
+この機構により、接続全体に関する非常に幅広い制御を行うことができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$ <KBD
+CLASS="USERINPUT"
+>psql "service=myservice sslmode=require"</KBD
+></PRE
+><P>
+この方法では接続パラメータの検索に、<A
+HREF="libpq-ldap.html"
+>&#38917;31.16</A
+>で説明するLDAPを使用することもできます。
+利用できる接続オプションのすべてについての詳細は、<A
+HREF="libpq-connect.html"
+>&#38917;31.1</A
+>を参照してください。
+    </P
+><P
+>何らかの原因（権限がない、指定したホストでサーバが稼働していないなど）で接続ができなかった場合は、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はエラーメッセージを表示し、終了します。
+    </P
+><P
+>標準入力または標準出力の内最低1つが端末である場合、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はクライアントの符号化方式を<SPAN
+CLASS="QUOTE"
+>"auto"</SPAN
+>に設定します。
+これはロケール設定（Unixシステムでは<TT
+CLASS="ENVAR"
+>LC_CTYPE</TT
+>環境変数）から適切なクライアント符号化方式を決定します。
+想定した通りに動作しない場合、<TT
+CLASS="ENVAR"
+>PGCLIENTENCODING</TT
+>環境変数を使用してクライアント符号化方式を上書きすることができます。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="R2-APP-PSQL-4"
+></A
+><H3
+>SQLコマンドの入力</H3
+><P
+>通常の操作において、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が現在接続しているデータベース名の後に<TT
+CLASS="LITERAL"
+>=&gt;</TT
+>の文字列が付いたプロンプトを表示します。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$ <KBD
+CLASS="USERINPUT"
+>psql testdb</KBD
+>
+psql (9.1.4)
+Type "help" for help.
+
+
+testdb=&gt;</PRE
+><P>
+    </P
+><P
+>プロンプトに対しユーザは<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドを入力することができます。
+通常、入力された行は問い合わせ終了を意味するセミコロンに達した時点でサーバへと送信されます。
+つまり、改行は問い合わせの終了とはみなされません。
+したがって、わかりやすくするために、コマンドは複数の行にわたって記述することができます。
+コマンドが送信され問題なく実行されると、画面にコマンドの結果が表示されます。
+    </P
+><P
+>また、コマンドが実行される度に、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は<A
+HREF="sql-listen.html"
+>LISTEN</A
+>と<A
+HREF="sql-notify.html"
+>NOTIFY</A
+>によって生成された非同期通知イベントを検査します。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="APP-PSQL-META-COMMANDS"
+></A
+><H3
+>メタコマンド</H3
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>内で入力されたコマンドのうち、バックスラッシュで始まり、引用符で囲まれていないものは、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>自身が実行する<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のメタコマンドとして扱われます。
+これらのコマンドを使うと、データベースを管理したりスクリプトを作成するにあたって、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>がより便利になります。
+メタコマンドはよくスラッシュコマンド、またはバックスラッシュコマンドと呼ばれます。
+    </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>コマンドは、バックスラッシュ、コマンド本体、引数の順につなげた形式になっています。
+引数とコマンド本体の間と引数間は、空白文字によって分割されています。
+    </P
+><P
+>引数に空白を含める場合は単一引用符で囲みます。
+単一引用符を引数に含める場合には、その単一引用符を二重にしてください。
+単一引用符で囲われた文字は、C言語と同じような置換の対象となります。
+このような文字には、<TT
+CLASS="LITERAL"
+>\n</TT
+>（改行）、<TT
+CLASS="LITERAL"
+>\t</TT
+>（タブ）、<TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>digits</I
+></TT
+>（8進数で表された文字）、<TT
+CLASS="LITERAL"
+>\x</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>digits</I
+></TT
+>（16進数で表された文字）があります。
+    </P
+><P
+>引用符で囲まれておらず、かつコロン（<TT
+CLASS="LITERAL"
+>:</TT
+>）で開始する引数は、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>変数として扱われます。
+この時は、変数の値が引数となります。
+変数名が単一引用符でくくられている場合(例えば<TT
+CLASS="LITERAL"
+>:'var'</TT
+>)、SQLリテラルとしてエスケープされ、その結果は引数として使用されます。
+変数名が二重引用符でくくられている場合、SQL識別子としてエスケープされ、その結果は引数として使用されます。
+    </P
+><P
+>逆引用符（<TT
+CLASS="LITERAL"
+>`</TT
+>）で囲まれた引数は、コマンドラインとして認識され、シェルに渡されます。
+そして、コマンドの結果（末尾の改行は削除されます）が引数の値とみなされます。
+逆引用符に対しても上記のエスケープシーケンスが該当します。
+    </P
+><P
+>コマンドには、引数として<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の（テーブル名などの）識別子を取るものがあります。
+これらの引数は次のような<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の構文規則に従います。 
+引用符を伴わない文字は強制的に小文字になります。しかし、二重引用符（<TT
+CLASS="LITERAL"
+>"</TT
+>）で囲まれると、大文字小文字変換が行われず、空白文字を識別子内に含めることができます。
+さらに、二重引用符内では、連続する2つの二重引用符は1つの二重引用符とみなされます。
+例えば、<TT
+CLASS="LITERAL"
+>FOO"BAR"BAZ</TT
+>は<TT
+CLASS="LITERAL"
+>fooBARbaz</TT
+>と解釈され、<TT
+CLASS="LITERAL"
+>"A weird"" name"</TT
+>は<TT
+CLASS="LITERAL"
+>A weird" name</TT
+>になります。
+    </P
+><P
+>引数の解析は行末または引用符で囲まれていないもう1つのバックスラッシュが見つかると終了します。
+引用符がないバックスラッシュは新しいメタコマンドの始まりと解釈されます。
+<TT
+CLASS="LITERAL"
+>\\</TT
+>（バックスラッシュ2つ）という特別な文字の並びは引数の終わりを意味するので、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドが残されている場合は、その解析を続けます。
+このように、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドと<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>コマンドは1つの行に自由に混合して記述することができます。
+しかし、あらゆる場合において、メタコマンドの引数は行をまたぐことはできません。
+    </P
+><P
+>メタコマンドとして、以下のものが定義されています。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>\a</TT
+></DT
+><DD
+><P
+>現在のテーブルの出力形式が「揃えない」になっていれば「揃える」に、
+「揃える」になっていれば「揃えない」に設定します。
+このコマンドは後方互換性を保持するためにあります。
+より一般的な解決策は<TT
+CLASS="COMMAND"
+>\pset</TT
+>を参照してください。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\c</TT
+> or <TT
+CLASS="LITERAL"
+>\connect</TT
+> <TT
+CLASS="LITERAL"
+>[ <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> [ <TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+> ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+> ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+> ] ]</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバへの接続を新規に確立します。
+新規接続に成功した場合、以前の接続は閉ざされます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+>のいずれかが省略、あるいは <TT
+CLASS="LITERAL"
+>-</TT
+>と指定された場合、対応するパラメータの値はこれまでの接続の値が使用されます。
+これまで接続されていない場合は、そのパラメータの値には<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>のデフォルト値が使用されます。
+        </P
+><P
+>接続の試行が（ユーザ名の間違いやアクセス拒否などの理由で）失敗した場合、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が対話式モードである場合に限って、それまでの接続が保持されます。
+非対話式スクリプトを実行している場合は、処理はエラーとなり、即座に停止します。
+この実装の違いは、対話モードでは入力ミスに対するユーザの簡便性を考慮し、非対話モードではスクリプトによって間違ったデータベースを操作することを防ぐための安全策を考慮した結果生じています。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\C [ <TT
+CLASS="REPLACEABLE"
+><I
+>title</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>問い合わせ結果として表示されるテーブルタイトルの設定、または、タイトルの設定解除を行います。
+このコマンドは、<TT
+CLASS="LITERAL"
+>\pset title <TT
+CLASS="REPLACEABLE"
+><I
+>title</I
+></TT
+></TT
+>と同じ効力を持ちます。
+（このコマンド名は<SPAN
+CLASS="QUOTE"
+>"caption"</SPAN
+>に由来します。
+以前は<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>のテーブルの標題（caption）を設定するためだけに使われていたためです。）
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\cd [ <TT
+CLASS="REPLACEABLE"
+><I
+>directory</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>現在の作業ディレクトリを<TT
+CLASS="REPLACEABLE"
+><I
+>directory</I
+></TT
+>に変更します。
+引数がない場合は、現在のユーザのホームディレクトリに変更します。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>現在の作業ディレクトリを表示するには、<TT
+CLASS="LITERAL"
+>\! pwd</TT
+>を使用してください。
+         </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\conninfo</TT
+></DT
+><DD
+><P
+>現在のデータベース接続に関する情報を出力します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\copy { <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_list</I
+></TT
+> ) ] | ( <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> ) }
+        { <TT
+CLASS="LITERAL"
+>from</TT
+> | <TT
+CLASS="LITERAL"
+>to</TT
+> }
+        { <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+> | stdin | stdout | pstdin | pstdout }
+        [ with ]
+            [ binary ]
+            [ oids ]
+            [ delimiter [ as ] '<TT
+CLASS="REPLACEABLE"
+><I
+>character</I
+></TT
+>' ]
+            [ null [ as ] '<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>' ]
+            [ csv
+              [ header ]
+              [ quote [ as ] '<TT
+CLASS="REPLACEABLE"
+><I
+>character</I
+></TT
+>' ]
+              [ escape [ as ] '<TT
+CLASS="REPLACEABLE"
+><I
+>character</I
+></TT
+>' ]
+              [ force quote <TT
+CLASS="REPLACEABLE"
+><I
+>column_list</I
+></TT
+> | * ]
+              [ force not null <TT
+CLASS="REPLACEABLE"
+><I
+>column_list</I
+></TT
+> ] ]</TT
+></DT
+><DD
+><P
+>フロントエンド（クライアント）コピーを行います。
+これは<A
+HREF="sql-copy.html"
+>COPY</A
+> <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドを実行する操作ですが、サーバで指定ファイルに対する読み込みまたは書き込みを行うのではなく、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>がファイルの読み書きや、サーバとローカルファイルシステム間のデータ送信を行います。 
+この場合、ファイルへのアクセス権限はサーバではなくローカルユーザのものを使用するので、SQLのスーパーユーザ権限は必要ありません。
+        </P
+><P
+>このコマンドの構文は<A
+HREF="sql-copy.html"
+>COPY</A
+> <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドに似ています（詳細はこのコマンドの説明を参照してください）。
+このため、<TT
+CLASS="COMMAND"
+>\copy</TT
+>コマンドには特別な解析規則が適用されていることに注意してください。
+特に、変数の置換規則やバックスラッシュエスケープは適用されません。
+        </P
+><P
+><TT
+CLASS="LITERAL"
+>\copy ... from stdin | to stdout</TT
+>はそれぞれコマンドの入力と出力を元に読み書きを行います。
+コマンドの発行源と同じところから、<TT
+CLASS="LITERAL"
+>\.</TT
+>を読み取るまで、あるいは、ストリームが<ACRONYM
+CLASS="ACRONYM"
+>EOF</ACRONYM
+>に達するまで全ての行を読み続けます。
+出力はコマンドの出力と同じところに送られます。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の標準入力や標準出力を使用するには、<TT
+CLASS="LITERAL"
+>pstdin</TT
+>や<TT
+CLASS="LITERAL"
+>pstdout</TT
+>を使用してください。
+これは、SQLスクリプトファイルの内部でテーブルにデータを投入する場合に便利です。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>この操作は<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドほど効率が良いわけではありません。
+これは、全てのデータをクライアント/サーバ接続を通じてやり取りしなければならないからです。
+データ量が多い時は<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドを使用する方が良いでしょう。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\copyright</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の著作権および配布条項を表示します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\d[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>に一致する各リレーション（テーブル、ビュー、インデックス、シーケンス、外部テーブル）または複合型について、全ての列、列の型、テーブル空間（デフォルト以外を使用している場合）、<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>やデフォルトなどの特別な属性を表示します。
+関連付けられているインデックス、制約、ルールおよびトリガも表示されます。
+外部テーブルでは関連する外部サーバも表示されます。
+（<SPAN
+CLASS="QUOTE"
+>"パターンのマッチング"</SPAN
+>については後述の<A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><I
+>パターン</I
+></A
+>で定義されています。）
+        </P
+><P
+><TT
+CLASS="LITERAL"
+>\d+</TT
+>という形式も同一のコマンドを表しますが、より多くの情報を表示します。
+こちらでは、テーブルの列に関連付けられたコメントやテーブルにOIDが存在するかどうか、さらにリレーションがビューの場合はビューの定義、リレーションが外部テーブルの場合汎用オプションも表示されます。
+        </P
+><P
+>デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは文字<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+        </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="COMMAND"
+>\d</TT
+>が<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>引数なしで使用された場合は、<TT
+CLASS="COMMAND"
+>\dtvsE</TT
+>と同じ意味となり、可視である全てのテーブル、ビュー、シーケンス、外部テーブルの一覧が表示されます。
+これは単に便宜上のものです。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\da[S] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>全ての集約関数と、その操作対象となるデータ型、戻り値のデータ型の一覧を表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、そのパターンに名前が一致する集約のみが表示されます。
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは文字<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\db[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>テーブル空間を一覧表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、そのパターンに名前が一致するテーブル空間のみが表示されます。
+コマンド名に<TT
+CLASS="LITERAL"
+>+</TT
+>が付与された場合、各オブジェクトに関連付けされた権限についても表示します。
+
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dc[S] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>文字セット符号化方式間の変換の一覧を表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、そのパターンに名前が一致する変換のみが表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dC [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>型キャストの一覧を表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、そのパターンに元データ型または変換先データ型が一致するキャストのみが表示されます。
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは文字<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dd[S] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>に一致するオブジェクトの説明を表示します。
+引数が指定されていない場合は、全ての可視的なオブジェクトの説明を表示します。
+どちらの場合でも、一覧に表示されるのは説明を持つオブジェクトのみです
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは文字<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+<SPAN
+CLASS="QUOTE"
+>"オブジェクト"</SPAN
+>には、集約、関数、演算子、型、リレーション（テーブル、ビュー、インデックス、シーケンス）、ラージオブジェクト、ルール、トリガが含まれます。
+次に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>=&gt; <KBD
+CLASS="USERINPUT"
+>\dd version</KBD
+>
+                     Object descriptions
+   Schema   |  Name   |  Object  |        Description
+------------+---------+----------+---------------------------
+ pg_catalog | version | function | PostgreSQL version string
+(1 row)</PRE
+><P>
+        </P
+><P
+>オブジェクトの説明は<A
+HREF="sql-comment.html"
+>COMMENT</A
+> <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドを使用して作成することができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\ddp [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>デフォルトのアクセス権限設定を列挙します。
+組み込みのデフォルトから権限設定が変更されたロール（もし適切ならばスキーマ）ごとに1項目示されます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、パターンに一致するロール名またはスキーマ名の項目のみが列挙されます。
+        </P
+><P
+><A
+HREF="sql-alterdefaultprivileges.html"
+>ALTER DEFAULT PRIVILEGES</A
+>コマンドを使用して、デフォルトのアクセス権限を設定します。
+権限表示の意味は<A
+HREF="sql-grant.html"
+>GRANT</A
+>で説明します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dD[S] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>ドメインを一覧表示します。 
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定されている場合は、パターンに名前が一致するドメインのみが表示されます。
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは文字<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dE[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+><BR><TT
+CLASS="LITERAL"
+>\di[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+><BR><TT
+CLASS="LITERAL"
+>\ds[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+><BR><TT
+CLASS="LITERAL"
+>\dt[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+><BR><TT
+CLASS="LITERAL"
+>\dv[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>このコマンド群において、<TT
+CLASS="LITERAL"
+>E</TT
+>、<TT
+CLASS="LITERAL"
+>i</TT
+>, <TT
+CLASS="LITERAL"
+>s</TT
+>、<TT
+CLASS="LITERAL"
+>t</TT
+>、<TT
+CLASS="LITERAL"
+>v</TT
+>という文字はそれぞれ、外部テーブル、インデックス、シーケンス、テーブル、ビューを表します。
+これらの種類のオブジェクトのリストを入手するために、これらの文字の中の任意の文字またはすべてを指定することができます。
+例えば、<TT
+CLASS="LITERAL"
+>\dit</TT
+>はインデックスとテーブルを列挙します。
+<TT
+CLASS="LITERAL"
+>+</TT
+>がコマンド名に付与された場合、各オブジェクトは、もしあればディスク上の物理容量と関連する説明をつけて列挙されます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定されている場合は、パターンに名称が一致する項目のみが表示されます。
+デフォルトでは、ユーザが作成したオブジェクトのみが表示されます。
+システムオブジェクトを含めるためにはパターンまたは<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を付与してください。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\des[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>異種サーバ（分かりやすく言うと<SPAN
+CLASS="QUOTE"
+>"外部サーバ"</SPAN
+>）を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定されている場合は、名前がパターンに一致するサーバのみが表示されます。
+<TT
+CLASS="LITERAL"
+>\des+</TT
+>構文が使用された場合、各サーバの完全な説明、サーバのACL、型、バージョン、オプションが表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\det[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>外部テーブル（ニーモニック<SPAN
+CLASS="QUOTE"
+>"external tables"</SPAN
+>）を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、パターンにテーブル名またはスキーマ名が一致する項目のみが列挙されます。
+<TT
+CLASS="LITERAL"
+>\det+</TT
+>が使用された場合、汎用オプションも表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\deu[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>ユーザマップ（分かりやすく言うと<SPAN
+CLASS="QUOTE"
+>"外部ユーザ"</SPAN
+>）を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定されている場合は、名前がパターンに一致するユーザのみが表示されます。
+<TT
+CLASS="LITERAL"
+>\deu+</TT
+>構文が使用された場合、各マップについて追加情報が表示されます。
+        </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="90%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+><TT
+CLASS="LITERAL"
+>\deu+</TT
+>ではリモートユーザのユーザ名とパスワードも表示される可能性があります。
+これらを外部に曝さないように注意しなければなりません。
+        </P
+></TD
+></TR
+></TABLE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dew[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>異種データラッパ（分かりやすく言うと<SPAN
+CLASS="QUOTE"
+>"外部ラッパ"</SPAN
+>）を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定されている場合、名前がパターンに一致する異種データラッパのみが表示されます。
+<TT
+CLASS="LITERAL"
+>\dew+</TT
+>構文が使用された場合、異種データラッパのACLとオプションも表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\df[antwS+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>関数とその引数と戻り値の型、および、<SPAN
+CLASS="QUOTE"
+>"agg"</SPAN
+> (集約)、<SPAN
+CLASS="QUOTE"
+>"normal"</SPAN
+>、<SPAN
+CLASS="QUOTE"
+>"trigger"</SPAN
+>、<SPAN
+CLASS="QUOTE"
+>"window"</SPAN
+>で分類される関数の種類の一覧を表示します。
+特定種類の関数のみを表示させるには、対応する文字<TT
+CLASS="LITERAL"
+>a</TT
+>、<TT
+CLASS="LITERAL"
+>n</TT
+>、<TT
+CLASS="LITERAL"
+>t</TT
+>、<TT
+CLASS="LITERAL"
+>w</TT
+>をコマンドに付けて下さい。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定されている場合は、そのパターンに名前が一致する関数のみが表示されます。
+<TT
+CLASS="LITERAL"
+>\df+</TT
+>構文が使われた場合、各関数の、揮発性、言語、ソースコードや説明を含む付加的情報も表示されます。
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは文字<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>特定の型を引数とする関数や特定の型を返す関数を検索するには、ページャの検索機能を使用して<TT
+CLASS="LITERAL"
+>\df</TT
+>の出力をスクロールしてください。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dF[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>全文検索設定を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、このパターンにマッチする名前の設定のみが表示されます。
+<TT
+CLASS="LITERAL"
+>\dF+</TT
+>形式が使用された場合、背後の全文検索パーサや各パーサトークン型についての辞書リストなど各設定の完全な説明が表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dFd[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>全文検索辞書を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、このパターンにマッチする名前の辞書のみが表示されます。
+<TT
+CLASS="LITERAL"
+>\dFd+</TT
+>形式が使用された場合、選択された辞書それぞれについて背後の全文検索テンプレートやオプション値など更なる情報が表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dFp[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>全文検索パーサを列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、このパターンにマッチする名前のパーサのみが表示されます。
+<TT
+CLASS="LITERAL"
+>\dFp+</TT
+>形式が使用された場合、背後の関数や認知されるトークン型のリストなど各パーサの完全な説明が表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dFt[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>テキスト検索テンプレートを列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定された場合、このパターンにマッチする名前のテンプレートのみが表示されます。
+<TT
+CLASS="LITERAL"
+>\dFt+</TT
+>形式が使用された場合、テンプレートそれぞれについて背後の関数名など更なる情報が表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dg[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>データベースロールを一覧表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>が指定されている場合は、そのパターンに名前が一致するロールのみが表示されます。
+（このコマンドは実質<TT
+CLASS="LITERAL"
+>\du</TT
+>と同じになりました。）
+<TT
+CLASS="LITERAL"
+>\dg+</TT
+>形式が使用された場合、ロールそれぞれについてロールのコメントなどの更なる情報が表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dl</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>\lo_list</TT
+>の別名で、ラージオブジェクトの一覧を表示します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dL[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>手続き言語を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに名前が一致する言語のみが表示されます。
+デフォルトではユーザが作成した言語のみが表示されます。
+<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+<TT
+CLASS="LITERAL"
+>+</TT
+>がコマンド名に追加すると、呼び出しハンドラ、有効性検証関数、アクセス権限、システムオブジェクトか否かという情報を付けて各言語が列挙されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dn[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>スキーマ（名前空間）の一覧を表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに名前が一致するスキーマのみが表示されます。
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+コマンド名の後に<TT
+CLASS="LITERAL"
+>+</TT
+>を付加すると、各オブジェクトに関連付けられている権限と説明が（存在すれば）表示されます。
+
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\do[S] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>演算子と、その演算項目と戻り値を一覧表示します。 
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに名前が一致する演算子のみが表示されます。
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは文字<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dO[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>照合順序を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに名前が一致する照合順序のみが表示されます。
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+コマンド名の後に<TT
+CLASS="LITERAL"
+>+</TT
+>を付加すると、各照合順序に関連付けられている説明が（存在すれば）表示されます。
+現在のデータベースの符号化方式で使用できる照合順序のみが表示されます。
+このため結果は同じインストレーションにあるデータベースによって異なる可能性があります。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dp [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>テーブル、ビュー、シーケンスを、関連付けられているアクセス権限とともに一覧表示します。 
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに名前が一致するテーブル、ビュー、シーケンスのみが表示されます。
+        </P
+><P
+><A
+HREF="sql-grant.html"
+>GRANT</A
+>コマンドと<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>コマンドは、アクセス権限の設定に使われます。
+権限の表示に関する意味は<A
+HREF="sql-grant.html"
+>GRANT</A
+>で説明します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\drds [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>role-pattern</I
+></TT
+></A
+> [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>database-pattern</I
+></TT
+></A
+> ] ]</TT
+></DT
+><DD
+><P
+>定義済み設定に関する設定を列挙します。
+これらの設定はロール固有、データベース固有、または両者に対して行うことができます。
+<TT
+CLASS="LITERAL"
+>role-pattern</TT
+>および<TT
+CLASS="LITERAL"
+>database-pattern</TT
+>はそれぞれ特定のロールやデータベースを選択するために使用します。
+省略された、または<TT
+CLASS="LITERAL"
+>*</TT
+>が指定された場合、それぞれロール固有でない、または、データベース固有でない設定を含むすべての設定を列挙します。
+        </P
+><P
+><A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+>および<A
+HREF="sql-alterdatabase.html"
+>ALTER DATABASE</A
+>コマンドを使用してロール単位およびデータベース単位の設定を設定します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dT[S+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>データ型を一覧表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに一致する名前を持つ型のみを表示します。
+<TT
+CLASS="LITERAL"
+>+</TT
+>をコマンド名に付けると、型ごとに、型の内部名、サイズ、<TT
+CLASS="TYPE"
+>enum</TT
+>型では許される値も一緒に表示されます。
+デフォルトではユーザが作成したオブジェクトのみが表示されます。
+パターンまたは文字<TT
+CLASS="LITERAL"
+>S</TT
+>修飾子を追加すると、システムオブジェクトが表示に追加されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\du[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>データベースロールを一覧表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに一致する名前のロールのみを表示します。
+<TT
+CLASS="LITERAL"
+>\du+</TT
+>形式が使用された場合、ロールそれぞれについてロールのコメントなどの更なる情報が表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\dx[+] [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>インストールされた拡張を列挙します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに一致する名前の拡張のみを表示します。
+<TT
+CLASS="LITERAL"
+>\dx+</TT
+>形式が使用された場合、一致する拡張それぞれについて拡張に属するすべてのオブジェクトが表示されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\e</TT
+>または<TT
+CLASS="LITERAL"
+>\edit</TT
+> <TT
+CLASS="LITERAL"
+> [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+> </SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>line_number</I
+></TT
+> </SPAN
+>] </TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>が指定された場合、このファイルが編集されます。
+エディタを終了した後、その内容は問い合わせバッファにコピーされます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>がない場合、現在の問い合わせバッファが一時ファイルにコピーされ、同様に編集されます。
+        </P
+><P
+>次に、新しい問い合わせバッファは、通常の<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の規則に従い、全体を1行として再解析されます
+（このため、この方法では<SPAN
+CLASS="QUOTE"
+>"スクリプト"</SPAN
+>を作成できません。
+この目的のためには<TT
+CLASS="COMMAND"
+>\i</TT
+>を使用してください）。
+これは問い合わせの終端がセミコロンである（もしくは問い合わせがセミコロンを含む）場合、すぐに実行されることを意味しています。
+さもなければ、単に問い合わせバッファ内に保持されるだけです。
+送信するためにはセミコロンまたは<TT
+CLASS="LITERAL"
+>\g</TT
+>を入力、キャンセルするためには<TT
+CLASS="LITERAL"
+>\r</TT
+>を入力してください。
+        </P
+><P
+>行番号が指定された場合、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はファイルまたは問い合わせバッファ内の指定行にカーソルを移します。
+すべてが数字の単一引数が指定された場合、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はそれをファイル名ではなく行番号であると仮定することに注意してください。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>使用するエディタを設定、調整する方法については<A
+HREF="app-psql.html#APP-PSQL-ENVIRONMENT"
+><I
+>環境</I
+></A
+>を参照してください。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\echo <TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+> [ ... ]</TT
+></DT
+><DD
+><P
+>引数を空白で区切り、標準出力に出力し、改行します。
+出力するスクリプトのところどころに情報を記載する場合に有用です。
+使用例を次に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>=&gt; <KBD
+CLASS="USERINPUT"
+>\echo `date`</KBD
+>
+Tue Oct 26 21:40:57 CEST 1999</PRE
+><P>
+最初の引数が引用符で囲まれていない<TT
+CLASS="LITERAL"
+>-n</TT
+>である場合、最後の改行は出力されません。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+><TT
+CLASS="COMMAND"
+>\o</TT
+>コマンドを使用して問い合わせの出力先を変更した場合、このコマンドではなく、<TT
+CLASS="COMMAND"
+>\qecho</TT
+>を使用した方が良いでしょう。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\ef [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>function_description</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>line_number</I
+></TT
+> </SPAN
+>] </SPAN
+>] </TT
+></DT
+><DD
+><P
+>このコマンドは指名された関数定義を<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>コマンド構文で取り出し、編集します。
+編集は<TT
+CLASS="LITERAL"
+>\edit</TT
+>と同様の方法で行われます。
+エディタ終了後、更新されたコマンドは問い合わせバッファ内で待機しています。
+それを送信するためにはセミコロンか<TT
+CLASS="LITERAL"
+>\g</TT
+>を入力してください。
+取り消す場合は<TT
+CLASS="LITERAL"
+>\r</TT
+>を入力してください。
+        </P
+><P
+>対象の関数を名前単体、または、たとえば<TT
+CLASS="LITERAL"
+>foo(integer, text)</TT
+>のように名前と引数で指定することができます。
+同じ名前の関数が複数存在する場合、引数の型を指定しなければなりません。
+        </P
+><P
+>関数が指定されなかった場合、空の<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>のテンプレートが編集用に表示されます。
+        </P
+><P
+>行番号が指定された場合、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は関数本体における指定行にカーソルを移動します。
+（関数本体は通常ファイルの先頭から始まらないことに注意してください。）
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>使用するエディタを設定、調整する方法については<A
+HREF="app-psql.html#APP-PSQL-ENVIRONMENT"
+><I
+>環境</I
+></A
+>を参照してください。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\encoding [ <TT
+CLASS="REPLACEABLE"
+><I
+>encoding</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>クライアント側の文字セット符号化方式を設定します。
+引数を指定しない場合、このコマンドは現在の符号化方式を表示します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\f [ <TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>位置揃えされていない問い合わせの出力用に、フィールドの区切り文字を設定します。
+デフォルトは、縦棒（<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>|</TT
+>"</SPAN
+>）です。
+一般的な出力オプションの設定方法については、<TT
+CLASS="COMMAND"
+>\pset</TT
+>を参照してください。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\g</TT
+> [ { <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+> | <TT
+CLASS="LITERAL"
+>|</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> } ]</DT
+><DD
+><P
+>現在の問い合わせ入力バッファをサーバに送ります。 
+オプションを指定すれば、問い合わせ出力を<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>に格納したり、その出力を別のUnixシェルに渡し、<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>を実行したりすることもできます。
+<TT
+CLASS="LITERAL"
+>\g</TT
+>だけを指定した場合は、セミコロンと実質的に同じです。
+<TT
+CLASS="LITERAL"
+>\g</TT
+>に引数を指定した場合は、<TT
+CLASS="LITERAL"
+>\o</TT
+>コマンドの<SPAN
+CLASS="QUOTE"
+>"一度限りの"</SPAN
+>代替手段として使用できます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\h</TT
+>または<TT
+CLASS="LITERAL"
+>\help</TT
+> <TT
+CLASS="LITERAL"
+>[ <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>指定した<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドの構文に関するヘルプを表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>が指定されていない場合は、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は構文ヘルプが存在する全てのコマンドの一覧を表示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>をアスタリスク（<TT
+CLASS="LITERAL"
+>*</TT
+>）にすると、全ての<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドの構文ヘルプが表示されます。
+        </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>入力を簡単にするため、複数の単語からなるコマンドを引用符で囲む必要はありません。
+<KBD
+CLASS="USERINPUT"
+>\help alter table</KBD
+>と入力するだけで十分です。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\H</TT
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>問い合わせ出力形式を有効にします。
+<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>形式が有効になっている場合は、デフォルトの位置揃えされたテキスト形式に戻します。
+このコマンドは互換性と簡便性のために存在します。
+他の出力オプションについては、<TT
+CLASS="COMMAND"
+>\pset</TT
+>を参照してください。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\i <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>ファイルから入力を読み取り、キーボードから入力された場合と同じように実行します。
+        </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>読み取られた行を画面に表示させる場合は、<TT
+CLASS="VARNAME"
+>ECHO</TT
+>変数を<TT
+CLASS="LITERAL"
+>all</TT
+>に設定する必要があります。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\l</TT
+>（または<TT
+CLASS="LITERAL"
+>\list</TT
+>）<BR><TT
+CLASS="LITERAL"
+>\l+</TT
+>（または<TT
+CLASS="LITERAL"
+>\list+</TT
+>）</DT
+><DD
+><P
+>サーバ上の全てのデータベースの名前、所有者、文字セット符号化方式、アクセス権限の一覧を表示します。
+コマンド名に<TT
+CLASS="LITERAL"
+>+</TT
+>を付けると、データベースのサイズ、デフォルトのテーブル空間、説明も表示します。
+（サイズ情報は現在のユーザが接続可能なデータベースでのみ表示されます。）
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\lo_export <TT
+CLASS="REPLACEABLE"
+><I
+>loid</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></TT
+></DT
+><DD
+><P
+>データベースから<TT
+CLASS="REPLACEABLE"
+><I
+>loid</I
+></TT
+>という<ACRONYM
+CLASS="ACRONYM"
+>OID</ACRONYM
+>を持つラージオブジェクトを読み取り、<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>に書き出します。
+これは<CODE
+CLASS="FUNCTION"
+>lo_export</CODE
+>サーバ関数とは微妙に異なります。
+<CODE
+CLASS="FUNCTION"
+>lo_export</CODE
+>関数は、データベースサーバを実行しているユーザ権限で、サーバ上のファイルシステムに対して動作します。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>ラージオブジェクトの<ACRONYM
+CLASS="ACRONYM"
+>OID</ACRONYM
+>を確認するには、<TT
+CLASS="COMMAND"
+>\lo_list</TT
+>を使用してください。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\lo_import <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+> [ <TT
+CLASS="REPLACEABLE"
+><I
+>comment</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>ファイルを<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のラージオブジェクトに保存します。
+オプションで、そのオブジェクトに指定したコメントを関連付けることができます。
+下記に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>foo=&gt; <KBD
+CLASS="USERINPUT"
+>\lo_import '/home/peter/pictures/photo.xcf' 'a picture of me'</KBD
+>
+lo_import 152801</PRE
+><P>
+上の応答は、指定したラージオブジェクトがオブジェクトID 152801として受け付けられたことを示します。
+今後この新規作成されたラージオブジェクトにアクセスする場合に、この番号が使用されます。
+可読性を高めるために、常に全てのオブジェクトに人間がわかるようなコメントを関連付けることが推奨されます。
+<TT
+CLASS="COMMAND"
+>\lo_list</TT
+>コマンドではOIDとコメントの両方が表示されます。
+        </P
+><P
+>このコマンドは、ローカルなユーザによってローカルなファイルシステムに対して動作します。一方、サーバ側の<CODE
+CLASS="FUNCTION"
+>lo_import</CODE
+>は、サーバのユーザによってサーバ上のファイルシステムに対して動作します。
+このコマンドとサーバ側の<CODE
+CLASS="FUNCTION"
+>lo_import</CODE
+>は、この点で微妙に異なっています。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\lo_list</TT
+></DT
+><DD
+><P
+>現在データベースに保存されている全ての<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ラージオブジェクトの一覧を、そのオブジェクトに付けられたコメントと一緒に表示します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\lo_unlink <TT
+CLASS="REPLACEABLE"
+><I
+>loid</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>loid</I
+></TT
+>という<ACRONYM
+CLASS="ACRONYM"
+>OID</ACRONYM
+>が示すラージオブジェクトをデータベースから削除します。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>ラージオブジェクトの<ACRONYM
+CLASS="ACRONYM"
+>OID</ACRONYM
+>を確認するには、<TT
+CLASS="COMMAND"
+>\lo_list</TT
+>を使用してください。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\o</TT
+> [ {<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+> | <TT
+CLASS="LITERAL"
+>|</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>} ]</DT
+><DD
+><P
+>以降の問い合わせの結果を、<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>で指定されたファイルに保存するか、または、別のUnixシェルに渡し、<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>を実行します。
+引数がない場合、問い合わせの出力は標準出力にリセットされます。
+        </P
+><P
+><SPAN
+CLASS="QUOTE"
+>"問い合わせの結果"</SPAN
+>には、全てのテーブル、コマンドの応答、データベースサーバからの注意メッセージだけでなく、データベースに問い合わせを行う（<TT
+CLASS="COMMAND"
+>\d</TT
+>のような）各種バックスラッシュコマンドの出力が含まれます。ただし、エラーメッセージは含まれません。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>問い合わせの結果の間にテキストを挿入するには、<TT
+CLASS="COMMAND"
+>\qecho</TT
+>を使用してください。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\p</TT
+></DT
+><DD
+><P
+>現在の問い合わせバッファを標準出力に書き出します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\password [ <TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>指定したユーザ（デフォルトは現在のユーザ）のパスワードを変更します。
+このコマンドは、新しいパスワード、暗号化するかどうかを問い合わせ、それを<TT
+CLASS="COMMAND"
+>ALTER ROLE</TT
+>コマンドとしてサーバに送信します。
+これによりコマンド履歴やサーバログなどどこにも新しいパスワードが平文で残りません。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\prompt [ <TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+> ] <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+></DT
+><DD
+><P
+>変数<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>への入力をユーザに促します。
+省略可能ですがプロンプト<TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+>を指定することができます。
+（複数の単語をプロンプトで使用する場合は単一引用符でくくってください。）
+        </P
+><P
+>デフォルトでは<TT
+CLASS="LITERAL"
+>\prompt</TT
+>は入出力に端末を使用します。
+しかし、<TT
+CLASS="OPTION"
+>-f</TT
+>コマンドラインスイッチが使用されている場合、<TT
+CLASS="LITERAL"
+>\prompt</TT
+>は標準入力、標準出力を使用します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\pset <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> [ <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>このコマンドは問い合わせ結果のテーブル出力に影響するオプションを設定します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>には、どのオプションを設定するのかを記述します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>の意味は選択したオプションにより変わります。
+以下のオプション別の説明の通り、オプションの中には<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を省略することでトグルや設定解除を行うものがあります。
+こうした動作の記載がなければ、<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を省略すると、単に現在の設定値が表示されることになります。
+        </P
+><P
+>	次は、表示の調整に関するオプションです。
+        <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>border</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>は数値でなければなりません。
+基本的には、この数字が多くなればなるほど、表示するテーブルが持つ境界線は増えますが、具体的にはそれぞれの出力形式に依存しています。
+<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>書式では、この値は直接<TT
+CLASS="LITERAL"
+>border=...</TT
+>属性に反映されます。
+他の書式の場合は、0（境界線なし）、1（内側の境界線）、2（テーブル枠）という3つの数値のみ有効です。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>columns</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>wrapped</TT
+>書式の対象幅、および、ページャを必要とするのに十分な幅で出力するかどうかを決定する幅制限を設定します。
+ゼロ（デフォルト）では、環境変数<TT
+CLASS="ENVAR"
+>COLUMNS</TT
+>、もし<TT
+CLASS="ENVAR"
+>COLUMNS</TT
+>が設定されていなければ、検出したスクリーンの幅、により対象幅が制御されます。
+さらに<TT
+CLASS="LITERAL"
+>columns</TT
+>がゼロの場合、<TT
+CLASS="LITERAL"
+>wrapped</TT
+>書式がスクリーン出力にのみ影響を与えることになります。
+<TT
+CLASS="LITERAL"
+>columns</TT
+>が非ゼロの場合は、ファイルやパイプへの出力も同様に折り返されます。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>expanded</TT
+> (または<TT
+CLASS="LITERAL"
+>x</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を指定する場合は、それぞれ拡張モードを有効または無効にする<TT
+CLASS="LITERAL"
+>on</TT
+>または<TT
+CLASS="LITERAL"
+>off</TT
+>のいずれかでなければなりません。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を省略した場合、このコマンドは通常モードと拡張モードをトグルします。
+拡張モードを有効にした場合、問い合わせ結果は左に列名、右にデータという2つの列で出力されます。
+このモードは、データが通常の<SPAN
+CLASS="QUOTE"
+>"horizontal（水平）"</SPAN
+>モードによる画面表示に適していない場合に有用です。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>fieldsep</TT
+></DT
+><DD
+><P
+>位置揃えなしの出力書式で使用されるフィールド区切り文字を指定します。
+これにより、例えばタブ区切り、カンマ区切りといった他プログラムがよく使用する形式を作成することができます。
+タブをフィールド区切り文字として使用するには、<TT
+CLASS="LITERAL"
+>\pset fieldsep '\t'</TT
+>と入力します。
+デフォルトのフィールド区切り文字は<TT
+CLASS="LITERAL"
+>'|'</TT
+>（縦棒）です。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>footer</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>が指定された場合、それぞれテーブルフッタの表示(<TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+> rows)</TT
+>数)を有効または無効にする<TT
+CLASS="LITERAL"
+>on</TT
+>または<TT
+CLASS="LITERAL"
+>off</TT
+>のいずれかでなければなりません。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を省略した場合、このコマンドはフッタの表示、非表示をトグルします。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>format</TT
+></DT
+><DD
+><P
+>出力形式を<TT
+CLASS="LITERAL"
+>unaligned</TT
+>、<TT
+CLASS="LITERAL"
+>aligned</TT
+>、<TT
+CLASS="LITERAL"
+>wrapped</TT
+>、<TT
+CLASS="LITERAL"
+>html</TT
+>、<TT
+CLASS="LITERAL"
+>latex</TT
+>、<TT
+CLASS="LITERAL"
+>troff-ms</TT
+>のいずれかに設定します。
+一意に判別できる範囲で省略が可能です
+（この場合、1文字でも十分であることを意味します）。
+	  </P
+><P
+><TT
+CLASS="LITERAL"
+>unaligned</TT
+>書式は、表示行の1行に1つの行の全列を、現在有効なフィールド区切り文字で区切って書き出します。
+これは他のプログラムに読み込ませることを目的とした出力(例えばタブ区切りやカンマ区切り書式)を生成する場合に有用です。
+          </P
+><P
+><TT
+CLASS="LITERAL"
+>aligned</TT
+>書式は、人間が読みやすいように、美しく整形されたテキスト出力です。
+これがデフォルトです。
+          </P
+><P
+><TT
+CLASS="LITERAL"
+>wrapped</TT
+>書式は<TT
+CLASS="LITERAL"
+>aligned</TT
+>と似ていますが、データ値を複数行に折り返して対象の列幅に合うように出力します。
+対象の幅は後述の<TT
+CLASS="LITERAL"
+>columns</TT
+>オプションにより決定されます。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は列ヘッダタイトルを折り返さないことに注意して下さい。
+このため<TT
+CLASS="LITERAL"
+>wrapped</TT
+>書式は列ヘッダに必要とする幅全体が対象より長い場合、<TT
+CLASS="LITERAL"
+>aligned</TT
+>と動作が同じになります。
+          </P
+><P
+><TT
+CLASS="LITERAL"
+>html</TT
+>、<TT
+CLASS="LITERAL"
+>latex</TT
+>および<TT
+CLASS="LITERAL"
+>troff-ms</TT
+>書式は対応するマークアップ言語を使用する文書内に含めることを目的とした表を出力します。
+出力自体は完全な文書ではありません。
+(<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>では大して問題にはならないでしょうが、LaTeXでは完全な文書ラッパを持たせなければなりません。)
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>linestyle</TT
+></DT
+><DD
+><P
+>境界線の表示形式を<TT
+CLASS="LITERAL"
+>ascii</TT
+>、<TT
+CLASS="LITERAL"
+>old-ascii</TT
+>または<TT
+CLASS="LITERAL"
+>unicode</TT
+>のいずれかに設定します。
+一意になれば省略形が許されます。（つまり一文字で十分であることを意味します。）
+デフォルトの設定は<TT
+CLASS="LITERAL"
+>ascii</TT
+>です。
+このオプションは<TT
+CLASS="LITERAL"
+>aligned</TT
+>および<TT
+CLASS="LITERAL"
+>wrapped</TT
+>出力書式のみで有効です。
+          </P
+><P
+><TT
+CLASS="LITERAL"
+>ascii</TT
+>形式は通常の<ACRONYM
+CLASS="ACRONYM"
+>ASCII</ACRONYM
+>を使用します。
+データ内部の改行は右側余白に<TT
+CLASS="LITERAL"
+>+</TT
+>を使用して表します。
+<TT
+CLASS="LITERAL"
+>wrapped</TT
+>書式では、改行文字を使わずに、先頭行の右側余白にドット(.)を示し、以降の行の左側余白に繰り返してドットを示して、データを改行します。
+          </P
+><P
+><TT
+CLASS="LITERAL"
+>old-ascii</TT
+>形式は通常の<ACRONYM
+CLASS="ACRONYM"
+>ASCII</ACRONYM
+>文字を使用して、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.4以前で使用されていた方法で整形します。
+データ内部の改行は列区切りの左側に<TT
+CLASS="LITERAL"
+>:</TT
+>記号を使用して表します。
+データを折り返す際には改行文字を使わず、列区切りの左側に<TT
+CLASS="LITERAL"
+>;</TT
+>記号を使用して表します。
+          </P
+><P
+><TT
+CLASS="LITERAL"
+>unicode</TT
+>形式はUnicode矩形描画文字を使用します。
+データ内部の改行は右側の余白に復帰記号を使用して表します。
+データを折り返す際には改行文字を使わず、省略記号を先頭行の右側余白に表し、以降の行の左側余白にも繰り返し表します。
+          </P
+><P
+><TT
+CLASS="LITERAL"
+>border</TT
+>設定がゼロより大きい場合、このオプションはまた、境界線を描画する文字も決定します。
+通常の<ACRONYM
+CLASS="ACRONYM"
+>ASCII</ACRONYM
+>文字はどのような場合でも動作しますが、Unicode文字の方が認識しやすいという点で表示に優れていると思います。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>null</TT
+></DT
+><DD
+><P
+>null値の代わりに表示する文字列を設定します。
+デフォルトでは何も表示しません。
+そのため、よく空の文字列と間違うことがあります。
+このような場合、<TT
+CLASS="LITERAL"
+>\pset null '(null)'</TT
+>を使用する方が良いでしょう。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>numericlocale</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>が指定された場合、それぞれ10進数マーカの左に桁のくくりを分離するロケール固有の文字を表示するか否かを指定する、<TT
+CLASS="LITERAL"
+>on</TT
+>または<TT
+CLASS="LITERAL"
+>off</TT
+>のいずれかでなければなりません。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を省略した場合、このコマンドは通常出力かロケール固有の数値出力かをトグルします。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>pager</TT
+></DT
+><DD
+><P
+>問い合わせおよび<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>ヘルプ出力の際の、ページャプログラムの使用を制御します。
+<TT
+CLASS="ENVAR"
+>PAGER</TT
+>環境変数が設定されている場合、出力は指定したプログラムにパイプで渡されます。 
+<TT
+CLASS="ENVAR"
+>PAGER</TT
+>が設定されていない場合は、プラットフォーム依存のデフォルト（<TT
+CLASS="FILENAME"
+>more</TT
+>など）が使用されます。
+          </P
+><P
+><TT
+CLASS="LITERAL"
+>pager</TT
+>オプションが<TT
+CLASS="LITERAL"
+>off</TT
+>の場合、ページャプログラムは使用されません。
+<TT
+CLASS="LITERAL"
+>pager</TT
+>オプションが<TT
+CLASS="LITERAL"
+>on</TT
+>の場合、ページャは適切な場合、つまり出力先が端末であり、その画面に合わない場合に使用されます。
+また<TT
+CLASS="LITERAL"
+>pager</TT
+>オプションは<TT
+CLASS="LITERAL"
+>always</TT
+>に設定することもできます。
+こうすると画面に合うかどうかに関わらずすべての端末出力でページャが使用されます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を持たない<TT
+CLASS="LITERAL"
+>\pset pager</TT
+>はページャの使用をトグルします。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>recordsep</TT
+></DT
+><DD
+><P
+>位置揃えなしの出力書式で使用されるレコード（行）の区切り文字を指定します。
+デフォルトは改行文字です。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>tableattr</TT
+> (または <TT
+CLASS="LITERAL"
+>T</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>html</TT
+>出力書式において<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>の<CODE
+CLASS="SGMLTAG"
+>table</CODE
+>タグ内に記述する属性を指定します。
+これを使用して、例えば、<TT
+CLASS="LITERAL"
+>cellpadding</TT
+>や<TT
+CLASS="LITERAL"
+>bgcolor</TT
+>を指定することができます。
+<TT
+CLASS="LITERAL"
+>border</TT
+>属性は既に<TT
+CLASS="LITERAL"
+>\pset border</TT
+>によって処理されているので、このコマンドで<TT
+CLASS="LITERAL"
+>border</TT
+>を指定する必要はありません。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>の指定がない場合、テーブル属性の設定は解除されます。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>title</TT
+></DT
+><DD
+><P
+>今後表示される全てのテーブル用にテーブルタイトルを設定します。
+これは出力に説明のためのタグを付けたい場合に有用です。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>がない場合、タイトルの設定が解除されます。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>tuples_only</TT
+> (or <TT
+CLASS="LITERAL"
+>t</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>が指定された場合、それぞれタプルのみの表示を有効または無効にする、<TT
+CLASS="LITERAL"
+>on</TT
+>または<TT
+CLASS="LITERAL"
+>off</TT
+>のいずれかでなければなりません。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を省略した場合、このコマンドはタプルのみの表示と通常表示をトグルします。
+通常表示では列のヘッダ、タイトル、各種フッタなどのその他の情報が追加されます。
+タプルのみのモードでは、テーブルの実データのみが表示されます。
+          </P
+></DD
+></DL
+></DIV
+><P>
+        </P
+><P
+><A
+HREF="app-psql.html#APP-PSQL-EXAMPLES"
+><I
+>例</I
+></A
+>節に、これらの書式がどのように見えるかを示した図があります。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+><TT
+CLASS="COMMAND"
+>\pset</TT
+>には各種のショートカットコマンドがあります。
+<TT
+CLASS="COMMAND"
+>\a</TT
+>、<TT
+CLASS="COMMAND"
+>\C</TT
+>、<TT
+CLASS="COMMAND"
+>\H</TT
+>、<TT
+CLASS="COMMAND"
+>\t</TT
+>、<TT
+CLASS="COMMAND"
+>\T</TT
+>、<TT
+CLASS="COMMAND"
+>\x</TT
+>を参照してください。
+        </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>引数なしで<TT
+CLASS="COMMAND"
+>\pset</TT
+>を呼び出した場合はエラーになります。
+今後のバージョンでは、現在の表示用オプションの状態が全て表示されるようになる予定です。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\q</TT
+>または<TT
+CLASS="LITERAL"
+>\quit</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>プログラムを終了します。
+スクリプトファイルでは、そのスクリプトの実行のみが終了します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\qecho <TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+> [ ... ] </TT
+></DT
+><DD
+><P
+>このコマンドは、<TT
+CLASS="COMMAND"
+>\echo</TT
+>と同じです。
+ただし、<TT
+CLASS="COMMAND"
+>\o</TT
+>による設定と同様に、出力が問い合わせ出力チャネルに書き出される点が異なります。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\r</TT
+></DT
+><DD
+><P
+>問い合わせバッファをリセット（クリア）します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\s [ <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>コマンドラインの履歴の表示、または<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>への保存を行います。
+<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>が省略された場合、履歴は標準出力に書き出されます。
+このオプションは、コンパイル時に、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が<ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> <SPAN
+CLASS="APPLICATION"
+>Readline</SPAN
+>ライブラリを使用するように設定されている場合のみ使用可能です。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\set [ <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> [ ... ] ] ]</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>、または複数のvalueが与えられた場合はそれらを連結したものを、<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>内部変数に設定します。
+2番目の引数がない場合は、単に変数に値がないものとして設定されます。
+変数を未設定とするには、<TT
+CLASS="COMMAND"
+>\unset</TT
+>コマンドを使用してください。
+        </P
+><P
+>変数名には、文字、数字、アンダースコアを使用することができます。
+詳細は、後述の<A
+HREF="app-psql.html#APP-PSQL-VARIABLES"
+><I
+>変数</I
+></A
+>を参照してください。
+変数名は大文字小文字を区別します。
+        </P
+><P
+>必要ならばどのようなものでも任意の変数に設定できますが、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はいくつかの変数を特別なものとして扱っています。
+これらについては変数に関する節にて説明します。
+        </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>このコマンドは<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の<A
+HREF="sql-set.html"
+>SET</A
+>コマンドとはまったく別のものです。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\sf[+] <TT
+CLASS="REPLACEABLE"
+><I
+>function_description</I
+></TT
+> </TT
+></DT
+><DD
+><P
+>このコマンドは、<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>コマンドの形式で、指定された関数の定義を抽出し表示します。
+この定義は、<TT
+CLASS="COMMAND"
+>\o</TT
+>で設定されるように、現在の問い合わせ出力チャネルに出力されます。
+        </P
+><P
+>対象の関数は、名前だけまたは、例えば<TT
+CLASS="LITERAL"
+>foo(integer, text)</TT
+>のように名前と引数で指定することができます。
+同じ名前の関数が複数存在する場合は、引数の型を指定しなければなりません。
+        </P
+><P
+>コマンド名に<TT
+CLASS="LITERAL"
+>+</TT
+>を付けると、出力行に関数本体の先頭行を1行目と数える行番号が付けられます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\t</TT
+></DT
+><DD
+><P
+>出力列名ヘッダと行数フッタの表示を切り替えます。
+このコマンドは<TT
+CLASS="LITERAL"
+>\pset tuples_only</TT
+>と同じで、簡便性のために用意されています。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\T <TT
+CLASS="REPLACEABLE"
+><I
+>table_options</I
+></TT
+></TT
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>出力書式における<CODE
+CLASS="SGMLTAG"
+>table</CODE
+>タグ内部に記述する属性を指定します。
+このコマンドは<TT
+CLASS="LITERAL"
+>\pset tableattr <TT
+CLASS="REPLACEABLE"
+><I
+>table_options</I
+></TT
+></TT
+>と同じ効力を持ちます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\timing [ <TT
+CLASS="REPLACEABLE"
+><I
+>on</I
+></TT
+> | <TT
+CLASS="REPLACEABLE"
+><I
+>off</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>パラメータがない場合、各SQL文にかかる時間（ミリ秒単位）の表示の有無を切り替えます。
+パラメータがある場合、同じことを設定します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\w</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+><BR><TT
+CLASS="LITERAL"
+>\w</TT
+> <TT
+CLASS="LITERAL"
+>|</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+></DT
+><DD
+><P
+>現在の問い合わせバッファを、<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>ファイルに出力するか、もしくは、<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> Unixコマンドにパイプで渡します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\x</TT
+></DT
+><DD
+><P
+>拡張テーブル形式モードを切り替えます。
+このコマンドは<TT
+CLASS="LITERAL"
+>\pset expanded</TT
+>と同じ効力を持ちます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\z [ <A
+HREF="app-psql.html#APP-PSQL-PATTERNS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+></A
+> ]</TT
+></DT
+><DD
+><P
+>テーブル、ビュー、シーケンスを、関連付けられているアクセス権限とともに一覧表示します。 
+<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>を指定すると、パターンに名前が一致するテーブル、ビュー、シーケンスのみが表示されます。
+        </P
+><P
+>これは<TT
+CLASS="COMMAND"
+>\dp</TT
+>（<SPAN
+CLASS="QUOTE"
+>"権限の表示（display privileges）"</SPAN
+>）の別名です。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\! [ <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> ]</TT
+></DT
+><DD
+><P
+>別のシェルを起動するか、もしくは、Unixの<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>コマンドを実行します。
+引数はこれ以上解釈されず、そのままシェルに渡されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>\?</TT
+></DT
+><DD
+><P
+>バックスラッシュ（<SPAN
+CLASS="QUOTE"
+>"\"</SPAN
+>）コマンドに関するヘルプ情報を表示します。
+        </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="APP-PSQL-PATTERNS"
+></A
+><H4
+>パターン</H4
+><P
+><TT
+CLASS="LITERAL"
+>\d</TT
+>コマンドでは、<TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>パラメータを渡して、表示するオブジェクト名を指定することができます。
+パターンが正確にオブジェクト名に一致するというのが最も単純な場合です。
+パターン内の文字は、SQL名と同様、通常小文字に変換されます。
+例えば<TT
+CLASS="LITERAL"
+>\dt FOO</TT
+>は<TT
+CLASS="LITERAL"
+>foo</TT
+>という名前のテーブルを表示します。
+SQL名と同様、パターンを二重引用符で括ることで小文字への変換が取り止められます。
+二重引用符自体をパターン内に含めなければならない場合、二重引用符で括った文字列の中で二重引用符を二重に記載してください。
+繰り返しますが、これはSQLの引用符付き識別子の規則に従ったものです。
+例えば、<TT
+CLASS="LITERAL"
+>\dt "FOO""BAR"</TT
+>は<TT
+CLASS="LITERAL"
+>FOO"BAR</TT
+>という名前のテーブルを表示します（<TT
+CLASS="LITERAL"
+>foo"bar</TT
+>ではありません）。
+SQL名と異なる点は、パターンの一部を二重引用符で括ることができる点です。
+例えば、<TT
+CLASS="LITERAL"
+>\dt FOO"FOO"BAR</TT
+>は<TT
+CLASS="LITERAL"
+>fooFOObar</TT
+>という名前のテーブルを表示します。
+  </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>パラメータが完全に省略されている場合、<TT
+CLASS="LITERAL"
+>\d</TT
+>コマンドは現在のスキーマ検索パス内で可視的なオブジェクトを全て表示します。
+これは<TT
+CLASS="LITERAL"
+>*</TT
+>というパターンを使用することと同じです。
+(オブジェクトを含むスキーマが検索パス上にあり、同じ種類かつ同じ名前のオブジェクトが検索パス上前に存在しない場合、そのオブジェクトは可視であるといいます。
+これは文において明示的なスキーマ修飾がない名前でオブジェクトを参照できることと同じです。)
+可視か否かに関わらずデータベース内の全てのオブジェクトを表示するには、<TT
+CLASS="LITERAL"
+>*.*</TT
+>というパターンを使用します。
+  </P
+><P
+>パターン内部では、<TT
+CLASS="LITERAL"
+>*</TT
+>は（0文字を含む）任意の文字の並びに一致し、<TT
+CLASS="LITERAL"
+>?</TT
+>は任意の1文字に一致します。
+（この記法はUnixシェルのファイル名パターンと似ています。）
+例えば、<TT
+CLASS="LITERAL"
+>\dt int*</TT
+>は、<TT
+CLASS="LITERAL"
+>int</TT
+>から始まる名前を持つテーブルを表示します。
+しかし、二重引用符の中では、<TT
+CLASS="LITERAL"
+>*</TT
+>と<TT
+CLASS="LITERAL"
+>?</TT
+>はその特別な意味を失い、文字そのものに一致することになります。
+  </P
+><P
+>ドット(<TT
+CLASS="LITERAL"
+>.</TT
+>)を含むパターンは、スキーマ名にオブジェクト名が続くパターンとして解釈されます。
+例えば、<TT
+CLASS="LITERAL"
+>\dt foo*.*bar*</TT
+>は、<TT
+CLASS="LITERAL"
+>foo</TT
+>で始まるスキーマ内の<TT
+CLASS="LITERAL"
+>bar</TT
+>を含むテーブルを全て表示します。
+ドットがない場合、パターンは現行のスキーマ検索パス内で可視的なオブジェクトのみに一致します。
+繰り返しますが、二重引用符で括られた文字列内のドットは特別な意味を失い、文字そのものに一致することになります。
+  </P
+><P
+>上級者は文字クラスに、例えば任意の数に一致する<TT
+CLASS="LITERAL"
+>[0-9]</TT
+>などの正規表現を使用することができます。
+上述のように<TT
+CLASS="LITERAL"
+>.</TT
+>が区切り文字となる点、<TT
+CLASS="LITERAL"
+>*</TT
+>は正規表現の<TT
+CLASS="LITERAL"
+>.*</TT
+>記法になる点、<TT
+CLASS="LITERAL"
+>?</TT
+>が<TT
+CLASS="LITERAL"
+>.</TT
+>になる点、<TT
+CLASS="LITERAL"
+>$</TT
+>がそのまま扱われる点は例外ですが、すべての正規表現の特殊文字が<A
+HREF="functions-matching.html#FUNCTIONS-POSIX-REGEXP"
+>&#38917;9.7.3</A
+>の規定通りに動作します。
+ <TT
+CLASS="LITERAL"
+>.</TT
+>は<TT
+CLASS="LITERAL"
+>?</TT
+>と、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>R</I
+></TT
+>*</TT
+>は<TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>R</I
+></TT
+>+|)</TT
+>と、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>R</I
+></TT
+>?</TT
+>は<TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>R</I
+></TT
+>|)</TT
+>と記述することで、これらのパターン文字を模擬することができます。
+<TT
+CLASS="LITERAL"
+>$</TT
+>を正規表現文字として扱う必要はありません。
+通常の正規表現の解釈と異なり、パターンは常に名前全体に一致するためです。
+（言い替えると、<TT
+CLASS="LITERAL"
+>$</TT
+>は自動的にパターンに追加されます。）
+パターンの適用位置を決められない場合は、<TT
+CLASS="LITERAL"
+>*</TT
+>を先頭や末尾に記載してください。
+二重引用符の内側では、正規表現の特殊文字はその意味を失い、文字そのものに一致することになる点に注意してください。
+また、正規表現の特殊文字は、演算子名パターン（ つまり<TT
+CLASS="LITERAL"
+>\do</TT
+>の引数）では文字そのものに一致します。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN81650"
+></A
+><H3
+>高度な機能</H3
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="APP-PSQL-VARIABLES"
+></A
+><H4
+>変数</H4
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は一般的なUnixコマンドシェルに似た変数の置換機能を提供します。
+変数とは名前と値の組み合わせです。
+値として任意の長さの任意の文字列を使用できます。
+変数を設定するには、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="COMMAND"
+>\set</TT
+>メタコマンドを以下のように使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\set foo bar</KBD
+></PRE
+><P>
+この例では、<TT
+CLASS="LITERAL"
+>foo</TT
+>変数を<TT
+CLASS="LITERAL"
+>bar</TT
+>という値に設定しています。
+変数の内容を取り出すには、以下のように変数名の前にコロンを付けて、任意のスラッシュコマンドの引数として使用します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\echo :foo</KBD
+>
+bar</PRE
+><P></P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="COMMAND"
+>\set</TT
+>の引数は他のコマンドと同じ置換規則に従います。
+このため、<TT
+CLASS="LITERAL"
+>\set :foo 'something'</TT
+>のような参照を作成して、<SPAN
+CLASS="PRODUCTNAME"
+>Perl</SPAN
+>における<SPAN
+CLASS="QUOTE"
+>"ソフトリンク"</SPAN
+>や<SPAN
+CLASS="PRODUCTNAME"
+><ACRONYM
+CLASS="ACRONYM"
+>PHP</ACRONYM
+></SPAN
+>における<SPAN
+CLASS="QUOTE"
+>"可変変数"</SPAN
+>に当たるものを得られます。
+しかし、残念ながら（あるいは好運にも）、このような構成をうまく使用する方法はありません。
+一方、<TT
+CLASS="LITERAL"
+>\set bar :foo</TT
+>のようにして変数をコピーするのは、完全に有効な方法です。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>2番目の引数を指定せずに<TT
+CLASS="COMMAND"
+>\set</TT
+>を実行した場合、値として空文字列を持つ変数として設定されます。
+変数を未設定にする（削除する）には、<TT
+CLASS="COMMAND"
+>\unset</TT
+>コマンドを使用してください。
+    </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の内部変数名は文字、数字、アンダースコアから構成されます。順番や長さには制限がありません。
+これらの変数の多くは、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>に特別扱いされています。
+これらは、変数またはアプリケーションのある状態を表す値を変更することにより、実行時に変更可能なオプションの設定を示します。
+これらの変数を別の目的で使用することもできますが、即座にプログラムの動作がおかしくなる可能性があるため、推奨されません。
+慣習上、特別視される変数は全て大文字（と数字とアンダースコア）からなります。
+将来的な互換性を最大限考慮するために、自分で作成した変数にはこのような変数名を使用しないでください。
+以下に特別に取り扱われる変数の一覧を示します。
+   </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="VARNAME"
+>AUTOCOMMIT</TT
+></DT
+><DD
+><P
+>この変数の値が<TT
+CLASS="LITERAL"
+>on</TT
+>の場合（自動コミット有効モード：デフォルト）、各SQLコマンドの実行が成功すると、自動的にコミットされます。
+コミットを延期するには、<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>もしくはSQLの<TT
+CLASS="COMMAND"
+>START TRANSACTION</TT
+>コマンドを入力する必要があります。
+値が<TT
+CLASS="LITERAL"
+>off</TT
+>もしくは未設定の場合（自動コミット無効モード）、明示的に<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>もしくは<TT
+CLASS="COMMAND"
+>END</TT
+>を発行するまで、SQLコマンドはコミットされません。
+自動コミット無効モードでは、トランザクションブロック以外でコマンドが発行されると、そのコマンドを実行する前に、自動的に<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>コマンドが発行されます（ただし、そのコマンド自体が<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>コマンドやその他のトランザクション制御コマンドである場合、トランザクションブロック内で実行することができないコマンド（<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>など）である場合は除きます）
+
+        </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>したがって、自動コミット無効モードでは、<TT
+CLASS="COMMAND"
+>ABORT</TT
+>や<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>を発行して、明示的に失敗したトランザクションを放棄しなければなりません。
+また、コミットせずにセッションを終了した場合は、作業が失われてしまうので注意してください。
+        </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、伝統的に自動コミット有効モードで動作していましたが、自動コミット無効モードの方がよりSQLの仕様に近いものです。
+自動コミット無効モードは、システム全体に対する<TT
+CLASS="FILENAME"
+>psqlrc</TT
+>ファイル、もしくは、個人用の<TT
+CLASS="FILENAME"
+>.psqlrc</TT
+>ファイルで設定すれば実現できます。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>DBNAME</TT
+></DT
+><DD
+><P
+>現在接続しているデータベース名です。
+この変数は（プログラム起動時も含め）データベースに接続する度に設定されますが、これを未設定にすることもできます。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>ECHO</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>all</TT
+>を設定した場合、キーボード、もしくは、スクリプトからの取得された全ての行は、解析/実行の前に標準出力に書き出されます。
+この動作をプログラム起動時に設定するには、<TT
+CLASS="OPTION"
+>-a</TT
+>スイッチを使用してください。
+<TT
+CLASS="LITERAL"
+>queries</TT
+>を設定した場合、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はサーバに送信された問い合わせのみを表示します。
+これらを切り替えるオプションは<TT
+CLASS="OPTION"
+>-e</TT
+>です。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>ECHO_HIDDEN</TT
+></DT
+><DD
+><P
+>この変数が設定されている場合、バックスラッシュコマンドでデータベースに問い合わせを行う時、最初にその問い合わせが表示されます。
+これにより、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>内部動作について調べたり、自作プログラム内で同様の関数機能を用意したりすることが可能になります
+（この動作をプログラム起動時に選択するには<TT
+CLASS="OPTION"
+>-E</TT
+>スイッチを使用してください）。
+この変数を<TT
+CLASS="LITERAL"
+>noexec</TT
+>という値に設定した場合、問い合わせは実際にサーバに送信、実行されずに、単に表示されるだけになります。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>ENCODING</TT
+></DT
+><DD
+><P
+>現在のクライアント側の文字セット符号化方式です。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>FETCH_COUNT</TT
+></DT
+><DD
+><P
+>この変数が0より大きな整数値に設定されている場合、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせの結果は、指定した行数の集合として取り出され、表示されます。
+デフォルトの動作では、表示する前にすべての結果が取り出されます。
+したがって、結果セットの大きさに比例する形でメモリの使用量が限定されます。
+この機能を有効とする場合に100から1000までの値がよく使用されます。
+この機能を使用する際には、既に一部の行が表示されている場合、問い合わせが失敗する可能性があることに注意してください。
+        </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>任意の出力書式でこの機能を使用することができますが、デフォルトの<TT
+CLASS="LITERAL"
+>aligned</TT
+>書式は適していません。
+<TT
+CLASS="VARNAME"
+>FETCH_COUNT</TT
+>行のグループそれぞれが別々に整形されてしまい、行のグループによって列幅が異なることになるためです。
+他の出力書式は適切に動作します。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>HISTCONTROL</TT
+></DT
+><DD
+><P
+>この変数を<TT
+CLASS="LITERAL"
+>ignorespace</TT
+>に設定した場合、空白文字から始まる行は履歴リストには入りません。
+<TT
+CLASS="LITERAL"
+>ignoredups</TT
+>に設定した場合、これまでの履歴にある行は履歴リストに入りません。
+<TT
+CLASS="LITERAL"
+>ignoreboth</TT
+>に設定した場合は、上記の2つを組み合わせたものになります。
+この変数を設定しない場合、または上記以外の値を設定する場合は、対話モードで読まれる全ての行が履歴リストに保存されます。
+        </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この機能は<SPAN
+CLASS="APPLICATION"
+>Bash</SPAN
+>の機能を真似たものです。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>HISTFILE</TT
+></DT
+><DD
+><P
+>履歴を格納するために使用されるファイルの名前です。
+デフォルトは<TT
+CLASS="FILENAME"
+>~/.psql_history</TT
+>です。
+例えば、<TT
+CLASS="FILENAME"
+>~/.psqlrc</TT
+>で以下を記述すると、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はデータベース毎に分けて履歴を管理します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>\set HISTFILE ~/.psql_history- :DBNAME</PRE
+><P>
+        </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この機能は<SPAN
+CLASS="APPLICATION"
+>Bash</SPAN
+>の機能を真似たものです。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>HISTSIZE</TT
+></DT
+><DD
+><P
+>コマンド履歴に保存するコマンド数です。
+デフォルト値は500です。
+	</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この機能は<SPAN
+CLASS="APPLICATION"
+>Bash</SPAN
+>の機能を真似たものです。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>HOST</TT
+></DT
+><DD
+><P
+>接続中のデータベースサーバホストです。
+この変数は（プログラム起動時も含め）データベースに接続する度に設定されますが、未設定にすることもできます。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>IGNOREEOF</TT
+></DT
+><DD
+><P
+>この変数を未設定にすると、対話式セッションに<ACRONYM
+CLASS="ACRONYM"
+>EOF</ACRONYM
+>文字（通常<B
+CLASS="KEYCAP"
+>Control</B
+>+<B
+CLASS="KEYCAP"
+>D</B
+>）が送信された時、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が終了します。
+数値を設定すると、指定された数だけ、送信された<ACRONYM
+CLASS="ACRONYM"
+>EOF</ACRONYM
+>文字を無視してから終了します。
+数値以外を設定した場合は、デフォルトの10になります。
+	</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この機能は<SPAN
+CLASS="APPLICATION"
+>Bash</SPAN
+>の機能を真似たものです。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>LASTOID</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>や<TT
+CLASS="COMMAND"
+>\lo_insert</TT
+>コマンドによって返された、最後に影響を受けたOIDの値です。
+この変数は、次の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドの結果が表示されるまでの間のみ保証されています。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>ON_ERROR_ROLLBACK</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>on</TT
+>の場合、トランザクションブロック内である文がエラーとなった時に、そのエラーは無視され、トランザクションは継続します。
+<TT
+CLASS="LITERAL"
+>interactive</TT
+>の場合、対話式セッション内の場合にのみエラーは無視されます。スクリプトファイルを読み込んでいる場合は無視されません。
+<TT
+CLASS="LITERAL"
+>off</TT
+>（デフォルト）の場合、トランザクションブロック内の文がエラーになると、トランザクション全体をアボートします。
+ON_ERROR_ROLLBACKがonという状態は、トランザクションブロック内で各コマンドの実行直前に暗黙的な<TT
+CLASS="COMMAND"
+>SAVEPOINT</TT
+>を行い、エラーが起きた時にこのセーブポイントにロールバックすることで実現されています。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>ON_ERROR_STOP</TT
+></DT
+><DD
+><P
+>デフォルトではエラーの後もコマンド処理は続行されます。
+この変数が設定されると、代わりに即座に停止します。
+対話モードでは<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>はコマンドプロンプトに戻ります。
+これ以外では<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は終了し、エラーコード1を返す致命的エラー条件と区別できるように、エラーコード3を返します。
+どちらの場合でも、現在実行中のスクリプト（トップレベルのスクリプト、もしあれば関連性を持つ他のスクリプトすべて）は即座に終了します。
+トップレベルのコマンド文字列が複数のSQLコマンドを含む場合、その時点のコマンドで処理は終了します。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>PORT</TT
+></DT
+><DD
+><P
+>接続中のデータベースサーバのポートです。
+この変数は（プログラム起動時も含め）データベースに接続する度に設定されますが、未設定にすることもできます。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>PROMPT1</TT
+><BR><TT
+CLASS="VARNAME"
+>PROMPT2</TT
+><BR><TT
+CLASS="VARNAME"
+>PROMPT3</TT
+></DT
+><DD
+><P
+>これらの変数は、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が発行するプロンプトの見た目を指定します。
+後述の<A
+HREF="app-psql.html#APP-PSQL-PROMPTING"
+><I
+>プロンプト</I
+></A
+>を参照してください。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>QUIET</TT
+></DT
+><DD
+><P
+>この変数は<TT
+CLASS="OPTION"
+>-q</TT
+>コマンドラインオプションと同じ効力を持ちます。
+対話式モードではあまり役立ちません。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>SINGLELINE</TT
+></DT
+><DD
+><P
+>この変数は<TT
+CLASS="OPTION"
+>-S</TT
+>コマンドラインオプションと同じ効力を持ちます。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>SINGLESTEP</TT
+></DT
+><DD
+><P
+>この変数は<TT
+CLASS="OPTION"
+>-s</TT
+>コマンドラインオプションと同じ効力を持ちます。
+        </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>USER</TT
+></DT
+><DD
+><P
+>接続中のデータベースユーザです。
+この変数は（プログラム起動時も含め）データベースに接続する度に設定されますが、未設定にすることもできます。
+	</P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>VERBOSITY</TT
+></DT
+><DD
+><P
+>この変数を<TT
+CLASS="LITERAL"
+>default</TT
+>、<TT
+CLASS="LITERAL"
+>verbose</TT
+>、<TT
+CLASS="LITERAL"
+>terse</TT
+>のいずれかに設定することで、エラー報告の冗長性を制御できます。
+        </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN81869"
+></A
+><H4
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>差し替え</H4
+><P
+>さらに<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の変数には、正規の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文の中で使用（<SPAN
+CLASS="QUOTE"
+>"差し替え：interpolate"</SPAN
+>）できるという便利な機能があります。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>確実にSQLリテラルと識別子で使用される値を適切にエスケープさせる特別な機能を提供します。
+特別にエスケープすることなく値を差し替えるための構文は、前述のように、変数名の前にコロン（<TT
+CLASS="LITERAL"
+>:</TT
+>）を付加することです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\set foo 'my_table'</KBD
+>
+testdb=&gt; <KBD
+CLASS="USERINPUT"
+>SELECT * FROM :foo;</KBD
+></PRE
+><P>
+この例では、問い合わせは<TT
+CLASS="LITERAL"
+>my_table</TT
+>テーブルに対して行われます。
+これが安全ではない場合があることに注意して下さい。
+変数の値はそのままコピーされるので、対応のとれていない引用符やバックスラッシュコマンドさえも含めることができます。
+挿入した場所で変数が展開された時に、確実に正しい意味になるようにしなければなりません。
+    </P
+><P
+>値がSQLリテラルや識別子内で使用される場合、それがエスケープされるように調整することがもっとも安全です。
+SQLリテラルとして変数値をエスケープするためには、単一引用符内にコロン、その後に変数名を記述して下さい。
+SQL識別子として値をエスケープするためには、二重引用符内にコロン、その後に変数名を記述して下さい。
+前の例は以下のように記述することでより安全になります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\set foo 'my_table'</KBD
+>
+testdb=&gt; <KBD
+CLASS="USERINPUT"
+>SELECT * FROM :"foo";</KBD
+></PRE
+><P>
+引用符で囲まれた<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の項目では、変数の差し換えは行われません。
+    </P
+><P
+>この機能の有効な利用方法の1つは、ファイルの内容をテーブル列にコピーする場合も利用することができます。
+その際は、ファイルをまず変数に読み込み、上と同様の処理を行います。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\set content `cat my_file.txt`</KBD
+>
+testdb=&gt; <KBD
+CLASS="USERINPUT"
+>INSERT INTO my_table VALUES (:'content');</KBD
+></PRE
+><P>
+標準非準拠の文字列を使用しているのであれば、さらにバックスラッシュを二重にしなければなりません。
+以下のように多少ややこしくなります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\set content '''' `sed -e "s/'/''/g" -e 's/\\/\\\\/g' &lt; my_file.txt` ''''</KBD
+></PRE
+><P>
+(<TT
+CLASS="FILENAME"
+>my_file.txt</TT
+>にNULバイトが含まれている場合、これはうまく動作しないことに注意してください。
+psqlは変数値内に埋め込まれたNULバイトをサポートしません。)
+    </P
+><P
+>コロン（:）もSQLコマンド内で正規に使用できますので、
+指定した変数が現在設定されていない場合、差し替え時の見かけの変更(<TT
+CLASS="LITERAL"
+>:name</TT
+>、<TT
+CLASS="LITERAL"
+>:'name'</TT
+>、<TT
+CLASS="LITERAL"
+>:"name"</TT
+>など)は行われません。
+コロンをバックスラッシュでエスケープすれば、常に差し替えから保護することができます。
+（変数用のコロン構文は、<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+>のような組み込みの問い合わせ言語用の標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>として規定されています。
+配列の一部の切り出し、および型キャスト用のコロン構文は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張であり、競合しています。
+SQLリテラルまたは識別子として変数の値をエスケープさせるコロン構文は<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の拡張です。）
+    </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="APP-PSQL-PROMPTING"
+></A
+><H4
+>プロンプト</H4
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が発行するプロンプトは好みに応じてカスタマイズできます。
+<TT
+CLASS="VARNAME"
+>PROMPT1</TT
+>、<TT
+CLASS="VARNAME"
+>PROMPT2</TT
+>、<TT
+CLASS="VARNAME"
+>PROMPT3</TT
+>という3つの変数はプロンプトの表示内容を示す文字列や特別なエスケープシーケンスを持ちます。
+プロンプト1は<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が新しいコマンドを受け付ける際に発行される通常のプロンプトです。
+プロンプト2はコマンドがセミコロンで終わっていない、または、引用符が閉じていないためにさらにコマンドの入力が要求されている際に発行されます。
+プロンプト3は<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドを実行している際、または、端末上で行の値の入力が要求されている際に発行されます。
+    </P
+><P
+>選択されたプロンプト変数の値はそのまま文字として表示されます。
+ただし、パーセント（<TT
+CLASS="LITERAL"
+>%</TT
+>）が含まれる場合は例外です。
+この場合は、次の文字に従って、特定のテキストに置換されます。
+置換対象として定義されているのは次のものです。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>%M</TT
+></DT
+><DD
+><P
+>データベースサーバの（ドメイン名付きの）完全なホスト名です。その接続がUnixドメインソケットの場合は<TT
+CLASS="LITERAL"
+>[local]</TT
+>となります。
+ただし、Unixドメインソケットがコンパイル時に設定したデフォルトの場所に存在しない場合は、<TT
+CLASS="LITERAL"
+>[local:<TT
+CLASS="REPLACEABLE"
+><I
+>/dir/name</I
+></TT
+>]</TT
+>となります。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%m</TT
+></DT
+><DD
+><P
+>最初のドットで取り除いたデータベースサーバのホスト名です。その接続がUnixドメインソケットの場合は<TT
+CLASS="LITERAL"
+>[local]</TT
+>となります。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%&gt;</TT
+></DT
+><DD
+><P
+>データベースサーバが監視するポート番号です。</P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%n</TT
+></DT
+><DD
+><P
+>データベースセッションユーザの名前です
+（この値の展開結果は、<TT
+CLASS="COMMAND"
+>SET SESSION AUTHORIZATION</TT
+>コマンドの実行によってデータベースセッション中に変わることがあります）。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%/</TT
+></DT
+><DD
+><P
+>接続中のデータベース名です。</P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%~</TT
+></DT
+><DD
+><P
+>デフォルトデータベースの場合に<TT
+CLASS="LITERAL"
+>~</TT
+>（チルダ）が出力される点を除いて、<TT
+CLASS="LITERAL"
+>%/</TT
+>と同じです。</P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%#</TT
+></DT
+><DD
+><P
+>セッションユーザがデータベーススーパーユーザである場合は<TT
+CLASS="LITERAL"
+>#</TT
+>、それ以外の場合は<TT
+CLASS="LITERAL"
+>&gt;</TT
+>となります
+（この値の展開結果は、<TT
+CLASS="COMMAND"
+>SET SESSION AUTHORIZATION</TT
+>コマンドの実行によってデータベースセッション中に変わることがあります）。
+
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%R</TT
+></DT
+><DD
+><P
+>プロンプト1の場合、通常は<TT
+CLASS="LITERAL"
+>=</TT
+>、シングル行モードでは<TT
+CLASS="LITERAL"
+>^</TT
+>、データベースとの接続が切れたセッションでは<TT
+CLASS="LITERAL"
+>!</TT
+>になります（<TT
+CLASS="COMMAND"
+>\connect</TT
+>が失敗した場合に発生します）。
+プロンプト2の場合、<TT
+CLASS="LITERAL"
+>-</TT
+>、<TT
+CLASS="LITERAL"
+>*</TT
+>、単一引用符、二重引用符、ドル記号に置き換えられます。どの文字に置き換えられるかは、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が入力を待っている理由（コマンドが終了していない、<TT
+CLASS="LITERAL"
+>/* ... */</TT
+>によるコメント行の中にいる、引用符やエスケープされたドル記号の中にいる）によって決まります。
+プロンプト3の場合、何も表示されません。
+	</P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%x</TT
+></DT
+><DD
+><P
+>トランザクションの状態です。
+トランザクションブロックの外にいる場合は空文字列に、トランザクションブロックの中にいる場合は<TT
+CLASS="LITERAL"
+>*</TT
+>に、失敗したトランザクションブロックの中にいる場合は<TT
+CLASS="LITERAL"
+>!</TT
+>に、（接続されていないなど）トランザクションの状態が不定の場合は<TT
+CLASS="LITERAL"
+>?</TT
+>になります。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>digits</I
+></TT
+></DT
+><DD
+><P
+>指定8進数値コードの文字に置換されます。
+	</P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%:</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+><TT
+CLASS="LITERAL"
+>:</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>変数の値です。 
+詳細は<A
+HREF="app-psql.html#APP-PSQL-VARIABLES"
+><I
+>変数</I
+></A
+>を参照してください。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%`</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+><TT
+CLASS="LITERAL"
+>`</TT
+></DT
+><DD
+><P
+>通常の<SPAN
+CLASS="QUOTE"
+>"逆引用符"</SPAN
+>による置き換えに似た、<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>の出力です。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>%[</TT
+> ... <TT
+CLASS="LITERAL"
+>%]</TT
+></DT
+><DD
+><P
+>プロンプトには端末制御文字を含めることができます。
+具体的には、色の変更、背景、プロンプトテキストの様式、端末ウィンドウのタイトルなどが指定できます。
+<SPAN
+CLASS="APPLICATION"
+>Readline</SPAN
+>の行編集機能を適切に動作させるためには、印字されない制御文字を<TT
+CLASS="LITERAL"
+>%[</TT
+>と<TT
+CLASS="LITERAL"
+>%]</TT
+>で囲んで、不可視であることを明示しなければなりません。
+この記号の組み合わせはプロンプト内に複数記述することができます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; \set PROMPT1 '%[%033[1;33;40m%]%n@%/%R%[%033[0m%]%# '</PRE
+><P>
+これにより、VT100互換の配色可能な端末では、ボールドフォントで（<TT
+CLASS="LITERAL"
+>1;</TT
+>）、黄色で点滅する（<TT
+CLASS="LITERAL"
+>33;40</TT
+>）プロンプトが表示されます。
+        </P
+></DD
+></DL
+></DIV
+><P>
+
+プロンプトにパーセント記号を入れる場合は、<TT
+CLASS="LITERAL"
+>%%</TT
+>と記述してください。
+デフォルトのプロンプトは、プロンプト1と2に<TT
+CLASS="LITERAL"
+>'%/%R%# '</TT
+>、プロンプト3に<TT
+CLASS="LITERAL"
+>'&gt;&gt; '</TT
+>を設定した場合と同じです。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この機能は<SPAN
+CLASS="APPLICATION"
+>tcsh</SPAN
+>の機能を真似たものです。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN82024"
+></A
+><H4
+>コマンドライン編集</H4
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は行内編集や繰り返し入力が簡便になるように<SPAN
+CLASS="APPLICATION"
+>Readline</SPAN
+>ライブラリをサポートしています。
+コマンド履歴は、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の終了時に自動的に保存され、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の起動時に再読み込みされます。
+タブによる補間もサポートされていますが、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>のパーサとしてコマンドを解釈して判断してくれるわけではありません。
+タブによる補間を何らかの事情により使用したくなければ、ホームディレクトリ以下の<TT
+CLASS="FILENAME"
+>.inputrc</TT
+>というファイルに以下のように書き込むことで無効にできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$if psql
+set disable-completion on
+$endif</PRE
+><P>
+（これは<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の機能ではなく、<SPAN
+CLASS="APPLICATION"
+>Readline</SPAN
+>の機能です。
+詳細については<SPAN
+CLASS="APPLICATION"
+>Readline</SPAN
+>のドキュメントを参照してください）。
+    </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="APP-PSQL-ENVIRONMENT"
+></A
+><H2
+>環境</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="ENVAR"
+>COLUMNS</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>\pset columns</TT
+>がゼロの場合、<TT
+CLASS="LITERAL"
+>wrapped</TT
+>書式の幅、および、幅出力がページャを必要とするかどうかを決める幅を制御します。
+     </P
+></DD
+><DT
+><TT
+CLASS="ENVAR"
+>PAGER</TT
+></DT
+><DD
+><P
+>問い合わせ結果が画面に入り切らない場合、このコマンドによって結果をパイプします。
+一般的に指定される値は、<TT
+CLASS="LITERAL"
+>more</TT
+>、または<TT
+CLASS="LITERAL"
+>less</TT
+>です。
+デフォルトはプラットフォームによって異なります。
+ページャの使用を禁止するには<TT
+CLASS="COMMAND"
+>\pset</TT
+>コマンドを使用します。
+     </P
+></DD
+><DT
+><TT
+CLASS="ENVAR"
+>PGDATABASE</TT
+><BR><TT
+CLASS="ENVAR"
+>PGHOST</TT
+><BR><TT
+CLASS="ENVAR"
+>PGPORT</TT
+><BR><TT
+CLASS="ENVAR"
+>PGUSER</TT
+></DT
+><DD
+><P
+>デフォルトの接続パラメータです（<A
+HREF="libpq-envars.html"
+>&#38917;31.13</A
+>を参照）。
+     </P
+></DD
+><DT
+><TT
+CLASS="ENVAR"
+>PSQL_EDITOR</TT
+><BR><TT
+CLASS="ENVAR"
+>EDITOR</TT
+><BR><TT
+CLASS="ENVAR"
+>VISUAL</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>\e</TT
+>および<TT
+CLASS="COMMAND"
+>\ef</TT
+>コマンドで使用されるエディタです。
+変数はこのリスト順に検索されます。
+つまり最初に設定されたものが使用されます。
+     </P
+><P
+>組込みのデフォルトエディタは、Unixシステムでは<TT
+CLASS="FILENAME"
+>vi</TT
+>、Windowsシステムでは<TT
+CLASS="FILENAME"
+>notepad.exe</TT
+>です。
+     </P
+></DD
+><DT
+><TT
+CLASS="ENVAR"
+>PSQL_EDITOR_LINENUMBER_ARG</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>\e</TT
+>または<TT
+CLASS="COMMAND"
+>\ef</TT
+>が行番号引数を付けて使用された場合、この変数は、ユーザのエディタに開始行番号を渡すために使用されるコマンドライン引数を指定します。
+<SPAN
+CLASS="PRODUCTNAME"
+>Emacs</SPAN
+>または<SPAN
+CLASS="PRODUCTNAME"
+>vi</SPAN
+>のようなエディタでは、これはプラス(+)記号です。
+オプション名と行番号の間に空白文字が必要な場合は、変数の値の最後に空白文字を含めてください。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PSQL_EDITOR_LINENUMBER_ARG='+'
+PSQL_EDITOR_LINENUMBER_ARG='--line '</PRE
+><P>
+     </P
+><P
+>Unixシステム上のデフォルトは<TT
+CLASS="LITERAL"
+>+</TT
+>です。
+（デフォルトのエディタ<TT
+CLASS="FILENAME"
+>vi</TT
+>に対応するものですが、他のよく使われる多くのエディタでも役に立ちます。）
+一方Windowsシステムではデフォルトはありません。
+     </P
+></DD
+><DT
+><TT
+CLASS="ENVAR"
+>SHELL</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>\!</TT
+>コマンドが実行するコマンドです。
+     </P
+></DD
+><DT
+><TT
+CLASS="ENVAR"
+>TMPDIR</TT
+></DT
+><DD
+><P
+>一時ファイルを格納するディレクトリです。
+デフォルトは<TT
+CLASS="FILENAME"
+>/tmp</TT
+>です。
+     </P
+></DD
+></DL
+></DIV
+><P
+>また、このユーティリティは、他のほとんどの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーティリティと同様、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>でサポートされる環境変数を使用します（<A
+HREF="libpq-envars.html"
+>&#38917;31.13</A
+>を参照してください）。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82110"
+></A
+><H2
+>ファイル</H2
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="OPTION"
+>-X</TT
+>または<TT
+CLASS="OPTION"
+>-c</TT
+>オプションが渡されない限り、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は処理を始める前に、システム全体用の<TT
+CLASS="FILENAME"
+>psqlrc</TT
+>ファイルとユーザ用の<TT
+CLASS="FILENAME"
+>~/.psqlrc</TT
+>ファイルのコマンドを読み込み、実行しようとします
+（Windowsにおける、ユーザ用の起動ファイルの名前は<TT
+CLASS="FILENAME"
+>%APPDATA%\postgresql\psqlrc.conf</TT
+>です）。
+システム全体用のファイルの設定に関する情報については<TT
+CLASS="FILENAME"
+><TT
+CLASS="REPLACEABLE"
+><I
+>PREFIX</I
+></TT
+>/share/psqlrc.sample</TT
+>を参照してください。
+<TT
+CLASS="COMMAND"
+>\set</TT
+>や<TT
+CLASS="COMMAND"
+>SET</TT
+>コマンドを使用して、好みに応じたクライアントやサーバを設定するために使用することができます。
+    </P
+></LI
+><LI
+><P
+>システム全体用の<TT
+CLASS="FILENAME"
+>psqlrc</TT
+>ファイルとユーザ用の<TT
+CLASS="FILENAME"
+>~/.psqlrc</TT
+>ファイルに、例えば、<TT
+CLASS="FILENAME"
+>~/.psqlrc-9.1.4</TT
+>のように、ハイフン記号と<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のリリース番号を付与することで、特定バージョン向けのファイルとすることができます。
+一致するバージョンのファイルはバージョン指定のないファイルよりも優先して読み込まれます。
+    </P
+></LI
+><LI
+><P
+>コマンドライン履歴は<TT
+CLASS="FILENAME"
+>~/.psql_history</TT
+>ファイル、Windowsの場合は<TT
+CLASS="FILENAME"
+>%APPDATA%\postgresql\psql_history</TT
+>に格納されます。
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82135"
+></A
+><H2
+>注釈</H2
+><P
+></P
+><UL
+><LI
+><P
+>旧バージョンの<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>では、単一文字のバックスラッシュコマンドの後に、空白を入れずに直接最初の引数を入力することができました。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.4からこれは許されなくなりました。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が円滑に動作することを保証できるのは、同一バージョンのサーバが対象の時のみです。
+異なるバージョンの組み合わせではまったく動かないという意味ではありませんが、大小の様々な問題が発生する可能性があります。
+特にバックスラッシュコマンドは、サーバが<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>自身のバージョンより新しいと失敗しやすくなります。
+しかし、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>自身よりもサーバが新しくなければならないということなく、<TT
+CLASS="LITERAL"
+>\d</TT
+>系列のバックスラッシュコマンドは7.4までさかのぼるバージョンのサーバで動作するはずです。
+
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82148"
+></A
+><H2
+>Windowsユーザ向けの注意</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は<SPAN
+CLASS="QUOTE"
+>"コンソールアプリケーション"</SPAN
+>としてコンパイルされます。
+Windowsのコンソールウィンドウは、システムの他の部分とは異なる符号化方式を使用しているので、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>で8ビット文字を使用する時には特別な配慮が必要です。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は、コンソール用コードページとして問題があることを検出すると、起動時に警告を発します。
+コンソール用コードページを変更するためには、以下の2つが必要です。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+><KBD
+CLASS="USERINPUT"
+>cmd.exe /c chcp 1252</KBD
+>と入力して、コードページを設定します
+（1252はドイツ圏における適切なコードページです。システムに合わせて変更してください）。
+Cygwinを使用しているのであれば、このコマンドを<TT
+CLASS="FILENAME"
+>/etc/profile</TT
+>に追加してください。
+     </P
+></LI
+><LI
+><P
+>コンソール用フォントを<TT
+CLASS="LITERAL"
+>Lucida Console</TT
+>に設定してください。
+ラスタフォントは、ANSIコードページでは正しく動作しないためです。
+     </P
+></LI
+></UL
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="APP-PSQL-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+>最初に、複数行にわたるコマンドの入力例を示します。
+プロンプトの変化に注意してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>CREATE TABLE my_table (</KBD
+>
+testdb(&gt; <KBD
+CLASS="USERINPUT"
+> first integer not null default 0,</KBD
+>
+testdb(&gt; <KBD
+CLASS="USERINPUT"
+> second text)</KBD
+>
+testdb-&gt; <KBD
+CLASS="USERINPUT"
+>;</KBD
+>
+CREATE TABLE</PRE
+><P>
+さて、ここでテーブル定義を再度確認してみます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\d my_table</KBD
+>
+             Table "my_table"
+ Attribute |  Type   |      Modifier
+-----------+---------+--------------------
+ first     | integer | not null default 0
+ second    | text    |&#13;</PRE
+><P>
+次に、プロンプトをもっと面白いものに変更してみます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\set PROMPT1 '%n@%m %~%R%# '</KBD
+>
+peter@localhost testdb=&gt;</PRE
+><P>
+テーブルにデータを入力したものと考えてください。データを見る場合は次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>peter@localhost testdb=&gt; SELECT * FROM my_table;
+ first | second
+-------+--------
+     1 | one
+     2 | two
+     3 | three
+     4 | four
+(4 rows)&#13;</PRE
+><P>
+<TT
+CLASS="COMMAND"
+>\pset</TT
+>コマンドを使って、このテーブルの表示を違うタイプに変更することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\pset border 2</KBD
+>
+Border style is 2.
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>SELECT * FROM my_table;</KBD
+>
++-------+--------+
+| first | second |
++-------+--------+
+|     1 | one    |
+|     2 | two    |
+|     3 | three  |
+|     4 | four   |
++-------+--------+
+(4 rows)
+
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\pset border 0</KBD
+>
+Border style is 0.
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>SELECT * FROM my_table;</KBD
+>
+first second
+----- ------
+    1 one
+    2 two
+    3 three
+    4 four
+(4 rows)
+
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\pset border 1</KBD
+>
+Border style is 1.
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\pset format unaligned</KBD
+>
+Output format is unaligned.
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\pset fieldsep ","</KBD
+>
+Field separator is ",".
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\pset tuples_only</KBD
+>
+Showing only tuples.
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>SELECT second, first FROM my_table;</KBD
+>
+one,1
+two,2
+three,3
+four,4</PRE
+><P>
+その他の方法として、短縮されたコマンドを使用してみます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>\a \t \x</KBD
+>
+Output format is aligned.
+Tuples only is off.
+Expanded display is on.
+peter@localhost testdb=&gt; <KBD
+CLASS="USERINPUT"
+>SELECT * FROM my_table;</KBD
+>
+-[ RECORD 1 ]-
+first  | 1
+second | one
+-[ RECORD 2 ]-
+first  | 2
+second | two
+-[ RECORD 3 ]-
+first  | 3
+second | three
+-[ RECORD 4 ]-
+first  | 4
+second | four</PRE
+><P></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="app-pgrestore.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="app-reindexdb.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>pg_restore</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference-client.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>reindexdb</SPAN
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

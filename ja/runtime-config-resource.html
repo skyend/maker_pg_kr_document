@@ -1,0 +1,1010 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>資源の消費</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="接続と認証"
+HREF="runtime-config-connection.html"><LINK
+REL="NEXT"
+TITLE="ログ先行書き込み（WAL）"
+HREF="runtime-config-wal.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="接続と認証"
+HREF="runtime-config-connection.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ログ先行書き込み（WAL）"
+HREF="runtime-config-wal.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-RESOURCE"
+>18.4. 資源の消費</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-RESOURCE-MEMORY"
+>18.4.1. メモリ</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-SHARED-BUFFERS"
+></A
+><TT
+CLASS="VARNAME"
+>shared_buffers</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	データベースサーバが使用する共有メモリバッファのために使用するメモリ量を設定します。
+デフォルトは一般的に32メガバイト(<TT
+CLASS="LITERAL"
+>32MB</TT
+>)です。しかし、稼働中のカーネルの設定が（<SPAN
+CLASS="APPLICATION"
+>initdb</SPAN
+>の過程で決定されます）この値をサポートしていない場合、より少なくなることがあります。
+この設定は最低限128キロバイトなければなりません。（デフォルト値以外の<TT
+CLASS="SYMBOL"
+>BLCKSZ</TT
+>でこの最小値は変化します。）しかし、良い性能を引き出すためには、最小値よりかなり高い値の設定が通例必要です。このパラメータはサーバ起動時にのみ設定可能です。
+       </P
+><P
+>       
+	1GBまたはそれより多いRAMを載せた専用データベースサーバを使用している場合、<TT
+CLASS="VARNAME"
+>shared_buffers</TT
+>に対する妥当な初期値はシステムメモリの25%です。
+	<TT
+CLASS="VARNAME"
+>shared_buffers</TT
+>に対し大きな値が有効であってもなんらかの作業負荷は存在します。
+	しかし、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は同時にオペレーティングシステムキャッシュを信頼しますので、<TT
+CLASS="VARNAME"
+>shared_buffers</TT
+>にRAMの40%以上を割り当てても、より少ない量より動きがより良くなると言う見込みはありません。
+        <TT
+CLASS="VARNAME"
+>shared_buffers</TT
+>をより大きく設定するは、通常対応する<TT
+CLASS="VARNAME"
+>checkpoint_segments</TT
+>を増やす必要があります。より長い期間にわたっての新規、または変更された多量のデータを書き出すプロセスを展開するためです。
+       </P
+><P
+>       
+	1GB以下のRAMのシステムでは、オペレーティングシステムに十分な余裕を残せるため、より少ない比率のRAMが適切です。同時に、Windowsでは<TT
+CLASS="VARNAME"
+>shared_buffers</TT
+>に対し大きな値は有効でありません。設定を比較的少なく保ち、その代わりオペレーティングシステムのキャッシュを使用するとより良い結果が見つかります。Windowsシステムでの<TT
+CLASS="VARNAME"
+>shared_buffers</TT
+>の範囲は一般的に64MBから512MBです。
+       </P
+><P
+>       
+	このパラメータを増加させると、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は使用しているオペレーティングシステムのデフォルト構成が許容する<SPAN
+CLASS="SYSTEMITEM"
+>System V</SPAN
+>共有メモリの限界を越えた要求を行う要因となることがあります。必要であれば、どの様にこのパラメータを調整するかについて<A
+HREF="kernel-resources.html#SYSVIPC"
+>&#38917;17.4.1</A
+>を参照ください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-TEMP-BUFFERS"
+></A
+><TT
+CLASS="VARNAME"
+>temp_buffers</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	それぞれのデータベースセッションが使用する一時バッファの最大数を設定します。
+        一時テーブルにアクセスする時にのみ使用されるセッション局所バッファが存在します。
+        デフォルトは8メガバイト（<TT
+CLASS="LITERAL"
+>8MB</TT
+>）です。
+        設定はそれぞれのセッション内で変更できますが、そのセッション内の一時テーブルが最初に使用するまでになります。引き続いて値の変更を試みても、そのセッションでは効果がありません。
+       </P
+><P
+>       
+        多くの一時バッファを実際に必要としないセッションで大きな値を設定するコストとは、<TT
+CLASS="VARNAME"
+>temp_buffers</TT
+>の増分毎に、バッファ記述子分、バイトで言うと64バイトです。
+        しかし、バッファが実際に使用されると、それに対して追加の8192バイト（または、通常<TT
+CLASS="SYMBOL"
+>BLCKSZ</TT
+>バイト）が消費されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-MAX-PREPARED-TRANSACTIONS"
+></A
+><TT
+CLASS="VARNAME"
+>max_prepared_transactions</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	<SPAN
+CLASS="QUOTE"
+>"プリペアド"</SPAN
+>状態におけるトランザクションの最大数を同時に設定します（<A
+HREF="sql-prepare-transaction.html"
+>PREPARE TRANSACTION</A
+>を参照してください）。
+このパラメータをゼロ（これがデフォルトです）に設定すると、プリペアドトランザクション機能を無効にします。
+このパラメータはサーバ起動時にのみ設定可能です。
+       </P
+><P
+>       
+        プリペアドトランザクションの使用を意図しないのであれば、このパラメータはプリペアドトランザクションが偶然に作成されないようゼロに設定されなければなりません。プリペアドトランザクションを使用する場合、全てのセッションがプリペアドトランザクションを保留できるように、<TT
+CLASS="VARNAME"
+>max_prepared_transactions</TT
+>を最低<A
+HREF="runtime-config-connection.html#GUC-MAX-CONNECTIONS"
+>max_connections</A
+>と同じ大きさに設定しても構いません。
+       </P
+><P
+>       
+	このパラメータを増加させると、使用しているオペレーティングシステムのデフォルト構成が許容する<SPAN
+CLASS="SYSTEMITEM"
+>System V</SPAN
+>共有メモリの限界を越えた要求を <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が行う原因となることがあります。必要であれば、どの様にしてこのパラメータを調整するかについて<A
+HREF="kernel-resources.html#SYSVIPC"
+>&#38917;17.4.1</A
+>を参照ください。
+       </P
+><P
+>       
+	スタンバイサーバを運用している場合、このパラメータはマスターサーバ上の設定よりも同等かもしくはより高水準に設定しなければなりません。そうしないと問い合わせがスタンバイサーバ内で受け入れられません。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-WORK-MEM"
+></A
+><TT
+CLASS="VARNAME"
+>work_mem</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	一時ディスクファイルに書き込む前に、内部並べ替えとハッシュテーブル操作が使用するメモリ容量を指定します。
+デフォルト値は1メガバイト（<TT
+CLASS="LITERAL"
+>1MB</TT
+>）です。
+        複雑な問い合わせの場合、いくつかの並び替えもしくはハッシュ操作が並行して実行されることに注意してください。
+        それぞれの操作による一時メモリへの書き込み開始の前に、この値が指定するのと同じメモリ容量の使用をそれらの操作に許容します。さらに、いくつかの実行中のセッションはこれらの動作を同時に行います。したがって、使用されるメモリの合計は、<TT
+CLASS="VARNAME"
+>work_mem</TT
+>の数倍になります。値を選択する時には、この事実に留意することが必要です。並び替え操作は<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>、<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>、およびマージ結合に対して使われます。ハッシュテーブルはハッシュ結合、ハッシュに基づいた集約、および<TT
+CLASS="LITERAL"
+>IN</TT
+>副問い合わせのハッシュに基づいた処理で使用されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-MAINTENANCE-WORK-MEM"
+></A
+><TT
+CLASS="VARNAME"
+>maintenance_work_mem</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>、<TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+>、および<TT
+CLASS="COMMAND"
+>ALTER TABLE ADD FOREIGN KEY</TT
+>の様な保守操作で使用されるメモリの最大容量を指定します。
+デフォルト値は16メガバイト（<TT
+CLASS="LITERAL"
+>16MB</TT
+>）です。
+1つのデータベースセッションでは、一度に1つしか上記操作はできませんし、通常インストレーションでこうした操作が同時に非常に多く発生することはありませんので、これを<TT
+CLASS="VARNAME"
+>work_mem</TT
+>よりもかなり多めの値にしても安全です。
+大きい値を設定することでvacuum処理と、ダンプしたデータベースのリストア性能が向上します。
+       </P
+><P
+>       
+	オートバキュームを稼動させると、最大<A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-MAX-WORKERS"
+>autovacuum_max_workers</A
+>倍ほどこのメモリーが配分されるので、デフォルトの値をあまり高く設定しないよう注意することを覚えておいてください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-MAX-STACK-DEPTH"
+></A
+><TT
+CLASS="VARNAME"
+>max_stack_depth</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	サーバの実行スタックの最大安全深度を指定します。
+このパラメータの理想的な設定はカーネルにより強要される実際のスタック容量の（<TT
+CLASS="LITERAL"
+>ulimit -s</TT
+>もしくは局所での同等の値で設定された）限界から、1メガバイト程度の安全余地を差し引いたものです。
+安全余地は、サーバが各ルーチンでスタック深度を検査をせず、式評価などの主要な潜在的に再帰的なルーチンの場合のみ必要となるものです。
+デフォルト設定は2メガバイト（<TT
+CLASS="LITERAL"
+>2MB</TT
+>）で、かなり控え目で、クラッシュの危険はなさそうです。
+しかし、複雑な関数の実行を許容するには小さ過ぎるかも知れません。
+スーパーユーザのみがこの設定を変更することができます。
+       </P
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>max_stack_depth</TT
+>を実際のカーネルの制限よりも高い値に設定した場合、暴走した再帰関数により、個々のバックエンドプロセスがクラッシュするかもしれません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がカーネルの制限を決定することができるプラットフォームでは、この変数を危険な値に設定させません。
+しかし、すべてのプラットフォームがこの情報を提供できるわけではありません。
+このため、値を選ぶ時には注意が必要です。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-RESOURCE-KERNEL"
+>18.4.2. カーネル資源使用</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-MAX-FILES-PER-PROCESS"
+></A
+><TT
+CLASS="VARNAME"
+>max_files_per_process</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	それぞれのサーバ子プロセスが同時にオープンできるファイル数の最大値をセットします。
+デフォルトは1000ファイルです。
+もしもカーネルがプロセス毎の安全制限を強要している場合、この設定を気にかける必要はありません。
+しかし、いくつかのプラットフォーム（特にほとんどのBSDシステム）では、もし多くのプロセス全てがそれだけ多くのファイルを開くことを試みたとした場合、実際にサポートできるファイル数より多くのファイルを開くことを許しています。もしも<SPAN
+CLASS="QUOTE"
+>"Too many open files"</SPAN
+>エラーが発生した場合、この設定を削減してみてください。
+このパラメータはサーバ起動時にのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SHARED-PRELOAD-LIBRARIES"
+></A
+><TT
+CLASS="VARNAME"
+>shared_preload_libraries</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	この変数はサーバが稼働する時点で事前に読み込まれなければならない1つ以上の共有ライブラリを指定します。
+たとえば、<TT
+CLASS="LITERAL"
+>'$libdir/mylib'</TT
+>は<TT
+CLASS="LITERAL"
+>mylib.so</TT
+>（一部のプラットフォームでは<TT
+CLASS="LITERAL"
+>mylib.sl</TT
+>）をインストレーションの共有ライブラリディレクトリから事前読み込みします。
+二重引用符でくくられてる場合を除いて、すべてのライブラリ名は小文字に変換されます。もし1つ以上のライブラリの読み込みが必要であれば、それらの名前をコンマで区切ってください。
+このパラメータはサーバ起動時にのみ設定可能です。
+       </P
+><P
+>       
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の手続き言語ライブラリはこのようにして、典型的には構文<TT
+CLASS="LITERAL"
+>'$libdir/plXXX'</TT
+>を使用し、事前読み込みされます。
+ここで、<TT
+CLASS="LITERAL"
+>XXX</TT
+>は<TT
+CLASS="LITERAL"
+>pgsql</TT
+>、<TT
+CLASS="LITERAL"
+>perl</TT
+>、<TT
+CLASS="LITERAL"
+>tcl</TT
+>、もしくは<TT
+CLASS="LITERAL"
+>python</TT
+>です。
+       </P
+><P
+>       
+	共有ライブラリを事前読み込みすることで、ライブラリが最初に使用される時、ライブラリの立上り時間を省略できます。
+とは言っても、それぞれの新規サーバプロセスを開始させる時間は、そのプロセスがライブラリを使用しないとしても、多少増加することがあります。
+ですから、このパラメータはほとんどのセッションで使用されそうなライブラリにのみ限定することをお勧めします。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>      
+	Windowsでは、サーバ起動時にライブラリを事前読み込みしても、新しいサーバプロセスの起動に要する時間は減りません。
+各サーバプロセスは事前に読み込まれたライブラリをすべて、再度読み込みます。
+しかし、<TT
+CLASS="VARNAME"
+>shared_preload_libraries</TT
+>はWindowsホストでも有用です。
+共有ライブラリの中には、postmaster起動時にのみ特定の操作を行わなければならないものがあるためです。
+（例えば、共有ライブラリは、postmasterの起動が終わった後に実行することができない、軽量ロックや共有メモリの予約を行う必要があるかもしれません。）
+       </P
+></BLOCKQUOTE
+></DIV
+><P
+>       
+	指定したライブラリが存在しないと、サーバの起動に失敗します。
+       </P
+><P
+>       
+	PostgreSQLがサポートするライブラリはすべて、互換性を保証するために検査される<SPAN
+CLASS="QUOTE"
+>"マジックブロック"</SPAN
+>を持ちます。
+このため、この方法でPostgresQL以外のライブラリが読み込まれることはありません。
+
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-RESOURCE-VACUUM-COST"
+>18.4.3. コストに基づくVacuum遅延</A
+></H2
+><P
+>     
+      <A
+HREF="sql-vacuum.html"
+>VACUUM</A
+> および <A
+HREF="sql-analyze.html"
+>ANALYZE</A
+> コマンドの実行中、実行される各種I/O操作の予測コストを追跡し続ける内部カウンタをシステムが保守します。
+      累積されたコストが（<TT
+CLASS="VARNAME"
+>vacuum_cost_limit</TT
+>で指定された）限度に達すると、操作を実行しているプロセスは<TT
+CLASS="VARNAME"
+>vacuum_cost_delay</TT
+>で指定されたちょっとの間スリープします。その後、カウンタをリセットし、実行を継続します。
+     </P
+><P
+>     
+      この機能の目的は、同時実行的データベース活動上のこれらコマンドのI/Oに対する影響を管理者から軽減させます。
+      <TT
+CLASS="COMMAND"
+>VACUUM</TT
+> および <TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>の様な保守用コマンドが即座に終了することが重要ではない事態が数多くあります。
+      しかし、他のデータベースの操作を行うに当たって、これらのコマンドがシステムの能力に多大な阻害を与えないことは通常とても重要です。
+      コストに基づいたvacuum遅延はこれを実現するための方法を管理者に提供します。
+     </P
+><P
+>     
+      手動で<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>コマンドを実行することができるように、デフォルトでこの機能は無効になっています。
+      有効にするには、<TT
+CLASS="VARNAME"
+>vacuum_cost_delay</TT
+>変数をゼロでない値に設定します。
+     </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-VACUUM-COST-DELAY"
+></A
+><TT
+CLASS="VARNAME"
+>vacuum_cost_delay</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 コストの限度を越えた場合、プロセスがスリープするミリ秒単位の時間の長さです。
+デフォルトの値は0で、コストに基づいたvacuum遅延機能を無効にします。
+正の整数はコストに基づいたvacuumを有効にします。
+多くのシステムで、スリープ遅延の有効な分解能は10ミリ秒です。
+<TT
+CLASS="VARNAME"
+>vacuum_cost_delay</TT
+>の値の設定を10の倍数としない場合、次に大きい10の倍数に設定した結果と同一になるかもしれないことを覚えておいてください。
+        </P
+><P
+>	
+	 コストに基づいたバキューム処理を使用する場合、<TT
+CLASS="VARNAME"
+>vacuum_cost_delay</TT
+>の適切な値は通常かなり小さくなり、たいていは10または20ミリ秒になります。
+	 バキュームによるリソース消費の調整は、他のバキュームのコストパラメータを変更して行うことが最善です。
+        </P
+></DD
+><DT
+><A
+NAME="GUC-VACUUM-COST-PAGE-HIT"
+></A
+><TT
+CLASS="VARNAME"
+>vacuum_cost_page_hit</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 共有バッファキャッシュの中のバッファにvacuumを掛ける予測コストです。バッファプールのロック、共有ハッシュテーブルの検索、およびページ内容走査のコストを示します。デフォルトの値は1です。
+        </P
+></DD
+><DT
+><A
+NAME="GUC-VACUUM-COST-PAGE-MISS"
+></A
+><TT
+CLASS="VARNAME"
+>vacuum_cost_page_miss</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 ディスクから読み込まれなければならないバッファにvacuumを掛ける予測コストです。これが示すものは、バッファプールロックの試み、共有ハッシュテーブルの参照、ディスクから目的ブロックの読み込み、そしてその内容走査です。デフォルトの値は10です。
+        </P
+></DD
+><DT
+><A
+NAME="GUC-VACUUM-COST-PAGE-DIRTY"
+></A
+><TT
+CLASS="VARNAME"
+>vacuum_cost_page_dirty</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 vacuumが、先だって掃除したブロックを変更する時に果たされた予測コストです。
+	 ダーティブロックを再度ディスクに吐き出すのに必要な余分なI/Oを表します。デフォルトの値は20です。
+        </P
+></DD
+><DT
+><A
+NAME="GUC-VACUUM-COST-LIMIT"
+></A
+><TT
+CLASS="VARNAME"
+>vacuum_cost_limit</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 vacuumを掛けるプロセスをスリープさせることになる累計されたコストです。
+	 デフォルトの値は200です。
+        </P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>      
+       重要なロックを保有し可能なかぎり早急に完了しなければならないある種の操作があります。コストに基づいたvacuum遅延はこの様な操作では起こりません。
+       したがって、コストの累計が指定された限度をかなり高く越える可能性があります。
+       このような場合無駄な長い遅延を防止するため、実際の遅延は以下の様にして計算されます。
+       <TT
+CLASS="VARNAME"
+>vacuum_cost_delay</TT
+> *
+       <TT
+CLASS="VARNAME"
+>accumulated_balance</TT
+> /
+       <TT
+CLASS="VARNAME"
+>vacuum_cost_delay</TT
+> * 4 の最大値を所有する <TT
+CLASS="VARNAME"
+>vacuum_cost_limit</TT
+>
+      </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-RESOURCE-BACKGROUND-WRITER"
+>18.4.4. バックグラウンドライタ</A
+></H2
+><P
+>     
+      <I
+CLASS="FIRSTTERM"
+>バックグラウンドライタ</I
+>と呼ばれる個別のサーバプロセスがあり、その機能は（新規または更新された）<SPAN
+CLASS="QUOTE"
+>"ダーティ"</SPAN
+>な共有バッファの書き込みを行うことです。
+それは共有バッファを書き込むため、ユーザの問い合わせを処理するサーバプロセスは書き込みが発生するまでごくたまに、あるいは決して待ち状態になりません。
+しかし、バックグラウンドライタはI/O読み込みに対し正味の全体的増加の原因になります。その理由は、繰り返しダーティ化されるページはチェックポイント間隔で一度だけ書き出される可能性がある一方、バックグラウンドライタは同じ間隔内でダーティ化されるごとにそれを複数回書き出します。
+本節で説明したこのパラメータはサイト独自の必要に応じて動作を調整することに使用できます。
+     </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-BGWRITER-DELAY"
+></A
+><TT
+CLASS="VARNAME"
+>bgwriter_delay</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 バックグラウンドライタの動作周期間の遅延を指定します。
+それぞれの周期でライタは、（以下のパラメータで管理される）一部のダーティバッファの書き込みを行います。
+そして<TT
+CLASS="VARNAME"
+>bgwriter_delay</TT
+>ミリ秒スリープした後、これを繰りかえします。
+デフォルトの値は200ミリ秒（<TT
+CLASS="LITERAL"
+>200ms</TT
+>）です。
+多くのシステムで、スリープ遅延の実精度は10ミリ秒です。
+<TT
+CLASS="VARNAME"
+>bgwriter_delay</TT
+>の値の設定を10の倍数としない場合、次に大きい10の倍数に設定した結果と同一になるかもしれないことを覚えておいてください。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインで設定可能です。
+
+        </P
+></DD
+><DT
+><A
+NAME="GUC-BGWRITER-LRU-MAXPAGES"
+></A
+><TT
+CLASS="VARNAME"
+>bgwriter_lru_maxpages</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 それぞれの周期で、この数以上のバッファはバックグラウンドライタにより書き込まれません。
+         ゼロに設定することで（チェックポイント活動を除く）バックグラウンド書き込みは無効になります。
+         デフォルト値は100バッファです。
+         このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル内、または、サーバのコマンドラインでのみで設定可能です。
+        </P
+></DD
+><DT
+><A
+NAME="GUC-BGWRITER-LRU-MULTIPLIER"
+></A
+><TT
+CLASS="VARNAME"
+>bgwriter_lru_multiplier</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>	
+	 各周期で書き出されるダーティバッファ数は、最近の周期でサーバプロセスが必要とした新しいバッファ数を基にします。
+次の周期で必要となるバッファ数を推定するために、最近必要とされた平均が<TT
+CLASS="VARNAME"
+>bgwriter_lru_multiplier</TT
+>と掛け合わせられます。
+ダーティバッファの書き出しは、同数の整理済み、再利用可能なバッファが利用できるようになるまで行われます。
+（しかし1周期に<TT
+CLASS="VARNAME"
+>bgwriter_lru_maxpages</TT
+>を越えるバッファ数を書き出しません。）
+したがって、1.0と設定することは、必要と予想されるバッファ数の書き込みについて<SPAN
+CLASS="QUOTE"
+>"必要なときに必要なだけ"</SPAN
+>というポリシーを表します。
+より大きな値は突発的な要求に対する多少の緩衝材を提供します。
+より小さな値はサーバプロセスでなされる書き込みを意図的に残します。
+デフォルトは2.0です。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定可能です。
+        </P
+></DD
+></DL
+></DIV
+><P
+>     
+      <TT
+CLASS="VARNAME"
+>bgwriter_lru_maxpages</TT
+>および<TT
+CLASS="VARNAME"
+>bgwriter_lru_multiplier</TT
+>の値がより少ないと、バックグラウンドライタで引き起こされる追加のI/O負荷を軽減しますが、サーバプロセスが自分自身で行わなければならない書き込みが増加することになり、会話型問い合わせを遅らせることになります。
+     </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-RESOURCE-ASYNC-BEHAVIOR"
+>18.4.5. 非同期動作</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-EFFECTIVE-IO-CONCURRENCY"
+></A
+><TT
+CLASS="VARNAME"
+>effective_io_concurrency</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>	
+	 <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が同時処理を予定している同時実行ディスクI/O作業の数を設定します。この値を大きくすると、あらゆる個別の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>セッションが平行して開始を試みるI/O作業数が増加します。許容範囲は1から1000まで、または非同期I/Oリクエストの発行を無効にするゼロです。
+	 現在、この設定はビットマップヒープスキャンのみに有効です。
+        </P
+><P
+>	
+	 この設定の開始点として優れた値は、データベースに使用されるRAID 0ストライプ、RAID 1ミラーを構成する個々のドライブ数です。
+	 RAID 5ではパリティ用のドライブを数に含めてはなりません。）
+	 しかし、同時実行セッションで発行される複数の問い合わせでデータベースが頻繁にビジーとなる場合、ディスクアレイのビジー率を抑えるために、より小さな値で十分であるかもしれません。
+	 ディスクビジー率を抑えるために必要な値より大きな値を設定しても、余計なCPUオーバーヘッドを発生させるだけです。
+        </P
+><P
+>	
+	 メモリベースのストレージやバス帯域幅で制限されたRAIDアレイなどの、より斬新なシステムにおける正しい値は利用できるI/Oパスの数となるかもしれません。
+	 最善の値を見つけ出すには、何らかの実験が必要かもしれません。
+        </P
+><P
+>	
+	 非同期I/Oは実質的に<CODE
+CLASS="FUNCTION"
+>posix_fadvise</CODE
+>関数に依存します。
+	 これは一部のオペレーティングシステムには存在しません。
+	 この関数が存在しない場合、この値をゼロ以外に設定するとエラーとなります。
+	 一部のオペレーティングシステム（例えばSolaris）では存在するけれども、実際何も行わないものもあります。
+        </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-connection.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-wal.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>接続と認証</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ログ先行書き込み（WAL）</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

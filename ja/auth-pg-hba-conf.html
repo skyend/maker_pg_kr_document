@@ -1,0 +1,1225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>pg_hba.confファイル</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="クライアント認証"
+HREF="client-authentication.html"><LINK
+REL="PREVIOUS"
+TITLE="クライアント認証"
+HREF="client-authentication.html"><LINK
+REL="NEXT"
+TITLE="ユーザ名マップ"
+HREF="auth-username-maps.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="クライアント認証"
+HREF="client-authentication.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="クライアント認証"
+HREF="client-authentication.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 19&#31456;クライアント認証</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="クライアント認証"
+HREF="client-authentication.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ユーザ名マップ"
+HREF="auth-username-maps.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AUTH-PG-HBA-CONF"
+>19.1. <TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイル</A
+></H1
+><P
+>クライアント認証はデータベースクラスタのデータディレクトリ内の、伝統的に<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>という名前の設定ファイルで管理されています
+（<ACRONYM
+CLASS="ACRONYM"
+>HBA</ACRONYM
+>とは、host-based authentication: ホストベース認証の略です）。
+デフォルトの<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイルは、データディレクトリが<TT
+CLASS="COMMAND"
+>initdb</TT
+>で初期化される時にインストールされます。
+しかし、この認証設定ファイルを他の場所に設置することができます。
+<A
+HREF="runtime-config-file-locations.html#GUC-HBA-FILE"
+>hba_file</A
+>設定パラメータを参照してください。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイルの一般的な書式は、1行につき1つのレコードというレコードの集合です。
+空行はコメント用の<TT
+CLASS="LITERAL"
+>#</TT
+>文字以降の文字と同じく無視されます。 
+レコードは行をまたいで続けることはできません。
+レコードはスペースもしくはタブ、もしくはその両方で区切られた、複数のフィールドで構成されています。 
+フィールドには、フィールド値が引用符付きの場合空白文字を含むことができます。 
+データベースもしくはユーザ名(例：<TT
+CLASS="LITERAL"
+>all</TT
+> or <TT
+CLASS="LITERAL"
+>replication</TT
+>)フィールド内のキーワードの一つを引用すると
+その特定の文字が失われ、データベース名もしくはユーザ名が名称と一致するようになります。
+  </P
+><P
+>それぞれのレコードは接続形式、（接続形式に対して意味を持つのであれば）クライアントのIPアドレス範囲、データベースの名前、ユーザ名およびこれらのパラメータに一致する接続で使用される認証方法を指定します。 
+接続形式、クライアントアドレス、要求されたデータベース、およびユーザ名に一致する最初のレコードが認証処理に使用されます。
+<SPAN
+CLASS="QUOTE"
+>"失敗時の継続"</SPAN
+>や、 あるいは<SPAN
+CLASS="QUOTE"
+>"バックアップ"</SPAN
+>はありません。 
+これは、もしあるレコードが選択されて認証に失敗した場合、後続のレコードは考慮されないということです。 
+どのレコードも一致しない時はアクセスが拒否されます。
+
+  </P
+><P
+>レコードは7つの書式のうちの1つの形式を取ります。
+</P><PRE
+CLASS="SYNOPSIS"
+>local      <TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+>  [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-options</I
+></TT
+></SPAN
+>]
+host       <TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>CIDR-address</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+>  [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-options</I
+></TT
+></SPAN
+>]
+hostssl    <TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>CIDR-address</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+>  [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-options</I
+></TT
+></SPAN
+>]
+hostnossl  <TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>CIDR-address</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+>  [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-options</I
+></TT
+></SPAN
+>]
+host       <TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>IP-address</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>IP-mask</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+>  [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-options</I
+></TT
+></SPAN
+>]
+hostssl    <TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>IP-address</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>IP-mask</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+>  [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-options</I
+></TT
+></SPAN
+>]
+hostnossl  <TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>IP-address</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>IP-mask</I
+></TT
+>  <TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+>  [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-options</I
+></TT
+></SPAN
+>]</PRE
+><P>
+   フィールドの意味は以下のようになっています。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>local</TT
+></DT
+><DD
+><P
+>このレコードはUnixドメインソケットを使用する接続に対応します。  
+この種類のレコードを使用しないと、Unixドメインソケット経由の接続は拒否されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>host</TT
+></DT
+><DD
+><P
+>このレコードは、TCP/IPを使用した接続に対応します。
+<TT
+CLASS="LITERAL"
+>host</TT
+>レコードは、<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>もしくは非<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>接続のいずれかに対応します。
+      </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>サーバのデフォルトの動作は、ローカルループバックアドレスである<TT
+CLASS="LITERAL"
+>localhost</TT
+>のみTCP/IP接続を監視しています。
+よってサーバにおいて<A
+HREF="runtime-config-connection.html#GUC-LISTEN-ADDRESSES"
+>listen_addresses</A
+>パラメータが適切な値に設定された状態で起動されていない限り、リモートのTCP/IP接続はできません。
+      </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>hostssl</TT
+></DT
+><DD
+><P
+>このレコードは、接続が<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>で暗号化されている場合にのみTCP/IPネットワークを使用する接続に対応します。
+      </P
+><P
+>このオプションを使用するためには、サーバは<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>サポートができるように構築されていなければいけません。 
+また、 <ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>は<A
+HREF="runtime-config-connection.html#GUC-SSL"
+>ssl</A
+>パラメータを設定することによりサーバの起動時に有効になっていなくてはなりません（詳細は<A
+HREF="ssl-tcp.html"
+>&#38917;17.9</A
+>を参照してください）。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>hostnossl</TT
+></DT
+><DD
+><P
+>このレコードは、<TT
+CLASS="LITERAL"
+>hostssl</TT
+>と反対の動作で、<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>を使用していないTCP/IPの接続のみに対応します。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+></DT
+><DD
+><P
+>このレコードで対応するデータベース名を指定します。  
+<TT
+CLASS="LITERAL"
+>all</TT
+> という値は、全てのデータベースと対応することを指定します。 
+<TT
+CLASS="LITERAL"
+>sameuser</TT
+>という値は、要求されたデータベースが要求ユーザと同じ名前を持つ場合にレコードが対応することを指定します。  
+<TT
+CLASS="LITERAL"
+>samerole</TT
+>という値は、要求ユーザが要求されたデータベースと同じ名前のロールのメンバでなければならないことを指定します。  
+（以前は<TT
+CLASS="LITERAL"
+>samegroup</TT
+>と書いていましたが、<TT
+CLASS="LITERAL"
+>samerole</TT
+>と記述してください）
+スーパーユーザは、もし明示的に<TT
+CLASS="LITERAL"
+>samerole</TT
+>のメンバではない限り<TT
+CLASS="LITERAL"
+>samerole</TT
+>のメンバとはみなされません。
+また、直接的もしくは間接的にスーパーユーザであっても、スーパーユーザであるからといって<TT
+CLASS="LITERAL"
+>samerole</TT
+>のメンバとはみなされません。
+<TT
+CLASS="LITERAL"
+>replication</TT
+>の値は、もしレプリケーション接続が要求された場合（レプリケーション接続は特定のデータベースを指定しないことに注意して下さい）にレコードが一致することを指定します。
+それ以外の場合には、特定の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースの名前になります。 
+データベースの名前はカンマで区切ることで複数指定できます。  
+データベース名を含む別のファイルを、そのファイル名の前に<TT
+CLASS="LITERAL"
+>@</TT
+>を付けることで指定できます。 
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>user</I
+></TT
+></DT
+><DD
+><P
+>このレコードで対応するデータベースユーザを指定します。 
+<TT
+CLASS="LITERAL"
+>all</TT
+>という値は、全てのユーザが対応することを指定します。 
+それ以外の場合には特定のデータベースユーザの名前もしくは<TT
+CLASS="LITERAL"
+>+</TT
+>で始まるグループ名のどちらかになります。 
+（<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではユーザとグループの明確な区別がないことを思い出してください。
+<TT
+CLASS="LITERAL"
+>+</TT
+>のマークは、<SPAN
+CLASS="QUOTE"
+>"このロールの直接的もしくは間接的なメンバのどちらかに一致していることを意味しています。"</SPAN
+>）
+このため、スーパーユーザは、もし明示的にロールのメンバである場合にのみ、ロールのメンバとみなされます。
+直接的もしくは間接的にスーパーユーザであっても、スーパーユーザであるからといってロールのメンバとはみなされません。
+重複したユーザ名は、ユーザ名をカンマで区切ることによって使用できるようになります。
+ユーザ名を含む別のファイルを、そのファイル名の前に<TT
+CLASS="LITERAL"
+>@</TT
+>を付けることで指定できます。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>CIDR-address</I
+></TT
+></DT
+><DD
+><P
+>このレコードに対応しているクライアントマシンのIPアドレスの範囲。
+このフィールドは標準のドット区切り10進表記でのIPアドレスと<ACRONYM
+CLASS="ACRONYM"
+>CIDR</ACRONYM
+>マスクの長さを含んでいます
+（IPアドレスは数値でのみ表され、ドメイン名やホスト名では表されません）。
+CIDRマスク長とは、クライアントIPアドレスが一致しなければならない、高位のビット数を表すものです。
+指定するIPアドレスのこれより右側のビットには、0を指定しなければなりません。
+IPアドレスと<TT
+CLASS="LITERAL"
+>/</TT
+>、およびCIDRマスク長の間には空白を入れてはいけません。
+      </P
+><P
+>サーバ自身のIPアドレスのどれかに一致させるために、<TT
+CLASS="REPLACEABLE"
+><I
+>CIDR-address</I
+></TT
+>の代わりに、
+<TT
+CLASS="LITERAL"
+>samehost</TT
+>と書くことが可能です。
+またはサーバが直接接続されているサブネット内のどれかのアドレスに一致させるために<TT
+CLASS="LITERAL"
+>samenet</TT
+>と書くことが可能です。
+      </P
+><P
+>典型的な<TT
+CLASS="REPLACEABLE"
+><I
+>CIDR-address</I
+></TT
+>の例は、単一のホストでは<TT
+CLASS="LITERAL"
+>172.20.143.89/32</TT
+>、小規模ネットワークでは<TT
+CLASS="LITERAL"
+>172.20.143.0/24</TT
+>、大規模ネットワークでは<TT
+CLASS="LITERAL"
+>10.6.0.0/16</TT
+>のようなものです。
+<TT
+CLASS="LITERAL"
+>0.0.0.0/0</TT
+> (<SPAN
+CLASS="QUOTE"
+>"all balls"</SPAN
+>)は全てのアドレスを意味します。
+単一ホストを指定するには、IPv4では32というCIDRマスクを、IPv6では128を使用してください。
+ネットワークアドレスでは末尾の0を省略できません。
+      </P
+><P
+>IPv4書式で与えられたIPアドレスは、対応するアドレスを持つIPv6接続に対しても対応します。
+例えば、<TT
+CLASS="LITERAL"
+>127.0.0.1</TT
+>は<TT
+CLASS="LITERAL"
+>::ffff:127.0.0.1</TT
+> IPv6アドレスに対応します。
+IPv6書式で与えられた項目は、たとえそのアドレスがIPv6内のIPv4の範囲内であったとしてもIPv6接続のみに対応します。
+IPv6書式の項目は、システムのCライブラリがIPv6アドレスをサポートしていない場合拒絶されることに注意してください。
+      </P
+><P
+>これらのフィールドは<TT
+CLASS="LITERAL"
+>host</TT
+>および<TT
+CLASS="LITERAL"
+>hostssl</TT
+>、<TT
+CLASS="LITERAL"
+>hostnossl</TT
+>レコードにのみ適用されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>IP-address</I
+></TT
+><BR><TT
+CLASS="REPLACEABLE"
+><I
+>IP-mask</I
+></TT
+></DT
+><DD
+><P
+>このフィールドは<TT
+CLASS="REPLACEABLE"
+><I
+>CIDR-address</I
+></TT
+>表記の代替として使用可能です。
+マスク長を指定する代わりに、実際のマスクを分離した列で指定します。
+例えば<TT
+CLASS="LITERAL"
+>255.0.0.0</TT
+>はIPv4のCIDRマスク長8を意味し、<TT
+CLASS="LITERAL"
+>255.255.255.255</TT
+>はCIDRマスク長32を意味しています。
+      </P
+><P
+>このフィールドは<TT
+CLASS="LITERAL"
+>host</TT
+>および<TT
+CLASS="LITERAL"
+>hostssl</TT
+>、<TT
+CLASS="LITERAL"
+>hostnossl</TT
+>レコードにのみ適用されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+></DT
+><DD
+><P
+>接続がこのレコードに一致する場合に使用する認証方式を指定します。
+使用できる選択肢は以下にまとめていますが、詳しくは<A
+HREF="auth-methods.html"
+>&#38917;19.3</A
+>を参照してください。
+
+       <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>trust</TT
+></DT
+><DD
+><P
+>接続を無条件で許可します。
+この方式は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースサーバに接続できる全てのユーザが、任意の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザとしてパスワードや他の認証なしでログインすることを許可します。  
+詳細は<A
+HREF="auth-methods.html#AUTH-TRUST"
+>&#38917;19.3.1</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>reject</TT
+></DT
+><DD
+><P
+>接続を無条件に拒否します。
+特定のホストをあるグループから<SPAN
+CLASS="QUOTE"
+>"除外"</SPAN
+>するために便利です。
+例えば、1行の<TT
+CLASS="LITERAL"
+>reject</TT
+>は特定のホストが接続することを拒否します。一方、
+後ろの行では特定のネットワーク内の残りのホストが接続することを許可します。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>md5</TT
+></DT
+><DD
+><P
+>クライアントに対して認証時にMD5暗号化パスワードを要求します。 
+詳細は<A
+HREF="auth-methods.html#AUTH-PASSWORD"
+>&#38917;19.3.2</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>password</TT
+></DT
+><DD
+><P
+>クライアントに対して認証時に平文のパスワードを要求します。 
+パスワードはネットワークを通じて普通のテキスト形式で送られますので、信頼されていないネットワークでは使用しないでください。 
+詳細は<A
+HREF="auth-methods.html#AUTH-PASSWORD"
+>&#38917;19.3.2</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>gss</TT
+></DT
+><DD
+><P
+>ユーザの認証にGSSAPIを使用します。これはTCP/IP接続を使用するときのみ使用可能です。詳細は<A
+HREF="auth-methods.html#GSSAPI-AUTH"
+>&#38917;19.3.3</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>sspi</TT
+></DT
+><DD
+><P
+>ユーザの認証にSSPIを使用します。これはWindowsを使用するときのみ使用可能です。詳細は<A
+HREF="auth-methods.html#SSPI-AUTH"
+>&#38917;19.3.4</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>krb5</TT
+></DT
+><DD
+><P
+>ユーザ認証にKerberos V5を使用します。
+TCP/IP接続の時のみ有効です。
+詳細は<A
+HREF="auth-methods.html#KERBEROS-AUTH"
+>&#38917;19.3.5</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ident</TT
+></DT
+><DD
+><P
+>クライアントのオペレーティングシステムにおけるユーザ名をクライアント上のidentサーバに尋ねてユーザ名が要求されたデータベースユーザ名と一致するか検査します。
+Ident認証は、TCP/IP接続でのみ使用可能です。ローカル接続が指定されている場合は、peer認証が代わりに使用されます。
+詳細は<A
+HREF="auth-methods.html#AUTH-IDENT"
+>&#38917;19.3.6</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>peer</TT
+></DT
+><DD
+><P
+>クライアントのオペレーティングシステムにおけるユーザ名をオペレーティングシステムから取得し、ユーザ名が要求されたデータベースユーザ名と一致するか検査します。
+これはローカル接続の時にのみ使用可能です。詳細は<A
+HREF="auth-methods.html#AUTH-PEER"
+>&#38917;19.3.7</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ldap</TT
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>LDAP</ACRONYM
+>サーバを使用して認証します。
+詳細は<A
+HREF="auth-methods.html#AUTH-LDAP"
+>&#38917;19.3.8</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>radius</TT
+></DT
+><DD
+><P
+>RADIUSサーバを使用して認証します。
+詳細は<A
+HREF="auth-methods.html#AUTH-RADIUS"
+>&#38917;19.3.9</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>cert</TT
+></DT
+><DD
+><P
+>SSLクライアント証明を使用して認証します。
+詳細は<A
+HREF="auth-methods.html#AUTH-CERT"
+>&#38917;19.3.10</A
+>を参照してください。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>pam</TT
+></DT
+><DD
+><P
+>オペレーティングシステムによって提供されるPAM（Pluggable Authentication Modules）サービスを使用した認証です。  
+詳細は<A
+HREF="auth-methods.html#AUTH-PAM"
+>&#38917;19.3.11</A
+>を参照してください。
+         </P
+></DD
+></DL
+></DIV
+><P>
+
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-options</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>auth-method</I
+></TT
+>フィールドの後ろに、
+認証方式のオプションを指定する、<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+><TT
+CLASS="LITERAL"
+>=</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>の形式のフィールドが存在する可能性があります。
+どのオプションがどの認証方式に使用できるのか、についての詳細は以下で説明します。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>@</TT
+>式により含められるファイルは、空白文字あるいはカンマのどちらかで区切られた名前の列挙として読み込まれます。
+コメントは、<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>と同様に<TT
+CLASS="LITERAL"
+>#</TT
+>から始まります。
+また、<TT
+CLASS="LITERAL"
+>@</TT
+>式を入れ子にすることもできます。
+<TT
+CLASS="LITERAL"
+>@</TT
+>の後のファイル名が絶対パスでない限り、参照元ファイルが存在するディレクトリから見た相対パスであるとみなされます。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>レコードは接続が試みられる度に順番に検査されますので、レコードの順序はとても大切です。 
+典型的には、始めの方のレコードには厳しい接続照合パラメータと緩い認証方式があるのに対し、終わりの方のレコードにはより緩い照合パラメータとより厳しい認証方式があります。 
+例えば、ローカルTCP接続では<TT
+CLASS="LITERAL"
+>trust</TT
+>認証方式、リモートTCP接続に対してはパスワードを要求したいとします。 
+この場合、広範囲にわたって許可されるクライアントのIPアドレスに対するパスワード認証を指定するレコードの前に127.0.0.1からの接続に対する<TT
+CLASS="LITERAL"
+>trust</TT
+>認証指定のレコードが置かれなければなりません。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイルは起動時と、主サーバプロセスが<SPAN
+CLASS="SYSTEMITEM"
+>SIGHUP</SPAN
+>信号を受け取った時に読み込まれます。
+稼働中のシステムでファイルを編集した場合は、（<TT
+CLASS="LITERAL"
+>pg_ctl reload</TT
+>あるいは<TT
+CLASS="LITERAL"
+>kill -HUP</TT
+>を使用して）postmasterにファイルをもう一度読み込むように信号を出さなければなりません。
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>特定のデータベースに接続するためには、ユーザは<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>による検査を通過しなければならない他、そのデータベースに対する<TT
+CLASS="LITERAL"
+>CONNECT</TT
+>権限を持たなければなりません。
+どのユーザがどのデータベースに接続できるかを制限したければ、通常、<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>項目に規則を追加するよりも、<TT
+CLASS="LITERAL"
+>CONNECT</TT
+>権限の付与・削除を行う方が簡単です。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイルの例をいくつか<A
+HREF="auth-pg-hba-conf.html#EXAMPLE-PG-HBA.CONF"
+>&#20363;19-1</A
+>に示します。 
+各種認証方式の詳細についてはその後で説明します。
+  </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="EXAMPLE-PG-HBA.CONF"
+></A
+><P
+><B
+>&#20363; 19-1. <TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>の項目の例</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+># ローカルシステム上の全てのユーザが、任意のデータベースに
+# 任意のデータベースユーザ名でUnixドメインソケットを使用して接続することを許可
+# （ローカル接続ではデフォルト）。
+#
+# TYPE  DATABASE        USER            CIDR-ADDRESS            METHOD
+local   all             all                                     trust
+
+# ローカルループバックのTCP/IP接続であることを除いて上記に同じ。
+#
+# TYPE  DATABASE        USER            CIDR-ADDRESS            METHOD
+host    all             all             127.0.0.1/32            trust
+
+# ネットマスク列を分けて記載していることを除いて上記に同じ
+#
+# TYPE  DATABASE        USER            IP-ADDRESS      IP-MASK             METHOD
+host    all             all             127.0.0.1       255.255.255.255     trust
+
+# IPアドレス192.168.93.xを持つ全てのホストの全てのユーザが、
+# identがその接続について報告するのと同じユーザ名（典型的にはオペレーティングシステムのユーザ名）で
+# データベース「postgres」へ接続することを許可。
+#
+# TYPE  DATABASE        USER            CIDR-ADDRESS            METHOD
+host    postgres        all             192.168.93.0/24         ident
+
+# ユーザのパスワードが正しく入力された場合、
+# ホスト192.168.12.10からのどのようなユーザでもデータベース「postgres」へ接続することを許可。
+#
+# TYPE  DATABASE        USER            CIDR-ADDRESS            METHOD
+host    postgres        all             192.168.12.10/32        md5
+
+# 先行する「host」行がなければ、これら2行によって192.168.54.1からの接続
+# の試みを全て拒否（この項目が最初に照合されるため）。
+# ただし、インターネット上の他の全ての場所からのKerberos 5接続は許可。
+# ゼロマスクは、ホストIPアドレスのビットが考慮されずに
+# どのホストでも照合できることになる。
+#
+# TYPE  DATABASE        USER            CIDR-ADDRESS            METHOD
+host    all             all             192.168.54.1/32         reject
+host    all             all             0.0.0.0/0               krb5
+
+# 192.168.x.xホストからのユーザが、ident検査に通る場合、
+# どのデータベースにでも接続を許可。もし、例えば、identが「bryanh」と認定し
+# 「bryanh」がPostgreSQLのユーザ「guest1」として
+# 接続要求を出す場合、「bryanh」は「guest1」として接続が許可されるという
+# マップ「omicron」に対する記載事項がpg_ident.confにあれば接続を許可。
+#
+# TYPE  DATABASE        USER            CIDR-ADDRESS            METHOD
+host    all             all             192.168.0.0/16          ident map=omicron
+
+# ローカル接続に対して、以下のたった3行しか記載がない場合、ローカルユーザは 
+# 自分のデータベース（データベースユーザ名と同じ名前のデータベース）にのみ接続許可。
+# ただし管理者とロール「support」のメンバは全てのデータベースに接続可能。
+# $PGDATA/adminsファイルは管理者のリストを含む。  
+# 全ての場合にパスワードが必要。
+#
+# TYPE  DATABASE        USER            CIDR-ADDRESS            METHOD
+local   sameuser        all                                     md5
+local   all             @admins                                 md5
+local   all             +support                                md5
+
+# 上記の最後の2行は1つの行にまとめることが可能。
+local   all             @admins,+support                        md5
+
+# データベースの列にはリストやファイル名も使用できるが、グループは使用できない。
+local   db1,db2,@demodbs  all                                   md5</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="client-authentication.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="auth-username-maps.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>クライアント認証</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="client-authentication.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ユーザ名マップ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

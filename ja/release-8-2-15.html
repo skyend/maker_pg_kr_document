@@ -1,0 +1,426 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.2.15</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.2.16"
+HREF="release-8-2-16.html"><LINK
+REL="NEXT"
+TITLE="リリース8.2.14"
+HREF="release-8-2-14.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.2.16"
+HREF="release-8-2-16.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.2.14"
+HREF="release-8-2-14.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-2-15"
+>E.56. リリース8.2.15</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2009-12-14</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.2.14に対し、各種の不具合を修正したものです。
+8.2メジャーリリースにおける新機能については<A
+HREF="release-8-2.html"
+>&#38917;E.71</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN118180"
+>E.56.1. バージョン8.2.15への移行</A
+></H2
+><P
+>8.2.Xからの移行ではダンプ/リストアは不要です。
+しかし8.2.14以前のバージョンからアップデートする場合は8.2.14のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN118183"
+>E.56.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>セッション固有の状態を変更するインデックス関数により引き起こされる間接的なセキュリティ脅威から保護します。(Gurjeet Singh, Tom)
+     </P
+><P
+>この変更により不変インデックス関数がスーパーユーザのセッションを破壊できることを防ぎます。(CVE-2009-4136)
+     </P
+></LI
+><LI
+><P
+>ヌルバイトが埋め込まれたコモンネーム（CN）フィールドをもつSSL証明書を拒絶します。(Magnus)
+     </P
+><P
+>これは、SSL検証においてサーバまたはクライアント名に対する証明書が不正に一致しないようにします。(CVE-2009-4034)
+     </P
+></LI
+><LI
+><P
+>バックエンド起動時のキャッシュ初期化の間でクラッシュする可能性を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>安全ではない時点での<TT
+CLASS="LITERAL"
+>VACUUM</TT
+>を中断するシグナルを防止します。 (Alvaro)
+     </P
+><P
+>この修正により、<TT
+CLASS="LITERAL"
+>VACUUM FULL</TT
+>がすでにタプルの移動をコミットした後にキャンセルされた場合のパニックや、通常の<TT
+CLASS="LITERAL"
+>VACUUM</TT
+>がテーブルを切り詰めた後に割り込みを受けた場合の一時的なエラーを防止します。
+     </P
+></LI
+><LI
+><P
+>ハッシュテーブルサイズの計算における整数オーバーフローによるクラッシュの可能性を修正しました。(Tom)
+     </P
+><P
+>これは、ハッシュ結合の結果のプランナの推定サイズが極端に大きい場合に発生することがありました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>inet</TT
+>/<TT
+CLASS="TYPE"
+>cidr</TT
+>の比較における非常にまれなクラッシュを修正しました。 (Chris Mikkelson)
+     </P
+></LI
+><LI
+><P
+>準備されたトランザクションで保持されるタプルレベルの共有ロックを確実に無視しないようにしました。 (Heikki)
+     </P
+></LI
+><LI
+><P
+>副トランザクション内でアクセスされるカーソルで使用される一時ファイルの早すぎる削除を修正しました。 (Heikki)
+     </P
+></LI
+><LI
+><P
+>GiSTインデックスページ分割において、分割がインデックスの最初の列以外に依存する場合の不正なロジックを修正しました。(Paul Ramsey)
+     </P
+></LI
+><LI
+><P
+>チェックポイントの最後で古いWALファイルの回収や削除が失敗した場合にエラーを出力しません。(Heikki)
+     </P
+><P
+>致命的ではないものと扱い、チェックポイントを完了させることができるようにする方が優れています。
+将来のチェックポイントでは削除を再試行します。
+こうした問題は通常の操作では想定されませんが、うまく設計されていないWindowsのアンチウィルスソフトウェアやバックアップソフトウェアにより現れることがあります。
+     </P
+></LI
+><LI
+><P
+>WindowsにおいてWALファイルが繰り返しアーカイブされないようにしました。 (Heikki)
+     </P
+><P
+>別の症状として、一部の他のプロセスが不要となったファイルの削除に干渉する場合にも発生します。
+     </P
+></LI
+><LI
+><P
+>PAMパスワード処理をより堅牢に修正しました。(Tom)
+     </P
+><P
+>以前のコードでは、Linuxの<TT
+CLASS="LITERAL"
+>pam_krb5</TT
+> PAMモジュールとドメインコントローラとしてのMicrosoft Active Directoryを組み合わせると失敗することが知られていました。
+PAMスタックに渡される引数に関する正当ではない仮定を作成することであるため、どこかで問題になるかもしれません。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>CREATE OR REPLACE FUNCTION</TT
+>における所有権限の依存関係の処理を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>plperlu</TT
+>から<TT
+CLASS="LITERAL"
+>plperl</TT
+>の呼び出し、またはその逆における不具合を修正しました。(Tom)
+     </P
+><P
+>内部の関数からのエラー終了が、外側の関数用のPerlインタプリタを正しく再選択できずにクラッシュをもたらす可能性がありました。
+     </P
+></LI
+><LI
+><P
+>PL/Perl関数が再定義された時のセッション有効期間のメモリリークを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>集合を返すPL/Perl関数により返される場合Perl配列が適切に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>配列に返還されることを確実にしました。(Andrew Dunstan, Abhijit Menon-Sen)
+     </P
+><P
+>集合以外を返す関数ではすでに正しく動作しました。
+     </P
+></LI
+><LI
+><P
+>PL/Pythonの例外処理におけるまれなクラッシュを修正しました。(Peter)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のflexモジュールが正しいシステムヘッダファイルを使用してコンパイルされることを確実にしました。(Tom)
+     </P
+><P
+>これは、<TT
+CLASS="LITERAL"
+>--enable-largefile</TT
+>が生成されたコード内に非互換の変更を引き起こすプラットフォームにおける構築失敗を修正します。
+     </P
+></LI
+><LI
+><P
+>今後のバージョンのlibpqとの互換性を高めるために、postmasterが接続要求パケットにおける<TT
+CLASS="LITERAL"
+>application_name</TT
+>パラメータをすべて無視するようにしました。(Tom)
+     </P
+></LI
+><LI
+><P
+>最新の現実に合うように時間帯省略形ファイルを更新しました。(Joachim Wieland)
+     </P
+><P
+>デフォルト時間帯群に<TT
+CLASS="LITERAL"
+>IDT</TT
+>の追加が含まれます。
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+> release 2009sまで更新しました。
+南極、アルゼンチン、バングラデシュ、フィジー、ノヴォクズネツク、パキスタン、パレスチナ、サモア、シリアにおける夏時間規則の変更、および香港に関する歴史的な修正が含まれます。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-2-16.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-2-14.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.2.16</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.2.14</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

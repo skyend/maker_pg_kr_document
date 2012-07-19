@@ -1,0 +1,574 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER DATABASE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER CONVERSION"
+HREF="sql-alterconversion.html"><LINK
+REL="NEXT"
+TITLE="ALTER DEFAULT PRIVILEGES"
+HREF="sql-alterdefaultprivileges.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER CONVERSION"
+HREF="sql-alterconversion.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER CONVERSION"
+HREF="sql-alterconversion.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER DEFAULT PRIVILEGES"
+HREF="sql-alterdefaultprivileges.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER DEFAULT PRIVILEGES"
+HREF="sql-alterdefaultprivileges.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERDATABASE"
+></A
+>ALTER DATABASE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN59690"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER DATABASE&nbsp;--&nbsp;データベースを変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN59695"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ [ WITH ] <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> [ ... ] ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>は以下の通りです。</SPAN
+></SPAN
+>
+
+    CONNECTION LIMIT <TT
+CLASS="REPLACEABLE"
+><I
+>connlimit</I
+></TT
+>
+
+ALTER DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>
+
+ALTER DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+>
+
+ALTER DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SET TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>new_tablespace</I
+></TT
+>
+
+ALTER DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+> { TO | = } { <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> | DEFAULT }
+ALTER DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+> FROM CURRENT
+ALTER DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RESET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+>
+ALTER DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RESET ALL</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN59716"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER DATABASE</TT
+>はデータベースの属性を変更します。
+  </P
+><P
+>最初の構文はデータベース毎の設定を変更します。
+（詳細は後述します。）
+データベース所有者とスーパーユーザのみがこの設定を変更することができます。
+  </P
+><P
+>2番目の構文は、データベースの名前を変更します。
+データベースの名前を変更できるのは、データベースの所有者またはスーパーユーザのみです。
+ただし、スーパーユーザではない所有者は<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限を所有していなければなりません。
+現在のデータベースの名前を変更することはできません（必要ならば、別のデータベースに接続してください）。
+  </P
+><P
+>3番目の構文は、データベースの所有者を変更します。
+所有者を変更するにはデータベースを所有し、かつ、新しい所有者ロールの間接的あるいは直接的なメンバでなければなりません。
+さらに、<TT
+CLASS="LITERAL"
+>CREATEDB</TT
+>権限も持たなければなりません。
+（スーパーユーザはこれらの権限を自動的に持っていることに注意してください。）
+  </P
+><P
+>4番目の構文は、データベースのデフォルトのテーブル空間を変更します。
+データベースの所有者またはスーパーユーザのみがこれを行うことができます。
+また、新しいテーブル空間における作成権限を持つ必要があります。
+このコマンドはデータベースの古いデフォルトのテーブル空間から新しいテーブル空間にテーブルまたはインデックスを物理的にすべて移動します。
+デフォルト以外のテーブル空間にあるテーブルまたはインデックスには影響がないことに注意してください。
+  </P
+><P
+>残りの構文は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースにおける実行時設定変数のセッションのデフォルト値を変更します。 
+指定された値が、コマンド実行後にデータベースで開始される新規セッションのデフォルト値になります。
+データベース固有のデフォルト値によって、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイルに記述されている設定や<TT
+CLASS="COMMAND"
+>postgres</TT
+>コマンドラインから受け取った設定は上書きされます。
+データベースにおけるセッションのデフォルト値を変更できるのは、データベースの所有者またはスーパーユーザのみです。
+この方法では設定できない変数や、スーパーユーザのみが設定できる変数も存在します。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN59730"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>	属性変更の対象となるデータベースの名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>connlimit</I
+></TT
+></DT
+><DD
+><P
+>データベースへの最大同時接続数です。
+-1は無制限を意味します。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベース名です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベースの所有者です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_tablespace</I
+></TT
+></DT
+><DD
+><P
+>新しいデータベースのデフォルトのテーブル空間です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+><BR><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+></DT
+><DD
+><P
+>指定した設定パラメータについて、データベースのセッションのデフォルト値を指定した値に設定します。  
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>が<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>の場合、あるいは等価な<TT
+CLASS="LITERAL"
+>RESET</TT
+>が使用されている場合、データベース固有の設定は無効になり、新しいセッションではシステム全体のデフォルト設定が継承されます。  
+全てのデータベース固有の設定をクリアするには、<TT
+CLASS="LITERAL"
+>RESET ALL</TT
+>を使用してください。
+<TT
+CLASS="LITERAL"
+>SET FROM CURRENT</TT
+>は、データベース固有の値としてセッションにおけるパラメータの現在値を保管します。
+       </P
+><P
+>設定可能なパラメータ名とその値に関する詳細については<A
+HREF="sql-set.html"
+>SET</A
+>および<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN59773"
+></A
+><H2
+>注釈</H2
+><P
+>データベースではなく特定のロールにセッションのデフォルト値を関連付けることもできます。
+<A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+>を参照してください。
+設定が競合する場合には、ロール固有の設定により、データベース固有の設定が上書きされます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN59777"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>test</TT
+>データベース内のインデックススキャンをデフォルトで無効にします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER DATABASE test SET enable_indexscan TO off;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN59782"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER DATABASE</TT
+>文は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN59787"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createdatabase.html"
+>CREATE DATABASE</A
+>, <A
+HREF="sql-dropdatabase.html"
+>DROP DATABASE</A
+>, <A
+HREF="sql-set.html"
+>SET</A
+>, <A
+HREF="sql-createtablespace.html"
+>CREATE TABLESPACE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alterconversion.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alterdefaultprivileges.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER CONVERSION</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER DEFAULT PRIVILEGES</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

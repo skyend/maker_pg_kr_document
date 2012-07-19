@@ -1,0 +1,542 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>設定済みのオプション</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="エラー処理"
+HREF="runtime-config-error-handling.html"><LINK
+REL="NEXT"
+TITLE="独自のオプション"
+HREF="runtime-config-custom.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="エラー処理"
+HREF="runtime-config-error-handling.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="独自のオプション"
+HREF="runtime-config-custom.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-PRESET"
+>18.15. 設定済みのオプション</A
+></H1
+><P
+>    
+     以下の<SPAN
+CLASS="QUOTE"
+>"パラメータ"</SPAN
+>は読み取り専用で、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のコンパイル時、もしくはインストール時に決定されます。
+そのため、これらは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>のサンプルから除かれています。
+このオプションは、特定のアプリケーション、特に管理用フロントエンドによって注目される可能性がある<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の様々な部分の振舞いを報告します。
+    </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-BLOCK-SIZE"
+></A
+><TT
+CLASS="VARNAME"
+>block_size</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	ディスクブロックの容量を報告します。
+	サーバ構築の際に<TT
+CLASS="LITERAL"
+>BLCKSZ</TT
+>の値で決定されます。デフォルトの値は8192バイトです。
+	（<A
+HREF="runtime-config-resource.html#GUC-SHARED-BUFFERS"
+>shared_buffers</A
+>の様な）いくつかの構成変数の意味は<TT
+CLASS="VARNAME"
+>block_size</TT
+>によって影響されます。
+	これに関しての情報は<A
+HREF="runtime-config-resource.html"
+>&#38917;18.4</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-INTEGER-DATETIMES"
+></A
+><TT
+CLASS="VARNAME"
+>integer_datetimes</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が64ビット整数による日付と時刻のサポート付きで構築されたかどうかを報告します。
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を構築するときに、<TT
+CLASS="LITERAL"
+>--disable-integer-datetimes</TT
+>の構成で設定することで無効になります。
+	デフォルトの値は<TT
+CLASS="LITERAL"
+>on</TT
+>です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LC-COLLATE"
+></A
+><TT
+CLASS="VARNAME"
+>lc_collate</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	テキストどおりのデータが並び替えられたロケールを報告します。
+	詳細は<A
+HREF="locale.html"
+>&#38917;22.1</A
+> を参照してください。
+	この値はデータベースが作成されたときに決定されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LC-CTYPE"
+></A
+><TT
+CLASS="VARNAME"
+>lc_ctype</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	文字分類を決定するロケールを報告します。
+	詳細は<A
+HREF="locale.html"
+>&#38917;22.1</A
+>を参照してください。
+	この値はデータベースが作成されたときに決定されます。
+	通常、これは<TT
+CLASS="VARNAME"
+>lc_collate</TT
+>と同一ですが、特殊なアプリケーションでは異なって設定されることがあります。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-MAX-FUNCTION-ARGS"
+></A
+><TT
+CLASS="VARNAME"
+>max_function_args</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	関数の引数の最大数を報告します。
+サーバを構築する時、<TT
+CLASS="LITERAL"
+>FUNC_MAX_ARGS</TT
+>の値で決定されます。
+デフォルトの値は100引数です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-MAX-IDENTIFIER-LENGTH"
+></A
+><TT
+CLASS="VARNAME"
+>max_identifier_length</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	最長の識別子の長さを報告します。
+サーバ構築時の<TT
+CLASS="LITERAL"
+>NAMEDATALEN</TT
+>の値より一つ少なく設定されます。
+デフォルトの<TT
+CLASS="LITERAL"
+>NAMEDATALEN</TT
+>の値は64ですので、デフォルトの<TT
+CLASS="VARNAME"
+>max_identifier_length</TT
+>は63バイトで、マルチバイト符号化方式を使用している場合、63文字以下になることがあります。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-MAX-INDEX-KEYS"
+></A
+><TT
+CLASS="VARNAME"
+>max_index_keys</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	インデックスキーの最大値を報告します。サーバ構築の際に<TT
+CLASS="LITERAL"
+>INDEX_MAX_KEYS</TT
+>の値で決定されます。デフォルトの値は32キーです。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SEGMENT-SIZE"
+></A
+><TT
+CLASS="VARNAME"
+>segment_size</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	あるファイルセグメントの中に格納できるブロック数（ページ数）を報告します。
+	サーバ構築時に<TT
+CLASS="LITERAL"
+>RELSEG_SIZE</TT
+>の値で決定されます。
+	バイト単位の一セグメントファイルの最大容量は、<TT
+CLASS="VARNAME"
+>block_size</TT
+>倍の<TT
+CLASS="VARNAME"
+>segment_size</TT
+>と等しくなります。デフォルトでは1GBです。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SERVER-ENCODING"
+></A
+><TT
+CLASS="VARNAME"
+>server_encoding</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	データベース符号化方式（文字セット）を報告します。
+	データベースが作成された時に決定されます。通常クライアントは<A
+HREF="runtime-config-client.html#GUC-CLIENT-ENCODING"
+>client_encoding</A
+>の値にのみ注意する必要があります。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SERVER-VERSION"
+></A
+><TT
+CLASS="VARNAME"
+>server_version</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	サーバのバージョン番号を報告します。
+	サーバ構築の際の<TT
+CLASS="LITERAL"
+>PG_VERSION</TT
+>の値によって決定されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SERVER-VERSION-NUM"
+></A
+><TT
+CLASS="VARNAME"
+>server_version_num</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	サーバのバージョン番号を整数として返します。
+	この値は、サーバ構築時の<TT
+CLASS="LITERAL"
+>PG_VERSION_NUM</TT
+>の値により決まります。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-WAL-BLOCK-SIZE"
+></A
+><TT
+CLASS="VARNAME"
+>wal_block_size</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	WALディスクブロックの容量を報告します。
+	サーバ構築時に<TT
+CLASS="LITERAL"
+>XLOG_BLCKSZ</TT
+>の値で決定されます。デフォルトの値は8192バイトです。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-WAL-SEGMENT-SIZE"
+></A
+><TT
+CLASS="VARNAME"
+>wal_segment_size</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	WALセグメントファイルのブロック数（ページ数）を報告します。
+	バイト単位のWALセグメント総容量は<TT
+CLASS="VARNAME"
+>wal_block_size</TT
+>倍の<TT
+CLASS="VARNAME"
+>wal_segment_size</TT
+>に等しくなります。
+	デフォルトでは16MBです。より詳細は<A
+HREF="wal-configuration.html"
+>&#38917;29.4</A
+>を参照してください。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-error-handling.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-custom.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>エラー処理</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>独自のオプション</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,423 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>sslinfo</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="spi"
+HREF="contrib-spi.html"><LINK
+REL="NEXT"
+TITLE="tablefunc"
+HREF="tablefunc.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="spi"
+HREF="contrib-spi.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="tablefunc"
+HREF="tablefunc.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SSLINFO"
+>F.40. sslinfo</A
+></H1
+><P
+>現在のクライアントが<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に接続する際に提供する SSL 証明書に関する情報を、<TT
+CLASS="FILENAME"
+>sslinfo</TT
+>モジュールは提供します。
+現在の接続が SSL を使用しない場合、モジュールは無用です（大部分の関数は NULL を返します）。
+ </P
+><P
+>インストールを<TT
+CLASS="LITERAL"
+>--with-openssl</TT
+>オプション付きで構築しない限り、この拡張は全く構築されません。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138113"
+>F.40.1. 提供される関数</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_is_used() returns boolean
+    </CODE
+></DT
+><DD
+><P
+>サーバへの現在の接続において SSL を使用する場合 TRUE、使用しない場合 FALSE を返します。
+    </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_version() returns text
+    </CODE
+></DT
+><DD
+><P
+>SSL接続に使われているプロトコルの名前（例えば、SSLv2、SSLv3、またはTLSv1）を返します。
+    </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_cipher() returns text
+    </CODE
+></DT
+><DD
+><P
+>SSL接続に使われている暗号の名前（例えば、DHE-RSA-AES256-SHA）を返します。
+    </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_client_cert_present() returns boolean
+    </CODE
+></DT
+><DD
+><P
+>現在のクライアントがサーバに対して、有効な SSL クライアント証明書を提示した場合 TRUE、そうでない場合 FALSE を返します。
+（サーバがクライアントに対して、クライアント証明書を要求する方式と要求しない方式があります）。
+    </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_client_serial() returns numeric
+    </CODE
+></DT
+><DD
+><P
+>現在のクライアント証明書のシリアル番号を返します。
+証明書のシリアル番号と証明書の発行者との組み合わせにより、証明書が一意に識別されることが保証されます
+（しかし、証明書の所有者の保証ではありません。
+所有者は定期的にその鍵を変更し、発行者から新しい証明書を取得すべきだからです）。
+    </P
+><P
+>したがって、自分で認証局を設立し、その認証局の証明書だけをサーバが受理する場合、シリアル番号は利用者を識別するのに最も信頼できる方法です（あまり記憶の助けにはなりませんが）。
+    </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_client_dn() returns text
+    </CODE
+></DT
+><DD
+><P
+>現在のクライアント証明書の所有者の内容を全て返します。
+文字データは現在のデータベースのエンコーディングに変換されます。
+なお、証明書名で非 ASCII 文字を用いる場合、データベースでもその文字を使用できると仮定します。
+データベースが SQL_ASCII エンコーディングを使用する場合、証明書名で用いる非 ASCII 文字は UTF-8 のユニコードとして表示されます。
+    </P
+><P
+>その結果は<TT
+CLASS="LITERAL"
+>/CN=Somebody /C=Some country /O=Some organization</TT
+>のようになります。
+    </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_issuer_dn() returns text
+    </CODE
+></DT
+><DD
+><P
+>現在のクライアント証明書の発行者名を全て返します。
+文字データは現在のデータベースのエンコーディングに変換されます。
+エンコーディングの変換法は <CODE
+CLASS="FUNCTION"
+>ssl_client_dn</CODE
+> と同じです。
+    </P
+><P
+>本関数の戻り値と証明書シリアル番号の組み合わせにより、証明書を一意に識別します。
+    </P
+><P
+>実際に本関数が有用となるのは、サーバの <TT
+CLASS="FILENAME"
+>root.crt</TT
+> ファイルの中に信頼できる認証局の証明書を複数保有している場合、またはこの認証局が中間認証局の証明書を発行している場合だけです。
+    </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_client_dn_field(fieldname text) returns text
+    </CODE
+></DT
+><DD
+><P
+>この関数は証明書の所有者の指定した項目の内容を返します。
+指定した項目が存在しない場合は NULL を返します。
+項目の名前は OpenSSL オブジェクトデータベースを使用して ASN1 オブジェクト識別子に変換された文字列定数です。
+以下の項目が受理できます。
+    </P
+><PRE
+CLASS="LITERALLAYOUT"
+>commonName (alias CN)
+surname (alias SN)
+name
+givenName (alias GN)
+countryName (alias C)
+localityName (alias L)
+stateOrProvinceName (alias ST)
+organizationName (alias O)
+organizationUnitName (alias OU)
+title
+description
+initials
+postalCode
+streetAddress
+generationQualifier
+description
+dnQualifier
+x500UniqueIdentifier
+pseudonym
+role
+emailAddress</PRE
+><P
+><TT
+CLASS="STRUCTFIELD"
+>commonName</TT
+> を除き、全ての項目は任意です。
+認証局の方針によって、どの項目を含み、どの項目を含まないかが全て決まります。
+しかし、X.500 および X.509 標準によって、項目の意味は厳格に定義されています。
+したがって、項目に任意の意味を持たせることはできません。
+    </P
+></DD
+><DT
+><CODE
+CLASS="FUNCTION"
+>ssl_issuer_field(fieldname text) returns text
+    </CODE
+></DT
+><DD
+><P
+>証明書の所有者に対するものではなく証明書の発行者に対するものであるという点を除き、<CODE
+CLASS="FUNCTION"
+>ssl_client_dn_field</CODE
+> と同様の関数です。
+    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138172"
+>F.40.2. 著者</A
+></H2
+><P
+>   Victor Wagner <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:vitus@cryptocom.ru"
+>vitus@cryptocom.ru</A
+>&#62;</CODE
+>, Cryptocom LTD
+  </P
+><P
+>Cryptocom 社 OpenSSL 開発グループのメールアドレス
+   <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:openssl@cryptocom.ru"
+>openssl@cryptocom.ru</A
+>&#62;</CODE
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="contrib-spi.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tablefunc.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>spi</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>tablefunc</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

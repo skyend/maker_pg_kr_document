@@ -1,0 +1,444 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>集約関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQL言語"
+HREF="tutorial-sql.html"><LINK
+REL="PREVIOUS"
+TITLE="テーブル間を結合"
+HREF="tutorial-join.html"><LINK
+REL="NEXT"
+TITLE="更新"
+HREF="tutorial-update.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="テーブル間を結合"
+HREF="tutorial-join.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 2&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="更新"
+HREF="tutorial-update.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-AGG"
+>2.7. 集約関数</A
+></H1
+><P
+>他のほとんどのリレーショナルデータベース製品同様、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は<I
+CLASS="FIRSTTERM"
+>集約関数</I
+>をサポートします。
+集約関数は複数の入力行から1つの結果を計算します。
+例えば、行の集合に対して、<CODE
+CLASS="FUNCTION"
+>count</CODE
+>（総数）、<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>（総和）、<CODE
+CLASS="FUNCTION"
+>avg</CODE
+>（平均）、<CODE
+CLASS="FUNCTION"
+>max</CODE
+>（最大）、<CODE
+CLASS="FUNCTION"
+>min</CODE
+>（最小）といった演算を行う集約があります。
+   </P
+><P
+>例として、次のように全ての都市の最低気温から最も高い気温を求めることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT max(temp_lo) FROM weather;</PRE
+><P>
+
+</P><PRE
+CLASS="SCREEN"
+> max
+-----
+  46
+(1 row)</PRE
+><P>
+   </P
+><P
+>    
+
+どの都市のデータなのかを知りたいとしたら、下記のような問い合わせを試行するかもしれません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT city FROM weather WHERE temp_lo = max(temp_lo);     <I
+CLASS="LINEANNOTATION"
+>間違い</I
+></PRE
+><P>
+
+しかし、<CODE
+CLASS="FUNCTION"
+>max</CODE
+>集約を<TT
+CLASS="LITERAL"
+>WHERE</TT
+>で使用することができませんので、このコマンドは動作しません
+（<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句はどの行を集約処理に渡すのかを決定するものであり、したがって、集約関数の演算を行う前に評価されなければならないことは明らかです。
+このためにこの制限があります）。
+しかしたいていの場合、問い合わせを書き直すことで、意図した結果が得られます。
+これには以下のような<I
+CLASS="FIRSTTERM"
+>副問い合わせ</I
+>を使用します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT city FROM weather
+    WHERE temp_lo = (SELECT max(temp_lo) FROM weather);</PRE
+><P>
+
+</P><PRE
+CLASS="SCREEN"
+>     city
+---------------
+ San Francisco
+(1 row)</PRE
+><P>
+
+副問い合わせは、外側の問い合わせで起こることとは別々に集約を計算する独立した演算ですので、この問い合わせは問題ありません。
+   </P
+><P
+>    
+    
+
+また、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句と組み合わせた集約は非常に役に立ちます。
+例えば、以下のコマンドで都市ごとに最低気温の最大値を求めることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT city, max(temp_lo)
+    FROM weather
+    GROUP BY city;</PRE
+><P>
+
+</P><PRE
+CLASS="SCREEN"
+>     city      | max
+---------------+-----
+ Hayward       |  37
+ San Francisco |  46
+(2 rows)</PRE
+><P>
+
+ここには都市ごとに1行の出力があります。
+それぞれの集約結果は都市に一致するテーブル行全体に対する演算結果です。
+以下のように、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>を使用すると、グループ化された行にフィルタをかけることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT city, max(temp_lo)
+    FROM weather
+    GROUP BY city
+    HAVING max(temp_lo) &lt; 40;</PRE
+><P>
+
+</P><PRE
+CLASS="SCREEN"
+>  city   | max
+---------+-----
+ Hayward |  37
+(1 row)</PRE
+><P>
+
+このコマンドは上と同じ計算を行うものですが、全ての<TT
+CLASS="STRUCTFIELD"
+>temp_lo</TT
+>の値が40未満の都市のみを出力します。
+最後になりますが、<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>S</TT
+>"</SPAN
+>から始まる名前の都市のみを対象にしたい場合は、以下を行います。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT city, max(temp_lo)
+    FROM weather
+    WHERE city LIKE 'S%'<A
+NAME="CO.TUTORIAL-AGG-LIKE"
+><B
+>(1)</B
+></A
+>
+    GROUP BY city
+    HAVING max(temp_lo) &lt; 40;</PRE
+><P>
+   <DIV
+CLASS="CALLOUTLIST"
+><DL
+COMPACT="COMPACT"
+><DT
+><A
+HREF="tutorial-agg.html#CO.TUTORIAL-AGG-LIKE"
+><B
+>(1)</B
+></A
+></DT
+><DD
+><TT
+CLASS="LITERAL"
+>LIKE</TT
+>演算子はパターン一致を行います。これについては<A
+HREF="functions-matching.html"
+>&#38917;9.7</A
+>で説明します。
+     </DD
+></DL
+></DIV
+>
+   </P
+><P
+>集約と<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の<TT
+CLASS="LITERAL"
+>WHERE</TT
+>と<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句の間の相互作用を理解することが重要です。
+<TT
+CLASS="LITERAL"
+>WHERE</TT
+>と<TT
+CLASS="LITERAL"
+>HAVING</TT
+>の基本的な違いを以下に記します。
+<TT
+CLASS="LITERAL"
+>WHERE</TT
+>は、グループや集約を演算する前に入力行を選択します（したがって、これはどの行を使用して集約演算を行うかを制御します）。
+一方、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>は、グループと集約を演算した後に、グループ化された行を選択します。
+したがって、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句は集約関数を持つことはできません。
+集約を使用して、どの行をその集約の入力にするのかを決定することは意味をなしません。
+一方で、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句は常に集約関数を持ちます
+（厳密に言うと、集約を使用しない<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句を書くことはできますが、これは有用となることはほぼありません。
+同じ条件は<TT
+CLASS="LITERAL"
+>WHERE</TT
+>の段階でもっと効率良く使用できます）。
+   </P
+><P
+>前の例では<TT
+CLASS="LITERAL"
+>WHERE</TT
+>内に都市名制限を適用することができます。
+集約を行う必要がないからです。
+<TT
+CLASS="LITERAL"
+>WHERE</TT
+>の検査で失敗する全ての行に対するグループ化や集約演算が行われませんので、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>に制限を追加するよりも効率的です。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-join.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-update.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>テーブル間を結合</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>更新</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

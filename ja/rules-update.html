@@ -1,0 +1,1330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>INSERT、UPDATE、DELETEについてのルール</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ルールシステム"
+HREF="rules.html"><LINK
+REL="PREVIOUS"
+TITLE="ビューとルールシステム"
+HREF="rules-views.html"><LINK
+REL="NEXT"
+TITLE="ルールと権限"
+HREF="rules-privileges.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ビューとルールシステム"
+HREF="rules-views.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ルールシステム"
+HREF="rules.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 37&#31456;ルールシステム</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ルールシステム"
+HREF="rules.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ルールと権限"
+HREF="rules-privileges.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RULES-UPDATE"
+>37.3. <TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>についてのルール</A
+></H1
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>に定義するルールは前節で解説したビューのルールとはまったく異なります。
+第一点として、これらの<TT
+CLASS="COMMAND"
+>CREATE RULE</TT
+>コマンドでは以下を行うことができます。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>アクションがないルールも可能です。
+        </P
+></LI
+><LI
+><P
+>複数のアクションを持てます。
+        </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>もしくは<TT
+CLASS="LITERAL"
+>ALSO</TT
+>（デフォルト）を取ることができます。
+        </P
+></LI
+><LI
+><P
+>疑似リレーション<TT
+CLASS="LITERAL"
+>NEW</TT
+>と<TT
+CLASS="LITERAL"
+>OLD</TT
+>が役立つようになります。
+        </P
+></LI
+><LI
+><P
+>ルール条件を持たせることができます。
+        </P
+></LI
+></UL
+><P>
+
+第二点として、その場所で問い合わせツリーを変更しません。
+その代わりに新規の0個以上の問い合わせツリーを生成して、オリジナルを破棄することができます。</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN52904"
+>37.3.1. 更新ルールの動作</A
+></H2
+><P
+>&#13;</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE [ OR REPLACE ] RULE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> AS ON <TT
+CLASS="REPLACEABLE"
+><I
+>event</I
+></TT
+>
+    TO <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ WHERE <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+> ]
+    DO [ ALSO | INSTEAD ] { NOTHING | <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> | ( <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> ; <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> ... ) }</PRE
+><P>
+
+上記の構文を覚えておいてください。
+以下では、<I
+CLASS="FIRSTTERM"
+>更新ルール</I
+>は<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>に定義されたルールを意味します。</P
+><P
+>更新ルールは、問い合わせツリーの結果リレーションとコマンド種類が<TT
+CLASS="COMMAND"
+>CREATE RULE</TT
+>で与えられるオブジェクトとイベントと等しい場合にルールシステムによって適用されます。
+更新ルールに対してルールシステムは問い合わせツリーのリストを生成します。
+最初は問い合わせツリーリストは空です。
+0（<TT
+CLASS="LITERAL"
+>NOTHING</TT
+>キーワード）、1つまたは複数のアクションが有効です。
+簡単にするため、ここでは1つのアクションのルールを取り上げます。
+このルールは条件を持っていても持っていなくても構いませんし、また<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>か<TT
+CLASS="LITERAL"
+>ALSO</TT
+>（デフォルト）のいずれかを取ることができます。</P
+><P
+>ルール条件とはどんなものでしょうか。
+それはルールのアクションを行わなければならない時と、行ってはならない時を指定する条件です。
+基本的に（特別な意味合いを持った）オブジェクトとして与えられるリレーションである<TT
+CLASS="LITERAL"
+>NEW</TT
+>疑似リレーションか<TT
+CLASS="LITERAL"
+>OLD</TT
+>疑似リレーション、または、その両者のみをこの条件は参照することができます。</P
+><P
+>1アクションのルールに対し、以下の問い合わせツリーを生成する3つの場合があります。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>ALSO</TT
+>または<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>で条件がない場合。</DT
+><DD
+><P
+>元の問い合わせツリーの条件が追加された、ルールアクションからの問い合わせツリー
+       </P
+></DD
+><DT
+>条件付き、かつ<TT
+CLASS="LITERAL"
+>ALSO</TT
+></DT
+><DD
+><P
+>ルール条件と元の問い合わせツリーの条件が追加された、ルールアクションからの問い合わせツリー
+       </P
+></DD
+><DT
+>条件付き、かつ<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+></DT
+><DD
+><P
+>ルール条件と元の問い合わせツリーの条件が追加された、ルールアクションからの問い合わせツリーとルール条件の否定条件が追加された元の問い合わせツリー
+       </P
+></DD
+></DL
+></DIV
+><P>
+
+最後に、もしルールが<TT
+CLASS="LITERAL"
+>ALSO</TT
+>の場合、変更されていない元の問い合わせツリーがリストに付け加えられます。
+条件付きの<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>ルールのみが既に元の構文解析ツリーに追加をしているので、最後は1つのアクションを持つルールに対して1つもしくは2つの問い合わせツリーにたどり着きます。</P
+><P
+> 
+<TT
+CLASS="LITERAL"
+>ON INSERT</TT
+>ルールでは、元の問い合わせは、（<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>により止められていない限り）ルールによって追加されたアクションの前に実行されます。
+これにより、アクションは挿入された行（複数可）を参照することができます。
+しかし、<TT
+CLASS="LITERAL"
+>ON UPDATE</TT
+>と<TT
+CLASS="LITERAL"
+>ON DELETE</TT
+>ルールでは、元の問い合わせはルールによって追加されたアクションの後に実行されます。
+これは、アクションが更新される予定の、または削除される予定の行を参照できることを保証します。
+さもないと、条件に一致する行を見つけることができないためにアクションが作動しなくなる可能性が起こります。</P
+><P
+>ルールアクションで生成された問い合わせツリーは、再度書き換えシステムに渡され、相当数の問い合わせツリーの結果をもたらす、より多くのルールの適用を受けることもあります。
+ですから、ルールのアクションはルール自身とは異なるコマンド種類か、異なる結果リレーションを持っていなければなりません。
+さもないと、この再帰的処理により無限ループに陥ってしまいます。
+(ルールの再帰展開は検知され、エラーとして報告されます。)</P
+><P
+><TT
+CLASS="STRUCTNAME"
+>pg_rewrite</TT
+>システムカタログのアクションにある問い合わせツリーは単なるテンプレートです。
+これらは<TT
+CLASS="LITERAL"
+>NEW</TT
+>と<TT
+CLASS="LITERAL"
+>OLD</TT
+>に対する範囲テーブルの項目を参照することができるため、使用される前に何らかの置換措置がとられていなければなりません。
+<TT
+CLASS="LITERAL"
+>NEW</TT
+>を参照する全てに対し、元の問い合わせの目的リストは対応する項目があるかどうか検索されます。
+項目が見つかった場合には、その項目式が参照を置き換えます。
+項目がなかった場合、<TT
+CLASS="LITERAL"
+>NEW</TT
+>は<TT
+CLASS="LITERAL"
+>OLD</TT
+>と同じ意味になる（<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>の場合）か、NULLによって置き換えられます（<TT
+CLASS="COMMAND"
+>INSERT</TT
+>の場合）。
+<TT
+CLASS="LITERAL"
+>OLD</TT
+>に対する参照は全て結果リレーションである範囲テーブルの項目への参照に置き換えられます。</P
+><P
+>更新ルールの適用が終わると、システムはそこで作られた構文解析ツリーにビュールールを適用します。
+ビューは、新しい更新アクションを挿入できないため、ビュー書き換えの結果に更新ルールを適用する必要はありません。</P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN52964"
+>37.3.1.1. 最初のルール、ステップバイステップ</A
+></H3
+><P
+><TT
+CLASS="LITERAL"
+>shoelace_data</TT
+>リレーションの<TT
+CLASS="LITERAL"
+>sl_avail</TT
+>列の変化を追跡してみたいと思います。
+そこでログ用テーブルと、<TT
+CLASS="LITERAL"
+>shoelace_data</TT
+>に対して行われる<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>をログに記録するルールを用意しました。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE shoelace_log (
+    sl_name    text,          -- 変更された靴紐
+    sl_avail   integer,       -- 新しい現在値
+    log_who    text,          -- 誰が行ったか
+    log_when   timestamp      -- いつ行ったか
+);
+
+CREATE RULE log_shoelace AS ON UPDATE TO shoelace_data
+    WHERE NEW.sl_avail &lt;&gt; OLD.sl_avail
+    DO INSERT INTO shoelace_log VALUES (
+                                    NEW.sl_name,
+                                    NEW.sl_avail,
+                                    current_user,
+                                    current_timestamp
+                                );</PRE
+><P></P
+><P
+>ここで誰かが以下を実行します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE shoelace_data SET sl_avail = 6 WHERE sl_name = 'sl7';</PRE
+><P>
+
+ログテーブルを見てみましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM shoelace_log;
+
+ sl_name | sl_avail | log_who | log_when                        
+---------+----------+---------+----------------------------------
+ sl7     |        6 | Al      | Tue Oct 20 16:14:45 1998 MET DST
+(1 row)</PRE
+><P>
+   </P
+><P
+>思った通りの結果が出ました。
+以下に裏で何が起こったのかを説明します。
+パーサがまず以下の構文解析ツリーを生成しました。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE shoelace_data SET sl_avail = 6
+  FROM shoelace_data shoelace_data
+ WHERE shoelace_data.sl_name = 'sl7';</PRE
+><P>
+
+以下のルール条件式
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>NEW.sl_avail &lt;&gt; OLD.sl_avail</PRE
+><P>
+
+および、以下のアクションを持つ<TT
+CLASS="LITERAL"
+>ON UPDATE</TT
+>の<TT
+CLASS="LITERAL"
+>log_shoelace</TT
+>ルールがあります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log VALUES (
+       new.sl_name, new.sl_avail,
+       current_user, current_timestamp )
+  FROM shoelace_data new, shoelace_data old;</PRE
+><P>
+
+（通常、<TT
+CLASS="LITERAL"
+>INSERT ... VALUES ... FROM</TT
+>を書くことはできないのでちょっと奇妙に見えるかもしれません。
+ここの<TT
+CLASS="LITERAL"
+>FROM</TT
+>句は単に<TT
+CLASS="LITERAL"
+>new</TT
+>と<TT
+CLASS="LITERAL"
+>old</TT
+>の問い合わせツリーの範囲テーブル項目があることを示しているだけです。
+これらは、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンドの問い合わせツリー中の変数から参照されるために必要なのです。）</P
+><P
+>このルールは条件付きの<TT
+CLASS="LITERAL"
+>ALSO</TT
+>ルールですので、ルールシステムは変更されたルールアクションと元の問い合わせツリーという2つの問い合わせツリーを返さなければなりません。
+第1の段階で元の問い合わせの範囲テーブルはルールアクション問い合わせツリーに取り込まれます。
+そして、次の結果を生みます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log VALUES (
+       new.sl_name, new.sl_avail,
+       current_user, current_timestamp )
+  FROM shoelace_data new, shoelace_data old,
+       <B
+CLASS="EMPHASIS"
+>shoelace_data shoelace_data</B
+>;</PRE
+><P>
+
+第2段階で、以下のようにルール条件が付け加えられます。
+これにより、この結果集合は<TT
+CLASS="LITERAL"
+>sl_avail</TT
+>が変更した行に限定されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log VALUES (
+       new.sl_name, new.sl_avail,
+       current_user, current_timestamp )
+  FROM shoelace_data new, shoelace_data old,
+       shoelace_data shoelace_data
+ <B
+CLASS="EMPHASIS"
+>WHERE new.sl_avail &lt;&gt; old.sl_avail</B
+>;</PRE
+><P>
+
+（<TT
+CLASS="LITERAL"
+>INSERT ... VALUES</TT
+>は<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句を持たないため、これはさらに奇妙です。
+しかし、プランナとエクゼキュータには問題はありません。
+これらはどのみち<TT
+CLASS="LITERAL"
+>INSERT ... SELECT</TT
+>のために同じ機能をサポートしなければなりません。）
+   </P
+><P
+>第3段階で、以下のように元の問い合わせツリーの条件が付け加えられ、結果集合は元の問い合わせで変更された行のみにさらに限定されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log VALUES (
+       new.sl_name, new.sl_avail,
+       current_user, current_timestamp )
+  FROM shoelace_data new, shoelace_data old,
+       shoelace_data shoelace_data
+ WHERE new.sl_avail &lt;&gt; old.sl_avail
+   <B
+CLASS="EMPHASIS"
+>AND shoelace_data.sl_name = 'sl7'</B
+>;</PRE
+><P>
+   </P
+><P
+>第4段階では、以下のように元の問い合わせツリーの目的リスト項目、または結果リレーションの該当する変数参照で、<TT
+CLASS="LITERAL"
+>NEW</TT
+>の参照を置換します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log VALUES (
+       <B
+CLASS="EMPHASIS"
+>shoelace_data.sl_name</B
+>, <B
+CLASS="EMPHASIS"
+>6</B
+>,
+       current_user, current_timestamp )
+  FROM shoelace_data new, shoelace_data old,
+       shoelace_data shoelace_data
+ WHERE <B
+CLASS="EMPHASIS"
+>6</B
+> &lt;&gt; old.sl_avail
+   AND shoelace_data.sl_name = 'sl7';</PRE
+><P>
+
+   </P
+><P
+>第5段階は、以下のように<TT
+CLASS="LITERAL"
+>OLD</TT
+>参照を結果リレーション参照に置き換えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log VALUES (
+       shoelace_data.sl_name, 6,
+       current_user, current_timestamp )
+  FROM shoelace_data new, shoelace_data old,
+       shoelace_data shoelace_data
+ WHERE 6 &lt;&gt; <B
+CLASS="EMPHASIS"
+>shoelace_data.sl_avail</B
+>
+   AND shoelace_data.sl_name = 'sl7';</PRE
+><P>
+   </P
+><P
+>これで終わりです。このルールは<TT
+CLASS="LITERAL"
+>ALSO</TT
+>のため、元の問い合わせツリーも出力します。
+まとめると、ルールシステムからの出力は以下の文に対応する2つの問い合わせツリーのリストです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log VALUES (
+       shoelace_data.sl_name, 6,
+       current_user, current_timestamp )
+  FROM shoelace_data
+ WHERE 6 &lt;&gt; shoelace_data.sl_avail
+   AND shoelace_data.sl_name = 'sl7';
+
+UPDATE shoelace_data SET sl_avail = 6
+ WHERE sl_name = 'sl7';</PRE
+><P>
+
+この2つは順番通りに処理され、正確にルールが定義した通りです。
+   </P
+><P
+>元の問い合わせが例えば下記のような場合に、置換と追加された条件は、ログには何も書かれないことを確実にします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE shoelace_data SET sl_color = 'green'
+ WHERE sl_name = 'sl7';</PRE
+><P>
+
+この場合、元の問い合わせツリーの目的リストには<TT
+CLASS="LITERAL"
+>sl_avail</TT
+>の項目がありませんので、<TT
+CLASS="LITERAL"
+>NEW.sl_avail</TT
+>が<TT
+CLASS="LITERAL"
+>shoelace_data.sl_avail</TT
+>に置き換えられます。
+その結果、このルールによって以下のような特別の問い合わせが生成されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log VALUES (
+       shoelace_data.sl_name, <B
+CLASS="EMPHASIS"
+>shoelace_data.sl_avail</B
+>,
+       current_user, current_timestamp )
+  FROM shoelace_data
+ WHERE <B
+CLASS="EMPHASIS"
+>shoelace_data.sl_avail</B
+> &lt;&gt; shoelace_data.sl_avail
+   AND shoelace_data.sl_name = 'sl7';</PRE
+><P>
+
+そしてこの条件は決して真にはなりません。
+   </P
+><P
+>もし元の問い合わせが複数の行を変更してもうまくいきます。
+ですから、誰かが下記のようなコマンドを実行したとします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE shoelace_data SET sl_avail = 0
+ WHERE sl_color = 'black';</PRE
+><P>
+
+この場合、実際には4行が更新されます（<TT
+CLASS="LITERAL"
+>sl1</TT
+>、<TT
+CLASS="LITERAL"
+>sl2</TT
+>、<TT
+CLASS="LITERAL"
+>sl3</TT
+>および<TT
+CLASS="LITERAL"
+>sl4</TT
+>）。
+しかし<TT
+CLASS="LITERAL"
+>s13</TT
+>は既に<TT
+CLASS="LITERAL"
+>sl_avail = 0</TT
+>を持っています。
+この場合、元の問い合わせツリーの条件を満たさず、その結果、以下のような特別の問い合わせツリーがルールによって生成されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log
+SELECT shoelace_data.sl_name, 0,
+       current_user, current_timestamp
+  FROM shoelace_data
+ WHERE 0 &lt;&gt; shoelace_data.sl_avail
+   AND <B
+CLASS="EMPHASIS"
+>shoelace_data.sl_color = 'black'</B
+>;</PRE
+><P>
+
+この構文解析ツリーは確実に3つの新しいログ項目を挿入します。
+これはまったく正しい動作です
+[訳注：s13行はWHERE 0 != shoelace_data.sl_avail条件を満たさない（0!=0）ので、実際に更新される4行-1の3行分のログ項目が挿入されます]。</P
+><P
+>ここで元の構文解析ツリーが最後に実行されるということが重要な理由がわかります。
+もし<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>が先に実行されたとしたら、全ての行は0にセットされ、<TT
+CLASS="LITERAL"
+>0 &lt;&gt; shoelace_data.sl_avail</TT
+>である行をログ書き込み時の<TT
+CLASS="COMMAND"
+>INSERT</TT
+>の段階で見つけられなくなります。</P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RULES-UPDATE-VIEWS"
+>37.3.2. ビューとの協調</A
+></H2
+><P
+>誰かがビューに対して<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>を発行するといった、前述の可能性からビューリレーションを保護する簡単な方法は、それらの構文解析ツリーを破棄してしまうことです。
+このために以下のルールを作ることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE RULE shoe_ins_protect AS ON INSERT TO shoe
+    DO INSTEAD NOTHING;
+CREATE RULE shoe_upd_protect AS ON UPDATE TO shoe
+    DO INSTEAD NOTHING;
+CREATE RULE shoe_del_protect AS ON DELETE TO shoe
+    DO INSTEAD NOTHING;</PRE
+><P>
+
+誰かが<TT
+CLASS="LITERAL"
+>shoe</TT
+>ビューリレーションに上記の操作を行おうとすると、ルールシステムはルールを適用します。
+ルールにはアクションがなく、かつ、<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>ですから、結果の問い合わせツリーリストは空になります。
+ルールシステムの処理が完了した後に最適化されるものや実行されるべきものが何も残っていませんので、問い合わせ全体が無効になります。</P
+><P
+>より洗練されたルールシステムの使用法は、実テーブルに適当な操作を行う問い合わせツリーへの書き換えを行うルールを作ることです。
+<TT
+CLASS="LITERAL"
+>shoelace</TT
+>ビューにこれを適用するために以下のルールを作ります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE RULE shoelace_ins AS ON INSERT TO shoelace
+    DO INSTEAD
+    INSERT INTO shoelace_data VALUES (
+           NEW.sl_name,
+           NEW.sl_avail,
+           NEW.sl_color,
+           NEW.sl_len,
+           NEW.sl_unit
+    );
+
+CREATE RULE shoelace_upd AS ON UPDATE TO shoelace
+    DO INSTEAD
+    UPDATE shoelace_data
+       SET sl_name = NEW.sl_name,
+           sl_avail = NEW.sl_avail,
+           sl_color = NEW.sl_color,
+           sl_len = NEW.sl_len,
+           sl_unit = NEW.sl_unit
+     WHERE sl_name = OLD.sl_name;
+
+CREATE RULE shoelace_del AS ON DELETE TO shoelace
+    DO INSTEAD
+    DELETE FROM shoelace_data
+     WHERE sl_name = OLD.sl_name;</PRE
+><P>
+   </P
+><P
+>このビュー上で<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>問い合わせをサポートしたい場合、ビューの行を計算する<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を含むルールを作成しなければなりません。
+これは通常、単一テーブルに対するビューでは非常に簡単ですが、<TT
+CLASS="LITERAL"
+>shoelace</TT
+>のようなビューを結合する場合は多少やっかいです。
+挿入する場合を例として以下に示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE RULE shoelace_ins AS ON INSERT TO shoelace
+    DO INSTEAD
+    INSERT INTO shoelace_data VALUES (
+           NEW.sl_name,
+           NEW.sl_avail,
+           NEW.sl_color,
+           NEW.sl_len,
+           NEW.sl_unit
+    )
+    RETURNING
+           shoelace_data.*,
+           (SELECT shoelace_data.sl_len * u.un_fact
+            FROM unit u WHERE shoelace_data.sl_unit = u.un_name);</PRE
+><P>
+
+この1つのルールが、ビューに対する<TT
+CLASS="COMMAND"
+>INSERT</TT
+>問い合わせと<TT
+CLASS="COMMAND"
+>INSERT RETURNING</TT
+>問い合わせルールをサポートすることに注意してください。
+<TT
+CLASS="COMMAND"
+>INSERT</TT
+>では<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句が無視されるだけです。
+   </P
+><P
+>ここで店には不定期に靴紐のケースが分厚い送り状とともに届けられると仮定します。
+しかし、毎回毎回手作業で<TT
+CLASS="LITERAL"
+>shoelace</TT
+>ビューを更新したくはありません。
+代わりに、送り状から品目を挿入するテーブルと特殊な仕掛けを持つテーブルの2つの小さなテーブルを用意します。
+以下はそれらを作成するコマンドです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE shoelace_arrive (
+    arr_name    text,
+    arr_quant   integer
+);
+
+CREATE TABLE shoelace_ok (
+    ok_name     text,
+    ok_quant    integer
+);
+
+CREATE RULE shoelace_ok_ins AS ON INSERT TO shoelace_ok
+    DO INSTEAD
+    UPDATE shoelace
+       SET sl_avail = sl_avail + NEW.ok_quant
+     WHERE sl_name = NEW.ok_name;</PRE
+><P>
+
+これで、送り状のデータを<TT
+CLASS="LITERAL"
+>shoelace_arrive</TT
+>テーブルに投入することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM shoelace_arrive;
+
+ arr_name | arr_quant
+----------+-----------
+ sl3      |        10
+ sl6      |        20
+ sl8      |        20
+(3 rows)</PRE
+><P>
+
+そして現在のデータをチェックします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM shoelace;
+
+ sl_name  | sl_avail | sl_color | sl_len | sl_unit | sl_len_cm
+----------+----------+----------+--------+---------+-----------
+ sl1      |        5 | black    |     80 | cm      |        80
+ sl2      |        6 | black    |    100 | cm      |       100
+ sl7      |        6 | brown    |     60 | cm      |        60
+ sl3      |        0 | black    |     35 | inch    |      88.9
+ sl4      |        8 | black    |     40 | inch    |     101.6
+ sl8      |        1 | brown    |     40 | inch    |     101.6
+ sl5      |        4 | brown    |      1 | m       |       100
+ sl6      |        0 | brown    |    0.9 | m       |        90
+(8 rows)</PRE
+><P>
+
+さて、届いた靴紐を移動します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_ok SELECT * FROM shoelace_arrive;</PRE
+><P>
+
+そして結果を確認します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM shoelace ORDER BY sl_name;
+
+ sl_name  | sl_avail | sl_color | sl_len | sl_unit | sl_len_cm
+----------+----------+----------+--------+---------+-----------
+ sl1      |        5 | black    |     80 | cm      |        80
+ sl2      |        6 | black    |    100 | cm      |       100
+ sl7      |        6 | brown    |     60 | cm      |        60
+ sl4      |        8 | black    |     40 | inch    |     101.6
+ sl3      |       10 | black    |     35 | inch    |      88.9
+ sl8      |       21 | brown    |     40 | inch    |     101.6
+ sl5      |        4 | brown    |      1 | m       |       100
+ sl6      |       20 | brown    |    0.9 | m       |        90
+(8 rows)
+
+SELECT * FROM shoelace_log;
+
+ sl_name | sl_avail | log_who| log_when                        
+---------+----------+--------+----------------------------------
+ sl7     |        6 | Al     | Tue Oct 20 19:14:45 1998 MET DST
+ sl3     |       10 | Al     | Tue Oct 20 19:25:16 1998 MET DST
+ sl6     |       20 | Al     | Tue Oct 20 19:25:16 1998 MET DST
+ sl8     |       21 | Al     | Tue Oct 20 19:25:16 1998 MET DST
+(4 rows)</PRE
+><P>
+   </P
+><P
+>1つの<TT
+CLASS="LITERAL"
+>INSERT ... SELECT</TT
+>からこの結果になるには、長い道のりがあります。
+本章での問い合わせツリーの変形に関する説明はこれが最後です。
+まず、以下のようなパーサの出力があります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_ok
+SELECT shoelace_arrive.arr_name, shoelace_arrive.arr_quant
+  FROM shoelace_arrive shoelace_arrive, shoelace_ok shoelace_ok;</PRE
+><P>
+
+最初の<TT
+CLASS="LITERAL"
+>shoelace_ok_ins</TT
+>ルールが適用され、結果は以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE shoelace
+   SET sl_avail = shoelace.sl_avail + shoelace_arrive.arr_quant
+  FROM shoelace_arrive shoelace_arrive, shoelace_ok shoelace_ok,
+       shoelace_ok old, shoelace_ok new,
+       shoelace shoelace
+ WHERE shoelace.sl_name = shoelace_arrive.arr_name;</PRE
+><P>
+
+そして、<TT
+CLASS="LITERAL"
+>shoelace_ok</TT
+>に対する元の<TT
+CLASS="COMMAND"
+>INSERT</TT
+>を破棄します。
+この書き換えられた問い合わせは再びルールシステムに渡されて、2番目に適用される<TT
+CLASS="LITERAL"
+>shoelace_upd</TT
+>ルールは以下を生成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE shoelace_data
+   SET sl_name = shoelace.sl_name,
+       sl_avail = shoelace.sl_avail + shoelace_arrive.arr_quant,
+       sl_color = shoelace.sl_color,
+       sl_len = shoelace.sl_len,
+       sl_unit = shoelace.sl_unit
+  FROM shoelace_arrive shoelace_arrive, shoelace_ok shoelace_ok,
+       shoelace_ok old, shoelace_ok new,
+       shoelace shoelace, shoelace old,
+       shoelace new, shoelace_data shoelace_data
+ WHERE shoelace.sl_name = shoelace_arrive.arr_name
+   AND shoelace_data.sl_name = shoelace.sl_name;</PRE
+><P>
+
+これは再び<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>ルールですので、以前の問い合わせツリーは破棄されます。
+この問い合わせは<TT
+CLASS="LITERAL"
+>shoelace</TT
+>ビューを引き続き使用していることに注意してください。
+しかし、この段階ではルールシステムは終了していないため、引き続き<TT
+CLASS="LITERAL"
+>_RETURN</TT
+>ルールが適用され、下記のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE shoelace_data
+   SET sl_name = s.sl_name,
+       sl_avail = s.sl_avail + shoelace_arrive.arr_quant,
+       sl_color = s.sl_color,
+       sl_len = s.sl_len,
+       sl_unit = s.sl_unit
+  FROM shoelace_arrive shoelace_arrive, shoelace_ok shoelace_ok,
+       shoelace_ok old, shoelace_ok new,
+       shoelace shoelace, shoelace old,
+       shoelace new, shoelace_data shoelace_data,
+       shoelace old, shoelace new,
+       shoelace_data s, unit u
+ WHERE s.sl_name = shoelace_arrive.arr_name
+   AND shoelace_data.sl_name = s.sl_name;</PRE
+><P>
+
+最後に、<TT
+CLASS="LITERAL"
+>log_shoelace</TT
+>ルールが適用され、以下のような特別な問い合わせツリーが生成されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log
+SELECT s.sl_name,
+       s.sl_avail + shoelace_arrive.arr_quant,
+       current_user,
+       current_timestamp
+  FROM shoelace_arrive shoelace_arrive, shoelace_ok shoelace_ok,
+       shoelace_ok old, shoelace_ok new,
+       shoelace shoelace, shoelace old,
+       shoelace new, shoelace_data shoelace_data,
+       shoelace old, shoelace new,
+       shoelace_data s, unit u,
+       shoelace_data old, shoelace_data new
+       shoelace_log shoelace_log
+ WHERE s.sl_name = shoelace_arrive.arr_name
+   AND shoelace_data.sl_name = s.sl_name
+   AND (s.sl_avail + shoelace_arrive.arr_quant) &lt;&gt; s.sl_avail;</PRE
+><P>
+
+この後、ルールシステムはルールを使い切り、生成された問い合わせツリーを返します。
+   </P
+><P
+>そして、以下の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文と等価となる2つの最終問い合わせツリーで終結します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace_log
+SELECT s.sl_name,
+       s.sl_avail + shoelace_arrive.arr_quant,
+       current_user,
+       current_timestamp
+  FROM shoelace_arrive shoelace_arrive, shoelace_data shoelace_data,
+       shoelace_data s
+ WHERE s.sl_name = shoelace_arrive.arr_name
+   AND shoelace_data.sl_name = s.sl_name
+   AND s.sl_avail + shoelace_arrive.arr_quant &lt;&gt; s.sl_avail;
+
+UPDATE shoelace_data
+   SET sl_avail = shoelace_data.sl_avail + shoelace_arrive.arr_quant
+  FROM shoelace_arrive shoelace_arrive,
+       shoelace_data shoelace_data,
+       shoelace_data s
+ WHERE s.sl_name = shoelace_arrive.sl_name
+   AND shoelace_data.sl_name = s.sl_name;</PRE
+><P>
+
+結果は、1つのリレーションから来たデータが別のリレーションに挿入され、3つ目のリレーションの更新に変更され、4つ目の更新と5つ目への最終更新のログ記録に変更され、最終的に2つの問い合わせに縮小されます。</P
+><P
+>ちょっと見苦しい小さな事項があります。
+でき上がった2つの問い合わせを見ると、1つに縮小されたはずの<TT
+CLASS="LITERAL"
+>shoelace_data</TT
+>リレーションが範囲テーブルに二度出てきます。
+プランナは処理をしないので、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>のルールシステムの出力に対する実行計画は次のようになります。
+
+</P><PRE
+CLASS="LITERALLAYOUT"
+>入れ子状ループ
+  -&gt;  マージ結合
+        -&gt;  シーケンシャルスキャン
+              -&gt;  ソート
+                    -&gt;  sに対するシーケンシャルスキャン
+        -&gt;  シーケンシャルスキャン
+              -&gt;  ソート
+                    -&gt;  shoelace_arriveに対するシーケンシャルスキャン
+  -&gt;  shoelace_dataに対するシーケンシャルスキャン</PRE
+><P>
+
+一方、余計な範囲テーブル項目を省略することで、以下のようにログテーブルにまったく同じ項目が作られます。
+
+</P><PRE
+CLASS="LITERALLAYOUT"
+>マージ結合
+  -&gt;  シーケンシャルスキャン
+        -&gt;  ソート
+              -&gt;  sに対するシーケンシャルスキャン
+  -&gt;  シーケンシャルスキャン
+        -&gt;  ソート
+              -&gt;  shoelace_arriveに対するシーケンシャルスキャン</PRE
+><P>
+
+ですから、ルールシステムは、まったく必要のない<TT
+CLASS="LITERAL"
+>shoelace_data</TT
+>リレーションに対する余計なスキャンを一度行うことになります。
+そして<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>でも同様な不要なスキャンが再度実行されます。
+しかしながら、これらを全て可能にするのは大変な仕事です。</P
+><P
+>最後に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のルールシステムとその効力を示しましょう。
+例えば、まったく売れそうもない靴紐をデータベースに追加してみます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO shoelace VALUES ('sl9', 0, 'pink', 35.0, 'inch', 0.0);
+INSERT INTO shoelace VALUES ('sl10', 1000, 'magenta', 40.0, 'inch', 0.0);</PRE
+><P>
+
+全ての靴に合わない色が<TT
+CLASS="LITERAL"
+>shoelace</TT
+>項目にあるかどうかを検査するビューを作成したいと考えます。
+ビューは以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW shoelace_mismatch AS
+    SELECT * FROM shoelace WHERE NOT EXISTS
+        (SELECT shoename FROM shoe WHERE slcolor = sl_color);</PRE
+><P>
+
+この出力は以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM shoelace_mismatch;
+
+ sl_name | sl_avail | sl_color | sl_len | sl_unit | sl_len_cm
+---------+----------+----------+--------+---------+-----------
+ sl9     |        0 | pink     |     35 | inch    |      88.9
+ sl10    |     1000 | magenta  |     40 | inch    |     101.6</PRE
+><P>
+   </P
+><P
+>ここで、合う靴がない靴紐のうち、在庫がないものをデータベースから削除するように設定してみます。
+これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では困難な作業ですので、直接削除しません。
+代わりに、以下のようにもう1つビューを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW shoelace_can_delete AS
+    SELECT * FROM shoelace_mismatch WHERE sl_avail = 0;</PRE
+><P>
+
+そして、以下を行います。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DELETE FROM shoelace WHERE EXISTS
+    (SELECT * FROM shoelace_can_delete
+             WHERE sl_name = shoelace.sl_name);</PRE
+><P>
+
+さあできました。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM shoelace;
+
+ sl_name | sl_avail | sl_color | sl_len | sl_unit | sl_len_cm
+---------+----------+----------+--------+---------+-----------
+ sl1     |        5 | black    |     80 | cm      |        80
+ sl2     |        6 | black    |    100 | cm      |       100
+ sl7     |        6 | brown    |     60 | cm      |        60
+ sl4     |        8 | black    |     40 | inch    |     101.6
+ sl3     |       10 | black    |     35 | inch    |      88.9
+ sl8     |       21 | brown    |     40 | inch    |     101.6
+ sl10    |     1000 | magenta  |     40 | inch    |     101.6
+ sl5     |        4 | brown    |      1 | m       |       100
+ sl6     |       20 | brown    |    0.9 | m       |        90
+(9 rows)</PRE
+><P>
+   </P
+><P
+>合計4つのネスト/結合されたビューを副問い合わせの条件として持ち、その中の1つはビューを含む副問い合わせ条件を持ち、かつ演算を施されたビューの列が使われる場合の、ビューに対する<TT
+CLASS="COMMAND"
+>DELETE</TT
+>が、実テーブルから要求されたデータを削除する単一の問い合わせツリーに書き換えられます。</P
+><P
+>このような構造が必要な状況は実社会ではほとんどないと思われます。
+しかし、実際に動くことを確認できれば安心できます。</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="rules-views.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="rules-privileges.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ビューとルールシステム</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="rules.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ルールと権限</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

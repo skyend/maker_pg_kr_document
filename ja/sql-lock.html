@@ -1,0 +1,632 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>LOCK</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="LOAD"
+HREF="sql-load.html"><LINK
+REL="NEXT"
+TITLE="MOVE"
+HREF="sql-move.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="LOAD"
+HREF="sql-load.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="LOAD"
+HREF="sql-load.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="MOVE"
+HREF="sql-move.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="MOVE"
+HREF="sql-move.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-LOCK"
+></A
+>LOCK</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN73009"
+></A
+><H2
+>&#21517;&#21069;</H2
+>LOCK&nbsp;--&nbsp;テーブルをロックする</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN73014"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>LOCK [ TABLE ] [ ONLY ] <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [, ...] [ IN <TT
+CLASS="REPLACEABLE"
+><I
+>lockmode</I
+></TT
+> MODE ] [ NOWAIT ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>lockmode</I
+></TT
+>には以下のいずれかが入ります。</SPAN
+></SPAN
+>
+
+    ACCESS SHARE | ROW SHARE | ROW EXCLUSIVE | SHARE UPDATE EXCLUSIVE
+    | SHARE | SHARE ROW EXCLUSIVE | EXCLUSIVE | ACCESS EXCLUSIVE</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73020"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>はテーブルレベルのロックを取得します。必要であれば競合するロックが解除されるまで待機します。
+<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>が指定された場合は、対象のロックを取得できなくても待機しません。
+この場合、すぐにロックが取得できなければ、このコマンドを中止し、エラーを出力します。
+ロックは、一度取得されると現行のトランザクションが完了するまで保持されます
+（<TT
+CLASS="COMMAND"
+>UNLOCK TABLE</TT
+>といったコマンドはありません。
+ロックが解除されるのは常にトランザクションの終了時です）。
+  </P
+><P
+>テーブルを参照するコマンドのために自動的にロックを取得する場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は常に使用可能な一番弱いロックモードを使用します。
+<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>はより制限の強いロックが必要な場合のために用意されています。
+例えば、隔離レベルREAD COMMITTEDでトランザクションを実行するアプリケーションで、トランザクションの間中、テーブルのデータを確実に安定させる必要がある場合を考えます。
+この場合、問い合わせ実行前にテーブル全体に<TT
+CLASS="LITERAL"
+>SHARE</TT
+>ロックモードを使用します。 
+これにより、データが同時に変更されるのを防ぎ、それ以降のテーブルの読み取りを安定させることができます。
+なぜなら<TT
+CLASS="LITERAL"
+>SHARE</TT
+>ロックモードは書き込み側が取得する<TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>ロックと競合するので、<TT
+CLASS="COMMAND"
+>LOCK TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> IN SHARE MODE</TT
+>文は、<TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>を保持しているトランザクションがコミットまたはロールバックされるのを待つからです。 
+したがって、一度ロックを取得してしまえば、コミットされていない状態の書き込みは存在しないことになります。さらに、ロックを解除するまで他のアプリケーションは書き込みを開始することができません。
+
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>REPEATABLE READ</TT
+>または<TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+>隔離レベルで実行しているトランザクションで同様の効果を得るには、全ての<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文とデータを更新する文を実行する前に<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>文を実行する必要があります。  
+<TT
+CLASS="LITERAL"
+>REPEATABLE READ</TT
+>または<TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+>トランザクション側から参照するデータの状態は、最初に<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文またはデータ更新用文が開始された時点で固定されます。
+後からトランザクション内で<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>を実行した場合も同時書き込みを防ぐことはできますが、トランザクションの読み込み対象データの値がコミットされた最新の値であることは保証されません。
+  </P
+><P
+>このようなトランザクションでテーブル内データを変更する場合は、<TT
+CLASS="LITERAL"
+>SHARE</TT
+>モードではなく<TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+>ロックモードを使用する必要があります。
+これによって、この種のトランザクションが同時に複数実行されることがなくなります。
+<TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+>を使用しないと、デッドロックが発生する可能性があります。
+2つのトランザクションの両方が、<TT
+CLASS="LITERAL"
+>SHARE</TT
+>モードを取得していながら、実際の更新に必要な<TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>モードを取得できない状態になる可能性があるためです
+（トランザクション自身が所有しているロック間は競合しないので、トランザクションは<TT
+CLASS="LITERAL"
+>SHARE</TT
+>モードを保持している間も<TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>を獲得することができます。
+しかし、他のトランザクションが<TT
+CLASS="LITERAL"
+>SHARE</TT
+>モードを保持している時には<TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>を獲得することはできません）。
+デッドロックを回避するには、全てのトランザクションが、必ず同一オブジェクトに対して同一の順番でロックを取得するようにしてください。
+また、1つのオブジェクトに対して複数のロックモードを呼び出す場合、トランザクションは常に最も制限の強いモードを最初に取得しなければなりません。
+  </P
+><P
+>ロックモードとロック取得方針についてのより詳細については<A
+HREF="explicit-locking.html"
+>&#38917;13.3</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73056"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>ロックする既存のテーブルの名前です（スキーマ修飾名も可）。
+<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定された場合、そのテーブルのみをロックします。
+<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定されない場合、そのテーブルとすべての子テーブル（もしあれば）をロックします。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>LOCK a, b;</TT
+>というコマンドは<TT
+CLASS="LITERAL"
+>LOCK TABLE a; LOCK TABLE b;</TT
+>と同じです。
+テーブルは1つひとつ<TT
+CLASS="COMMAND"
+>LOCK</TT
+>で指定された順番でロックされます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>lockmode</I
+></TT
+></DT
+><DD
+><P
+>ロックモードには、取得するロックと競合するロックを指定します。
+ロックモードについては、<A
+HREF="explicit-locking.html"
+>&#38917;13.3</A
+>で説明します。
+     </P
+><P
+>ロックモードを指定しない場合、最も制限が強い<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>が使用されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NOWAIT</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>が競合するロックの解放まで待機しないことを指定します。
+指定したロックがすぐに取得できない場合、トランザクションはアボートされます。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73084"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="LITERAL"
+>LOCK TABLE ... IN ACCESS SHARE MODE</TT
+>には、対象テーブルの<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限が必要です。
+他の形式の<TT
+CLASS="COMMAND"
+>LOCK</TT
+>には、テーブルレベルの<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>権限を持たなければなりません。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>はトランザクションブロックの外側では意味がありません。
+文が完了するまでしかロックは保持されません。
+したがって<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は<TT
+CLASS="COMMAND"
+>LOCK</TT
+>がトランザクションブロックの外側で使用された場合にエラーを報告します。
+トランザクションブロックを定義するためには<A
+HREF="sql-begin.html"
+>BEGIN</A
+>および<A
+HREF="sql-commit.html"
+>COMMIT</A
+>（または<A
+HREF="sql-rollback.html"
+>ROLLBACK</A
+>）を使用してください。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>LOCK</TT
+>が扱うのはテーブルレベルのロックのみです。
+そのため、モード名に<TT
+CLASS="LITERAL"
+>ROW</TT
+>が含まれるのは適切ではありません。
+これらのモード名によって、普通は、ロックされたテーブル内で行レベルのロックを取得できると思ってしまうでしょう。
+また、<TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>モードは共有可能なロックです。
+<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>に関しては、全てのロックモードが同じ意味を持っていることに注意してください。
+違うのは、どのモードがどのモードと競合するかという規則だけです。
+行レベルでのロックを獲得する方法については<TT
+CLASS="COMMAND"
+>SELECT</TT
+>マニュアルページの<A
+HREF="explicit-locking.html#LOCKING-ROWS"
+>&#38917;13.3.2</A
+>と<A
+HREF="sql-select.html#SQL-FOR-UPDATE-SHARE"
+><I
+><I
+>FOR UPDATE</I
+>/<I
+>FOR SHARE</I
+>句</I
+></A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73108"
+></A
+><H2
+>例</H2
+><P
+>外部キーテーブルへの挿入を行う際に、プライマリキーテーブルへの<TT
+CLASS="LITERAL"
+>SHARE</TT
+>ロックを獲得します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN WORK;
+LOCK TABLE films IN SHARE MODE;
+SELECT id FROM films
+    WHERE name = 'Star Wars: Episode I - The Phantom Menace';
+-- レコードがなければROLLBACKしてください。
+INSERT INTO films_user_comments VALUES
+    (_id_, 'GREAT! I was waiting for it for so long!');
+COMMIT WORK;</PRE
+><P>
+  </P
+><P
+>削除操作を行う際にプライマリキーテーブルの<TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+>ロックを取得します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN WORK;
+LOCK TABLE films IN SHARE ROW EXCLUSIVE MODE;
+DELETE FROM films_user_comments WHERE id IN
+    (SELECT id FROM films WHERE rating &lt; 5);
+DELETE FROM films WHERE rating &lt; 5;
+COMMIT WORK;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73116"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>はありません。
+その代わりにトランザクションの同時性レベルを指定する<TT
+CLASS="COMMAND"
+>SET TRANSACTION</TT
+>が使用されます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はこのコマンドもサポートしています。
+詳細は<A
+HREF="sql-set-transaction.html"
+>SET TRANSACTION</A
+>を参照してください。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+>、<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE UPDATE EXCLUSIVE</TT
+>ロックモードを除き、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のロックモードと<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>構文は<SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+>のものと互換性があります。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-load.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-move.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>LOAD</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>MOVE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

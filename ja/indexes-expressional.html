@@ -1,0 +1,265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>式に対するインデックス</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックス"
+HREF="indexes.html"><LINK
+REL="PREVIOUS"
+TITLE="一意インデックス"
+HREF="indexes-unique.html"><LINK
+REL="NEXT"
+TITLE="部分インデックス"
+HREF="indexes-partial.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="一意インデックス"
+HREF="indexes-unique.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 11&#31456;インデックス</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="部分インデックス"
+HREF="indexes-partial.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEXES-EXPRESSIONAL"
+>11.7. 式に対するインデックス</A
+></H1
+><P
+>インデックス列は、基礎をなすテーブルにある列である必要はなく、そのテーブルの１つ以上の列から計算される関数やスカラ式とすることもできます。
+この機能は、ある演算結果に基づいた高速テーブルアクセスを行う時に有用です。
+  </P
+><P
+>例えば、大文字小文字を区別せずに比較するための一般的な方法である、<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>関数での使用例を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM test1 WHERE lower(col1) = 'value';</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>lower(column)</TT
+>関数の結果にインデックスが定義されていれば、この問い合わせでインデックスを使用することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX test1_lower_col1_idx ON test1 (lower(col1));</PRE
+><P>
+  </P
+><P
+>このインデックスを<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>と宣言したとすると、<TT
+CLASS="LITERAL"
+>col1</TT
+>の値が同一となる行だけでなく、<TT
+CLASS="LITERAL"
+>col1</TT
+>の大文字小文字だけが違う行の生成を防ぐことになります。
+したがって、式に対するインデックスを使用して、単なる一意性制約では定義できないような制約を強制することができます。
+  </P
+><P
+>別の例として、以下のような問い合わせが頻繁に行われる場合を考えます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM people WHERE (first_name || ' ' || last_name) = 'John Smith';</PRE
+><P>
+この場合、以下のようなインデックスを作成する価値があるでしょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX people_names ON people ((first_name || ' ' || last_name));</PRE
+><P>
+  </P
+><P
+>２番目の例に示すように<TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+>コマンドの構文は通常、インデックス式を括弧で括る必要があります。
+最初の例のように、式が単なる関数呼び出しの場合には括弧を省略することができます。
+  </P
+><P
+>派生した式が、行が挿入、更新される度に実行されなければなりませんので、インデックス式は相対的に見て維持が高価です。
+しかし、インデックス式はインデックスを使用する検索の間で再計算<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>されません</I
+></SPAN
+>。
+上の両方の例では、システムは問い合わせを単なる<TT
+CLASS="LITERAL"
+>WHERE indexedcolumn = 'constant'</TT
+>と理解しますので、この検索速度は他の単純なインデックス問い合わせと同じです。
+したがって、式に対するインデックスは取り出し速度が挿入、更新速度より重要な場合にのみ有用です。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="indexes-unique.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="indexes-partial.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>一意インデックス</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>部分インデックス</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

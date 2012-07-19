@@ -1,0 +1,1265 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>カーソル</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="制御構造"
+HREF="plpgsql-control-structures.html"><LINK
+REL="NEXT"
+TITLE="エラーとメッセージ"
+HREF="plpgsql-errors-and-messages.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="制御構造"
+HREF="plpgsql-control-structures.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="エラーとメッセージ"
+HREF="plpgsql-errors-and-messages.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-CURSORS"
+>39.7. カーソル</A
+></H1
+><P
+>問い合わせ全体を一度に実行するのではなく、<I
+CLASS="FIRSTTERM"
+>カーソル</I
+>を設定して、問い合わせをカプセル化し、問い合わせの結果を一度に数行ずつ読み取ることができます。
+これを行う理由の1つは、結果内に多数の行がある場合のメモリの枯渇を防ぐことです。
+（しかし、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>ユーザは通常これを心配する必要はありません。
+<TT
+CLASS="LITERAL"
+>FOR</TT
+>ループは自動的にカーソルを内部的に使用してメモリの問題を防ぐからです。）
+より興味深い使用方法として、呼び出し元が行を読み取ることをできるように、作成されたカーソルへの参照を返す方法があります。
+これにより、関数から大量の行集合を返す際の効率が向上します。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-CURSOR-DECLARATIONS"
+>39.7.1. カーソル変数の宣言</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>におけるカーソルへのアクセスは全て、カーソル変数を経由します。
+カーソル変数は、常に特殊な<TT
+CLASS="TYPE"
+>refcursor</TT
+>データ型です。
+カーソル変数を作成する1つの方法は、単に<TT
+CLASS="TYPE"
+>refcursor</TT
+>型の変数として宣言することです。
+他の方法は、カーソル宣言構文を使用することです。
+以下にその一般形を示します。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> [<SPAN
+CLASS="OPTIONAL"
+> NO </SPAN
+>] SCROLL </SPAN
+>] CURSOR [<SPAN
+CLASS="OPTIONAL"
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>arguments</I
+></TT
+> ) </SPAN
+>] FOR <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>;</PRE
+><P>
+（<SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+>との互換性のため、<TT
+CLASS="LITERAL"
+>FOR</TT
+>は<TT
+CLASS="LITERAL"
+>IS</TT
+>に置き換えることができます。）
+もし<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>を指定すれば、カーソルは逆方向に移動できます。
+もし<TT
+CLASS="LITERAL"
+>NO SCROLL</TT
+>を指定すれば、逆方向の行の取り出しはできません。
+どちらも指定しない時、逆方向に取り出しできるかは問い合わせに依存します。
+もし<TT
+CLASS="REPLACEABLE"
+><I
+>arguments</I
+></TT
+>があれば、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>datatype</I
+></TT
+></TT
+>をカンマで区切ったリストで、与えられた問い合わせ内のパラメータ値として置換される名前を定義します。
+その名前に実際に置換される値は、カーソルを開いた時点より後に指定されます。
+    </P
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DECLARE
+    curs1 refcursor;
+    curs2 CURSOR FOR SELECT * FROM tenk1;
+    curs3 CURSOR (key integer) IS SELECT * FROM tenk1 WHERE unique1 = key;</PRE
+><P>
+これら3つの変数は全て<TT
+CLASS="TYPE"
+>refcursor</TT
+>データ型を持ちますが、最初のものは全ての問い合わせに使用でき、2番目には完全な問い合わせが既に<I
+CLASS="FIRSTTERM"
+>バウンド</I
+>されています（結び付けられています）。
+また、最後のものには、パラメータ付きの問い合わせがバウンドされています
+（<TT
+CLASS="LITERAL"
+>key</TT
+>はカーソルが開いた時に整数パラメータ値に置き換えられます）。
+<TT
+CLASS="LITERAL"
+>curs1</TT
+>変数は、特定の問い合わせに結び付けられていませんので、<I
+CLASS="FIRSTTERM"
+>アンバウンド</I
+>であると呼ばれます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-CURSOR-OPENING"
+>39.7.2. カーソルを開く</A
+></H2
+><P
+>カーソルを使用して行を取り出す前に、<I
+CLASS="FIRSTTERM"
+>開かれる</I
+>必要があります。
+（これは<TT
+CLASS="COMMAND"
+>DECLARE CURSOR</TT
+> SQLコマンドの動作と同じです。）
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>には3種類の<TT
+CLASS="COMMAND"
+>OPEN</TT
+>文があり、そのうちの2つはアンバウンドカーソル変数を使用し、残りの1つはバウンドカーソル変数を使用します。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>     
+バウンドカーソル変数は<A
+HREF="plpgsql-cursors.html#PLPGSQL-CURSOR-FOR-LOOP"
+>&#38917;39.7.4</A
+>で説明されている<TT
+CLASS="COMMAND"
+>FOR</TT
+>文で、明示的にカーソルを開かなくても使用することができます。
+     </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN54616"
+>39.7.2.1. <TT
+CLASS="COMMAND"
+>OPEN FOR</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>OPEN <TT
+CLASS="REPLACEABLE"
+><I
+>unbound_cursorvar</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> [<SPAN
+CLASS="OPTIONAL"
+> NO </SPAN
+>] SCROLL </SPAN
+>] FOR <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>;</PRE
+><P
+>カーソル変数は開かれ、実行するよう指定した問い合わせが付与されます。
+既に開いたカーソルを開くことはできず、また、アンバウンドカーソル変数として（つまり、単なる<TT
+CLASS="TYPE"
+>refcursor</TT
+>変数として）宣言されていなければなりません。
+この問い合わせは<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文であるか、または（<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>のように）何らかの行を返すものでなければなりません。
+この問い合わせは、他の<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>のSQL文と同様の方法で扱われます。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の変数名は置き換えられ、問い合わせ計画は再利用できるようにキャッシュされます。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数がカーソルを使用する問い合わせに代入された時、変数は<TT
+CLASS="COMMAND"
+>OPEN</TT
+>時の値となり、その後の変更はカーソルの動きに影響しません。
+<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>および<TT
+CLASS="LITERAL"
+>NO SCROLL</TT
+>オプションの意味はバウンドカーソルと同様です。
+       </P
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>OPEN curs1 FOR SELECT * FROM foo WHERE key = mykey;</PRE
+><P>
+       </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN54637"
+>39.7.2.2. <TT
+CLASS="COMMAND"
+>OPEN FOR EXECUTE</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>OPEN <TT
+CLASS="REPLACEABLE"
+><I
+>unbound_cursorvar</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> [<SPAN
+CLASS="OPTIONAL"
+> NO </SPAN
+>] SCROLL </SPAN
+>] FOR EXECUTE <TT
+CLASS="REPLACEABLE"
+><I
+>query_string</I
+></TT
+>
+                                     [<SPAN
+CLASS="OPTIONAL"
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>] </SPAN
+>];</PRE
+><P
+>カーソル変数は開かれ、実行するよう指定した問い合わせが付与されます。
+既に開いたカーソルを開くことはできず、また、アンバウンドカーソル変数として（つまり、単なる<TT
+CLASS="TYPE"
+>refcursor</TT
+>変数として）宣言されていなければなりません。
+問い合わせは、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>コマンドと同じ方法による文字列式として指定されます。
+通常と同様に、これにより、次回に実行する際に違った問い合わせを計画できる柔軟性が得られます(<A
+HREF="plpgsql-implementation.html#PLPGSQL-PLAN-CACHING"
+>&#38917;39.10.2</A
+>参照)。
+また、変数置換がコマンド文字列上で行われないことも意味します。
+<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>と同様に<TT
+CLASS="LITERAL"
+>USING</TT
+>を介して動的コマンドにパラメータ値を挿入することができます。
+<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>および<TT
+CLASS="LITERAL"
+>NO SCROLL</TT
+>オプションの意味はバウンドカーソルと同様です。
+       </P
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>OPEN curs1 FOR EXECUTE 'SELECT * FROM ' || quote_ident(tabname)
+                                        || ' WHERE col1 = $1' USING keyvalue;</PRE
+><P>
+この例では、テーブル名は問い合わせ内にテキストとして埋め込まれます。
+このためSQLインジェクションに対抗するために<CODE
+CLASS="FUNCTION"
+>quote_ident()</CODE
+>の使用を勧めます。
+<TT
+CLASS="LITERAL"
+>col1</TT
+>との比較値は<TT
+CLASS="LITERAL"
+>USING</TT
+>経由で埋め込まれますので、引用符を付ける必要がありません。
+       </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN54661"
+>39.7.2.3. バウンドカーソルを開く</A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>OPEN <TT
+CLASS="REPLACEABLE"
+><I
+>bound_cursorvar</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>argument_values</I
+></TT
+> ) </SPAN
+>];</PRE
+><P
+>宣言時に問い合わせが結び付いたカーソル変数を開くために使用される<TT
+CLASS="COMMAND"
+>OPEN</TT
+>の形式です。
+既に開いたカーソルを開くことはできません。
+実引数の式のリストはカーソルが引数を取るものと宣言された場合にのみ現れます。
+これらの値は問い合わせの中で置き換えられます。
+バウンドカーソルの問い合わせ計画は常にキャッシュ可能とみなされます。
+この場合、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>と等価なものはありません。
+<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>および<TT
+CLASS="LITERAL"
+>NO SCROLL</TT
+>を指定できないことに注意してください。
+カーソル移動の仕様はすでに決まっているからです。
+         </P
+><P
+>変数の代入はバウンドカーソルの問い合わせで行われるため、カーソルへ値を渡す方法が2つあることに注意してください。
+<TT
+CLASS="COMMAND"
+>OPEN</TT
+>コマンドの明確な引数とするものと、問い合わせにおける<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数として暗黙的に参照するものです。
+しかし、バウンドカーソルの宣言より前に宣言した変数だけが代入されます。
+どちらの場合も、<TT
+CLASS="COMMAND"
+>OPEN</TT
+>の実行時に変数値が決まります。
+         </P
+><P
+>例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>OPEN curs2;
+OPEN curs3(42);</PRE
+><P>
+       </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-CURSOR-USING"
+>39.7.3. カーソルの使用</A
+></H2
+><P
+>カーソルを開いてから、ここで説明する文を使用してカーソルを扱うことができます。
+    </P
+><P
+>これらの操作は、カーソルを開始するために開いた関数内で行う必要はありません。
+関数から<TT
+CLASS="TYPE"
+>refcursor</TT
+>値を返し、呼び出し元でそのカーソルの操作をさせることもできます。
+（内部的には<TT
+CLASS="TYPE"
+>refcursor</TT
+>値は、カーソルへの有効な問い合わせを持つポータルの名前を示す単なる文字列です。
+この名前は、ポータルを壊すことなく、他の<TT
+CLASS="TYPE"
+>refcursor</TT
+>型の変数に代入することで、他に渡すことができます。）
+    </P
+><P
+>全てのポータルは、暗黙的にトランザクションの終わりで閉ざされます。
+したがって、<TT
+CLASS="TYPE"
+>refcursor</TT
+>値はそのトランザクションの終わりまでの間のみ開いたカーソルへの参照として有効です。
+    </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN54687"
+>39.7.3.1. <TT
+CLASS="LITERAL"
+>FETCH</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>FETCH [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+> { FROM | IN } </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+> INTO <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+>;</PRE
+><P
+><TT
+CLASS="COMMAND"
+>FETCH</TT
+>は<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>と同様に、カーソルから次の行を抽出し、対象に格納します。
+対象とは、行変数、レコード変数、または単純な変数をカンマで区切ったリストです。
+<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>の場合と同様、特殊な<TT
+CLASS="LITERAL"
+>FOUND</TT
+>変数を検査することで、行が入手できたかどうかを確認することができます。
+    </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>句は複数行を取り出すことができるコマンドを除き、SQL <A
+HREF="sql-fetch.html"
+>FETCH</A
+>で許可されたどのようなコマンドも可能です。
+すなわち、以下のものです。
+     <TT
+CLASS="LITERAL"
+>NEXT</TT
+>、
+     <TT
+CLASS="LITERAL"
+>PRIOR</TT
+>、
+     <TT
+CLASS="LITERAL"
+>FIRST</TT
+>、
+     <TT
+CLASS="LITERAL"
+>LAST</TT
+>、
+     <TT
+CLASS="LITERAL"
+>ABSOLUTE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>、
+     <TT
+CLASS="LITERAL"
+>RELATIVE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>、
+     <TT
+CLASS="LITERAL"
+>FORWARD</TT
+>または
+     <TT
+CLASS="LITERAL"
+>BACKWARD</TT
+>。
+<TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>句の省略は、<TT
+CLASS="LITERAL"
+>NEXT</TT
+>の指定と同じです。
+<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>オプションを用いてカーソルを宣言または開かないと、<TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>の値による逆方向への移動の要求は失敗します。
+    </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>名は、開いているカーソルのポータルを参照する<TT
+CLASS="TYPE"
+>refcursor</TT
+>変数名でなければなりません。
+    </P
+><P
+>例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>FETCH curs1 INTO rowvar;
+FETCH curs2 INTO foo, bar, baz;
+FETCH LAST FROM curs3 INTO x, y;
+FETCH RELATIVE -2 FROM curs4 INTO x;</PRE
+><P>
+       </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN54722"
+>39.7.3.2. <TT
+CLASS="LITERAL"
+>MOVE</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>MOVE [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+> { FROM | IN } </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>;</PRE
+><P
+><TT
+CLASS="COMMAND"
+>MOVE</TT
+>コマンドは、データを取り出さないでカーソルの位置を変更します。
+移動先の行を返さないでカーソルの位置だけを変更することを除けば、<TT
+CLASS="COMMAND"
+>FETCH</TT
+>コマンドと同一の働きをします。
+<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>と同様に、特殊な変数<TT
+CLASS="LITERAL"
+>FOUND</TT
+>を用いて、移動先に行が存在するかどうかを検査できます。
+    </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>句は、<A
+HREF="sql-fetch.html"
+>FETCH</A
+> SQLコマンドで許されている以下の値のいずれかを取ることができます。
+     <TT
+CLASS="LITERAL"
+>NEXT</TT
+>、
+     <TT
+CLASS="LITERAL"
+>PRIOR</TT
+>、
+     <TT
+CLASS="LITERAL"
+>FIRST</TT
+>、
+     <TT
+CLASS="LITERAL"
+>LAST</TT
+>、
+     <TT
+CLASS="LITERAL"
+>ABSOLUTE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>、
+     <TT
+CLASS="LITERAL"
+>RELATIVE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>、
+     <TT
+CLASS="LITERAL"
+>ALL</TT
+>、
+     <TT
+CLASS="LITERAL"
+>FORWARD</TT
+> [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+> | <TT
+CLASS="LITERAL"
+>ALL</TT
+> </SPAN
+>]、または
+     <TT
+CLASS="LITERAL"
+>BACKWARD</TT
+> [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+> | <TT
+CLASS="LITERAL"
+>ALL</TT
+> </SPAN
+>]
+<TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>句の省略は、<TT
+CLASS="LITERAL"
+>NEXT</TT
+>の指定と同じです。
+<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>オプションを用いてカーソルを宣言または開かないと、<TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>の値による逆方向への移動の要求は失敗します。
+    </P
+><P
+>例:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>MOVE curs1;
+MOVE LAST FROM curs3;
+MOVE RELATIVE -2 FROM curs4;
+MOVE FORWARD 2 FROM curs4;</PRE
+><P>
+       </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN54760"
+>39.7.3.3. <TT
+CLASS="LITERAL"
+>UPDATE/DELETE WHERE CURRENT OF</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>UPDATE <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> SET ... WHERE CURRENT OF <TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>;
+DELETE FROM <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> WHERE CURRENT OF <TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>;</PRE
+><P
+>カーソルの位置をテーブルの行に変更すれば、カーソルによって特定した行を更新または消去できます。
+カーソル問い合わせは何が許されているのか（特にグループ化しないとき）についての制限があり、それはカーソル内で<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>を使用することが最善です。
+より詳細については<A
+HREF="sql-declare.html"
+>DECLARE</A
+>マニュアルページを参照下さい。
+
+       </P
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE foo SET dataval = myval WHERE CURRENT OF curs1;</PRE
+><P>
+       </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN54773"
+>39.7.3.4. <TT
+CLASS="LITERAL"
+>CLOSE</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>CLOSE <TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>;</PRE
+><P
+><TT
+CLASS="COMMAND"
+>CLOSE</TT
+>はポータルの背後にあるカーソルを閉じます。
+これを使用してトランザクションの終わりよりも前にリソースを解放することができ、また、カーソル変数を解放し、再度開くことができます。
+       </P
+><P
+>例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CLOSE curs1;</PRE
+><P>
+       </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN54782"
+>39.7.3.5. カーソルを返す</A
+></H3
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数では、呼び出し元にカーソルを返すことができます。
+この方法は、関数から複数行または複数列を返す場合、特にその結果集合が非常に大きい場合に有用です。
+これを行うには、関数はカーソルを開き、呼び出し元にカーソル名を返します（もしくは、もし呼び出し元でポータル名がわかっていれば、単純に指定されたポータル名を使用してカーソルを開きます）。
+これにより、呼び出し元はカーソルから行を取り出すことができるようになります。
+カーソルは呼び出し元で閉じることができます。
+または、トランザクションが終了した際に自動的に閉じられます。
+       </P
+><P
+>カーソル用のポータル名は、プログラマが指定するか、または自動的に生成されます。
+ポータル名を指定するには、開く前に、単に<TT
+CLASS="TYPE"
+>refcursor</TT
+>変数に文字列を代入します。
+<TT
+CLASS="TYPE"
+>refcursor</TT
+>変数の文字列値は<TT
+CLASS="COMMAND"
+>OPEN</TT
+>によって、背後のポータル名として使用されます。
+しかし、<TT
+CLASS="TYPE"
+>refcursor</TT
+>変数がNULLの場合、<TT
+CLASS="COMMAND"
+>OPEN</TT
+>は自動的に既存のポータルと競合しない名前を生成し、それを<TT
+CLASS="TYPE"
+>refcursor</TT
+>変数に代入します。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>バウンドカーソル変数は、その名前を表現する文字列値で初期化されます。
+そのため、プログラマがカーソルを開く前に代入により上書きしない限り、ポータル名はカーソル変数と同じになります。
+しかし、アンバウンドカーソル変数の初期値はデフォルトでNULLです。
+そのため、上書きされていない場合に自動的に生成される一意な名前を受け取ります。
+        </P
+></BLOCKQUOTE
+></DIV
+><P
+>以下の例は、呼び出し元でカーソル名を指定する方法を示しています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test (col text);
+INSERT INTO test VALUES ('123');
+
+CREATE FUNCTION reffunc(refcursor) RETURNS refcursor AS '
+BEGIN
+    OPEN $1 FOR SELECT col FROM test;
+    RETURN $1;
+END;
+' LANGUAGE plpgsql;
+
+BEGIN;
+SELECT reffunc('funccursor');
+FETCH ALL IN funccursor;
+COMMIT;</PRE
+><P>
+       </P
+><P
+>以下の例では、自動的に生成されたカーソル名を使用しています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION reffunc2() RETURNS refcursor AS '
+DECLARE
+    ref refcursor;
+BEGIN
+    OPEN ref FOR SELECT col FROM test;
+    RETURN ref;
+END;
+' LANGUAGE plpgsql;
+
+-- カーソルを使用するには、トランザクション内部である必要があります。
+BEGIN;
+SELECT reffunc2();
+
+      reffunc2      
+--------------------
+ &lt;unnamed cursor 1&gt;
+(1 row)
+
+FETCH ALL IN "&lt;unnamed cursor 1&gt;";
+COMMIT;</PRE
+><P>
+       </P
+><P
+>以下の例は単一関数から複数のカーソルを返す方法を示しています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION myfunc(refcursor, refcursor) RETURNS SETOF refcursor AS $$
+BEGIN
+    OPEN $1 FOR SELECT * FROM table_1;
+    RETURN NEXT $1;
+    OPEN $2 FOR SELECT * FROM table_2;
+    RETURN NEXT $2;
+END;
+$$ LANGUAGE plpgsql;
+
+-- カーソルを使用するには、トランザクション内部である必要があります。
+BEGIN;
+
+SELECT * FROM myfunc('a', 'b');
+
+FETCH ALL FROM a;
+FETCH ALL FROM b;
+COMMIT;</PRE
+><P>
+       </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-CURSOR-FOR-LOOP"
+>39.7.4. カーソル結果に対するループ</A
+></H2
+><P
+>    
+カーソルで返される行に対して反復することができる<TT
+CLASS="COMMAND"
+>FOR</TT
+>文の亜種があります。
+構文は以下のようになります。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>[<SPAN
+CLASS="OPTIONAL"
+> &lt;&lt;<TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+>&gt;&gt; </SPAN
+>]
+FOR <TT
+CLASS="REPLACEABLE"
+><I
+>recordvar</I
+></TT
+> IN <TT
+CLASS="REPLACEABLE"
+><I
+>bound_cursorvar</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>argument_values</I
+></TT
+> ) </SPAN
+>] LOOP
+    <TT
+CLASS="REPLACEABLE"
+><I
+>statements</I
+></TT
+>
+END LOOP [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+> </SPAN
+>];</PRE
+><P>
+カーソル変数は宣言されたとき、何らかの問い合わせとバウンドされていなければならず、また既に開かれていては<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>なりません</I
+></SPAN
+>。
+<TT
+CLASS="COMMAND"
+>FOR</TT
+>文は自動的にカーソルを開き、ループから抜けたときに再度閉じます。
+実際の引数値式のリストは、カーソルが引数を取ることを宣言された場合に限ってのみ出現できます。
+これらの値は、<TT
+CLASS="COMMAND"
+>OPEN</TT
+>過程と同じ方法で、問い合わせの中で置換されます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>recordvar</I
+></TT
+>変数は、<TT
+CLASS="TYPE"
+>record</TT
+>型として自動的に定義され、ループ内でのみ存在します
+（存在するいかなる変数名の定義もループ内では無視されます）。
+カーソルによって返されたそれぞれの行はこのレコード変数に引き続いて割り当てられ、ループ本体が実行されます。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-control-structures.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-errors-and-messages.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>制御構造</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>エラーとメッセージ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,3523 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>C言語関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLの拡張"
+HREF="extend.html"><LINK
+REL="PREVIOUS"
+TITLE="内部関数"
+HREF="xfunc-internal.html"><LINK
+REL="NEXT"
+TITLE="ユーザ定義の集約"
+HREF="xaggr.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="内部関数"
+HREF="xfunc-internal.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 35&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の拡張</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ユーザ定義の集約"
+HREF="xaggr.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="XFUNC-C"
+>35.9. C言語関数</A
+></H1
+><P
+>ユーザ定義の関数はC（もしくはC++のようなCと互換性のある言語）で作成することができます。
+そのような関数は動的ロード可能オブジェクト（共有ライブラリとも呼ばれます）としてコンパイルされ、必要に応じてサーバにロードされます。
+動的ロード機能が、<SPAN
+CLASS="QUOTE"
+>"C言語"</SPAN
+>関数を<SPAN
+CLASS="QUOTE"
+>"内部"</SPAN
+>関数と区別するものです。
+コーディング方法は基本的に両方とも同じです。
+（したがって、標準内部関数ライブラリはユーザ定義のC関数のコーディング例の豊富な情報源となります。）
+   </P
+><P
+>現在、2つの異なる呼び出し規約がC関数で使用されています。
+より新しい<SPAN
+CLASS="QUOTE"
+>"Version 1"</SPAN
+>呼び出し規約は、以下に示すように、その関数用に呼び出しマクロ<TT
+CLASS="LITERAL"
+>PG_FUNCTION_INFO_V1()</TT
+>を書くことで示されます。
+このマクロが存在しなければ、旧形式（<SPAN
+CLASS="QUOTE"
+>"Version 0"</SPAN
+>）の関数であることを示します。
+どちらの場合も<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>で指定する言語名は<TT
+CLASS="LITERAL"
+>C</TT
+>です。
+旧形式の関数は移植性の問題と機能の不足のために勧められません。
+これは現在、互換性の理由のために存在しています。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="XFUNC-C-DYNLOAD"
+>35.9.1. 動的ロード</A
+></H2
+><P
+>特定のロード可能オブジェクト内のユーザ定義の関数がセッションで最初に呼び出されると、動的ローダは、その関数を呼び出すことができるように、オブジェクトファイルをメモリ内に読み込みます。
+そのため、ユーザ定義のC関数用の<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>はその関数について、ロード可能オブジェクトファイルの名前とオブジェクトファイル中の呼び出される特定の関数のC名称（リンクシンボル）という2つの情報を指定しなければなりません。
+C名称が明示的に指定されなかった場合、SQLにおける関数名と同じものと仮定されます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドで与えられた名前に基づいて、共有オブジェクトファイルの場所を見つける際に以下のアルゴリズムが使用されます。
+
+    <P
+></P
+></P><OL
+TYPE="1"
+><LI
+><P
+>名前が絶対パスの場合、指定されたファイルが読み込まれます。
+      </P
+></LI
+><LI
+><P
+>名前が<TT
+CLASS="LITERAL"
+>$libdir</TT
+>という文字列から始まる場合、その部分は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>パッケージのライブラリディレクトリで置き換えられます。
+このディレクトリはビルド時に決定されます。
+
+      </P
+></LI
+><LI
+><P
+>名前にディレクトリ部分がない場合、そのファイルは<A
+HREF="runtime-config-client.html#GUC-DYNAMIC-LIBRARY-PATH"
+>dynamic_library_path</A
+>設定変数で指定されたパス内から検索されます。
+
+      </P
+></LI
+><LI
+><P
+>上記以外の場合（ファイルがパス内に存在しない場合や相対ディレクトリ部分を持つ場合）、動的ローダは指定された名前をそのまま使用し、ほとんどの場合は失敗します。
+（これは現在の作業ディレクトリに依存するため信頼できません。）
+      </P
+></LI
+></OL
+><P>
+
+ここまでの流れがうまくいかなかった場合、プラットフォーム独自の共有ライブラリファイル拡張子（多くの場合<TT
+CLASS="FILENAME"
+>.so</TT
+>）が指定された名前に追加され、再度この流れを試みます。
+同様に失敗した場合は、読み込みは失敗します。
+   </P
+><P
+>共有ライブラリを<TT
+CLASS="LITERAL"
+>$libdir</TT
+>から相対的に、もしくは動的ライブラリパスの通った所に配置することを推奨します。
+異なる場所に新しいインストレーションを配置する場合にバージョンアップを簡単にします。
+<TT
+CLASS="LITERAL"
+>$libdir</TT
+>が示す実際のディレクトリは<TT
+CLASS="LITERAL"
+>pg_config --pkglibdir</TT
+>コマンドを使用することでわかります。
+   </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+>サーバの実効ユーザIDはロード予定のファイルのパスまで到達できなければなりません。
+よくある失敗として、<SPAN
+CLASS="SYSTEMITEM"
+>postgres</SPAN
+>ユーザに対して読み込み、実行、または両方の権限がそのファイルとその上位ディレクトリに与えられていないことがあります。
+   </P
+><P
+>どの場合でも、<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドに与えたファイル名はそのままシステムカタログに保存されます。
+ですので、もしそのファイルを再度読み込む必要がある場合、同じ処理が適用されます。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+>はC関数を自動的にコンパイルしません。
+<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドで参照する前に、そのオブジェクトファイルはコンパイルされていなければなりません。
+さらなる情報については<A
+HREF="xfunc-c.html#DFUNC"
+>&#38917;35.9.6</A
+>を参照してください。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>確実に、動的にロードされるモジュールが互換性がないサーバにロードされないように、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、そのファイルに適切な内容を持つ<SPAN
+CLASS="QUOTE"
+>"魔法のブロック"</SPAN
+>が含まれているかどうか検査します。
+これによりサーバは、メジャーバージョンが異なる<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>用にコンパイルされたモジュールなど、明確に互換性がないことを検知することができます。
+魔法のブロックは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.2から要求されています。
+魔法のブロックを含めるためには、以下をモジュールのソースファイルに一度（一度だけ）、<TT
+CLASS="FILENAME"
+>fmgr.h</TT
+>ヘッダファイルをincludeさせた後で、記述してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#ifdef PG_MODULE_MAGIC
+PG_MODULE_MAGIC;
+#endif</PRE
+><P>
+
+そのコードをリリース8.2より前の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>用にコンパイルする必要がなければ、<TT
+CLASS="LITERAL"
+>#ifdef</TT
+>テストを省略することができます。
+   </P
+><P
+>最初に使用された後も、動的にロードされたオブジェクトファイルはメモリ内に保持されます。
+同一セッションにおいてそのファイル内の関数をその後に呼び出した場合、シンボルテーブルの検索に要する小さなオーバーヘッドしかかかりません。
+例えば再コンパイルした後など、そのオブジェクトファイルを強制的に再度読み込ませる必要がある場合は、新しいセッションを開始してください。
+   </P
+><P
+>省略することもできますが、動的にロードされるファイルに初期化処理関数と最終処理関数を含めることができます。
+<CODE
+CLASS="FUNCTION"
+>_PG_init</CODE
+>という関数がファイルに存在すると、この関数はファイルがロードされた直後に呼び出されます。
+この関数は引数を取らずvoid型を返さなければなりません。
+<CODE
+CLASS="FUNCTION"
+>_PG_fini</CODE
+>という関数がファイルに存在すると、この関数はファイルがアンロードされる直前に呼び出されます。
+この関数も同様に引数を取らずvoid型を返さなければなりません。
+<CODE
+CLASS="FUNCTION"
+>_PG_fini</CODE
+>がファイルのアンロード時にのみ呼び出されるものであり、処理の終了時に呼び出されるものではないことに注意してください。
+（現在、アンロードは無効となっていますので、決して発生しません。将来変更される可能性があります。）
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="XFUNC-C-BASETYPE"
+>35.9.2. C言語関数における基本型</A
+></H2
+><P
+>C言語関数の作成方法を理解するためには、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が基本データ型を内部でどのように表現し、どのようにそれらを関数とやり取りしているかを理解する必要があります。
+内部的に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は基本型を<SPAN
+CLASS="QUOTE"
+>"メモリの小さな塊"</SPAN
+>とみなします。
+ある型を定義するユーザ定義関数は、言い換えると、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がそれを操作できる方法を定義します。
+つまり、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はデータの格納、ディスクからの取り出しのみを行い、データの入力や処理、出力にはユーザ定義関数を使用します。
+    </P
+><P
+>基本型は下記の3つのいずれかの内部書式を使用しています。
+     <P
+></P
+></P><UL
+><LI
+><P
+>	固定長の値渡し
+       </P
+></LI
+><LI
+><P
+>	固定長の参照渡し
+       </P
+></LI
+><LI
+><P
+>	可変長の参照渡し
+       </P
+></LI
+></UL
+><P>
+    </P
+><P
+>値渡しは、1、2、4バイト長の型のみで使用することができます（使用するマシンの<TT
+CLASS="LITERAL"
+>sizeof(Datum)</TT
+>が8の場合は8バイトも使用できます）。
+データ型を定義する際、その型がすべてのアーキテクチャにおいて同一の大きさ（バイト数）となるように定義するように注意してください。
+例えば、<TT
+CLASS="LITERAL"
+>long</TT
+>型はマシンによっては4バイトであったり、8バイトであったりして危険ですが、<TT
+CLASS="TYPE"
+>int</TT
+>型はほとんどのUnixマシンでは4バイトです。
+Unixマシンにおける<TT
+CLASS="TYPE"
+>int4</TT
+>の理論的な実装は以下のようになります。
+
+     
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/* 4 バイト整数、値渡し */
+typedef int int4;</PRE
+><P>
+    </P
+><P
+>     
+一方、任意の大きさの固定長の型は参照として引き渡すことができます。
+例として以下に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の型の実装サンプルを示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/* 16 バイト構造体、参照渡し */
+typedef struct
+{
+    double  x, y;
+} Point;</PRE
+><P>
+
+それらの型のポインタのみが<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>関数の入出力時に使用できます。
+それらの型の値を返すためには、<TT
+CLASS="LITERAL"
+>palloc()</TT
+>を使用して正しい大きさのメモリ領域を割り当て、そのメモリ領域に値を入力し、それのポインタを返します。
+（また、入力引数の1つと同じ型かつ同じ値を返したいのであれば、<TT
+CLASS="LITERAL"
+>palloc</TT
+>を行う手間を省くことができます。
+この場合は入力値へのポインタを単に返してください。）
+    </P
+><P
+>最後に、すべての可変長型は参照として引き渡す必要があります。
+また、すべての可変長型は正確に4バイトのlengthフィールドから始まる必要があり、その型に格納されるすべてのデータはlengthフィールドのすぐ後のメモリ領域に置かれる必要があります。
+lengthフィールドにはその構造体の総長が格納されます。つまり、lengthフィールドそのものもその大きさに含まれます。
+    </P
+><P
+>この他の重要な点は、データ型の値の中で初期化されていないビットを残さないことです。
+例えば、構造体内に存在する可能性がある整列用のパディングバイトを注意してすべてゼロクリアしてください。
+こうしないと、独自データ型の論理的に等価な定数がプランナにより一致しないものと判断され、（不正確ではありませんが）非効率的な計画をもたらすかもしれません。
+    </P
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#35686;&#21578;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>参照渡しの入力値の内容を<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>決して</I
+></SPAN
+>変更しないでください。
+指定したポインタがディスクバッファを直接指し示している可能性がよくありますので、変更すると、ディスク上のデータを破壊してしまうかもしれません。
+この規則の唯一の例外について<A
+HREF="xaggr.html"
+>&#38917;35.10</A
+>で説明します。
+     </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>例えば、<TT
+CLASS="TYPE"
+>text</TT
+>型を定義するには、下記のように行えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct {
+    int4 length;
+    char data[1];
+} text;</PRE
+><P>
+
+ここで宣言されたdataフィールドは、明らかにすべての取り得る文字列を保持できる長さではありません。
+<ACRONYM
+CLASS="ACRONYM"
+>C言語</ACRONYM
+>では可変長の構造体を定義することは不可能ですので、<ACRONYM
+CLASS="ACRONYM"
+>C</ACRONYM
+>コンパイラは配列の添字の範囲検査を行わないという事実に依存します。
+必要な領域量を割り当て、あたかも正しい長さで宣言されたかのように、配列としてアクセスするだけです。
+（この手法はよく使用されます。C言語に関する多くの書籍で説明されています。）
+    </P
+><P
+>可変長型を操作する時、正確な大きさのメモリを割り当て、lengthフィールドを正確に設定することに注意する必要があります。
+例えば、40バイトを<TT
+CLASS="STRUCTNAME"
+>text</TT
+>構造体に保持させたい場合、下記のようなコードを使用します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include "postgres.h"
+...
+char buffer[40]; /* our source data */
+...
+text *destination = (text *) palloc(VARHDRSZ + 40);
+SET_VARSIZE(destination, VARHDRSZ + 40);
+memcpy(destination-&#62;data, buffer, 40);
+...</PRE
+><P>
+
+<TT
+CLASS="LITERAL"
+>VARHDRSZ</TT
+>は<TT
+CLASS="LITERAL"
+>sizeof(int4)</TT
+>と同一ですが、可変長型のオーバーヘッド分の大きさを参照する時には、<TT
+CLASS="LITERAL"
+>VARHDRSZ</TT
+>マクロを使用する方が好ましい形式とみなされています。
+また長さフィールドを単なる代入ではなく<TT
+CLASS="LITERAL"
+>SET_VARSIZE</TT
+>マクロを使用して設定<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>しなければなりません</I
+></SPAN
+>。
+    </P
+><P
+><A
+HREF="xfunc-c.html#XFUNC-C-TYPE-TABLE"
+>&#34920;35-1</A
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の組み込み型を使用するC言語関数を作成する時の、Cの型とSQL型との対応を規定したものです。
+<SPAN
+CLASS="QUOTE"
+>"定義場所"</SPAN
+>列では、型定義を取り出すためにインクルードしなければならないヘッダファイルを示しています。
+（実際の定義は一覧中のファイルからインクルードされた、別のファイルであるかもしれません。
+ユーザは定義されたインタフェースを厳守することを推奨されています。）
+<TT
+CLASS="FILENAME"
+>postgres.h</TT
+>には必ず必要になる多くのものが宣言されていますので、ソースファイルの中で必ず初めにこのファイルをインクルードしなければならないことに注意してください。
+    </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="XFUNC-C-TYPE-TABLE"
+></A
+><P
+><B
+>&#34920; 35-1. 組み込みSQL型に相当するCの型</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>	  SQL型
+	 </TH
+><TH
+>	  C 言語型
+	 </TH
+><TH
+>	  定義場所
+	 </TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>abstime</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>AbsoluteTime</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/nabstime.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bool</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+>（コンパイラで組み込み済みの可能性があります）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>box</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>BOX*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/geo_decls.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>bytea</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bytea*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>"char"</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>char</TT
+></TD
+><TD
+>（コンパイラで組み込み済み）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>character</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>BpChar*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>cid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>CommandId</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>date</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>DateADT</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/date.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>smallint</TT
+> (<TT
+CLASS="TYPE"
+>int2</TT
+>)</TD
+><TD
+><TT
+CLASS="TYPE"
+>int2</TT
+> or <TT
+CLASS="TYPE"
+>int16</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>int2vector</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int2vector*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>integer</TT
+> (<TT
+CLASS="TYPE"
+>int4</TT
+>)</TD
+><TD
+><TT
+CLASS="TYPE"
+>int4</TT
+> or <TT
+CLASS="TYPE"
+>int32</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>real</TT
+> (<TT
+CLASS="TYPE"
+>float4</TT
+>)</TD
+><TD
+><TT
+CLASS="TYPE"
+>float4*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+> (<TT
+CLASS="TYPE"
+>float8</TT
+>)</TD
+><TD
+><TT
+CLASS="TYPE"
+>float8*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>interval</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>Interval*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/timestamp.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>lseg</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>LSEG*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/geo_decls.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>name</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>Name</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>oid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>Oid</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>oidvector</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oidvector*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>path</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>PATH*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/geo_decls.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>POINT*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/geo_decls.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>regproc</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>regproc</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>reltime</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>RelativeTime</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/nabstime.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>text*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>tid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ItemPointer</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>storage/itemptr.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>time</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>TimeADT</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/date.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>time with time zone</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>TimeTzADT</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/date.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>timestamp</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>Timestamp*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/timestamp.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>tinterval</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>TimeInterval</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>utils/nabstime.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>varchar</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>VarChar*</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>xid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>TransactionId</TT
+></TD
+><TD
+><TT
+CLASS="FILENAME"
+>postgres.h</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>ここまでで基本型に関してあり得る構造体のすべてを記述しましたので、実際の関数の例をいくつか示すことができます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN50455"
+>35.9.3. Version 0 呼び出し規約</A
+></H2
+><P
+>まず最初に、現在は非推奨ですが理解しやすいので、<SPAN
+CLASS="QUOTE"
+>"古いスタイル"</SPAN
+>の呼び出し規約を説明します。
+Version-0メソッドでは、C関数の引数と結果は、通常のCのプログラムの記述の方法と同じような形式で行いますが、上記の説明のように、各SQLのデータ型に対するC言語での表現を注意して使用してください。
+    </P
+><P
+>以下にいくつか例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include "postgres.h"
+#include &#60;string.h&#62;
+#include "utils/geo_decls.h"
+
+#ifdef PG_MODULE_MAGIC
+PG_MODULE_MAGIC;
+#endif
+
+/* 値渡し */
+         
+int
+add_one(int arg)
+{
+    return arg + 1;
+}
+
+/* 固定長の参照渡し */
+
+float8 *
+add_one_float8(float8 *arg)
+{
+    float8    *result = (float8 *) palloc(sizeof(float8));
+
+    *result = *arg + 1.0;
+       
+    return result;
+}
+
+Point *
+makepoint(Point *pointx, Point *pointy)
+{
+    Point     *new_point = (Point *) palloc(sizeof(Point));
+
+    new_point-&#62;x = pointx-&#62;x;
+    new_point-&#62;y = pointy-&#62;y;
+       
+    return new_point;
+}
+
+/* 可変長の参照渡し */
+
+text *
+copytext(text *t)
+{
+    /*
+     * VARSIZEは構造体の総長をバイト数で表したものです。
+     */
+    text *new_t = (text *) palloc(VARSIZE(t));
+    SET_VARSIZE(new_t, VARSIZE(t));
+    /*
+     * VARDATAは構造体のデータ領域へのポインタです。
+     */
+    memcpy((void *) VARDATA(new_t), /* コピー先 */
+           (void *) VARDATA(t),     /* コピー元 */
+           VARSIZE(t) - VARHDRSZ);  /* バイト数 */
+    return new_t;
+}
+
+text *
+concat_text(text *arg1, text *arg2)
+{
+    int32 new_text_size = VARSIZE(arg1) + VARSIZE(arg2) - VARHDRSZ;
+    text *new_text = (text *) palloc(new_text_size);
+
+    SET_VARSIZE(new_text, new_text_size);
+    memcpy(VARDATA(new_text), VARDATA(arg1), VARSIZE(arg1) - VARHDRSZ);
+    memcpy(VARDATA(new_text) + (VARSIZE(arg1) - VARHDRSZ),
+           VARDATA(arg2), VARSIZE(arg2) - VARHDRSZ);
+    return new_text;
+}</PRE
+><P>
+    </P
+><P
+>上のコードが<TT
+CLASS="FILENAME"
+>funcs.c</TT
+>というファイルに用意され、共有オブジェクトとしてコンパイル済みであるとすると、以下のようなコマンドで<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の関数を定義することができます。
+     
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION add_one(integer) RETURNS integer
+     AS '<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>/funcs', 'add_one'
+     LANGUAGE C STRICT;
+
+-- "add_one"というSQL関数名をオーバーロードしていることに注意
+CREATE FUNCTION add_one(double precision) RETURNS double precision
+     AS '<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>/funcs', 'add_one_float8'
+     LANGUAGE C STRICT;
+
+CREATE FUNCTION makepoint(point, point) RETURNS point
+     AS '<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>/funcs', 'makepoint'
+     LANGUAGE C STRICT;
+                         
+CREATE FUNCTION copytext(text) RETURNS text
+     AS '<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>/funcs', 'copytext'
+     LANGUAGE C STRICT;
+
+CREATE FUNCTION concat_text(text, text) RETURNS text
+     AS '<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>/funcs', 'concat_text'
+     LANGUAGE C STRICT;</PRE
+><P>
+    </P
+><P
+>ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>は共有ライブラリファイルのディレクトリ（例えば、本節で使用する例のコードが含まれる<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>チュートリアルディレクトリ）を表します。
+（<TT
+CLASS="LITERAL"
+>AS</TT
+>句中では単に<TT
+CLASS="LITERAL"
+>'funcs'</TT
+>を使用し、後で<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>を検索パスに追加する方がより良い方法です。
+どの場合でも、一般的に<TT
+CLASS="LITERAL"
+>.so</TT
+>や<TT
+CLASS="LITERAL"
+>.sl</TT
+>が使用される、共有ライブラリ用のシステム独特の拡張子を省略することができます。）
+    </P
+><P
+>ここで、関数を<SPAN
+CLASS="QUOTE"
+>"厳密（strict）"</SPAN
+>と指定していることに注目してください。
+これは、もし入力された値がNULLであった場合に、システムが自動的に返り値もNULLであるとみなすことを意味します。
+これを行うことによって、関数のコードで入力値がNULLであるかどうかの検査を行う必要がなくなります。
+これがなければ、参照渡し引数それぞれに対してヌルポインタについての検査を行うなど、NULL値の明示的な検査を行う必要性が出てきます。
+（値渡し引数に関しては、検査を行う方法は存在しません。）
+    </P
+><P
+>この呼び出し規約は単純ですが、この方法は移植性の面であまり優れていません。
+この方法で<TT
+CLASS="TYPE"
+>int</TT
+>型より小さいデータ型を渡す部分で問題を抱えているアーキテクチャも存在します。
+また、関数の結果としてNULLを返す簡単な方法はありません。
+その上、NULL引数をうまく処理する方法としては、関数を厳密なものにする以外方法はありません。
+次に説明するVersion-1規約ではこれらの問題が解決されています。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN50482"
+>35.9.4. Version 1 呼び出し規約</A
+></H2
+><P
+>Version-1呼び出し規約では、引数と結果の引き渡しの複雑さをなくすためにマクロを使用しています。
+Version-1関数のC言語宣言は必ず下記のように行います。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>Datum funcname(PG_FUNCTION_ARGS)</PRE
+><P>
+     さらに、マクロ呼び出し
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PG_FUNCTION_INFO_V1(funcname);</PRE
+><P>
+が同じソースファイルに書かれている必要があります。
+（一般には、関数の直前に書かれます。）
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではすべての内部関数はVersion-1であると認識するので、このマクロの呼び出しは<TT
+CLASS="LITERAL"
+>internal</TT
+>言語関数では必要ありません。
+しかし、動的にロードされる関数では必要です。
+    </P
+><P
+>Version-1関数では、それぞれの実引数は、引数のデータ型に合った<CODE
+CLASS="FUNCTION"
+>PG_GETARG_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>()</CODE
+>マクロを使用して取り出され、結果は戻り値の型に合った<CODE
+CLASS="FUNCTION"
+>PG_RETURN_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>()</CODE
+>マクロを使用して返されます。
+<CODE
+CLASS="FUNCTION"
+>PG_GETARG_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>()</CODE
+>は、その引数として、取り出す関数引数の番号（ゼロから始まります）を取ります。
+<CODE
+CLASS="FUNCTION"
+>PG_RETURN_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>()</CODE
+>は、その引数として、実際に返す値を取ります。
+    </P
+><P
+>上記と同じ関数をVersion-1形式で記述したものを以下に示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include "postgres.h"
+#include &#60;string.h&#62;
+#include "fmgr.h"
+#include "utils/geo_decls.h"
+
+#ifdef PG_MODULE_MAGIC
+PG_MODULE_MAGIC;
+#endif
+
+/* 値渡し */
+
+PG_FUNCTION_INFO_V1(add_one);
+         
+Datum
+add_one(PG_FUNCTION_ARGS)
+{
+    int32   arg = PG_GETARG_INT32(0);
+
+    PG_RETURN_INT32(arg + 1);
+}
+
+/* 固定長の参照渡し */
+
+PG_FUNCTION_INFO_V1(add_one_float8);
+
+Datum
+add_one_float8(PG_FUNCTION_ARGS)
+{
+    /* FLOAT8用のマクロは参照渡しという性質を隠します */
+    float8   arg = PG_GETARG_FLOAT8(0);
+
+    PG_RETURN_FLOAT8(arg + 1.0);
+}
+
+PG_FUNCTION_INFO_V1(makepoint);
+
+Datum
+makepoint(PG_FUNCTION_ARGS)
+{
+    /* ここのPoint型の参照渡しという性質は隠されていません */
+    Point     *pointx = PG_GETARG_POINT_P(0);
+    Point     *pointy = PG_GETARG_POINT_P(1);
+    Point     *new_point = (Point *) palloc(sizeof(Point));
+
+    new_point-&#62;x = pointx-&#62;x;
+    new_point-&#62;y = pointy-&#62;y;
+       
+    PG_RETURN_POINT_P(new_point);
+}
+
+/* 可変長の参照渡し */
+
+PG_FUNCTION_INFO_V1(copytext);
+
+Datum
+copytext(PG_FUNCTION_ARGS)
+{
+    text     *t = PG_GETARG_TEXT_P(0);
+    /*
+     * VARSIZEは構造体の総長をバイト数で表したものです。
+     */
+    text     *new_t = (text *) palloc(VARSIZE(t));
+    SET_VARSIZE(new_t, VARSIZE(t));
+    /*
+     * VARDATAは構造体のデータ領域へのポインタです。
+     */
+    memcpy((void *) VARDATA(new_t), /* コピー先 */
+           (void *) VARDATA(t),     /* コピー元 */
+           VARSIZE(t) - VARHDRSZ);  /* バイト数 */
+    PG_RETURN_TEXT_P(new_t);
+}
+
+PG_FUNCTION_INFO_V1(concat_text);
+
+Datum
+concat_text(PG_FUNCTION_ARGS)
+{
+    text  *arg1 = PG_GETARG_TEXT_P(0);
+    text  *arg2 = PG_GETARG_TEXT_P(1);
+    int32 new_text_size = VARSIZE(arg1) + VARSIZE(arg2) - VARHDRSZ;
+    text *new_text = (text *) palloc(new_text_size);
+
+    SET_VARSIZE(new_text, new_text_size);
+    memcpy(VARDATA(new_text), VARDATA(arg1), VARSIZE(arg1) - VARHDRSZ);
+    memcpy(VARDATA(new_text) + (VARSIZE(arg1) - VARHDRSZ),
+           VARDATA(arg2), VARSIZE(arg2) - VARHDRSZ);
+    PG_RETURN_TEXT_P(new_text);
+}</PRE
+><P>
+    </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドはVersion-0と同じものです。
+    </P
+><P
+>一見Version-1のコーディング規約は無意味なものに見えるかもしれません。
+しかし、マクロが必要のない情報を隠蔽しているので、多数の改良が行われています。
+例えば、<CODE
+CLASS="FUNCTION"
+>add_one_float8</CODE
+>のコードでは、<TT
+CLASS="TYPE"
+>float8</TT
+>が参照渡しであることを意識する必要がなくなっています。
+また別の例としては、可変長型の<TT
+CLASS="LITERAL"
+>GETARG</TT
+>マクロは<SPAN
+CLASS="QUOTE"
+>"TOASTされた"</SPAN
+>（圧縮または行外）値をより効率的に取り出すことができます。
+    </P
+><P
+>Version-1関数の1つの大きな改善点は、NULLの入力/結果の処理能力です。
+<CODE
+CLASS="FUNCTION"
+>PG_ARGISNULL(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</CODE
+>マクロにより関数は各入力がNULLであるかどうかの検査を行うことができます。
+（もちろんこれは、<SPAN
+CLASS="QUOTE"
+>"厳密"</SPAN
+>と宣言されていない関数でのみ必要です。）
+<CODE
+CLASS="FUNCTION"
+>PG_GETARG_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>()</CODE
+>マクロと同様、入力引数の番号はゼロから始まります。
+引数がNULLでないことを確認するまでは、<CODE
+CLASS="FUNCTION"
+>PG_GETARG_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>()</CODE
+>の実行は控えなければなりません。
+結果としてNULLを返す場合は、<CODE
+CLASS="FUNCTION"
+>PG_RETURN_NULL()</CODE
+>を実行します。
+これは、厳密な関数と厳密でない関数の両方で使用可能です。
+    </P
+><P
+>新しい形式のインタフェースでは、その他のオプションとして<CODE
+CLASS="FUNCTION"
+>PG_GETARG_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>()</CODE
+>マクロの変形を2つ提供しています。
+1つ目の<CODE
+CLASS="FUNCTION"
+>PG_GETARG_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>_COPY()</CODE
+>によって、安全に書き込むことができる指定引数のコピーが確実に返されます。
+（通常のマクロは、物理的にテーブルに格納されている値へのポインタを返すことがあるので、書き込んではなりません。
+<CODE
+CLASS="FUNCTION"
+>PG_GETARG_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>_COPY()</CODE
+>マクロの結果は書き込み可能であることが保証されています。）
+2つ目の変形は、引数を3つ取る<CODE
+CLASS="FUNCTION"
+>PG_GETARG_<TT
+CLASS="REPLACEABLE"
+><I
+>xxx</I
+></TT
+>_SLICE()</CODE
+>マクロからなります。
+1つ目は関数の引数の番号（上記の通り）です。
+2つ目と3つ目は、オフセットと返されるセグメントの長さです。
+オフセットはゼロから始まり、負の長さは残りの値を返すことを要求します。
+これらのマクロを使用すると、ストレージ種類が<SPAN
+CLASS="QUOTE"
+>"external"</SPAN
+>（外部）である大きな値の一部へアクセスする際に非常に効果的です。
+（列のストレージ種類は<TT
+CLASS="LITERAL"
+>ALTER TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+> ALTER COLUMN <TT
+CLASS="REPLACEABLE"
+><I
+>colname</I
+></TT
+> SET STORAGE <TT
+CLASS="REPLACEABLE"
+><I
+>storagetype</I
+></TT
+></TT
+>を使用して指定できます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>storagetype</I
+></TT
+>は、<TT
+CLASS="LITERAL"
+>plain</TT
+>、<TT
+CLASS="LITERAL"
+>external</TT
+>、<TT
+CLASS="LITERAL"
+>extended</TT
+>、または<TT
+CLASS="LITERAL"
+>main</TT
+>のいずれかです。）
+    </P
+><P
+>最後に、Version-1関数呼び出し規約では、結果集合（<A
+HREF="xfunc-c.html#XFUNC-C-RETURN-SET"
+>&#38917;35.9.9</A
+>）を返すこと、およびトリガ関数（<A
+HREF="triggers.html"
+>&#31532;36&#31456;</A
+>）と手続型言語の呼び出しハンドラ（<A
+HREF="plhandler.html"
+>&#31532;49&#31456;</A
+>）を実装することができます。
+また、Version-1コードは、標準Cの関数呼び出しプロトコルの制約を守りますので、Version-0よりも移植性があります。
+詳細についてはソース配布物内の<TT
+CLASS="FILENAME"
+>src/backend/utils/fmgr/README</TT
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN50540"
+>35.9.5. コードの作成</A
+></H2
+><P
+>より先進的な話題に入る前に、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> C言語関数のコーディングについての規則をいくつか説明します。
+C言語以外の言語で記述した関数を<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に組み込みむことは可能であるかもしれませんが、例えばC++、FORTRANやPascalといった言語はC言語と同じ呼び出し規約に従いませんので、多くの場合、（可能であったとしても）困難です。
+それはつまり、他の言語では同じ方法で関数に引数を渡したり、関数から結果を返すことを行わないということです。
+このため、C言語関数は実際に<ACRONYM
+CLASS="ACRONYM"
+>C</ACRONYM
+>言語で書かれているものと仮定します。
+    </P
+><P
+>C関数の作成と構築の基本規則を以下に示します。
+     <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>pg_config --includedir-server</TT
+>を使用して、使用中のシステム（もしくはユーザが実行するシステム）にて<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバのヘッダファイルがインストールされた場所を見つけます。
+
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に動的にロードできるように独自コードをコンパイル/リンクする時には常に、特別なフラグが必要となります。
+特定のオペレーティングシステムにおけるコンパイル/リンク方法については<A
+HREF="xfunc-c.html#DFUNC"
+>&#38917;35.9.6</A
+>を参照してください。
+       </P
+></LI
+><LI
+><P
+>忘れずに<A
+HREF="xfunc-c.html#XFUNC-C-DYNLOAD"
+>&#38917;35.9.1</A
+>で説明した<SPAN
+CLASS="QUOTE"
+>"魔法のブロック"</SPAN
+>を共有ライブラリで定義してください。
+       </P
+></LI
+><LI
+><P
+>メモリを割り当てる際、<ACRONYM
+CLASS="ACRONYM"
+>C</ACRONYM
+>ライブラリの<CODE
+CLASS="FUNCTION"
+>malloc</CODE
+>と<CODE
+CLASS="FUNCTION"
+>free</CODE
+>ではなく、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の<CODE
+CLASS="FUNCTION"
+>palloc</CODE
+>と<CODE
+CLASS="FUNCTION"
+>pfree</CODE
+>を使用してください。
+
+<CODE
+CLASS="FUNCTION"
+>palloc</CODE
+>で割り当てられたメモリは各トランザクションの終わりに自動的に解放され、メモリリークを防ぎます。
+       </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>memset</CODE
+>を使用して、構造体を必ずゼロクリアしてください（または最初の段階で<CODE
+CLASS="FUNCTION"
+>palloc0</CODE
+>を用いて割り当ててください）。
+構造体の各フィールドを割り当てたとしても、ゴミの値を持つ整列用のパディング（構造体内の穴）があるかもしれません。
+こうしないと、ハッシュインデックスやハッシュ結合をサポートすることが困難です。
+ハッシュを計算するには、データ構造体内の有意なビットのみを取り出す必要があるためです。
+プランナはまた時折ビット単位の等価性を用いて定数の比較を行います。
+このため論理的にな値がビット単位で等価でない場合に望まない計画になってしまう可能性があります。
+       </P
+></LI
+><LI
+><P
+>ほとんどの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の内部型は<TT
+CLASS="FILENAME"
+>postgres.h</TT
+>に宣言されています。
+一方、関数管理インタフェース（<TT
+CLASS="SYMBOL"
+>PG_FUNCTION_ARGS</TT
+>など）は<TT
+CLASS="FILENAME"
+>fmgr.h</TT
+>で宣言されています。
+したがって、少なくともこの2つのファイルをインクルードする必要があります。
+移植性に関する理由により、<TT
+CLASS="FILENAME"
+>postgres.h</TT
+>をその他のシステムヘッダファイル、ユーザヘッダファイルよりも<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>先に</I
+></SPAN
+>インクルードしておくことが最善です。
+<TT
+CLASS="FILENAME"
+>postgres.h</TT
+>をインクルードすることは<TT
+CLASS="FILENAME"
+>elog.h</TT
+>、<TT
+CLASS="FILENAME"
+>palloc.h</TT
+>もインクルードすることになります。
+       </P
+></LI
+><LI
+><P
+>オブジェクトファイルで定義されているシンボル名は、互いに、または<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバの実行ファイルで定義されているものと異なっている必要があります。
+これに関するエラーが表示される場合は、関数名または変数名を変更する必要があります。
+       </P
+></LI
+></UL
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DFUNC"
+>35.9.6. 動的にロードされる関数のコンパイルとリンク</A
+></H2
+><P
+>Cで書かれた<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張関数を使うためには、サーバが動的にロードできるように特別な方法でコンパイルとリンクを行う必要があります。
+正確には<I
+CLASS="FIRSTTERM"
+>共有ライブラリ</I
+>を作る必要があります。
+
+
+ </P
+><P
+>本節の説明以上の詳しい情報はオペレーティングシステムのドキュメント、特にCコンパイラ<TT
+CLASS="COMMAND"
+>cc</TT
+>とリンクエディタ<TT
+CLASS="COMMAND"
+>ld</TT
+>のマニュアルページを参照してください。
+さらに、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のソースコードの<TT
+CLASS="FILENAME"
+>contrib</TT
+>ディレクトリにいくつか実例があります。
+しかし、もしこれらの例に頼ると<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ソースコードが利用できることに依存したモジュールが作られてしまいます。
+ </P
+><P
+>共有ライブラリの作成は一般的に実行プログラムのリンクに類似しています。
+まずソースファイルがオブジェクトファイルにコンパイルされ、そのオブジェクトファイル同士がリンクされます。
+これらのオブジェクトファイルは<I
+CLASS="FIRSTTERM"
+>位置独立なコード</I
+>（<ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>）として作られる必要があります。
+
+それは概念的には、実行プログラムから呼び出される時にメモリの適当な場所に置くことができるということです
+（実行プログラム用として作られたオブジェクトファイルはそのようにはコンパイルされません）。
+共有ライブラリをリンクするコマンドは実行プログラムのリンクと区別するための特別なフラグがあります（少なくとも理論上ではそのようになっています。他のシステムではもっと醜い実際が見受けられます)。
+ </P
+><P
+>次の例ではソースコードは<TT
+CLASS="FILENAME"
+>foo.c</TT
+>ファイルにあると仮定し、<TT
+CLASS="FILENAME"
+>foo.so</TT
+>という共有ライブラリを作るとします。
+中間のオブジェクトファイルは特別な記述がない限り<TT
+CLASS="FILENAME"
+>foo.o</TT
+>と呼ばれます。
+共有ライブラリは1つ以上のオブジェクトファイルを持つことができますが、ここでは1つしか使いません。
+ </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>BSD/OS</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>を作るためのコンパイラフラグは<TT
+CLASS="OPTION"
+>-fpic</TT
+>です。
+共有ライブラリを作るリンカフラグは<TT
+CLASS="OPTION"
+>-shared</TT
+>です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gcc -fpic -c foo.c
+ld -shared -o foo.so foo.o</PRE
+><P>
+これは<SPAN
+CLASS="SYSTEMITEM"
+>BSD/OS</SPAN
+>のバージョン4.0に適用されます。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>FreeBSD</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>を作るためのコンパイラフラグは<TT
+CLASS="OPTION"
+>-fpic</TT
+>です。
+共有ライブラリを作るコンパイラフラグは<TT
+CLASS="OPTION"
+>-shared</TT
+>です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gcc -fpic -c foo.c
+gcc -shared -o foo.so foo.o</PRE
+><P>
+これは<SPAN
+CLASS="SYSTEMITEM"
+>FreeBSD</SPAN
+>のバージョン3.0に適用されます。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>HP-UX</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>を作るためのシステムコンパイラのコンパイラフラグは<TT
+CLASS="OPTION"
+>+z</TT
+>です。
+<SPAN
+CLASS="APPLICATION"
+>GCC</SPAN
+>を使う場合は<TT
+CLASS="OPTION"
+>-fpic</TT
+>です。
+共有ライブラリのためのリンカフラグは<TT
+CLASS="OPTION"
+>-b</TT
+>です。
+したがって、以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cc +z -c foo.c</PRE
+><P>
+または
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gcc -fpic -c foo.c</PRE
+><P>
+そして
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ld -b -o foo.sl foo.o</PRE
+><P>
+<SPAN
+CLASS="SYSTEMITEM"
+>HP-UX</SPAN
+>は他のほとんどのシステムと異なり共有ライブラリに<TT
+CLASS="FILENAME"
+>.sl</TT
+>という拡張子を使います。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>IRIX</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>がデフォルトで、特別なコンパイラオプションは何も必要ありません。
+共有ライブラリを作るためのリンカオプションは<TT
+CLASS="OPTION"
+>-shared</TT
+>です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cc -c foo.c
+ld -shared -o foo.so foo.o</PRE
+><P>
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>Linux</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>を作るためのコンパイラフラグは<TT
+CLASS="OPTION"
+>-fpic</TT
+>です。
+いくつかのプラットフォームでは状況によって<TT
+CLASS="OPTION"
+>-fpic</TT
+>が動作しない場合は<TT
+CLASS="OPTION"
+>-fPIC</TT
+>を使わなければいけません。
+さらに詳しい情報についてはGCCのマニュアルを参照してください。
+共有ライブラリを作るコンパイラフラグは<TT
+CLASS="OPTION"
+>-shared</TT
+>です。
+完全な例は下記のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cc -fpic -c foo.c
+cc -shared -o foo.so foo.o</PRE
+><P>
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>Mac OS X</SPAN
+></DT
+><DD
+><P
+>例を以下に示します。
+開発者用ツールがインストールされていることが前提です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cc -c foo.c
+cc -bundle -flat_namespace -undefined suppress -o foo.so foo.o</PRE
+><P>
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>NetBSD</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>を作るためのコンパイラフラグは<TT
+CLASS="OPTION"
+>-fpic</TT
+>です。
+<ACRONYM
+CLASS="ACRONYM"
+>ELF</ACRONYM
+>システムでは<TT
+CLASS="OPTION"
+>-shared</TT
+>コンパイラフラグを使用して共有ライブラリをリンクします。
+より古い非ELFシステムでは<TT
+CLASS="LITERAL"
+>ld -Bshareable</TT
+>が使われます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gcc -fpic -c foo.c
+gcc -shared -o foo.so foo.o</PRE
+><P>
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>OpenBSD</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>を作成するためのコンパイラフラグは<TT
+CLASS="OPTION"
+>-fpic</TT
+>です。
+共有ライブラリをリンクするには<TT
+CLASS="LITERAL"
+>ld -Bshareable</TT
+>を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gcc -fpic -c foo.c
+ld -Bshareable -o foo.so foo.o</PRE
+><P>
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>Solaris</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>を作るためのコンパイラフラグはSunコンパイラでは<TT
+CLASS="OPTION"
+>-KPIC</TT
+>で、<SPAN
+CLASS="APPLICATION"
+>GCC</SPAN
+>では<TT
+CLASS="OPTION"
+>-fpic</TT
+>です。
+共有ライブラリをリンクするためには、どちらのコンパイラでもコンパイラオプションは<TT
+CLASS="OPTION"
+>-G</TT
+>で、<SPAN
+CLASS="APPLICATION"
+>GCC</SPAN
+>の場合、代わりに<TT
+CLASS="OPTION"
+>-shared</TT
+>オプションを使うこともできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cc -KPIC -c foo.c
+cc -G -o foo.so foo.o</PRE
+><P>
+もしくは
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gcc -fpic -c foo.c
+gcc -G -o foo.so foo.o</PRE
+><P>
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>Tru64 UNIX</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>はデフォルトで、コンパイルコマンドは通常のものです。
+リンクのためには特別なオプション付きの<TT
+CLASS="COMMAND"
+>ld</TT
+>を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cc -c foo.c
+ld -shared -expect_unresolved '*' -o foo.so foo.o</PRE
+><P>
+システムのコンパイラではなくGCCを使う場合も同じ手順です。
+特別のオプションは必要ありません。
+     </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>UnixWare</SPAN
+></DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>PIC</ACRONYM
+>を作るためのコンパイラフラグはSCOコンパイラでは<TT
+CLASS="OPTION"
+>-KPIC</TT
+>で、<SPAN
+CLASS="PRODUCTNAME"
+>GCC</SPAN
+>では<TT
+CLASS="OPTION"
+>-fpic</TT
+>です。
+共有ライブラリのリンクは、SCOコンパイラではコンパイラオプションは<TT
+CLASS="OPTION"
+>-G</TT
+>で、<SPAN
+CLASS="PRODUCTNAME"
+>GCC</SPAN
+>では<TT
+CLASS="OPTION"
+>-shared</TT
+>です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cc -K PIC -c foo.c
+cc -G -o foo.so foo.o</PRE
+><P>
+もしくは
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gcc -fpic -c foo.c
+gcc -shared -o foo.so foo.o</PRE
+><P>
+     </P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>これがあまりに難しいようであれば、<A
+HREF="http://www.gnu.org/software/libtool/"
+TARGET="_top"
+><SPAN
+CLASS="PRODUCTNAME"
+>GNU Libtool</SPAN
+></A
+>の使用を検討すべきです。
+これはプラットフォームの違いを、統一されたインタフェースで判らないようにします。
+  </P
+></BLOCKQUOTE
+></DIV
+><P
+>これで完成した共有ライブラリファイルは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にロードすることができます。
+<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドにファイル名を指定する時には、中間オブジェクトファイルではなく共有ライブラリファイル名の名前を与えてください。
+システムの標準共有ライブラリ用の拡張子（通常<TT
+CLASS="FILENAME"
+>.so</TT
+>あるいは<TT
+CLASS="LITERAL"
+>.sl</TT
+>）は<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>で省略することができ、そして移植性を最も高くするため通常は省略されます。
+ </P
+><P
+>サーバがライブラリファイルをどこに見つけるかに関しては<A
+HREF="xfunc-c.html#XFUNC-C-DYNLOAD"
+>&#38917;35.9.1</A
+>を見直してください。
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN50781"
+>35.9.7. 複合型引数</A
+></H2
+><P
+>複合型ではCの構造体のような固定のレイアウトがありません。
+複合型のインスタンスはNULLフィールドを持つことができます。
+さらに、複合型で継承階層の一部であるものは、同じ継承階層の他のメンバとは異なるフィールドを持つこともできます。
+そのため、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はC言語から複合型のフィールドにアクセスするための関数インタフェースを提供します。
+    </P
+><P
+>以下のような問い合わせに答える関数を書こうとしていると仮定します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT name, c_overpaid(emp, 1500) AS overpaid
+    FROM emp
+    WHERE name = 'Bill' OR name = 'Sam';</PRE
+><P>
+
+Version 0呼び出し規約を使用すると、<CODE
+CLASS="FUNCTION"
+>c_overpaid</CODE
+>は以下のように定義できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include "postgres.h"
+#include "executor/executor.h"  /* GetAttributeByName()用 */
+
+#ifdef PG_MODULE_MAGIC
+PG_MODULE_MAGIC;
+#endif
+
+bool
+c_overpaid(HeapTupleHeader t, /* empの現在の行 */
+           int32 limit)
+{
+    bool isnull;
+    int32 salary;
+ 
+    salary = DatumGetInt32(GetAttributeByName(t, "salary", &#38;isnull));
+    if (isnull)
+        return false;
+    return salary &#62; limit;
+}</PRE
+><P>
+
+Version 1で作成すると、上の関数は以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+> 
+#include "postgres.h"
+#include "executor/executor.h"  /* GetAttributeByName()用 */
+
+#ifdef PG_MODULE_MAGIC
+PG_MODULE_MAGIC;
+#endif
+
+PG_FUNCTION_INFO_V1(c_overpaid);
+
+Datum
+c_overpaid(PG_FUNCTION_ARGS)
+{
+    HeapTupleHeader  t = PG_GETARG_HEAPTUPLEHEADER(0);
+    int32            limit = PG_GETARG_INT32(1);
+    bool isnull;
+    Datum salary;
+
+ 
+    salary = GetAttributeByName(t, "salary", &#38;isnull);
+    if (isnull)
+        PG_RETURN_BOOL(false);
+    /* この他、salaryがNULLの場合用にPG_RETURN_NULL()を行った方が良いでしょう */
+
+    PG_RETURN_BOOL(DatumGetInt32(salary) &#62; limit);
+}
+ </PRE
+><P>
+    </P
+><P
+><CODE
+CLASS="FUNCTION"
+>GetAttributeByName</CODE
+>は、指定された行から属性を返す、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>システム関数です。
+これには3つの引数があります。
+それらは、関数に渡された<TT
+CLASS="TYPE"
+>HeapTupleHeader</TT
+>型の引数、求められた属性の名前、属性がNULLであるかどうかを通知する返りパラメータです。
+<CODE
+CLASS="FUNCTION"
+>GetAttributeByName</CODE
+>は適切な<CODE
+CLASS="FUNCTION"
+>DatumGet<TT
+CLASS="REPLACEABLE"
+><I
+>XXX</I
+></TT
+>()</CODE
+>マクロを使用して適切なデータ型に変換可能な<TT
+CLASS="TYPE"
+>Datum</TT
+>型の値を返します。
+このNULLフラグが設定されている場合、戻り値の意味がないことに注意し、この結果で何かを行おうとする前に常に、NULLフラグを検査してください。
+    </P
+><P
+>対象列を名前ではなく列番号で選択する<CODE
+CLASS="FUNCTION"
+>GetAttributeByNum</CODE
+>もあります。
+    </P
+><P
+>下記のコマンドで<CODE
+CLASS="FUNCTION"
+>c_overpaid</CODE
+>関数をSQLで宣言します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION c_overpaid(emp, integer) RETURNS boolean
+    AS '<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>/funcs', 'c_overpaid'
+    LANGUAGE C STRICT;</PRE
+><P>
+
+入力引数がNULLかどうかを検査する必要がないように<TT
+CLASS="LITERAL"
+>STRICT</TT
+>を使用していることに注意してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN50805"
+>35.9.8. 行（複合型）を返す</A
+></H2
+><P
+>C言語関数から行もしくは複合型の値を返すために、複合型の複雑な作成のほとんどを隠蔽するマクロや関数を提供する、特別なAPIを使用することができます。
+このAPIを使用するためには、ソースファイルで以下をインクルードする必要があります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include "funcapi.h"</PRE
+><P>
+    </P
+><P
+>複合型のデータ値（以降<SPAN
+CLASS="QUOTE"
+>"タプル"</SPAN
+>と記す）を作成する2つの方法があります。
+Datum値の配列から作成する方法、もしくはタプルのある列の型の入力変換関数に渡すことができるC文字列の配列から作成することです。
+どちらの方法でも、まずタプル構造体用の<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>記述子を入手、あるいは作成しなければなりません。
+Datumを使用する場合は、<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>を<CODE
+CLASS="FUNCTION"
+>BlessTupleDesc</CODE
+>に渡し、各行に対して<CODE
+CLASS="FUNCTION"
+>heap_form_tuple</CODE
+>を呼び出します。
+C文字列を使用する場合は、<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+> を<CODE
+CLASS="FUNCTION"
+>TupleDescGetAttInMetadata</CODE
+>に渡し、各行に対して <CODE
+CLASS="FUNCTION"
+>BuildTupleFromCStrings</CODE
+>を呼び出します。
+タプルの集合を返す関数の場合、この設定段階を最初の関数呼び出しで一度にまとめて行うことができます。
+    </P
+><P
+>必要な<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>の設定用の補助用関数がいくつかあります。
+ほとんどの複合型を返す関数での推奨方法は、以下の関数を呼び出し、呼び出し元の関数自身に渡される<TT
+CLASS="LITERAL"
+>fcinfo</TT
+>構造体と同じものを渡すことです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>TypeFuncClass get_call_result_type(FunctionCallInfo fcinfo,
+                                   Oid *resultTypeId,
+                                   TupleDesc *resultTupleDesc)</PRE
+><P>
+（これにはもちろん、version 1呼び出し規約を使用していることが必要です。）
+<TT
+CLASS="VARNAME"
+>resultTypeId</TT
+>を<TT
+CLASS="LITERAL"
+>NULL</TT
+>とすることも、ローカル変数のアドレスを指定して関数の戻り値型のOIDを受け取ることができます。
+<TT
+CLASS="VARNAME"
+>resultTupleDesc</TT
+>はローカルな<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>変数のアドレスでなければなりません。
+結果が<TT
+CLASS="LITERAL"
+>TYPEFUNC_COMPOSITE</TT
+>かどうかを確認してください。
+<TT
+CLASS="LITERAL"
+>TYPEFUNC_COMPOSITE</TT
+>であった場合、<TT
+CLASS="VARNAME"
+>resultTupleDesc</TT
+>には必要な<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>が格納されています。
+（<TT
+CLASS="LITERAL"
+>TYPEFUNC_COMPOSITE</TT
+>ではなかった場合、<SPAN
+CLASS="QUOTE"
+>"レコード型を受け付けない文脈でレコードを返す関数が呼び出されました"</SPAN
+>というエラーを報告することができます。）
+    </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+><CODE
+CLASS="FUNCTION"
+>get_call_result_type</CODE
+>は、多様性関数の結果の実際の型を解決することができます。
+ですので、複合型を返す関数だけではなく、スカラの多様結果を返す関数でも有意です。
+<TT
+CLASS="VARNAME"
+>resultTypeId</TT
+>出力は主にスカラの多様結果を返す関数で有意です。
+     </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><CODE
+CLASS="FUNCTION"
+>get_call_result_type</CODE
+>は、<CODE
+CLASS="FUNCTION"
+>get_expr_result_type</CODE
+>と似たような関数で、関数呼び出しで想定される出力型を式のツリー構造として解決します。
+関数自身以外から結果型を決定したい場合に、これを使用することができます。
+また、<CODE
+CLASS="FUNCTION"
+>get_func_result_type</CODE
+>という関数もあります。
+これは関数のOIDが利用できる場合にのみ使用することができます。
+しかし、これらの関数は、<TT
+CLASS="STRUCTNAME"
+>record</TT
+>型を返すものと宣言された関数では使用できません。
+また、<CODE
+CLASS="FUNCTION"
+>get_func_result_type</CODE
+>は多様型を解決することができません。
+したがって、優先して<CODE
+CLASS="FUNCTION"
+>get_call_result_type</CODE
+>を使用すべきです。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+>古く、廃止予定の<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>を入手するための関数を以下に示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>TupleDesc RelationNameGetTupleDesc(const char *relname)</PRE
+><P>
+これを指名したリレーションの行型用の<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>を取り出すために使用してください。
+また、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>TupleDesc TypeGetTupleDesc(Oid typeoid, List *colaliases)</PRE
+><P>
+これを型のOIDに基づいて<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>を取り出すために使用してください。
+これは、基本型もしくは複合型の<TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>を取り出すために使用可能です。
+これは<TT
+CLASS="STRUCTNAME"
+>record</TT
+>を返す関数ではうまく動作しません。
+また、多様型を解決することもできません。
+    </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>TupleDesc</TT
+>を獲得した後に、Datumを使用する場合は以下を呼び出してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>TupleDesc BlessTupleDesc(TupleDesc tupdesc)</PRE
+><P>
+C文字列を使用する場合は以下を呼び出してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>AttInMetadata *TupleDescGetAttInMetadata(TupleDesc tupdesc)</PRE
+><P>
+集合を返す関数を作成する場合は、これらの関数の結果を<TT
+CLASS="STRUCTNAME"
+>FuncCallContext</TT
+>構造体に格納してください。
+それぞれ<TT
+CLASS="STRUCTFIELD"
+>tuple_desc</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>attinmeta</TT
+>を使用します。
+    </P
+><P
+>Datumを使用する場合は、ユーザデータをDatum形式に格納した<TT
+CLASS="STRUCTNAME"
+>HeapTuple</TT
+>を構築するために以下を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>HeapTuple heap_form_tuple(TupleDesc tupdesc, Datum *values, bool *isnull)</PRE
+><P>
+    </P
+><P
+>C文字列を使用する場合は、ユーザデータをC文字列形式に格納した<TT
+CLASS="STRUCTNAME"
+>HeapTuple</TT
+>を構築するために以下を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>HeapTuple BuildTupleFromCStrings(AttInMetadata *attinmeta, char **values)</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>values</TT
+>は行の各属性を1要素としたC文字列の配列です。
+各C文字列は、属性のデータ型用の入力関数が受け付け可能な形式でなければなりません。
+属性の値をNULL値として返すためには、<TT
+CLASS="PARAMETER"
+>values</TT
+>配列の対応するポインタに<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を設定してください。
+この関数は返す行それぞれに対して繰り返し呼び出す必要があります。
+    </P
+><P
+>関数から返すタプルを構築し終わったら、それを<TT
+CLASS="TYPE"
+>Datum</TT
+>に変換しなければなりません。
+以下を使用して、<TT
+CLASS="STRUCTNAME"
+>HeapTuple</TT
+>を有効なDatumに変換してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>HeapTupleGetDatum(HeapTuple tuple)</PRE
+><P>
+単一行のみを返すのであれば、この<TT
+CLASS="TYPE"
+>Datum</TT
+>を直接返すことができます。
+さもなくば、集合を返す関数における現在の戻り値として使用することができます。
+    </P
+><P
+>次節に例を示します。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="XFUNC-C-RETURN-SET"
+>35.9.9. 集合を返す</A
+></H2
+><P
+>C言語関数から集合（複数行）を返す機能のために特殊なAPIが用意されています。
+集合を返す関数は、Version 1呼び出し規約に従う必要があります。
+また、ソースファイルは上述の通り<TT
+CLASS="FILENAME"
+>funcapi.h</TT
+>をインクルードする必要があります。
+    </P
+><P
+>集合を返す関数（<ACRONYM
+CLASS="ACRONYM"
+>SRF</ACRONYM
+>）は返される項目ごとに呼び出されます。
+そのため、<ACRONYM
+CLASS="ACRONYM"
+>SRF</ACRONYM
+>は、過去の操作を記憶して呼び出しの度に次の項目を返すために十分な状態を保っている必要があります。
+この処理を制御を補助するための<TT
+CLASS="STRUCTNAME"
+>FuncCallContext</TT
+>構造体が備わっています。
+関数内では、複数の呼び出しにまたがる<TT
+CLASS="STRUCTNAME"
+>FuncCallContext</TT
+>へのポインタを保持するには、<TT
+CLASS="LITERAL"
+>fcinfo-&gt;flinfo-&gt;fn_extra</TT
+>を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct
+{
+    /*
+     * 既に行われた呼び出しの回数。
+     * 
+     * SRF_FIRSTCALL_INIT()によってcall_cntrが0に初期化され、
+     * SRF_RETURN_NEXT()が呼び出される度に増分されます。
+     */
+    uint32 call_cntr;
+
+    /*
+     * 省略可能 : 呼び出しの最大数
+     *
+     * max_callsは、便宜上用意されているだけで、設定は省略可能です。
+     * 設定されていなければ、関数が終了したことを知るための別の方法を
+     * 用意する必要があります。
+     */
+    uint32 max_calls;
+
+    /*
+     * 省略可能 : 結果スロットへのポインタ
+     * 
+     * これは廃止され、後方互換性、すなわち非推奨のTupleDescGetSlot()を使用する
+     * ユーザ定義のSRFのためにだけ存在します。
+     */
+    TupleTableSlot *slot;
+
+    /*
+     * 省略可能 : 様々なユーザによるコンテキスト情報へのポインタ
+     * 
+     * user_fctxは、関数の呼び出し間の任意のコンテキスト情報
+     * を取得するためのユーザ独自の構造へのポインタとして使用されます。
+     */
+    void *user_fctx;
+
+    /*
+     * 省略可能 : 属性型入力メタ情報を含んだ構造体へのポインタ
+     * 
+     * attinmeta はタプル（つまり複合データ型）を返す際に使用され、
+     * 基本データ型を返す場合には必要ありません。 
+     * BuildTupleFromCStrings()を使用して返されるタプルを作成する場合にのみ必要です。
+     */
+    AttInMetadata *attinmeta;
+
+    /*
+     *  複数の呼び出しで必要とされる構造体に使われるメモリコンテキスト
+     *
+     * multi_call_memory_ctxは、SRF_FIRSTCALL_INIT()によってに設定され、
+     * SRF_RETURN_DONE()がクリーンアップの際に使用します。 
+     * これはSRFの複数呼び出しで再利用される全てのメモリ用に最も適切なメモリコンテキストです。
+     */
+    MemoryContext multi_call_memory_ctx;
+    /*
+     * 省略可能: タプル説明を含む構造体へのポインタ。
+     * tuple_descはタプル（つまり複合データ型）を返す場合に使用され、BuildTupleFromCStrings()
+     * ではなくheap_form_tuple()を使用してタプルを作成する場合にのみ必要です。
+     * 通常ここに格納されるTupleDescは最初にBlessTupleDesc()を最初に実行したものでなければなり
+     * ません。
+     */
+    TupleDesc tuple_desc;
+
+} FuncCallContext;</PRE
+><P>
+    </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SRF</ACRONYM
+>はいくつかの関数およびマクロを使用して<TT
+CLASS="STRUCTNAME"
+>FuncCallContext</TT
+>構造体を自動的に操作します（また<TT
+CLASS="LITERAL"
+>fn_extra</TT
+>で検索することを想定します)。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SRF_IS_FIRSTCALL()</PRE
+><P>
+を使用して、その関数呼び出しが初回のものであるか、2回目以降であるかを判断します。
+最初の呼び出し（のみ）で、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SRF_FIRSTCALL_INIT()</PRE
+><P>
+を使用して、<TT
+CLASS="STRUCTNAME"
+>FuncCallContext</TT
+>を初期化します。
+最初の呼び出しを含むすべての呼び出しで、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SRF_PERCALL_SETUP()</PRE
+><P>
+を使用して、<TT
+CLASS="STRUCTNAME"
+>FuncCallContext</TT
+>を使用するための適切な設定を行い、以前の受け渡しから残っている結果データを消去します。
+    </P
+><P
+>関数で返すべきデータがある場合は、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SRF_RETURN_NEXT(funcctx, result)</PRE
+><P>
+を使用して、そのデータを呼び出し側に返します。
+（先に説明した通り <TT
+CLASS="LITERAL"
+>result</TT
+>は<TT
+CLASS="TYPE"
+>Datum</TT
+>型、つまり1つの値またはタプルである必要があります。）
+最後に、関数がデータを返し終わったら、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SRF_RETURN_DONE(funcctx)</PRE
+><P>
+を使用して<ACRONYM
+CLASS="ACRONYM"
+>SRF</ACRONYM
+>を片付け、終了します。
+    </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SRF</ACRONYM
+>の呼び出し時に現行になっているメモリコンテキストは一時的なコンテキストで、各呼び出しの間に消去されます。
+つまり<CODE
+CLASS="FUNCTION"
+>palloc</CODE
+>を使用して割り当てたもののすべてを<CODE
+CLASS="FUNCTION"
+>pfree</CODE
+>する必要はありません。
+これらはいずれ消去されるものだからです。
+しかし、データ構造体を複数の呼び出しに渡って使用するように割り当てる場合は、どこか別の場所に置いておく必要があります。
+<TT
+CLASS="STRUCTFIELD"
+>multi_call_memory_ctx</TT
+>によって参照されるメモリコンテキストは、<ACRONYM
+CLASS="ACRONYM"
+>SRF</ACRONYM
+>の実行が終わるまで使用可能にしなければならないデータの保管場所として適しています。
+つまり、ほとんどの場合、最初の呼び出しのセットアップ中に<TT
+CLASS="STRUCTFIELD"
+>multi_call_memory_ctx</TT
+>へ切り替える必要があるということです。
+    </P
+><P
+>     完全な疑似コードの例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>Datum
+my_set_returning_function(PG_FUNCTION_ARGS)
+{
+    FuncCallContext  *funcctx;
+    Datum             result;
+    <TT
+CLASS="REPLACEABLE"
+><I
+>further declarations as needed</I
+></TT
+>
+
+    if (SRF_IS_FIRSTCALL())
+    {
+        MemoryContext oldcontext;
+
+        funcctx = SRF_FIRSTCALL_INIT();
+        oldcontext = MemoryContextSwitchTo(funcctx-&gt;multi_call_memory_ctx);
+        /* 一度限りのセットアップコードがここに入ります: */
+        <TT
+CLASS="REPLACEABLE"
+><I
+>user code</I
+></TT
+>
+        <TT
+CLASS="REPLACEABLE"
+><I
+>if returning composite</I
+></TT
+>
+            <TT
+CLASS="REPLACEABLE"
+><I
+>build TupleDesc, and perhaps AttInMetadata</I
+></TT
+>
+        <TT
+CLASS="REPLACEABLE"
+><I
+>endif returning composite</I
+></TT
+>
+        <TT
+CLASS="REPLACEABLE"
+><I
+>user code</I
+></TT
+>
+        MemoryContextSwitchTo(oldcontext);
+    }
+
+    /* 毎回実行するセットアップコードがここに入ります: */
+    <TT
+CLASS="REPLACEABLE"
+><I
+>user code</I
+></TT
+>
+    funcctx = SRF_PERCALL_SETUP();
+    <TT
+CLASS="REPLACEABLE"
+><I
+>user code</I
+></TT
+>
+
+    /* これは、終了したかどうかをテストする方法の1つです: */
+    if (funcctx-&gt;call_cntr &lt; funcctx-&gt;max_calls)
+    {
+        /* ここで、別の項目を返します: */
+        <TT
+CLASS="REPLACEABLE"
+><I
+>user code</I
+></TT
+>
+        <TT
+CLASS="REPLACEABLE"
+><I
+>obtain result Datum</I
+></TT
+>
+        SRF_RETURN_NEXT(funcctx, result);
+    }
+    else
+    {
+        /* これで項目を返し終わりました。 後はクリーンアップするだけです。 */
+        <TT
+CLASS="REPLACEABLE"
+><I
+>user code</I
+></TT
+>
+        SRF_RETURN_DONE(funcctx);
+    }
+}</PRE
+><P>
+    </P
+><P
+>複合型を返す単純な<ACRONYM
+CLASS="ACRONYM"
+>SRF</ACRONYM
+>の完全な例は以下の通りです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PG_FUNCTION_INFO_V1(retcomposite);
+
+Datum
+retcomposite(PG_FUNCTION_ARGS)
+{
+    FuncCallContext     *funcctx;
+    int                  call_cntr;
+    int                  max_calls;
+    TupleDesc            tupdesc;
+    AttInMetadata       *attinmeta;
+
+     /* 関数の最初の呼び出し時にのみ実行 */
+     if (SRF_IS_FIRSTCALL())
+     {
+        MemoryContext   oldcontext;
+
+        /* 呼び出し間で永続化する関数コンテキストを作成 */
+        funcctx = SRF_FIRSTCALL_INIT();
+
+        /* 複数関数呼び出しに適切なメモリコンテキストへの切り替え */
+        oldcontext = MemoryContextSwitchTo(funcctx-&#62;multi_call_memory_ctx);
+
+        /* 返されるタプルの合計数 */
+        funcctx-&#62;max_calls = PG_GETARG_UINT32(0);
+
+        /*  結果型用のタプル記述子を作成 */
+        if (get_call_result_type(fcinfo, NULL, &#38;tupdesc) != TYPEFUNC_COMPOSITE)
+            ereport(ERROR,
+                    (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
+                     errmsg("function returning record called in context "
+                            "that cannot accept type record")));
+
+        /*
+         * 後で未加工のC文字列からタプルを作成するために必要となる
+         * 属性メタデータの生成
+         */
+        attinmeta = TupleDescGetAttInMetadata(tupdesc);
+        funcctx-&#62;attinmeta = attinmeta;
+
+        MemoryContextSwitchTo(oldcontext);
+    }
+
+    /* 全ての関数呼び出しで実行 */
+    funcctx = SRF_PERCALL_SETUP();
+
+    call_cntr = funcctx-&#62;call_cntr;
+    max_calls = funcctx-&#62;max_calls;
+    attinmeta = funcctx-&#62;attinmeta;
+
+    if (call_cntr &#60; max_calls)    /* 他にも送るものがある場合  */
+    {
+        char       **values;
+        HeapTuple    tuple;
+        Datum        result;
+
+        /*
+         * 返すタプルを構築するためのvalues配列を用意します。
+         * これは、後で適切な入力関数で処理される
+         * C文字列の配列でなければなりません。
+         */
+        values = (char **) palloc(3 * sizeof(char *));
+        values[0] = (char *) palloc(16 * sizeof(char));
+        values[1] = (char *) palloc(16 * sizeof(char));
+        values[2] = (char *) palloc(16 * sizeof(char));
+
+        snprintf(values[0], 16, "%d", 1 * PG_GETARG_INT32(1));
+        snprintf(values[1], 16, "%d", 2 * PG_GETARG_INT32(1));
+        snprintf(values[2], 16, "%d", 3 * PG_GETARG_INT32(1));
+
+        /* タプルの作成 */
+        tuple = BuildTupleFromCStrings(attinmeta, values);
+
+        /* タプルをdatumに変換 */
+        result = HeapTupleGetDatum(tuple);
+
+        /* クリーンアップ（これは必須ではありません） */
+        pfree(values[0]);
+        pfree(values[1]);
+        pfree(values[2]);
+        pfree(values);
+
+        SRF_RETURN_NEXT(funcctx, result);
+    }
+    else    /* 何も残っていない場合 */
+    {
+        SRF_RETURN_DONE(funcctx);
+    }
+}</PRE
+><P>
+
+以下にこの関数をSQLで宣言する一例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE __retcomposite AS (f1 integer, f2 integer, f3 integer);
+
+CREATE OR REPLACE FUNCTION retcomposite(integer, integer)
+    RETURNS SETOF __retcomposite
+    AS '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>', 'retcomposite'
+    LANGUAGE C IMMUTABLE STRICT;</PRE
+><P>
+他にも以下のようにOUTパラメータを使用する方法もあります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION retcomposite(IN integer, IN integer,
+    OUT f1 integer, OUT f2 integer, OUT f3 integer)
+    RETURNS SETOF record
+    AS '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>', 'retcomposite'
+    LANGUAGE C IMMUTABLE STRICT;</PRE
+><P>
+この方法では、関数の出力型は形式上無名の<TT
+CLASS="STRUCTNAME"
+>record</TT
+>型になることに注意してください。
+    </P
+><P
+>ソース配布物内の<A
+HREF="tablefunc.html"
+>contrib/tablefunc</A
+>モジュールのディレクトリには、集合を返す関数のより多くの例があります。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN50930"
+>35.9.10. 引数と戻り値の多様性</A
+></H2
+><P
+>C言語関数は、<TT
+CLASS="TYPE"
+>anyelement</TT
+>、<TT
+CLASS="TYPE"
+>anyarray</TT
+>、<TT
+CLASS="TYPE"
+>anynonarray</TT
+>および<TT
+CLASS="TYPE"
+>anyenum</TT
+>多様型を受け付ける、または返すように宣言することができます。
+多様関数の詳細な説明は<A
+HREF="extend-type-system.html#EXTEND-TYPES-POLYMORPHIC"
+>&#38917;35.2.5</A
+>を参照してください。
+関数の引数もしくは戻り値が多様型として定義される時、関数の作成者は前もって呼び出しにおけるデータ型や返すべきデータ型が何であるかを知ることはできません。
+Version-1 C関数で引数の実データ型と、返すべきと想定された型を発見できるための2つのルーチンが<TT
+CLASS="FILENAME"
+>fmgr.h</TT
+>に用意されています。
+このルーチンは<TT
+CLASS="LITERAL"
+>get_fn_expr_rettype(FmgrInfo *flinfo)</TT
+>と<TT
+CLASS="LITERAL"
+>get_fn_expr_argtype(FmgrInfo *flinfo, int argnum)</TT
+>という名前です。
+これらは結果もしくは引数型のOIDを返します。
+ただし、もし情報が利用できなければ<TT
+CLASS="SYMBOL"
+>InvalidOid</TT
+>を返します。
+<TT
+CLASS="LITERAL"
+>flinfo</TT
+>構造体は通常<TT
+CLASS="LITERAL"
+>fcinfo-&gt;flinfo</TT
+>としてアクセスされます。
+<TT
+CLASS="LITERAL"
+>argnum</TT
+>パラメータは0から始まります。
+また、<CODE
+CLASS="FUNCTION"
+>get_fn_expr_rettype</CODE
+>の代わりに<CODE
+CLASS="FUNCTION"
+>get_call_result_type</CODE
+>を使用することもできます。
+    </P
+><P
+>例えば、任意の型の単一要素を受け付け、その型の1次元配列を返す関数を考えてみます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PG_FUNCTION_INFO_V1(make_array);
+Datum
+make_array(PG_FUNCTION_ARGS)
+{
+    ArrayType  *result;
+    Oid         element_type = get_fn_expr_argtype(fcinfo-&gt;flinfo, 0);
+    Datum       element;
+    bool        isnull;
+    int16       typlen;
+    bool        typbyval;
+    char        typalign;
+    int         ndims;
+    int         dims[MAXDIM];
+    int         lbs[MAXDIM];
+
+    if (!OidIsValid(element_type))
+        elog(ERROR, "could not determine data type of input");
+
+    /* 与えられた要素がNULLかどうか注意しつつ、要素を取り出します。*/
+    isnull = PG_ARGISNULL(0);
+    if (isnull)
+        element = (Datum) 0;
+    else
+        element = PG_GETARG_DATUM(0);
+
+    /* 次元数は1 */
+    ndims = 1;
+    /* 要素を1つ */
+    dims[0] = 1;
+    /* 下限は1 */
+    lbs[0] = 1;
+
+    /* この要素型に関する必要情報を取り出す。 */
+    get_typlenbyvalalign(element_type, &amp;typlen, &amp;typbyval, &amp;typalign);
+
+    /* ここで配列を作成 */
+    result = construct_md_array(&amp;element, &amp;isnull, ndims, dims, lbs,
+                                element_type, typlen, typbyval, typalign);
+
+    PG_RETURN_ARRAYTYPE_P(result);
+}</PRE
+><P>
+    </P
+><P
+>以下のコマンドはSQLで<CODE
+CLASS="FUNCTION"
+>make_array</CODE
+>関数を宣言します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION make_array(anyelement) RETURNS anyarray
+    AS '<TT
+CLASS="REPLACEABLE"
+><I
+>DIRECTORY</I
+></TT
+>/funcs', 'make_array'
+    LANGUAGE C IMMUTABLE;</PRE
+><P>
+
+    </P
+><P
+>    
+C言語関数でのみ使用できる多様性の変異体があります。
+<TT
+CLASS="LITERAL"
+>"any"</TT
+>型のパラメータを取るように宣言できます。
+（この型名は、SQL予約語でもあるため二重引用符で括らなくてはならないことに注意してください。）
+これは、他の<TT
+CLASS="LITERAL"
+>"any"</TT
+>引数が同じ型になることを強要することも、関数の結果型の決定を支援することもない点を除いて、<TT
+CLASS="TYPE"
+>anyelement</TT
+>のように動作します。
+C言語関数は最終パラメータが<TT
+CLASS="LITERAL"
+>VARIADIC "any"</TT
+>であるように宣言可能です。
+これは任意の型の１つ以上の実引数と一致します（同じ型である必要はありません）。
+これらの引数は、通常のvariadic関数で起こったように、配列の中にまとめ<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>られません</I
+></SPAN
+>。
+それらは単に別々に関数に渡されるだけです。
+<CODE
+CLASS="FUNCTION"
+>PG_NARGS()</CODE
+>マクロと上に記載したメソッドは、この機能を使用するときに実際の引数とその型を決定するため使用されなければなりません。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN50960"
+>35.9.11. 共有メモリとLWLocks</A
+></H2
+><P
+>アドインはLWLocks（軽量ロック）とサーバ起動時に共有メモリの割り当てを保持することができます。
+<A
+HREF="runtime-config-resource.html#GUC-SHARED-PRELOAD-LIBRARIES"
+>shared_preload_libraries</A
+>で指定して、こうしたアドインの共有ライブラリを事前にロードしなければなりません。
+共有メモリは、その<CODE
+CLASS="FUNCTION"
+>_PG_init</CODE
+>関数で以下を呼び出すことで保持されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>void RequestAddinShmemSpace(int size)</PRE
+><P>
+    </P
+><P
+>LWLocksはその<CODE
+CLASS="FUNCTION"
+>_PG_init</CODE
+>関数で以下を呼び出すことで保持されます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>void RequestAddinLWLocks(int n)</PRE
+><P>
+    </P
+><P
+>競合状態の可能性を防止するために、割り当てられた共有メモリへの接続やその初期化時に、以下のように各バックエンドで<CODE
+CLASS="FUNCTION"
+>AddinShmemInitLock</CODE
+>軽量ロックを使用しなければなりません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>static mystruct *ptr = NULL;
+
+if (!ptr)
+{
+        bool    found;
+
+        LWLockAcquire(AddinShmemInitLock, LW_EXCLUSIVE);
+        ptr = ShmemInitStruct("my struct name", size, &amp;found);
+        if (!found)
+        {
+                initialize contents of shmem area;
+                acquire any requested LWLocks using:
+                ptr-&#62;mylockid = LWLockAssign();
+        }
+        LWLockRelease(AddinShmemInitLock);
+}</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="EXTEND-CPP"
+>35.9.12. 拡張へのC++の利用</A
+></H2
+><P
+> 
+以下のガイドラインに従うことで、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張を構築するためC++モードのコンパイラを利用できます。
+
+     <P
+></P
+></P><UL
+><LI
+><P
+>バックエンドからアクセスされる関数はすべてバックエンドに対してCインタフェースを提供しなければなりません。
+このC関数はC++関数を呼びだすことができます。
+例えば、バックエンドからアクセスされる関数には<TT
+CLASS="LITERAL"
+>extern C</TT
+>リンクが必要です。
+これはバックエンドとC++コードの間でポインタとして渡される関数にも必要です。
+       </P
+></LI
+><LI
+><P
+>適切な解放メソッドを使ってメモリを解放してください。
+例えば、ほとんどのバックエンドメモリは<CODE
+CLASS="FUNCTION"
+>palloc()</CODE
+>で確保されますので、<CODE
+CLASS="FUNCTION"
+>pfree()</CODE
+>を使って解放してください。
+この場合にC++の<CODE
+CLASS="FUNCTION"
+>delete()</CODE
+>を使うと失敗するでしょう。
+       </P
+></LI
+><LI
+><P
+>例外がCコードへ伝播しないようにしてください（<TT
+CLASS="LITERAL"
+>extern C</TT
+>関数すべての最上位ですべての例外を捕捉するブロックを使ってください）。
+メモリ不足のようなイベントにより例外が発生する可能性がありますので、C++コードが何も例外を発生させない場合であっても、これは必要です。
+例外はすべて捕捉しなければなりません。
+そして適切なエラーをCインタフェースに渡してください。
+可能であれば、例外を完全に除去できるように<TT
+CLASS="OPTION"
+>-fno-exceptions</TT
+>を付けてC++をコンパイルしてください。
+その場合、例えば<CODE
+CLASS="FUNCTION"
+>new()</CODE
+>で返されるNULLの検査など、C++コード内で失敗の検査を行わなければなりません。
+       </P
+></LI
+><LI
+><P
+>C++コードからバックエンド関数を呼び出す場合には、C++呼び出しスタック内にC言語互換構造体（<ACRONYM
+CLASS="ACRONYM"
+>POD</ACRONYM
+>）のみが含まれていることを確認してください。
+バックエンドのエラーは、非PODオブジェクトを持つC++呼び出しスタックを適切に戻すことができない、長距離<CODE
+CLASS="FUNCTION"
+>longjmp()</CODE
+>を生成しますので、これは必要です。
+       </P
+></LI
+></UL
+><P>
+    </P
+><P
+>まとめると、バックエンドとやりとりするための壁の役割を担う<TT
+CLASS="LITERAL"
+>extern C</TT
+>関数の背後にC++コードを配置して、例外、メモリ、呼び出しスタックそれぞれの漏れを避けるのが最善です。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="xfunc-internal.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="xaggr.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>内部関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="extend.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ユーザ定義の集約</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,609 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>プリプロセッサ指示子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="エラー処理"
+HREF="ecpg-errors.html"><LINK
+REL="NEXT"
+TITLE="埋め込みSQLプログラムの処理"
+HREF="ecpg-process.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="エラー処理"
+HREF="ecpg-errors.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="埋め込みSQLプログラムの処理"
+HREF="ecpg-process.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-PREPROC"
+>33.9. プリプロセッサ指示子</A
+></H1
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+>プリプロセッサがファイルを解析および処理する方法を変更することができる、プリプロセッサ指示子が複数あります。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-INCLUDE"
+>33.9.1. ファイルのインクルード</A
+></H2
+><P
+>埋め込みSQLプログラムに外部ファイルをインクルードするには、以下を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL INCLUDE <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>;
+EXEC SQL INCLUDE &lt;<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>&gt;;
+EXEC SQL INCLUDE "<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>";</PRE
+><P>
+埋め込みSQLプリプロセッサは、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>.h</TT
+>という名前のファイルを探し、その前処理を行い、最終的にC出力の中に含めます。
+このようにして、ヘッダファイル内の埋め込みSQL文が正しく扱われます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+>プリプロセッサは以下の順番で複数のディレクトリからファイルを検索します。
+    <P
+></P
+></P><UL
+><LI
+><P
+>カレントディレクトリ</P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/usr/local/include</TT
+></P
+></LI
+><LI
+><P
+>ビルド時に設定されたPostgreSQLのインクルードディレクトリ (e.g., <TT
+CLASS="FILENAME"
+>/usr/local/pgsql/include</TT
+>)</P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/usr/include</TT
+></P
+></LI
+></UL
+><P>
+
+しかし<TT
+CLASS="LITERAL"
+>EXEC SQL INCLUDE "<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>"</TT
+>が使われる場合、現在のディレクトリのみが検索されます。
+   </P
+><P
+>各ディレクトリの中で、プリプロセッサはまず指定されたファイル名を探します。
+見つからなければ（指定されたファイル名がこの接尾辞を持っていない限り）ファイル名に<TT
+CLASS="LITERAL"
+>.h</TT
+>を付けて再検索します。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>EXEC SQL INCLUDE</TT
+>は以下とは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>異なる</I
+></SPAN
+>ことに注意してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include &lt;<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>.h&gt;</PRE
+><P>
+このファイルにはSQLコマンド用前処理が行われませんためです。
+当然ながら、他のヘッダファイルをインクルードするCの<TT
+CLASS="LITERAL"
+>#include</TT
+>ディレクティブを使用することができます。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>通常のSQLの大文字小文字の区別規則に従う<TT
+CLASS="LITERAL"
+>EXEC SQL INCLUDE</TT
+>コマンドの一部であったとしても、インクルードファイルの名前は大文字小文字が区別されます。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-DEFINE"
+>33.9.2. defineおよびundef指示子</A
+></H2
+><P
+>Cで既知の<TT
+CLASS="LITERAL"
+>#define</TT
+>指示子と同様、埋め込みSQLでも似たような概念を持ちます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DEFINE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;
+EXEC SQL DEFINE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>;</PRE
+><P>
+このため、以下のように名前を定義することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DEFINE HAVE_FEATURE;</PRE
+><P>
+また、定数を定義することもできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DEFINE MYNUMBER 12;
+EXEC SQL DEFINE MYSTRING 'abc';</PRE
+><P>
+事前の定義を削除するには<TT
+CLASS="LITERAL"
+>undef</TT
+>を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL UNDEF MYNUMBER;</PRE
+><P>
+   </P
+><P
+>当然、Cの<TT
+CLASS="LITERAL"
+>#define</TT
+>や<TT
+CLASS="LITERAL"
+>#undef</TT
+>を埋め込みSQLプログラムで使用することは可能です。
+違いは宣言した値をどこで評価されるかです。
+<TT
+CLASS="LITERAL"
+>EXEC SQL DEFINE</TT
+>を使用する場合、<TT
+CLASS="COMMAND"
+>ecpg</TT
+>プリプロセッサがその定義を評価し、その値を置換します。
+例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DEFINE MYNUMBER 12;
+...
+EXEC SQL UPDATE Tbl SET col = MYNUMBER;</PRE
+><P>
+と記載した場合、<TT
+CLASS="COMMAND"
+>ecpg</TT
+>による置換がすでに行われていますので、Cコンパイラでは<TT
+CLASS="LITERAL"
+>MYNUMBER</TT
+>という名前や識別子を参照することはありません。
+埋め込みSQL問い合わせで使用する予定の定数に<TT
+CLASS="LITERAL"
+>#define</TT
+>を使用することはできませんので注意してください。
+この場合、埋め込みSQLプリプロセッサがこの宣言を参照することができないためです。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-IFDEF"
+>33.9.3. ifdef、ifndef、else、elif、endif指示子</A
+></H2
+><P
+>以下の指示子を使用して、コンパイルするコード部分を選択することができます。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>EXEC SQL ifdef <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>を検査し、その<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>が<TT
+CLASS="LITERAL"
+>EXEC SQL define <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+>で作成されていた場合に後続の行を処理します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>EXEC SQL ifndef <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>を検査し、その<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>が<TT
+CLASS="LITERAL"
+>EXEC SQL define <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+>で作成されて<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>いない</I
+></SPAN
+>場合に後続の行を処理します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>EXEC SQL else;</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>EXEC SQL ifdef <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+>または<TT
+CLASS="LITERAL"
+>EXEC SQL ifndef <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+>で導入されたセクションの代替セクションを開始します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>EXEC SQL elif <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>を検査し、その<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>が<TT
+CLASS="LITERAL"
+>EXEC SQL define <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></TT
+>で作成されている場合に代替セクションを開始します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>EXEC SQL endif;</TT
+></DT
+><DD
+><P
+>代替セクションを終了します。
+     </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL ifndef TZVAR;
+EXEC SQL SET TIMEZONE TO 'GMT';
+EXEC SQL elif TZNAME;
+EXEC SQL SET TIMEZONE TO TZNAME;
+EXEC SQL else;
+EXEC SQL SET TIMEZONE TO TZVAR;
+EXEC SQL endif;</PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-errors.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-process.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>エラー処理</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>埋め込みSQLプログラムの処理</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,705 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>バグレポートガイドライン</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="はじめに"
+HREF="preface.html"><LINK
+REL="PREVIOUS"
+TITLE="より進んだ情報"
+HREF="resources.html"><LINK
+REL="NEXT"
+TITLE="チュートリアル"
+HREF="tutorial.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="より進んだ情報"
+HREF="resources.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="はじめに"
+HREF="preface.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>はじめに</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="はじめに"
+HREF="preface.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="チュートリアル"
+HREF="tutorial.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="BUG-REPORTING"
+>バグレポートガイドライン</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に関してバグを発見した場合、ぜひ我々に連絡してください。
+最大限の注意を払っても、全てのプラットフォーム、全ての環境で<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の機能全てが正常に動くことは保証できませんので、バグレポートは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>をより信頼性の高いものにするために、大変重要になります。
+ </P
+><P
+>下記の助言は、有効に活用され得るバグレポートを作成する際に、作成者を支援することを狙ったものです。
+これに従う義務はありませんが、沿った方がより有益なものとなるでしょう。
+ </P
+><P
+>私たちは、すべてのバグを直ちに修正することを約束することはできません。
+そのバグが明確で、重大で、あるいは他の多くのユーザにも影響を与えるものであれば、誰かがすぐに調査する可能性が高くなるでしょう。
+また、より新しいバージョンに変えて、そこでも同じようなことが起こるかを確認してもらうように伝える場合もあります。
+あるいは、現在計画中の大きな変更が終了するまで、バグを修正できないと判断する場合もあります。
+また、単に修正が非常に困難であり、より重要な他の事項があることもあります。
+早急に処置が必要な場合は、商用サポートの購入を検討してください。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN265"
+>バグの特定</A
+></H2
+><P
+>バグ報告を行う前に、ドキュメントを読み、もう一度読み返し、実行しようとしている処理が実行可能かどうか確認してください。
+実行可能かどうかが不明な場合は、その旨を報告してください。
+それはドキュメントのバグです。
+また、ドキュメントに書かれていることと実際の結果が異なる場合にはバグとなります。
+以下のような状況が考えられます。
+但し、これらに限定しているわけではありません。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>プログラムが致命的なシグナル、またはオペレーティングシステムのエラーメッセージで終了し、それがプログラム内部の問題を指摘している場合
+（逆に、<SPAN
+CLASS="QUOTE"
+>"disk full"</SPAN
+>のようなメッセージはプログラムの問題ではありませんから、この場合は自分で修正してください）。
+     </P
+></LI
+><LI
+><P
+>あるプログラムで、入力された値に対して間違った結果を返す場合。
+     </P
+></LI
+><LI
+><P
+>（ドキュメントで定義されている）有効な値を入力してもプログラムで受け付けない場合。
+     </P
+></LI
+><LI
+><P
+>プログラムが、無効な入力値を通知やエラーメッセージなどを表示させず受け入れる場合。
+但し、無効な入力と思われるものでも、拡張、あるいは過去の経緯による互換性と考えられている可能性があることに注意してください。
+     </P
+></LI
+><LI
+><P
+>サポートされているプラットフォームで、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が手順通りにコンパイル、ビルド、インストールできない場合。
+     </P
+></LI
+></UL
+><P>
+
+ここでは、<SPAN
+CLASS="QUOTE"
+>"プログラム"</SPAN
+>とはバックエンドプロセスだけではなく、すべての実行可能ファイルを意味します。
+  </P
+><P
+>プログラムの実行が遅かったり、リソースを大量に使用するのは必ずしもバグではありません。
+アプリケーションを改善するためには、ドキュメントを読んだり、どこかのメーリングリストで尋ねてみたりしてください。
+標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の要求に応じない場合も、その機能の互換性を明確にうたっていない限り、バグとは言えません。
+  </P
+><P
+>以降に進む前に、TODOリストやFAQを参照して、そのバグが既知のものかどうか確認してください。
+もしTODOリストの情報を読み取ることができなければ、問題を報告してください。
+少なくともTODOリストを分かりやすくすることができます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN285"
+>報告すべきこと</A
+></H2
+><P
+>バグ報告で最も重要なことは、全ての事実を、そして事実のみを明確に記述することです。
+何が起こったのか、または、プログラムのどこが問題か、<SPAN
+CLASS="QUOTE"
+>"何々が起こっているようだ"</SPAN
+>などの憶測や推測を記述しないでください。
+実装にさほど詳しくない方の推測は正しくない場合があり、有効なバグ報告になりません。
+実装に精通している方の場合であっても、根拠のある説明は参考情報となりますが、やはり正しい事実が一番役に立ちます。
+バグを修正するためには、まず開発者自身がそのバグを再現する必要があります。
+ありのままの事実を報告することは、単刀直入（多くの場合は画面からメッセージをコピー&amp;ペーストを行うのみ）ですが、えてして、重要でないだろうと想像したり、省いても理解してもらえるだろうという思い込みによって、重要な情報が洩れてしまう場合がかなり多くあります。
+  </P
+><P
+>全てのバグ報告では、下記の内容が記述されていなければいけません。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>問題を再現できるように、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>プログラムの起動から</I
+></SPAN
+>行った作業を順序通りに記述してください。
+例えば、出力がテーブルのデータに依存するならば、単に<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文を記述していても、それ以前に行われた、<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>や<TT
+CLASS="COMMAND"
+>INSERT</TT
+>文が記述されていなければ十分とはいえません。
+我々は、ユーザのデータベーススキーマをリバースエンジニアリングするための時間を取ることができませんし、推測してデータを構築したとしても、おそらく間違えることになるでしょう。
+     </P
+><P
+>SQL関連の問題のテストケースの最適な書式は、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>フロントエンドに直接読み込ませて問題を再現することができるファイルを用意することです
+（<TT
+CLASS="FILENAME"
+>~/.psqlrc</TT
+>の起動ファイルに何も書かれていないことを確認してください）。
+このファイルを簡単に作成するには、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>を使ってテーブル定義とその状況を再現させるために必要なデータを取り出し、問題の起こった問い合わせを追加します。
+サンプルデータの量を減らすことは、推奨されますが必ずしも必要ではありません。
+どのような方法であれ、バグが再現できればよいのです。
+     </P
+><P
+>アプリケーションが<SPAN
+CLASS="APPLICATION"
+>PHP</SPAN
+>など何か別のクライアントインタフェースを使用している場合、問題となる問い合わせを切り出してください。
+問題を再現させるために我々がWebサーバをセットアップすることは、おそらくないでしょう。
+どのような場合においても、正確な入力ファイルを提供することを忘れないでください。
+<SPAN
+CLASS="QUOTE"
+>"大規模ファイル"</SPAN
+>や<SPAN
+CLASS="QUOTE"
+>"中規模データベース"</SPAN
+>で発生する問題である、といった推測は行わないでください。
+こうした情報は不正確過ぎて役に立ちません。
+     </P
+></LI
+><LI
+><P
+>得られた出力そのもの。
+<SPAN
+CLASS="QUOTE"
+>"うまくいかなかった"</SPAN
+>、あるいは<SPAN
+CLASS="QUOTE"
+>"クラッシュした"</SPAN
+>といった報告はしないでください。
+エラーメッセージがあるならば、たとえ意味が理解できなくてもそれを報告してください。
+オペレーティングシステムのエラーでプログラムが強制終了してしまったら、どのエラーでそうなったのかを報告してください。
+何も起こらない場合も、その旨を報告してください。
+たとえテストケースの結果がプログラムのクラッシュなど明確な場合でも、我々のプラットフォームで再現できない場合があります。
+最も容易な方法は、出力をターミナルからコピーすることです。
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>エラーメッセージを報告する場合、そのメッセージを最大限詳細に取得してください。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>では、前もって<TT
+CLASS="LITERAL"
+>\set VERBOSITY verbose</TT
+>を指定してください。
+サーバログからメッセージを取り出す場合は、全ての詳細をログに取得できるように<A
+HREF="runtime-config-logging.html#GUC-LOG-ERROR-VERBOSITY"
+>log_error_verbosity</A
+>実行時パラメータを<TT
+CLASS="LITERAL"
+>verbose</TT
+>に設定してください。
+      </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>致命的なエラーが起こった場合、クライアント側で報告されるエラーメッセージには得られる情報が全て書かれているとは限りません。
+データベースサーバのログも見てみてください。
+もしログを取っていないならば、取る習慣を付けるいいタイミングです。
+      </P
+></BLOCKQUOTE
+></DIV
+></LI
+><LI
+><P
+>どのような出力を望んでいたのかを記述することも非常に重要です。
+ただ単に<SPAN
+CLASS="QUOTE"
+>"このコマンドはこのような出力を返した"</SPAN
+>や、<SPAN
+CLASS="QUOTE"
+>"期待していた結果ではない"</SPAN
+>だけでは、再現して結果を検証した際、開発者は、これは期待した通りの正しい結果である、と考えるかもしれません。
+送られてきたコマンドの背後にある文脈を全て把握することはできません。
+また、特に<SPAN
+CLASS="QUOTE"
+>"SQLではこう書かれていない/Oracleではこのようにならない"</SPAN
+>というコメントはご遠慮願います。
+<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の正確な動作を探し出すのは楽しい作業ではありませんし、また、世にある他のリレーショナルデータベースの動作全てをPostgreSQLの開発者が把握しているわけでもありません
+（問題がプログラムのクラッシュである場合、この内容は言うまでもなく省略できます）。
+     </P
+></LI
+><LI
+><P
+>すべてのコマンドラインオプションと起動時のオプション、デフォルトから変更した関連する環境変数や設定ファイル。
+繰り返しますが、正確な情報を提供してください。
+OSの起動時にデータベースサーバを起動するようにパッケージされたディストリビューションを使用している場合は、それらがどのように実行されているかを確認する必要があります。
+     </P
+></LI
+><LI
+><P
+>インストールの手順書から変更して実行したすべての内容。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のバージョン。
+<TT
+CLASS="LITERAL"
+>SELECT version();</TT
+>で、接続しているサーバのバージョンがわかります。
+多くの実行可能なプログラムでは<TT
+CLASS="OPTION"
+>--version</TT
+>オプションも使用できます。
+少なくとも<TT
+CLASS="LITERAL"
+>postgres --version</TT
+>と<TT
+CLASS="LITERAL"
+>psql --version</TT
+>は実行できるはずです。
+これらの関数やオプションが使用できない場合、アップグレードが保証されているものよりも、さらに古いバージョンです。
+RPMなどパッケージ化されたものを使用している場合は、その旨を連絡し、パッケージに付加されたバージョン番号があれば、それも記載してください。
+Git版に対するバグ報告の場合は、その旨も記載し、コミットハッシュの情報も含めてください。
+     </P
+><P
+>9.1.4よりもバージョンが古い場合、アップグレードすることをお勧めします。
+新しいリリースでは多くのバグ修正や改良がなされているからです。
+ですので、古めの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のリリースを使用していて遭遇した不具合が修正されている可能性がかなりあります。
+古い<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のリリースを使用しているサイトに対して、我々は限定されたサポートしか提供することができません。
+それ以上のサポートが必要であれば、商用サポート契約を結ぶことを検討してください。
+     </P
+><P
+>     </P
+></LI
+><LI
+><P
+>プラットフォーム情報。
+カーネル名とバージョン、Cライブラリ、プロセッサ、メモリ情報なども含めて報告してください。
+多くの場合、ベンダ名とそのバージョンを明記するだけで十分ですが、<SPAN
+CLASS="QUOTE"
+>"Debian"</SPAN
+>の正確な構成要素を全ての人間が把握している、であるとか、全ての人間がi386系を使用しているなどの思い込みは止めてください。
+インストールに関する問題の場合は、マシンのツール群（コンパイラや<SPAN
+CLASS="APPLICATION"
+>make</SPAN
+>など）の情報も必要となります。
+     </P
+></LI
+></UL
+><P>
+
+バグ報告が長文になってもそれは仕方がないことなので、気にしないでください。
+一度に全ての情報を入手できる方が、開発者から情報を催促するよりも手間暇がかかりません。
+その一方、ファイルが大きいならば、その情報に誰か興味があるかを最初に尋ねるのが得策かもしれません。
+<A
+HREF="http://www.chiark.greenend.org.uk/~sgtatham/bugs.html"
+TARGET="_top"
+>記事</A
+>には、バグ報告に関するその他のTIPSの概要があります。
+  </P
+><P
+>問題を解決させる入力を見つけ出すための試行錯誤に時間をかけないでください。
+これはおそらく問題解決の助けになりません。
+バグが即座に修正されない場合、その時間を利用すれば、あなた自身のワークアラウンドを探して共有することができます。
+繰り返しになりますが、バグがなぜあるのかを解明するのに余計な時間をかける必要はありません。
+開発者の方が十分速くそれを見つけ出します。
+  </P
+><P
+>バグ報告をする際、理解しやすい用語を使用してください。
+このソフトウェアパッケージ全体は<SPAN
+CLASS="QUOTE"
+>"PostgreSQL"</SPAN
+>と呼ばれていますが、略して<SPAN
+CLASS="QUOTE"
+>"Postgres"</SPAN
+>とも呼ばれます。
+特にバックエンドプロセスに関して述べる時は、そのように明記し、<SPAN
+CLASS="QUOTE"
+>"PostgreSQLがクラッシュする"</SPAN
+>とは記述しないでください。
+1つのバックエンドプロセスのクラッシュと、その親プロセス<SPAN
+CLASS="QUOTE"
+>"postgres"</SPAN
+>のクラッシュとはかなり異なります。
+1つのバックエンドがダウンしてしまったことを、<SPAN
+CLASS="QUOTE"
+>"サーバがクラッシュした"</SPAN
+>とは記述しないでください。
+その逆の場合にも当てはまります。
+また、<SPAN
+CLASS="QUOTE"
+>"<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>"</SPAN
+>対話式フロントエンドなどのクライアントプログラムはバックエンドとは完全に分離されています。
+問題がクライアント側かサーバ側かの切り分けを試みてください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN352"
+>バグ報告先</A
+></H2
+><P
+>一般論として、バク報告は<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:pgsql-bugs@postgresql.org"
+>pgsql-bugs@postgresql.org</A
+>&#62;</CODE
+>というバグ報告用メーリングリストに送ってください。
+バグ報告の題名には、エラーメッセージの一部分などわかりやすいものを使ってください。
+  </P
+><P
+>その他の方法として、プロジェクトの<A
+HREF="http://www.postgresql.org/"
+TARGET="_top"
+>Webサイト</A
+>にあるバグ報告フォームの項目を埋める方法があります。
+この方法で入力したバグ報告は、<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:pgsql-bugs@postgresql.org"
+>pgsql-bugs@postgresql.org</A
+>&#62;</CODE
+>メーリングリストに送信されます。
+  </P
+><P
+>バグ報告にセキュリティが関連する場合や公開アーカイブからすぐに閲覧できることを好まない場合、<TT
+CLASS="LITERAL"
+>pgsql-bugs</TT
+>には送信しないでください。
+セキュリティの問題については、非公開で<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:security@postgresql.org"
+>security@postgresql.org</A
+>&#62;</CODE
+>に報告することができます。
+  </P
+><P
+><CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:pgsql-sql@postgresql.org"
+>pgsql-sql@postgresql.org</A
+>&#62;</CODE
+>や<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:pgsql-general@postgresql.org"
+>pgsql-general@postgresql.org</A
+>&#62;</CODE
+>などのユーザ向けのメーリングリストには決してバグ報告を送らないでください。
+これらのメーリングリストはユーザからの質問に答えるためのもので、ほとんどの購読者はバグ報告を受け取りたくないと思われます。
+さらに重要なのは、これらのリストの購読者によってバグが修正されることはほとんどないということです。
+  </P
+><P
+>また、開発者向けの<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:pgsql-hackers@postgresql.org"
+>pgsql-hackers@postgresql.org</A
+>&#62;</CODE
+>にもバグ報告を<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>送らないで</I
+></SPAN
+>ください。
+ここは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の開発に関して議論する場で、バグ報告とは切り離している方が良いとされています。
+もしその問題により多くのレビューが必要な場合は、そのバグ報告を<TT
+CLASS="LITERAL"
+>pgsql-hackers</TT
+>で議論することになります。
+  </P
+><P
+>ドキュメントに関して問題がある場合は、ドキュメント用のメーリングリスト、<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:pgsql-docs@postgresql.org"
+>pgsql-docs@postgresql.org</A
+>&#62;</CODE
+>が最適な報告先です。
+その際、問題になった箇所がどの部分かを明記してください。
+  </P
+><P
+>また、サポートされていないプラットフォームへの移植に関係するバグ報告である場合は<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:pgsql-hackers@postgresql.org"
+>pgsql-hackers@postgresql.org</A
+>&#62;</CODE
+>に報告してください。
+そのプラットフォームへ<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を移植するように（報告者と一緒に）最善の努力をします。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>spamメールを防止するために、残念なことに、これらのメーリングリストは非公開となっています。
+つまり、これらのメーリングリストに投稿するには、講読していなければいけません
+（但し、Webフォームによるバグ報告の場合には、メーリングリストを購読している必要はありません）。
+メーリングリストからのメールを受け取らずに単にメールを送りたい場合は、購読登録を行い、講読オプションを<TT
+CLASS="LITERAL"
+>nomail</TT
+>に設定してください。
+詳細な情報については<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:majordomo@postgresql.org"
+>majordomo@postgresql.org</A
+>&#62;</CODE
+>宛に、<TT
+CLASS="LITERAL"
+>help</TT
+>とだけ本文に書いてメールを送ってください。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="resources.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>より進んだ情報</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="preface.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>チュートリアル</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

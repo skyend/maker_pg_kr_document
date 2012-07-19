@@ -1,0 +1,782 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER OPERATOR FAMILY</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER OPERATOR CLASS"
+HREF="sql-alteropclass.html"><LINK
+REL="NEXT"
+TITLE="ALTER ROLE"
+HREF="sql-alterrole.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER OPERATOR CLASS"
+HREF="sql-alteropclass.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER OPERATOR CLASS"
+HREF="sql-alteropclass.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER ROLE"
+HREF="sql-alterrole.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER ROLE"
+HREF="sql-alterrole.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTEROPFAMILY"
+></A
+>ALTER OPERATOR FAMILY</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN61095"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER OPERATOR FAMILY&nbsp;--&nbsp;演算子族の定義を変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN61100"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER OPERATOR FAMILY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+> ADD
+  {  OPERATOR <TT
+CLASS="REPLACEABLE"
+><I
+>strategy_number</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>operator_name</I
+></TT
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+> ) [ FOR SEARCH | FOR ORDER BY <TT
+CLASS="REPLACEABLE"
+><I
+>sort_family_name</I
+></TT
+> ]
+   | FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>support_number</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+> [ , <TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+> ] ) ] <TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>argument_type</I
+></TT
+> [, ...] )
+  } [, ... ]
+ALTER OPERATOR FAMILY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+> DROP
+  {  OPERATOR <TT
+CLASS="REPLACEABLE"
+><I
+>strategy_number</I
+></TT
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+> [ , <TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+> ] )
+   | FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>support_number</I
+></TT
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+> [ , <TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+> ] )
+  } [, ... ]
+ALTER OPERATOR FAMILY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>
+ALTER OPERATOR FAMILY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+> OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+>
+ALTER OPERATOR FAMILY <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+> SET SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61131"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER OPERATOR FAMILY</TT
+>は演算子族の定義を変更します。
+演算子やサポート関数を演算子族に追加することやそれらを演算子族から削除すること、演算子族の名前や所有者を変更することが可能です。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER OPERATOR FAMILY</TT
+>を使用して演算子とサポート関数が演算子族に追加される時、これらは演算子族内の特定の演算子クラスの一部とはならず、単に演算子族内で<SPAN
+CLASS="QUOTE"
+>"自由"</SPAN
+>なものになります。
+これは、これらの演算子と関数が演算子族と意味的な互換性を持つが、特定のインデックスの正しい動作には必要とされないことを意味します。
+（代わりに必要な演算子と関数は演算子クラスの一部として宣言しなければなりません。
+<A
+HREF="sql-createopclass.html"
+>CREATE OPERATOR CLASS</A
+>を参照してください。）
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では演算子族の自由なメンバをいつでも演算子族から削除することができます。
+しかし演算子クラス内のメンバは、クラス全体と依存するインデックスすべてを削除する以外に削除することはできません。
+通常、単一データ型の演算子と関数は、特定のデータ型に対するインデックスをサポートするために必要ですので、演算子クラスの一部となります。
+一方、データ型を跨る演算子と関数は、演算子族内の自由なメンバとなります。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER OPERATOR FAMILY</TT
+>を使用するには、スーパーユーザでなければなりません
+（おかしな演算子族定義はサーバを混乱させクラッシュさせることがありますので、この制限がなされています）。
+  </P
+><P
+>現時点では<TT
+CLASS="COMMAND"
+>ALTER OPERATOR FAMILY</TT
+>は、インデックスメソッドで必要とされる演算子族がすべての演算子と関数を含んでいるかどうかを検査しません。
+また、演算子と関数が自己制約集合を形成しているかどうかも検査しません。
+有効な演算子族を定義することはユーザの責任です。
+  </P
+><P
+>詳細は<A
+HREF="xindex.html"
+>&#38917;35.14</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61146"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>既存の演算子族の名前です（スキーマ修飾可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+></DT
+><DD
+><P
+>演算子族が対象とするインデックスメソッドの名前です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>strategy_number</I
+></TT
+></DT
+><DD
+><P
+>演算子族と関連した演算子に対するインデックスメソッドの戦略番号です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>operator_name</I
+></TT
+></DT
+><DD
+><P
+>演算子族と関連した演算子の名前です（スキーマ修飾可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>OPERATOR</TT
+>句では演算子の入力データ型、または左単項演算子、右単項演算子を表す<TT
+CLASS="LITERAL"
+>NONE</TT
+>です。
+<TT
+CLASS="COMMAND"
+>CREATE OPERATOR CLASS</TT
+>と類似の構文と異なり、入力データ型を常に指定しなければなりません。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>ADD FUNCTION</TT
+>では、関数の入力データ型と異なる場合、関数がサポートする予定の入力データ型です。
+関数の入力データ型は常に正しく使用するデータ型であるため、B-TreeおよびHashインデックスでは<TT
+CLASS="REPLACEABLE"
+><I
+>op_type</I
+></TT
+>を指定する必要がありません。
+GINとGiSTインデックスでは、関数が使用する入力データ型を指定する必要があります。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>DROP FUNCTION</TT
+>句では、関数がサポートする予定の入力データ型を指定しなければなりません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>sort_family_name</I
+></TT
+></DT
+><DD
+><P
+>順序付け演算子に関連するソート順序を記述する、既存の<TT
+CLASS="LITERAL"
+>btree</TT
+>演算子族の名前（スキーマ修飾も可）です。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR SEARCH</TT
+>も<TT
+CLASS="LITERAL"
+>FOR ORDER BY</TT
+>も指定されない場合、<TT
+CLASS="LITERAL"
+>FOR SEARCH</TT
+>がデフォルトです。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>support_number</I
+></TT
+></DT
+><DD
+><P
+>演算子族に関連する関数用のインデックスメソッドのサポートプロシージャの番号です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+></DT
+><DD
+><P
+>演算子族用のインデックスメソッドのサポートプロシージャとなる関数の名前です（スキーマ修飾名でも可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>argument_type</I
+></TT
+></DT
+><DD
+><P
+>関数のパラメータのデータ型です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>演算子族の新しい名前です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></DT
+><DD
+><P
+>演算子族の新しい所有者です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></DT
+><DD
+><P
+>演算子族の新しいスキーマです。
+     </P
+></DD
+></DL
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>OPERATOR</TT
+>と<TT
+CLASS="LITERAL"
+>FUNCTION</TT
+>句は任意の順番で記述できます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61225"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="LITERAL"
+>DROP</TT
+>構文が、戦略番号またはサポート番号と入力データ型という、演算子族の<SPAN
+CLASS="QUOTE"
+>"スロット"</SPAN
+>のみを指定していることに注意してください。
+そのスロットに存在する演算子または関数の名前については言及されません。
+また、<TT
+CLASS="LITERAL"
+>DROP FUNCTION</TT
+>では、指定する型は関数がサポートする予定の入力データ型です。
+GINおよびGiSTインデックスでは、関数の実際の入力引数の型と関連しない可能性があります。
+
+  </P
+><P
+>インデックス機構は使用する前に関数のアクセス権限を検査しません。
+演算子族内の関数や演算子を含めることは、公的な実行権限を与えることと同じです。
+これは通常、演算子族内で使用される関数では問題になりません。
+  </P
+><P
+>演算子をSQL関数で定義してはいけません。
+SQL関数はよく、呼び出し元の問い合わせ内でインライン展開されます。
+すると、オプティマイザが問い合わせがインデックスに一致するかどうか認識できなくなります。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.4より前までは、<TT
+CLASS="LITERAL"
+>OPERATOR</TT
+>句に<TT
+CLASS="LITERAL"
+>RECHECK</TT
+>オプションを含めることができました。
+インデックス演算子に<SPAN
+CLASS="QUOTE"
+>"損失がある"</SPAN
+>かどうかは実行時にその場で決定されるようになりましたので、これはサポートされなくなりました。
+これにより、演算子に損失があるかもしれないしないかもしれないような場合を効率的に扱うことができるようになりました。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61238"
+></A
+><H2
+>例</H2
+><P
+>以下のコマンド例は、データ型を跨る演算子とサポート関数を<TT
+CLASS="TYPE"
+>int4</TT
+>と<TT
+CLASS="TYPE"
+>int2</TT
+>データ型用のB-Tree演算子クラスをすでに含む演算子族に追加します。
+  </P
+><PRE
+CLASS="PROGRAMLISTING"
+>ALTER OPERATOR FAMILY integer_ops USING btree ADD
+
+  -- int4 vs int2
+  OPERATOR 1 &lt; (int4, int2) ,
+  OPERATOR 2 &lt;= (int4, int2) ,
+  OPERATOR 3 = (int4, int2) ,
+  OPERATOR 4 &gt;= (int4, int2) ,
+  OPERATOR 5 &gt; (int4, int2) ,
+  FUNCTION 1 btint42cmp(int4, int2) ,
+
+  -- int2 vs int4
+  OPERATOR 1 &lt; (int2, int4) ,
+  OPERATOR 2 &lt;= (int2, int4) ,
+  OPERATOR 3 = (int2, int4) ,
+  OPERATOR 4 &gt;= (int2, int4) ,
+  OPERATOR 5 &gt; (int2, int4) ,
+  FUNCTION 1 btint24cmp(int2, int4) ;</PRE
+><P
+>これらの項目を再度削除します。
+  </P
+><PRE
+CLASS="PROGRAMLISTING"
+>ALTER OPERATOR FAMILY integer_ops USING btree DROP
+
+  -- int4 vs int2
+  OPERATOR 1 (int4, int2) ,
+  OPERATOR 2 (int4, int2) ,
+  OPERATOR 3 (int4, int2) ,
+  OPERATOR 4 (int4, int2) ,
+  OPERATOR 5 (int4, int2) ,
+  FUNCTION 1 (int4, int2) ,
+
+  -- int2 vs int4
+  OPERATOR 1 (int2, int4) ,
+  OPERATOR 2 (int2, int4) ,
+  OPERATOR 3 (int2, int4) ,
+  OPERATOR 4 (int2, int4) ,
+  OPERATOR 5 (int2, int4) ,
+  FUNCTION 1 (int2, int4) ;</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61246"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>ALTER OPERATOR FAMILY</TT
+>文はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61250"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createopfamily.html"
+>CREATE OPERATOR FAMILY</A
+>, <A
+HREF="sql-dropopfamily.html"
+>DROP OPERATOR FAMILY</A
+>, <A
+HREF="sql-createopclass.html"
+>CREATE OPERATOR CLASS</A
+>, <A
+HREF="sql-alteropclass.html"
+>ALTER OPERATOR CLASS</A
+>, <A
+HREF="sql-dropopclass.html"
+>DROP OPERATOR CLASS</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alteropclass.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alterrole.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER OPERATOR CLASS</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER ROLE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

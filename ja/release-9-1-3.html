@@ -1,0 +1,867 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース9.1.3</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース9.1.4"
+HREF="release-9-1-4.html"><LINK
+REL="NEXT"
+TITLE="リリース9.1.2"
+HREF="release-9-1-2.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース9.1.4"
+HREF="release-9-1-4.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース9.1.2"
+HREF="release-9-1-2.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-9-1-3"
+>E.2. リリース9.1.3</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2012-02-27</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは9.1.2に対し、各種不具合を修正したものです。
+9.1メジャーリリースにおける新機能については<A
+HREF="release-9-1.html"
+>&#38917;E.5</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN106764"
+>E.2.1. バージョン9.1.3への移行</A
+></H2
+><P
+>9.1.Xからの移行ではダンプ/リストアは不要です。
+   </P
+><P
+>しかし、9.1.2より前のバージョンからアップグレードする場合は9.1.2のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN106768"
+>E.2.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>においてトリガ関数に対する実行権限が必要になりました。(Robert Haas)
+     </P
+><P
+>この検査が無かったため、別のユーザが自身が所有するテーブルにその関数をインストールすることで、偽造した入力データでトリガ関数を実行することができました。
+<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>が付いたトリガ関数でのみ重大です。
+その他のトリガ関数ではとにかくテーブル所有者として実行されるためです。(CVE-2012-0866)
+     </P
+></LI
+><LI
+><P
+>SSL証明書内のコモンネームにおける独断的な長さ制限を取り除きました。(Heikki Linnakangas)
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>とサーバの両方ともSSL証明書から取り出したコモンネームを32バイトで切り詰めていました。
+通常想定外の検証エラー以上のことを引き起こしませんが、ある証明書の所有者が他者になりすますことができるという、多少怪しいシナリオがあります。
+被害を受けるにはコモンネームが正確に32バイト長でなければならず、また、攻撃者は信頼されたCAに対してコモンネームが接頭辞としてその文字列を持つ証明書を発行するように説得しなければなりません。
+またサーバになりすますには、さらにクライアントからの接続を中継するための攻撃が必要です。(CVE-2012-0867)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>のコメントに記述された名前の中の改行を空白に変換します。(Robert Haas)
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は、その出力スクリプトにおけるSQLコメント内で発行されるオブジェクト名のサニタイズに関して注意を払っていませんでした。
+改行を含む名前は少なくともそのスクリプトを構文的に不正にさせます。
+悪意をもって組み立てられたオブジェクト名によって、スクリプトがリロードする時にSQLインジェクションの危険性があり得ました。(CVE-2012-0868)
+     </P
+></LI
+><LI
+><P
+>バキューム処理と同時に挿入を行った場合のbtreeインデックス破損を修正しました。(Tom Lane)
+     </P
+><P
+>挿入によって発生するインデックスページ分割によって、同時実行中の<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>が削除すべきインデックス項目を削除し損なうことが時々発生することがありました。
+対応するテーブル行が削除された後、対応先が無いインデックス項目によってエラー（<SPAN
+CLASS="QUOTE"
+>"could not read block N in file ..."</SPAN
+>など）、最悪は、解放されたテーブル位置に再挿入された関係がない行にちなんだ、警告のない間違った問い合わせ結果が引き起こされます。
+この不具合は8.2から存在していましたが、あまり頻発に発生しませんでしたので、これまで究明されませんでした。
+使用中のデータベースで発生していたのではと疑わしければ、対象のインデックスを再インデックス付けすることで修正されます。
+     </P
+></LI
+><LI
+><P
+>WAL再生中の一時的な共有バッファのゼロ化を修正しました。(Tom Lane)
+     </P
+><P
+>再生ロジックでは時々共有バッファをゼロ化し再度書き込んでいました。
+このためその内容は一時的に無効になります。
+ホットスタンバイモードではこの結果、平行して実行される問い合わせがゴミデータを参照することになり得ました。
+いろいろな兆候が現れますが、もっとも良くある兆候は<SPAN
+CLASS="QUOTE"
+>"invalid memory alloc request size"</SPAN
+>です。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>READ COMMITTED</TT
+>再検査において、データを変更する<TT
+CLASS="LITERAL"
+>WITH</TT
+>副計画の取り扱いを修正しました。(Tom Lane)
+     </P
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>を含む<TT
+CLASS="LITERAL"
+>WITH</TT
+>は、<TT
+CLASS="LITERAL"
+>READ COMMITTED</TT
+>モードにおける同時更新のために、親の<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドが１つ以上の行を再評価しなければならない場合に、クラッシュしました。
+     </P
+></LI
+><LI
+><P
+>SSIトランザクションの整理における境界問題を修正しました。(Dan Ports)
+     </P
+><P
+>読み書きのあるシリアライザブルトランザクションを完了させるときに、残存する有効なシリアライザブルトランザクションがすべて読み取り専用であった場合にクラッシュすることがありました。
+     </P
+></LI
+><LI
+><P
+>ホットスタンバイのクラッシュの後、postmasterの再起動を試みるように修正しました。(Tom Lane)
+     </P
+><P
+>ホットスタンバイモードで操作している時に任意のバックエンドプロセスがクラッシュした場合、ロジックエラーのため、クラスタを再起動させようとはせずにpostmasterを終了させました。
+     </P
+></LI
+><LI
+><P
+>最近更新された行によって所有されるTOAST値に対する<TT
+CLASS="COMMAND"
+>CLUSTER</TT
+>/<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>の取り扱いを修正しました。(Tom Lane)
+     </P
+><P
+>この見落としにより、これらのコマンドのいずれかを実行している時に、TOASTテーブルのインデックスに対して<SPAN
+CLASS="QUOTE"
+>"duplicate key value violates unique constraint"</SPAN
+>エラーが報告されることがあり得ました。
+     </P
+></LI
+><LI
+><P
+>テーブル所有者を変更する時に、テーブル単位の権限だけではなく列単位の権限も更新します。(Tom Lane)
+     </P
+><P
+>この失敗は、事前に付与された列権限が古い所有者により付与されたものとして表示されることを意味します。
+つまり新しい所有者またはスーパーユーザであってもテーブル所有者を追跡できなくなった権限を取り除くことができないことを意味します。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>REASSIGN OWNED</TT
+>において外部データラッパおよび外部サーバをサポートします。(Alvaro Herrera)
+     </P
+><P
+>これらのオブジェクトの所有権を変更しなければならなかった場合に、このコマンドは<SPAN
+CLASS="QUOTE"
+>"unexpected classid"</SPAN
+>エラーで失敗しました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>ALTER USER/DATABASE SET</TT
+>における一部の設定で存在しない値を許可します。 (Heikki Linakangas)
+     </P
+><P
+><TT
+CLASS="VARNAME"
+>default_text_search_config</TT
+>、<TT
+CLASS="VARNAME"
+>default_tablespace</TT
+>、<TT
+CLASS="VARNAME"
+>temp_tablespaces</TT
+>を未知の名前に設定することができます。
+これらが実際に使用されている別のデータベースでは既知であるかもしれませんし、またテーブル空間の場合はまだテーブル空間が作成されていないかもしれないからです。
+過去<TT
+CLASS="VARNAME"
+>search_path</TT
+>においても同じ問題がありましたが、これらの設定も同様に動作するようにしました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>式内の<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>により引き起こる<SPAN
+CLASS="QUOTE"
+>"unsupported node type"</SPAN
+>エラーを修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>コミット後のテーブルファイルの削除に問題があった場合のクラッシュを防止します。(Tom Lane)
+     </P
+><P
+>テーブル削除は、そのトランザクションがコミットした後にのみ背後のディスク上のファイルを削除しなければなりません。
+（例えばファイルの権限の誤設定のため）失敗した場合、トランザクションをアボートするには遅すぎますので、コードは単に警告メッセージを出力し継続するものと考えられます。
+リリース8.4においてこのロジックが壊れ、こうした状況でPANICが発生し、再起動できないデータベースとなりました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>DROP TABLESPACE</TT
+>のWAL再生中に発生したエラーから修復します。(Tom Lane)
+     </P
+><P
+>再生はテーブル空間ディレクトリの削除を試みますが、（対象ディレクトリの所有者や権限が不正であったなど）失敗する可能性は多々あります。
+これまでは再生コードはパニックし、手作業を介さなければ再起動できないデータベースになりました。
+ディレクトリの削除に失敗したところで多少ディスク領域が無駄に使われるだけですので、問題を記録し、継続する方がより良いと考えました。
+     </P
+></LI
+><LI
+><P
+>ホットスタンバイのAccessExclusiveLocksのログ記録における競合問題を修正しました。(Simon Riggs)
+     </P
+><P
+>ロックが<SPAN
+CLASS="QUOTE"
+>"transaction zero"</SPAN
+>によって保持されていると記録されることが時々ありました。
+少なくともスレーブサーバでアサーションエラーが発生することが分かっていますが、もっと深刻な問題が起こる可能性があります。
+
+     </P
+></LI
+><LI
+><P
+>WAL再生中にOIDカウンタを、たとえ周回していたとしても、正しく追跡します。(Tom Lane)
+     </P
+><P
+>これまでは、OIDカウンタはシステムが再生モードを抜けるまで高値のままになりました。
+実際にはほとんどnilという結果になりますが、マスタに昇格されるスタンバイサーバでは、値が必要になってから、OIDカウンタを合理的な値まで進めるために長時間かかる可能性がありました。
+     </P
+></LI
+><LI
+><P
+>クラッシュリカバリの最初の、誤解を招く<SPAN
+CLASS="QUOTE"
+>"consistent recovery state reached"</SPAN
+>ログメッセージの発行を抑制します。(Heikki Linnakangas)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="STRUCTNAME"
+>pg_stat_replication</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>replay_location</TT
+>の初期値を修正しました。(Fujii Masao)
+     </P
+><P
+>これまでは、少なくとも1つのWALレコードが再生されるまで、表示される値は間違っていました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>*</TT
+>が付いた正規表現の後方参照を修正しました。(Tom Lane)
+     </P
+><P
+>コードでは、正確な文字列一致を強制せずに、実質後方参照シンボルで参照されるパターン副式を満たす任意の文字列を受け付けました。
+     </P
+><P
+>同様の問題はまだ、直接量指定子のサブジェクトとならない、より大きく量化された式に埋め込まれた後方参照でも残っています。
+こちらは将来のリリースの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で対応予定です。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>inet</TT
+>/<TT
+CLASS="TYPE"
+>cidr</TT
+>値の処理に最近入ったメモリリークを修正しました。(Heikki Linnakangas)
+     </P
+><P
+>2011年12月の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リリース内のパッチによって、これらの操作にメモリリークが発生しました。
+これらの列に対するbtreeインデックス等で重大な問題になる可能性がありました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>を通してインデックス式制限をプッシュダウンするプランナの機能を修正しました。(Tom Lane)
+     </P
+><P
+>9.1.2において別の問題を修正する際に、この種の最適化が意図せず無効になりました。
+     </P
+></LI
+><LI
+><P
+>継承テーブルに対する<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>において参照される<TT
+CLASS="LITERAL"
+>WITH</TT
+>句の計画作成を修正しました。(Tom Lane)
+     </P
+><P
+>この不具合により<SPAN
+CLASS="QUOTE"
+>"could not find plan for CTE"</SPAN
+>失敗が発生しました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>column IN (...)</TT
+>インデックス条件を扱うためのGINコスト推定を修正しました。(Marti Raudsepp)
+     </P
+><P
+>この見落としにより、こうした条件がGINインデックスを用いて使用される場合によくクラッシュするようになりました。
+     </P
+></LI
+><LI
+><P
+>既存のセッションが開いたままの失敗トランザクションを持つ場合のアサーション失敗を防止します。
+     </P
+><P
+>この不具合は、アサートが有効ではない通常の構築では影響はありません。
+     </P
+></LI
+><LI
+><P
+>SQL言語関数内の<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>/<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>の後に対応先がなくなったポインタを修正しました。(Tom Lane)
+     </P
+><P
+>ほとんどの場合、これはアサートが有効な構築におけるアサーション失敗という結果になるだけですが、もっと悪い結果になる可能性がありました。
+     </P
+></LI
+><LI
+><P
+>Windowsのsysloggerにおけるファイルハンドルの二重クローズを防ぎます。(MauMau）
+     </P
+><P
+>通常はこのエラーは表面化しませんが、Windowsのデバッグ版を実行している場合は例外が引き起こります。
+     </P
+></LI
+><LI
+><P
+>plpgsqlにおけるI/O変換関連のメモリリークを修正しました。(Andres Freund、Jan Urbanski、Tom Lane)
+     </P
+><P
+>現在の関数が終わるまで、特定の操作がメモリリークしました。
+     </P
+></LI
+><LI
+><P
+>perlのSvPVutf8()関数の不具合を回避しました。(Andrew Dunstan)
+     </P
+><P
+>この関数はtypeglobまたは特定の読み取り専用のオブジェクトが渡された場合にクラッシュします。
+plperlでこれらを渡さないようにしました。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>において、拡張自体がダンプ対象でない場合に拡張の設定テーブルの内容をダンプしません。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>継承されたテーブル列に対する<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>の取り扱いを改良しました。(Tom Lane)
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は、子の列が親の列と異なるデフォルト式を持つという状況を間違って扱いました。
+デフォルトがテキストとして親のデフォルトと同一であるが、実際は同一ではない場合（例えば、スキーマ検索パスの違いのため）、異なるものとして認識せず、そのため、ダンプしリストアした後、子は親のデフォルトを継承することができました。
+子の列が<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>であり親がそうではなかった場合も、微妙に間違ってリストアされました。
+     </P
+></LI
+><LI
+><P
+>INSERT形式のテーブルデータに対する<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>の直接データベースにリストアするモードを修正しました。(Tom Lane)
+     </P
+><P
+>他の問題に対する修正における見落としの結果、2011年9月または12月付けのリリースに含まれる<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>では、<TT
+CLASS="OPTION"
+>--inserts</TT
+>または<TT
+CLASS="OPTION"
+>--column-inserts</TT
+>オプションを付けて作成されたアーカイブファイルを直接データベースにリストアすることができませんでした。
+アーカイブファイル自体には失敗はなく、テキストモード出力では問題ありませんでした。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>plpython</SPAN
+>の共有ライブラリの名称変更を扱うよう<SPAN
+CLASS="APPLICATION"
+>pg_upgrade</SPAN
+>を変更しました。(Bruce Momjian)
+     </P
+><P
+>この見落としのため、plpythonを含む9.1より前のデータベースをアップグレードすることができませんでした。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_upgrade</SPAN
+>が<TT
+CLASS="TYPE"
+>regclass</TT
+>列を含むテーブルを処理できるようにしました。(Bruce Momjian)
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_upgrade</SPAN
+>が<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+> OIDの保護に注意を払うようになりましたので、この制限を続ける理由はなくなりました。
+     </P
+></LI
+><LI
+><P
+>SSLクライアント証明書ファイルを検索するときに、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>が<TT
+CLASS="LITERAL"
+>ENOTDIR</TT
+>エラーを無視するようにしました。(Magnus Hagander)
+     </P
+><P
+>これによりユーザのホームディレクトリが<TT
+CLASS="LITERAL"
+>/dev/null</TT
+>のようなものに設定されていたとしても、証明書なしですが、SSL接続を確立できます。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>のSQLDA領域におけるフィールド整列問題を修正しました。 (Zoltan Boszormenyi)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>の<TT
+CLASS="LITERAL"
+>DEALLOCATE</TT
+>文において<TT
+CLASS="LITERAL"
+>AT</TT
+>オプションを可能にしました。(Michael Meskes)
+     </P
+><P
+>これをサポートする基盤は少し前から存在しましたが、見落としのため、エラー検査でこの状況を拒絶していました。 
+     </P
+></LI
+><LI
+><P
+>ecpgにおいてvarchar構造体を定義するときに変数名を使用しません。(Michael Meskes)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/auto_explain</TT
+>のJSON出力モードが有効なJSONを生成するように修正しました。(Andrew Dunstan)
+     </P
+><P
+>この出力では、本来括弧を使用しなければならない最上位で、角括弧を使用していました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/intarray</TT
+>の<TT
+CLASS="LITERAL"
+>int[] &amp; int[]</TT
+>演算子のエラーを修正しました。 (Guillaume Lelarge)
+     </P
+><P
+>２つの入力配列が共通して持つ最小の整数が１であり、どちらかの配列により小さな値があった場合、１が結果から間違って省かれました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/pgcrypto</TT
+>の<CODE
+CLASS="FUNCTION"
+>encrypt_iv()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>decrypt_iv()</CODE
+>の誤判定を修正しました。(Marko Kreen)
+     </P
+><P
+>これらの関数は特定の種類の無効入力エラーの通知に失敗し、不正な入力に対してランダムなゴミの値を代わりに返しました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/test_parser</TT
+>における1バイトのバッファオーバーランを修正しました。(Paul Guyot)
+     </P
+><P
+>コードでは必要より1バイト多く読み取ろうとし、境界条件ではクラッシュします。
+<TT
+CLASS="FILENAME"
+>contrib/test_parser</TT
+>は単なるサンプルコードであり、これ自体はセキュリティ問題ではありませんが、例のコードとしては良くありません。
+     </P
+></LI
+><LI
+><P
+>ARMにおいて可能ならばスピンロックに<CODE
+CLASS="FUNCTION"
+>__sync_lock_test_and_set()</CODE
+>を使用します。(Martin Pitt)
+     </P
+><P
+>この関数は、以前の廃止予定でARMv6以降では使用できなくなった<TT
+CLASS="LITERAL"
+>SWPB</TT
+>命令の使用を置き換えるものです。
+最近のARMボードでも古いコードは明白な方法で失敗することはありませんが、単に同時アクセスのインターロックを行わず、マルチプロセス操作において奇妙な失敗をもたらすと報告されています。
+
+     </P
+></LI
+><LI
+><P
+>受け付け可能なバージョンのgccを用いて構築する場合に<TT
+CLASS="OPTION"
+>-fexcess-precision=standard</TT
+>オプションを使用します。(Andrew Dunstan)
+     </P
+><P
+>最近のバージョンのgccは独創的な結果を生成するというさまざまなシナリオを防ぎます。
+     </P
+></LI
+><LI
+><P
+>FreeBSDにおいてスレッド化されたPythonを使用できるようにしました。(Chris Rees)
+     </P
+><P
+>configureスクリプトはこれまで、この組み合わせは動作しないと前提していました。
+しかしFreeBSDではこの問題が修正されましたので、エラー検査を取り除きました。
+     </P
+></LI
+><LI
+><P
+>MinGWが標準的な名前のOpenSSLライブラリを使用して構築できるようにしました。(Tomasz Ostrowski)
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-9-1-4.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-9-1-2.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース9.1.4</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース9.1.2</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

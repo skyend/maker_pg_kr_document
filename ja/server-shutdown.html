@@ -1,0 +1,348 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>サーバのシャットダウン</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの準備と運用"
+HREF="runtime.html"><LINK
+REL="PREVIOUS"
+TITLE="カーネルリソースの管理"
+HREF="kernel-resources.html"><LINK
+REL="NEXT"
+TITLE="PostgreSQLクラスタのアップグレード処理"
+HREF="upgrading.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="カーネルリソースの管理"
+HREF="kernel-resources.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 17&#31456;サーバの準備と運用</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLクラスタのアップグレード処理"
+HREF="upgrading.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SERVER-SHUTDOWN"
+>17.5. サーバのシャットダウン</A
+></H1
+><P
+>データベースサーバをシャットダウンする方法は複数あります。
+マスタ<TT
+CLASS="COMMAND"
+>postgres</TT
+>プロセスに異なるシグナルを送ることで、シャットダウンの方法を制御します。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>SIGTERM</SPAN
+></DT
+><DD
+><P
+>これは<I
+CLASS="FIRSTTERM"
+>スマートシャットダウン</I
+>モードです。
+<SPAN
+CLASS="SYSTEMITEM"
+>SIGTERM</SPAN
+>を受け取った後で、サーバは新しい接続を禁止しますが、既に存在するセッションは通常通り動作させます。
+すべてのセッションが通常に終了するまではシャットダウンしません。
+サーバがオンラインバックアップモードである場合、オンラインバックアップモードが活動しなくなるまでさらに待ちます。
+バックアップモードが活動している間、新規接続は依然として許可されますが、スーパユーザに対してだけです
+（この例外はスーパユーザがオンラインバックアップモード停止のための接続を許可します）。
+スマートシャットダウンが要求された時にサーバがリカバリ状態である場合、すべての通常のセッションが終了した後のみでリカバリとストリーミングレプリケーションが停止します。
+      </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>SIGINT</SPAN
+></DT
+><DD
+><P
+>これは<I
+CLASS="FIRSTTERM"
+>高速シャットダウン</I
+>モードです。
+サーバは新しい接続を禁止しすべての存在するサーバプロセスに<SPAN
+CLASS="SYSTEMITEM"
+>SIGTERM</SPAN
+>を送り、この結果サーバプロセスは現在のトランザクションをアボートし、即座に終了します。
+そして サーバはすべてのサーバプロセスの終了を待って、最後にシャットダウンします。
+サーバがオンラインバックアップモードである場合、バックアップモードは終了しますので、そのバックアップは使用することができなくなります。
+      </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>SIGQUIT</SPAN
+></DT
+><DD
+><P
+>これは<I
+CLASS="FIRSTTERM"
+>即時シャットダウン</I
+>です。
+マスタ<TT
+CLASS="COMMAND"
+>postgres</TT
+>プロセスは、すべての子プロセスに <SPAN
+CLASS="SYSTEMITEM"
+>SIGQUIT</SPAN
+>を送り、自らを正しくシャットダウンせず、即座に終了します。
+子プロセスは同様に<SPAN
+CLASS="SYSTEMITEM"
+>SIGQUIT</SPAN
+>を受け取ると即座に終了します。
+これは次の起動時に（WALログを再実行することで）リカバリをすることになります。
+これは緊急の時にのみ使うことを勧めます。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>pg_ctl</TT
+>プログラムは、サーバをシャットダウンさせるシグナルを送信するための便利なインタフェースを提供します。
+他にも、Windows以外のシステムでは<TT
+CLASS="COMMAND"
+>kill</TT
+>を使用して直接シグナルを送信することもできます。
+<TT
+CLASS="COMMAND"
+>postgres</TT
+>プロセスの<ACRONYM
+CLASS="ACRONYM"
+>PID</ACRONYM
+>は、<TT
+CLASS="COMMAND"
+>ps</TT
+>プログラム、もしくはデータディレクトリの中の<TT
+CLASS="FILENAME"
+>postmaster.pid</TT
+>ファイルを使用して見つけることができます。
+例えば、高速シャットダウンをするためには下記のようになります。
+</P><PRE
+CLASS="SCREEN"
+>$ <KBD
+CLASS="USERINPUT"
+>kill -INT `head -1 /usr/local/pgsql/data/postmaster.pid`</KBD
+></PRE
+><P>
+  </P
+><DIV
+CLASS="IMPORTANT"
+><BLOCKQUOTE
+CLASS="IMPORTANT"
+><P
+><B
+>&#37325;&#35201;&#38917;&#30446;: </B
+>サーバをシャットダウンするために<SPAN
+CLASS="SYSTEMITEM"
+>SIGKILL</SPAN
+>を使わない方が良いでしょう。
+これによってサーバが共有メモリとセマフォを解放できなくなり、新しくサーバを開始する前に、手動でその作業をしなければならなくなる可能性があります。
+さらに、<SPAN
+CLASS="SYSTEMITEM"
+>SIGKILL</SPAN
+>は、子プロセスにシグナルを中継することなく<TT
+CLASS="COMMAND"
+>postgres</TT
+>を停止させます。
+このため、個々の子プロセスを停止させるために、同じ作業を手作業で行わなければならなくなります。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>他のセッションを継続させながら個別のセッションを停止するには<CODE
+CLASS="FUNCTION"
+>pg_terminate_backend()</CODE
+>（<A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-SIGNAL-TABLE"
+>&#34920;9-55</A
+>を参照）を使用するか、そのセッションに関連する子プロセスに<SPAN
+CLASS="SYSTEMITEM"
+>SIGTERM</SPAN
+>シグナルを送ります。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="kernel-resources.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="upgrading.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>カーネルリソースの管理</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>クラスタのアップグレード処理</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

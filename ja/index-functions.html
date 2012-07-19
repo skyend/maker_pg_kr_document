@@ -1,0 +1,765 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>インデックスアクセスメソッド関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"><LINK
+REL="PREVIOUS"
+TITLE="インデックス用のカタログ項目"
+HREF="index-catalog.html"><LINK
+REL="NEXT"
+TITLE="インデックススキャン"
+HREF="index-scanning.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックス用のカタログ項目"
+HREF="index-catalog.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 52&#31456;インデックスアクセスメソッドのインタフェース定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックススキャン"
+HREF="index-scanning.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEX-FUNCTIONS"
+>52.2. インデックスアクセスメソッド関数</A
+></H1
+><P
+>インデックスアクセスメソッドが提供しなければならない、インデックス構築および保守関数を以下に示します。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>IndexBuildResult *
+ambuild (Relation heapRelation,
+         Relation indexRelation,
+         IndexInfo *indexInfo);</PRE
+><P>
+新しいインデックスを構築します。
+空のインデックスリレーションが物理的に作成されます。
+これは、アクセスメソッドが必要とする何らかの固定データと、テーブル内に既存のすべてのタプルに対応する項目が書き込まれなければなりません。
+通常、<CODE
+CLASS="FUNCTION"
+>ambuild</CODE
+>関数は<CODE
+CLASS="FUNCTION"
+>IndexBuildHeapScan()</CODE
+>を呼び出し、既存のタプルをテーブルからスキャンし、インデックスに挿入しなければならないキーを計算します。
+この関数は、新しいインデックスに関する統計情報を含むpallocされた構造体を返さなければなりません。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+ambuildempty (Relation indexRelation);</PRE
+><P>
+空のインデックスを構築し、それを指定されたリレーションの初期フォーク（INIT_FORKNUM）に書き出します。
+このメソッドはログを取らないテーブルに対してのみ呼び出されます。
+初期フォークに書き出された空のインデックスは、サーバの再起動の度に主リレーションフォークにコピーされます。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>bool
+aminsert (Relation indexRelation,
+          Datum *values,
+          bool *isnull,
+          ItemPointer heap_tid,
+          Relation heapRelation,
+          IndexUniqueCheck checkUnique);</PRE
+><P>
+既存のインデックスに新しいタプルを挿入します。
+<TT
+CLASS="LITERAL"
+>values</TT
+>配列と<TT
+CLASS="LITERAL"
+>isnull</TT
+>配列がインデックスされるキー値を提供するもので、<TT
+CLASS="LITERAL"
+>heap_tid</TT
+>がインデックスされるTIDです。
+アクセスメソッドが一意なインデックスをサポートする場合（その<TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>amcanunique</TT
+>が真の場合）、<TT
+CLASS="LITERAL"
+>checkUnique</TT
+>は実行する一意性検査の種類を示します。
+これは一意性制約が遅延可能か否かによって変わります。
+<A
+HREF="index-unique-checks.html"
+>&#38917;52.5</A
+>を参照してください。
+通常アクセスメソッドは、一意性検査を行う時に<TT
+CLASS="LITERAL"
+>heapRelation</TT
+>パラメータのみを必要とします
+(タプルの有効性を検証するためにヒープ内を検索しなければなりません)。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>checkUnique</TT
+>が<TT
+CLASS="LITERAL"
+>UNIQUE_CHECK_PARTIAL</TT
+>の場合、関数の論理型の結果値で十分です。
+この場合、真の結果は新しい項目は一意であることが確認されたことを、一方偽の結果は一意でない可能性があること(遅延一意性検査を予定しなければならないこと)を意味します。
+他の場合では、一定の偽という結果が推奨されます。
+  </P
+><P
+>一部のインデックスではすべてのタプルをインデックス付けしない可能性があります。
+タプルがインデックス付けされない場合、<CODE
+CLASS="FUNCTION"
+>aminsert</CODE
+>は何も行わずに戻らなければなりません。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>IndexBulkDeleteResult *
+ambulkdelete (IndexVacuumInfo *info,
+              IndexBulkDeleteResult *stats,
+              IndexBulkDeleteCallback callback,
+              void *callback_state);</PRE
+><P>
+インデックスからタプル（複数可）を削除します。
+これは<SPAN
+CLASS="QUOTE"
+>"一括削除"</SPAN
+>操作を行いますが、インデックス全体をスキャンし、各項目に対して削除すべきかどうか検査を行うように実装されることが想定されています。
+渡される<TT
+CLASS="LITERAL"
+>callback</TT
+>関数は、<TT
+CLASS="LITERAL"
+>callback(<TT
+CLASS="REPLACEABLE"
+><I
+>TID</I
+></TT
+>, callback_state) returns bool</TT
+>という形で、参照用TIDで識別されるインデックス項目を削除すべきかどうか決定するために呼び出さなければなりません。
+NULLまたはpallocした削除操作の影響に関する統計情報を含む構造体を返さなければなりません。
+<CODE
+CLASS="FUNCTION"
+>amvacuumcleanup</CODE
+>に渡さなければならない情報がなければ、NULLを返しても問題ありません。
+  </P
+><P
+><TT
+CLASS="VARNAME"
+>maintenance_work_mem</TT
+>の制限により、多くのタプルが削除される時、<CODE
+CLASS="FUNCTION"
+>ambulkdelete</CODE
+>を複数回呼び出す必要があるかもしれません。
+<TT
+CLASS="LITERAL"
+>stats</TT
+>引数は、このインデックスに対する前回の呼び出し結果です。
+（<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作における最初の呼び出しではこれはNULLです。）
+これにより、アクセスメソッドは操作全体に跨った統計情報を計算することができます。
+典型的に、渡された<TT
+CLASS="LITERAL"
+>stats</TT
+>がNULLでない場合、<CODE
+CLASS="FUNCTION"
+>ambulkdelete</CODE
+>は同じ構造体を変更し、返します。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>IndexBulkDeleteResult *
+amvacuumcleanup (IndexVacuumInfo *info,
+                 IndexBulkDeleteResult *stats);</PRE
+><P>
+<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作（0回以上の<CODE
+CLASS="FUNCTION"
+>ambulkdelete</CODE
+>呼び出し）後の整理を行います。
+これは、インデックス統計情報を返す以上の処理を行う必要はありません。
+しかし、空のインデックスページの回収などの一括整理を行う可能性があります。
+<TT
+CLASS="LITERAL"
+>stats</TT
+>は最後の<CODE
+CLASS="FUNCTION"
+>ambulkdelete</CODE
+>呼び出しが返したものです。
+削除する必要があるタプルが存在しなかったために<CODE
+CLASS="FUNCTION"
+>ambulkdelete</CODE
+>が呼び出されなかった場合はNULLとなります。
+結果はNULLでなければ、pallocされた構造体でなければなりません。
+含まれる統計情報は<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>を更新するために使用され、また、<TT
+CLASS="LITERAL"
+>VERBOSE</TT
+>が指定された<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>によって報告されます。
+<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作の間にインデックスがまったく変わらなかった場合はNULLを返しても問題ありません。
+しかし、そうでなければ正しい統計情報を返さなければなりません。
+  </P
+><P
+>  
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.4の時点で、<CODE
+CLASS="FUNCTION"
+>amvacuumcleanup</CODE
+>も<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>操作の完了時点にも呼び出されます。
+この場合、<TT
+CLASS="LITERAL"
+>stats</TT
+>は常にNULLで、戻り値はまったく無視されます。
+この事象は<TT
+CLASS="LITERAL"
+>info-&gt;analyze_only</TT
+>を検査することで識別されます。
+アクセスメソッドがそのような呼び出しで挿入後の整理以外何もしないように、そしてそれは自動バキュームワーカプロセスのみであるようにすることを推奨します。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+amcostestimate (PlannerInfo *root,
+                IndexOptInfo *index,
+                List *indexQuals,
+                List *indexOrderBys,
+                RelOptInfo *outer_rel,
+                Cost *indexStartupCost,
+                Cost *indexTotalCost,
+                Selectivity *indexSelectivity,
+                double *indexCorrelation);</PRE
+><P>
+インデックススキャンのコストを推定します。
+この関数については後述の<A
+HREF="index-cost-estimation.html"
+>&#38917;52.6</A
+>で説明します。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>bytea *
+amoptions (ArrayType *reloptions,
+           bool validate);</PRE
+><P>
+インデックス用のreloptionsの解析と検証を行います。
+インデックスに非NULLのreloptions配列が存在する場合にのみ呼び出されます。
+<TT
+CLASS="PARAMETER"
+>reloptions</TT
+>は、<TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+><TT
+CLASS="LITERAL"
+>=</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>形式の項目からなる、<TT
+CLASS="TYPE"
+>text</TT
+>型の配列です。
+この関数は<TT
+CLASS="TYPE"
+>bytea</TT
+>型の値を生成しなければならず、この値はインデックスのrelcache項目の<TT
+CLASS="STRUCTFIELD"
+>rd_options</TT
+>フィールドにコピーされます。
+<TT
+CLASS="TYPE"
+>bytea</TT
+>型の値の内容はアクセスメソッドが独自に定義できるように開放されています。
+標準のアクセスメソッドのほとんどはすべて<TT
+CLASS="STRUCTNAME"
+>StdRdOptions</TT
+>構造体を使用します。
+<TT
+CLASS="PARAMETER"
+>validate</TT
+>が真の場合、何らかのオプションが認識できなかった場合や無効な値が存在した場合、この関数は適切なエラーメッセージを報告しなければなりません。
+<TT
+CLASS="PARAMETER"
+>validate</TT
+>が偽の場合、無効な項目は単に無視されます。
+（読み込みオプションが既に<TT
+CLASS="STRUCTNAME"
+>pg_catalog</TT
+>に格納されている場合<TT
+CLASS="PARAMETER"
+>validate</TT
+>は偽です。
+アクセスメソッドがそのオプション用の規則を変更した場合にのみ、無効な項目が検出されます。
+そして、その場合、古い項目を無視することが適切です。）
+デフォルトの動作を行わせたい場合はNULLを返しても問題ありません。
+  </P
+><P
+>当然ながらインデックスの目的は、よく<I
+CLASS="FIRSTTERM"
+>修飾子</I
+>や<I
+CLASS="FIRSTTERM"
+>スキャンキー</I
+>と呼ばれる、インデックス可能な<TT
+CLASS="LITERAL"
+>WHERE</TT
+>条件を満たすタプルのスキャンをサポートすることです。
+インデックススキャンのセマンティックスは後の<A
+HREF="index-scanning.html"
+>&#38917;52.3</A
+>でより詳しく説明します。
+インデックスアクセスメソッドは<SPAN
+CLASS="QUOTE"
+>"単純"</SPAN
+>インデックススキャン、<SPAN
+CLASS="QUOTE"
+>"ビットマップ"</SPAN
+>インデックススキャン、またはこれら双方を提供します。
+インデックスアクセスメソッドが提供しなければならない、もしくは提供する可能性のあるスキャン関連の関数を以下に示します。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>IndexScanDesc
+ambeginscan (Relation indexRelation,
+             int nkeys,
+             int norderbys);</PRE
+><P>
+インデックススキャンを準備します。
+<TT
+CLASS="LITERAL"
+>nkeys</TT
+>および<TT
+CLASS="LITERAL"
+>norderbys</TT
+>パラメータは、スキャンで使用される等価性演算子と順序付け演算子の個数を表します。
+これらは領域を割り当てる目的で便利かもしれません。
+スキャンキーの実値がまだ提供されていないことに注意してください。
+結果はpallocした構造体でなければなりません。
+実装上の理由により、インデックスアクセスメソッドは<CODE
+CLASS="FUNCTION"
+>RelationGetIndexScan()</CODE
+>呼び出しによってこの構造体を作成<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>しなければなりません</I
+></SPAN
+>。
+ほとんどの場合、<CODE
+CLASS="FUNCTION"
+>ambeginscan</CODE
+>はこの呼び出しとおそらくロックの獲得の他にはほとんど何も行いません。
+インデックススキャンを始める際の興味深い部分は、<CODE
+CLASS="FUNCTION"
+>amrescan</CODE
+>にあります。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+amrescan (IndexScanDesc scan,
+          ScanKey keys,
+          int nkeys,
+          ScanKey orderbys,
+          int norderbys);</PRE
+><P>
+インデックススキャンを起動または再起動します。
+スキャンキーを新しくすることもできます。
+（過去に渡されたキーを使用して再起動するには、<TT
+CLASS="LITERAL"
+>key</TT
+>、<TT
+CLASS="LITERAL"
+>orderbys</TT
+>、またはその両方にNULLを渡します。)
+<CODE
+CLASS="FUNCTION"
+>ambeginscan</CODE
+>に渡したキー演算子、順序付け演算子の個数より多くを使用することはできないことに注意してください。
+実際には、入れ子状ループ結合によって新しい外部タプルが選択され、同じスキャンキー構造体で新しいキー比較値が必要とされた場合に、この再起動機能は使用されます。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>boolean
+amgettuple (IndexScanDesc scan,
+            ScanDirection direction);</PRE
+><P>
+指定されたスキャン内から指定された方向（インデックス内の前方または後方）で次のタプルを取り出します。
+タプルを取り出した場合は真を返します。
+一致するタプルが残っていない場合は偽を返します。
+真の場合、そのタプルのTIDが<TT
+CLASS="LITERAL"
+>scan</TT
+>に格納されます。
+<SPAN
+CLASS="QUOTE"
+>"成功"</SPAN
+>とは、単にインデックスにスキャンキーに一致する項目があったことを意味しているだけです。
+タプルが必ずヒープ内に存在することや、呼び出し元のスナップショットの試験を通過したことを意味してはいません。
+成功の暁には、<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>は<TT
+CLASS="LITERAL"
+>scan-&gt;xs_recheck</TT
+>を真か偽かに設定しなければなりません。
+偽の意味は、インデックス項目が確実にスキャンキーに一致することです。
+真の意味は、これが確かなことではなく、スキャンキーで表示された条件がヒープタプルを取り出された後で再検査されなければならないことです。
+この対策は<SPAN
+CLASS="QUOTE"
+>"非可逆"</SPAN
+>インデックス演算子をサポートします。
+再検査はスキャン条件のみに拡大適用されることに注意してください。
+部分インデックス述語（もしあれば）は<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>呼び出し元で決して再検査されません。
+  </P
+><P
+>  
+<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>関数は、アクセスメソッドが<SPAN
+CLASS="QUOTE"
+>"単純"</SPAN
+>インデックススキャンをサポートするときのみ提供される必要があります。
+そうでなければ、<TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+>行の<TT
+CLASS="STRUCTFIELD"
+>amgettuple</TT
+>フィールドはゼロに設定されなければなりません。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>int64
+amgetbitmap (IndexScanDesc scan,
+             TIDBitmap *tbm);</PRE
+><P>
+指定されたスキャンから全てのタプルを取り出し、呼び出し側が提供する<TT
+CLASS="TYPE"
+>TIDBitmap</TT
+>にそれらを付加します
+（つまり、既にビットマップ内にある集合とタプルIDの集合とのORを取ります）。
+取り出されたタプル数が返されます（例えばいくつかのAMは重複を検出しませんので、これは単なる概算です）。
+タプルIDをビットマップに挿入する間、<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>は特定のタプルIDに必要なスキャン条件の再検査を示すことが可能です。
+これは<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>の<TT
+CLASS="LITERAL"
+>xs_recheck</TT
+>出力パラメータに類似しています。
+注意：現在の実装においてこの機能の提供はビットマップそのものの非可逆格納を提供するのに結びついていて、したがって呼び出し側はスキャン条件と部分インデックスの述部（存在すれば）を再検査可能なタプルに対して再検査します。
+とは言っても常に正しいとは限りません。
+<CODE
+CLASS="FUNCTION"
+>amgetmulti</CODE
+>および<CODE
+CLASS="FUNCTION"
+>amgettuple</CODE
+>を同じインデックススキャン内で使用することはできません。
+<A
+HREF="index-scanning.html"
+>&#38917;52.3</A
+>で説明した通り、<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>を使用する場合には他にも制限があります。
+  </P
+><P
+>  
+<CODE
+CLASS="FUNCTION"
+>amgetbitmap</CODE
+>関数はアクセスメソッドが<SPAN
+CLASS="QUOTE"
+>"ビットマップ"</SPAN
+>インデックススキャンをサポートしている場合のみ必要です。
+そうでなければ、<TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+>行の中の<TT
+CLASS="STRUCTFIELD"
+>amgetbitmap</TT
+>フィールドはゼロに設定されなければなりません。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+amendscan (IndexScanDesc scan);</PRE
+><P>
+スキャンを停止し、リソースを解放します。
+<TT
+CLASS="LITERAL"
+>scan</TT
+>構造体自体は解放すべきではありません。
+アクセスメソッドで内部的に取られたロックやピンは解放しなければなりません。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+ammarkpos (IndexScanDesc scan);</PRE
+><P>
+現在のスキャン位置を記録します。
+アクセスメソッドは1スキャン当たり1つの記録済みスキャンのみをサポートしなければなりません。
+  </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>void
+amrestrpos (IndexScanDesc scan);</PRE
+><P>
+もっとも最近に記録された位置にスキャンを戻します。
+  </P
+><P
+>簡便性のために、インデックスアクセスメソッド関数の<TT
+CLASS="LITERAL"
+>pg_proc</TT
+>項目は、正確な引数の数を示さなければなりません。
+しかし、それらはすべて<TT
+CLASS="TYPE"
+>internal</TT
+>型として宣言します。
+（引数のほとんどがSQLでは未知の型を持つため、ユーザがこうした関数を直接呼び出すことを防ぐことがこの理由です。）
+戻り値の型は、<TT
+CLASS="TYPE"
+>void</TT
+>、<TT
+CLASS="TYPE"
+>internal</TT
+>、<TT
+CLASS="TYPE"
+>boolean</TT
+>のいずれかで適切に宣言されます。
+唯一の例外は<CODE
+CLASS="FUNCTION"
+>amoptions</CODE
+>です。
+これは、<TT
+CLASS="TYPE"
+>text[]</TT
+>および<TT
+CLASS="TYPE"
+>bool</TT
+>を取り<TT
+CLASS="TYPE"
+>bytea</TT
+>を返すように正しく宣言しなければなりません。
+この規定により、クライアントコードは<CODE
+CLASS="FUNCTION"
+>amoptions</CODE
+>を実行してオプションの設定の有効性を検査することができます。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index-catalog.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="index-scanning.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インデックス用のカタログ項目</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexam.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>インデックススキャン</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

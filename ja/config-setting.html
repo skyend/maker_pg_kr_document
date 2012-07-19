@@ -1,0 +1,457 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>パラメータの設定</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="NEXT"
+TITLE="ファイルの場所"
+HREF="runtime-config-file-locations.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ファイルの場所"
+HREF="runtime-config-file-locations.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CONFIG-SETTING"
+>18.1. パラメータの設定</A
+></H1
+><P
+>   
+    全てのパラメータの名前は大文字と小文字を区別しません。
+    それぞれのパラメータは、論理値、整数、浮動小数点、文字列、またはenum（列挙型）の5つの型のいずれかの値を取ります。
+論理値は、<TT
+CLASS="LITERAL"
+>on</TT
+>、<TT
+CLASS="LITERAL"
+>off</TT
+>、<TT
+CLASS="LITERAL"
+>true</TT
+>、<TT
+CLASS="LITERAL"
+>false</TT
+>、<TT
+CLASS="LITERAL"
+>yes</TT
+>、<TT
+CLASS="LITERAL"
+>no</TT
+>、<TT
+CLASS="LITERAL"
+>1</TT
+>、<TT
+CLASS="LITERAL"
+>0</TT
+>、または、これらとすぐに推測できるどんな接頭文字でも記述することができます（全て大文字小文字の区別はありません）。
+   </P
+><P
+>   
+    一部の設定では、メモリや時刻に関する値を指定します。
+それぞれは暗黙的な単位を持ちます。キロバイト、ブロック（通常8キロバイト）、ミリ秒、秒、分などです。
+デフォルトの単位は<TT
+CLASS="STRUCTNAME"
+>pg_settings</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>unit</TT
+>を参照することで調べることができます。
+便宜上、別の単位を明示的に指定することができます。
+メモリに関する単位では、<TT
+CLASS="LITERAL"
+>kB</TT
+> (キロバイト)、<TT
+CLASS="LITERAL"
+>MB</TT
+> (メガバイト)、<TT
+CLASS="LITERAL"
+>GB</TT
+>(ギガバイト)が有効です。
+時刻に関する単位では<TT
+CLASS="LITERAL"
+>ms</TT
+>(ミリ秒)、<TT
+CLASS="LITERAL"
+>s</TT
+> (秒)、<TT
+CLASS="LITERAL"
+>min</TT
+> (分)、<TT
+CLASS="LITERAL"
+>h</TT
+> (時間)、<TT
+CLASS="LITERAL"
+>d</TT
+> (日数)が有効です。
+メモリ単位の乗数は1000ではなく1024であることに注意してください。
+   </P
+><P
+>   
+    <SPAN
+CLASS="QUOTE"
+>"enum（列挙）"</SPAN
+>型のパラメータは文字列パラメータと同様の方法で指定されますが、限定された値の集合に制限されます。
+有効な値は<TT
+CLASS="STRUCTNAME"
+>pg_settings</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>enumvals</TT
+>から見つけることができます。
+列挙型パラメータ値には大文字小文字の区別がありません。
+   </P
+><P
+>   
+    これらのパラメータを設定する1つの方法は、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイルを編集することで、これは通常 data ディレクトリに格納されています。
+（デフォルトのコピーはデータベースクラスタディレクトリが初期化されるときそこにインストールされます。）このファイルがどういったものかの例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+># This is a comment
+log_connections = yes
+log_destination = 'syslog'
+search_path = '"$user", public'
+shared_buffers = 128MB</PRE
+><P>
+    1つの行毎に1つのパラメータが指定されます。
+    名前と値の間の等号はオプションです。空白（white space）は特に意味を持たず、何もない行は無視されます。何処にあってもハッシュ記号（<TT
+CLASS="LITERAL"
+>#</TT
+>）はその行の後の表記が注釈であることを意味します。単純でない識別子、または数値でないパラメータ値は単一引用符で括られなければなりません。パラメータ値の中に単一引用符を埋め込む場合、二重引用符（推奨）もしくは逆引用符で括ります。
+   </P
+><P
+>    
+    
+    パラメータ設定の他、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>には<I
+CLASS="FIRSTTERM"
+>include 指示子</I
+>があります。
+この指示子は、設定ファイルの当該位置に指定したファイルが挿入されているかのように、そのファイルを読み込み処理することを指定します。
+include指示子は以下のような単純なものです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>include 'filename'</PRE
+><P>
+    ファイル名が絶対パスでなければ、参照元の設定ファイルがあるディレクトリからの相対パスとみなされます。
+includeは入れ子にすることができます。
+   </P
+><P
+>    
+    
+    設定ファイルはメインサーバプロセスが（<TT
+CLASS="LITERAL"
+>pg_ctl reload</TT
+>により、一番簡単に送られる）<SPAN
+CLASS="SYSTEMITEM"
+>SIGHUP</SPAN
+>信号を受け取る時は常に再読み込みされます。
+メインサーバプロセスは同時にこの信号を、現存のセッションが同様に新しい値を入手できるように、全ての現在実行しているサーバプロセスに伝播します。
+他の手段として、直接単一のサーバプロセスを送出することも可能です。いくつかのパラメータはサーバの起動時のみ設定されます。設定ファイル中のそれらのエントリのいかなる変更も、サーバが再起動されるまで無視されます。
+   </P
+><P
+>   
+    これら設定パラメータを設定する第二の方法は、以下のように<TT
+CLASS="COMMAND"
+>postgres</TT
+>コマンドに対してコマンドラインオプションとして与えます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>postgres -c log_connections=yes -c log_destination='syslog'</PRE
+><P>
+    コマンドラインオプションは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>にある、どんな矛盾した設定をも上書きします。
+    これが意味することは、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>を編集するだけでは、値をすぐに変更できず、従ってコマンドラインによる方法は便利とは言っても、後に柔軟性に犠牲を払う羽目に陥ることを覚えておいてください。
+   </P
+><P
+>   
+    場合によっては、１つの特定セッションのみにコマンドラインオプションを与えることが便利です。
+    環境変数 <TT
+CLASS="ENVAR"
+>PGOPTIONS</TT
+>はこの目的のためにクライアント側で使用できます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>env PGOPTIONS='-c geqo=off' psql</PRE
+><P>
+    （これは、単に<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>だけではなく、全ての<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>に基づいたクライアントアプリケーションに対して有効です。）
+    これは、サーバが起動された時に修正されたパラメータ、または、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>で指定されなければならないパラメータに対しては効果がないことを覚えておいてください。
+   </P
+><P
+>   
+    更に、ユーザもしくはデータベースにパラメータ設定のひとそろいを割り当てることができます。
+セッションが開始された時はいつでも、ユーザとデータベースに関連したデフォルトの設定が読み込まれます。
+<A
+HREF="sql-alteruser.html"
+>ALTER USER</A
+>および<A
+HREF="sql-alterdatabase.html"
+>ALTER DATABASE</A
+>コマンドは、それぞれこれらの設定を設定するために用いられます。
+    データベース毎の設定は、<TT
+CLASS="COMMAND"
+>postgres</TT
+>コマンドライン、または設定ファイルから受け取った何によっても上書きされます。
+    そして順次ユーザ毎の設定が上書きします。
+    これらは共にセッション毎の設定で上書きされます。
+   </P
+><P
+>   
+    個別の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>セッションのいくつかのパラメータは<A
+HREF="sql-set.html"
+>SET</A
+>コマンドで変更可能です。例えば：
+</P><PRE
+CLASS="SCREEN"
+>SET ENABLE_SEQSCAN TO OFF;</PRE
+><P>
+    <TT
+CLASS="COMMAND"
+>SET</TT
+>が使える場合には、そのパラメータに対して設定された値が上書きされます。
+    いくつかのパラメータは <TT
+CLASS="COMMAND"
+>SET</TT
+> では変更できません。
+    例えば、そのパラメータが<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバ全体を再起動しなければ変更できない動作を制御している場合です。
+    さらに、いくつかの<TT
+CLASS="COMMAND"
+>SET</TT
+>または<TT
+CLASS="COMMAND"
+>ALTER</TT
+>パラメータによる修正はスーパユーザ権限を必要とします。
+   </P
+><P
+>   
+    <A
+HREF="sql-show.html"
+>SHOW</A
+>コマンドで全てのパラメータの現在値を調査することができます。
+   </P
+><P
+>   
+    仮想テーブル<TT
+CLASS="STRUCTNAME"
+>pg_settings</TT
+>もセッション実行時パラメータの表示と更新を可能にします。
+    異なった変数型と、いつそれらが変更可能かについての詳細と説明は <A
+HREF="view-pg-settings.html"
+>&#38917;45.62</A
+> を参照してください。
+    <TT
+CLASS="STRUCTNAME"
+>pg_settings</TT
+>は<TT
+CLASS="COMMAND"
+>SHOW</TT
+>と<TT
+CLASS="COMMAND"
+>SET</TT
+>と等価です。
+    しかし、他のテーブルとの結合や、目的とする条件を指定した検索ができるので、より使い勝手に優れています。
+    また、パラメータにどのような値が使用できるかについてより重要な情報が含まれています。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-file-locations.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>サーバの設定</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ファイルの場所</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

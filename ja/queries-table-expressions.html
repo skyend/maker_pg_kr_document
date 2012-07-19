@@ -1,0 +1,1774 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テーブル式</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="問い合わせ"
+HREF="queries.html"><LINK
+REL="PREVIOUS"
+TITLE="概要"
+HREF="queries-overview.html"><LINK
+REL="NEXT"
+TITLE="選択リスト"
+HREF="queries-select-lists.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="概要"
+HREF="queries-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="問い合わせ"
+HREF="queries.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 7&#31456;問い合わせ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="問い合わせ"
+HREF="queries.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="選択リスト"
+HREF="queries-select-lists.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="QUERIES-TABLE-EXPRESSIONS"
+>7.2. テーブル式</A
+></H1
+><P
+><I
+CLASS="FIRSTTERM"
+>テーブル式</I
+>はテーブルを計算するためのものです。
+テーブル式には<TT
+CLASS="LITERAL"
+>FROM</TT
+>句が含まれており、その後ろにオプションとして<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句を付けることができます。
+単純なテーブル式は、単にディスク上のいわゆる基本テーブルと呼ばれるテーブルを参照するだけです。
+しかし、様々な方法で基本テーブルを修正したり、組み合わせたりするためにより複雑な式を使用することができます。
+  </P
+><P
+>テーブル式のオプション<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句、および<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句は、<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で派生したテーブル上に対して次々に変換を実行するパイプラインを指定します。
+これらの変換によって仮想テーブルが1つ生成されます。
+そしてこの仮想テーブルの行が選択リストに渡され、問い合わせの出力行が計算されます。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-FROM"
+>7.2.1. <TT
+CLASS="LITERAL"
+>FROM</TT
+>句</A
+></H2
+><P
+><A
+HREF="sql-select.html#SQL-FROM"
+><I
+><I
+>FROM</I
+>句</I
+></A
+>は、カンマで分けられたテーブル参照リストで与えられる1つ以上のテーブルから、1つのテーブルを派生します。
+</P><PRE
+CLASS="SYNOPSIS"
+>FROM <TT
+CLASS="REPLACEABLE"
+><I
+>table_reference</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>table_reference</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ...</SPAN
+>]</SPAN
+>]</PRE
+><P>
+
+テーブル参照は、テーブル名（スキーマで修飾することもできます）、または、副問い合わせ、テーブル結合、それらの複雑な組み合わせなどから派生されたテーブルを取ることができます。
+<TT
+CLASS="LITERAL"
+>FROM</TT
+>句に複数のテーブル参照がある場合、それらは、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句、および<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句で変換できる中間的な仮想テーブルを作るためにクロス結合（下記を参照）され、最終的にはテーブル式全体の結果となります。
+   </P
+><P
+>テーブル参照で、テーブルの継承階層の親テーブルの名前を指定すると、テーブル名の前に<TT
+CLASS="LITERAL"
+>ONLY</TT
+>キーワードがない場合は、テーブル参照はそのテーブルだけでなくその子テーブルに継承されたすべての行を生成します。
+しかし、この参照は名前を指定したテーブルに現れる列のみを生成し、子テーブルで追加された列は無視されます。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="QUERIES-JOIN"
+>7.2.1.1. 結合テーブル</A
+></H3
+><P
+>結合テーブルは、2つの（実または派生）テーブルから、指定した結合種類の規則に従って派生したテーブルです。
+内部結合、外部結合、およびクロス結合が使用可能です。
+    </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><P
+><B
+>結合の種類</B
+></P
+><DL
+><DT
+>クロス結合</DT
+><DD
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+> CROSS JOIN <TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+></PRE
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+>および<TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+>からのすべての可能な行の組み合わせ（つまりデカルト積）に対し、結合されたテーブルは<TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+>のすべての列が続く<TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+>のすべての列から成る行を含みます。
+テーブルがそれぞれN行とM行で構成されているとすると、結合されたテーブルの行数はN * M行となります。
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM <TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+> CROSS JOIN <TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+></TT
+>は<TT
+CLASS="LITERAL"
+>FROM <TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+></TT
+>と同じです。
+また（後述の）<TT
+CLASS="LITERAL"
+>FROM <TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+> INNER JOIN <TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+> ON TRUE</TT
+>とも同じです。
+       </P
+></DD
+><DT
+>修飾付き結合</DT
+><DD
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+> { [<SPAN
+CLASS="OPTIONAL"
+>INNER</SPAN
+>] | { LEFT | RIGHT | FULL } [<SPAN
+CLASS="OPTIONAL"
+>OUTER</SPAN
+>] } JOIN <TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+> ON <TT
+CLASS="REPLACEABLE"
+><I
+>boolean_expression</I
+></TT
+>
+<TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+> { [<SPAN
+CLASS="OPTIONAL"
+>INNER</SPAN
+>] | { LEFT | RIGHT | FULL } [<SPAN
+CLASS="OPTIONAL"
+>OUTER</SPAN
+>] } JOIN <TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+> USING ( <TT
+CLASS="REPLACEABLE"
+><I
+>join column list</I
+></TT
+> )
+<TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+> NATURAL { [<SPAN
+CLASS="OPTIONAL"
+>INNER</SPAN
+>] | { LEFT | RIGHT | FULL } [<SPAN
+CLASS="OPTIONAL"
+>OUTER</SPAN
+>] } JOIN <TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+></PRE
+><P
+><TT
+CLASS="LITERAL"
+>INNER</TT
+>や<TT
+CLASS="LITERAL"
+>OUTER</TT
+>は省略可能です。
+<TT
+CLASS="LITERAL"
+>INNER</TT
+>がデフォルトとなります。
+<TT
+CLASS="LITERAL"
+>LEFT</TT
+>、<TT
+CLASS="LITERAL"
+>RIGHT</TT
+>、<TT
+CLASS="LITERAL"
+>FULL</TT
+>は外部結合を意味します。
+       </P
+><P
+><I
+CLASS="FIRSTTERM"
+>結合条件</I
+>は、<TT
+CLASS="LITERAL"
+>ON</TT
+>句か<TT
+CLASS="LITERAL"
+>USING</TT
+>句で指定するか、または<TT
+CLASS="LITERAL"
+>NATURAL</TT
+>記述で暗黙的に指定します。
+結合条件は、以下で詳しく説明するように、2つの元となるテーブルのどの行が<SPAN
+CLASS="QUOTE"
+>"一致するか"</SPAN
+>を決めます。
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>ON</TT
+>句は最も一般的な結合条件であり、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句で使われるものと同じ論理値評価式となります。
+<TT
+CLASS="LITERAL"
+>ON</TT
+>式の評価が真となる場合、<TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+>および<TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+>の対応する行が一致します。
+       </P
+><P
+><TT
+CLASS="LITERAL"
+>USING</TT
+>は略記法です。
+それは、結合テーブルが共通で持つカンマで区切られた列名のリストから、各々の列の組み合わせの等価性を結合条件として形成します。
+さらに、<TT
+CLASS="LITERAL"
+>JOIN USING</TT
+>の出力は、入力列で等価判定された列の組み合わせそれぞれに対する1列と、その後に各テーブルの残った列が続きます。
+つまり、<TT
+CLASS="LITERAL"
+>USING (a, b, c)</TT
+>は<TT
+CLASS="LITERAL"
+>ON (t1.a = t2.a AND t1.b = t2.b AND t1.c = t2.c)</TT
+>と等価です。
+ただし、<TT
+CLASS="LITERAL"
+>ON</TT
+>を使った場合は、結果において<TT
+CLASS="LITERAL"
+>a</TT
+>、<TT
+CLASS="LITERAL"
+>b</TT
+>、<TT
+CLASS="LITERAL"
+>c</TT
+>はそれぞれ2つの列になりますが、<TT
+CLASS="LITERAL"
+>USING</TT
+>を使うとそれぞれ1つの列になるという例外があります（そして<TT
+CLASS="COMMAND"
+>SELECT *</TT
+>が使われているとそれらは最初に現れます）。
+       </P
+><P
+>        
+        
+最後に、<TT
+CLASS="LITERAL"
+>NATURAL</TT
+>は<TT
+CLASS="LITERAL"
+>USING</TT
+>の略記形式です。
+2つの入力テーブルの両方に含まれているすべての列名で構成される<TT
+CLASS="LITERAL"
+>USING</TT
+>リストを形成します。
+<TT
+CLASS="LITERAL"
+>USING</TT
+>と同様、これらの列は出力テーブルに一度だけ現れます。
+共通する列が存在しない場合、<TT
+CLASS="LITERAL"
+>NATURAL</TT
+>は<TT
+CLASS="LITERAL"
+>CROSS JOIN</TT
+>と同様に動作します。
+       </P
+><P
+>修飾付き結合には次のものがあります。
+
+       <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>INNER JOIN</TT
+>（内部結合）</DT
+><DD
+><P
+>T1の行R1に対して、T2においてR1との結合条件を満たしている行が、結合されたテーブルに含まれます。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>LEFT OUTER JOIN</TT
+>（左外部結合）</DT
+><DD
+><P
+>まず、内部結合が行われます。
+その後、T2のどの行との結合条件も満たさないT1の各行については、T2の列をNULL値として結合行が追加されます。
+したがって、連結されたテーブルは常にT1の行それぞれに少なくとも1つの行があります。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RIGHT OUTER JOIN</TT
+>（右外部結合）</DT
+><DD
+><P
+>まず、内部結合が行われます。
+その後、T1のどの行の結合条件も満たさないT2の各行については、T1の列をNULL値として結合行が追加されます。
+これは左結合の反対です。
+結果のテーブルは、T2の行が常に入ります。
+          </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FULL OUTER JOIN</TT
+>（完全外部結合）</DT
+><DD
+><P
+>まず、内部結合が行われます。
+その後、T2のどの行の結合条件も満たさないT1の各行については、T2の列をNULL値として結合行が追加されます。
+さらに、T1のどの行でも結合条件を満たさないT2の各行に対して、T1の列をNULL値として結合行が追加されます。 
+          </P
+></DD
+></DL
+></DIV
+><P>
+       </P
+></DD
+></DL
+></DIV
+><P
+>すべての結合は、互いに結び付けたり、あるいは入れ子にしたりすることができます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>T1</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>T2</I
+></TT
+>のどちらか、あるいは両方が、結合テーブルになることがあります。
+括弧は結合の順序を制御するために<TT
+CLASS="LITERAL"
+>JOIN</TT
+>句を括ることに使うことができます。
+括弧がない場合、<TT
+CLASS="LITERAL"
+>JOIN</TT
+>句は左から右に入れ子にします。
+    </P
+><P
+>まとめとして、 以下のテーブル<TT
+CLASS="LITERAL"
+>t1</TT
+>
+</P><PRE
+CLASS="PROGRAMLISTING"
+> num | name
+-----+------
+   1 | a
+   2 | b
+   3 | c</PRE
+><P>
+および、テーブル<TT
+CLASS="LITERAL"
+>t2</TT
+>
+</P><PRE
+CLASS="PROGRAMLISTING"
+> num | value
+-----+-------
+   1 | xxx
+   3 | yyy
+   5 | zzz</PRE
+><P>
+を想定すると、以下のように様々な結合に関する結果が得られます。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 CROSS JOIN t2;</KBD
+>
+ num | name | num | value
+-----+------+-----+-------
+   1 | a    |   1 | xxx
+   1 | a    |   3 | yyy
+   1 | a    |   5 | zzz
+   2 | b    |   1 | xxx
+   2 | b    |   3 | yyy
+   2 | b    |   5 | zzz
+   3 | c    |   1 | xxx
+   3 | c    |   3 | yyy
+   3 | c    |   5 | zzz
+(9 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 INNER JOIN t2 ON t1.num = t2.num;</KBD
+>
+ num | name | num | value
+-----+------+-----+-------
+   1 | a    |   1 | xxx
+   3 | c    |   3 | yyy
+(2 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 INNER JOIN t2 USING (num);</KBD
+>
+ num | name | value
+-----+------+-------
+   1 | a    | xxx
+   3 | c    | yyy
+(2 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 NATURAL INNER JOIN t2;</KBD
+>
+ num | name | value
+-----+------+-------
+   1 | a    | xxx
+   3 | c    | yyy
+(2 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 LEFT JOIN t2 ON t1.num = t2.num;</KBD
+>
+ num | name | num | value
+-----+------+-----+-------
+   1 | a    |   1 | xxx
+   2 | b    |     |
+   3 | c    |   3 | yyy
+(3 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 LEFT JOIN t2 USING (num);</KBD
+>
+ num | name | value
+-----+------+-------
+   1 | a    | xxx
+   2 | b    |
+   3 | c    | yyy
+(3 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 RIGHT JOIN t2 ON t1.num = t2.num;</KBD
+>
+ num | name | num | value
+-----+------+-----+-------
+   1 | a    |   1 | xxx
+   3 | c    |   3 | yyy
+     |      |   5 | zzz
+(3 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 FULL JOIN t2 ON t1.num = t2.num;</KBD
+>
+ num | name | num | value
+-----+------+-----+-------
+   1 | a    |   1 | xxx
+   2 | b    |     |
+   3 | c    |   3 | yyy
+     |      |   5 | zzz
+(4 rows)</PRE
+><P>
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>ON</TT
+>で指定される結合条件には、結合に直接関係しない条件も含めることができます。
+これは一部の問い合わせにおいては便利ですが、使用の際には注意が必要です。
+例を示します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 LEFT JOIN t2 ON t1.num = t2.num AND t2.value = 'xxx';</KBD
+>
+ num | name | num | value
+-----+------+-----+-------
+   1 | a    |   1 | xxx
+   2 | b    |     |
+   3 | c    |     |
+(3 rows)</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の中に制約を記述すると異なる結果になることに注意してください。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM t1 LEFT JOIN t2 ON t1.num = t2.num WHERE t2.value = 'xxx';</KBD
+>
+ num | name | num | value
+-----+------+-----+-------
+   1 | a    |   1 | xxx
+(1 row)</PRE
+><P>
+この理由は<TT
+CLASS="LITERAL"
+>ON</TT
+>句の中の制約は結合の<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>前</I
+></SPAN
+>に処理され、一方<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の中の制約は結合の<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>後</I
+></SPAN
+>に処理されることによります。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="QUERIES-TABLE-ALIASES"
+>7.2.1.2. テーブルと列の別名</A
+></H3
+><P
+>テーブルや複雑なテーブル参照は、問い合わせの後の方で派生テーブルを参照するために一時的な名前を与えることができます。
+これを<I
+CLASS="FIRSTTERM"
+>テーブルの別名</I
+>と呼びます。
+    </P
+><P
+>テーブルの別名を作成するには以下のようにします。
+</P><PRE
+CLASS="SYNOPSIS"
+>FROM <TT
+CLASS="REPLACEABLE"
+><I
+>table_reference</I
+></TT
+> AS <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+></PRE
+><P>
+もしくは
+</P><PRE
+CLASS="SYNOPSIS"
+>FROM <TT
+CLASS="REPLACEABLE"
+><I
+>table_reference</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="LITERAL"
+>AS</TT
+>キーワードはなくても構わないノイズです。
+<TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+>は任意の識別子になります。
+    </P
+><P
+>テーブルの別名の一般的な適用法は、長いテーブル名に短縮した識別子を割り当てて結合句を読みやすくすることです。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM some_very_long_table_name s JOIN another_fairly_long_name a ON s.id = a.num;</PRE
+><P>
+    </P
+><P
+>別名は、現在の問い合わせに関してはテーブル参照をする時の新しい名前になります。
+問い合わせの他の場所で元々の名前でテーブルを参照することはできなくなります。
+よって、これは有効ではありません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM my_table AS m WHERE my_table.a &gt; 5;    -- wrong</PRE
+><P>
+    </P
+><P
+>テーブルの別名は主に表記を簡単にするためにあります。
+しかし次のように、1つのテーブルが自分自身と結合する場合は、必須となります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM people AS mother JOIN people AS child ON mother.id = child.mother_id;</PRE
+><P>
+さらに、テーブル参照が副問い合わせ（<A
+HREF="queries-table-expressions.html#QUERIES-SUBQUERIES"
+>&#38917;7.2.1.3</A
+>を参照）の場合に別名が必要になります。
+    </P
+><P
+>括弧は曖昧さをなくすために使われます。
+次の例では、最初の文で2つ目の<TT
+CLASS="LITERAL"
+>my_table</TT
+>のインスタンスに<TT
+CLASS="LITERAL"
+>b</TT
+>という別名を付与し、一方、2つ目の文では結合結果に対して別名を付与しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM my_table AS a CROSS JOIN my_table AS b ...
+SELECT * FROM (my_table AS a CROSS JOIN my_table) AS b ...</PRE
+><P>
+    </P
+><P
+>次のような形式でテーブル別名を付けて、テーブル自身と同様にテーブルの列に一時的な名前を付けることができます。
+</P><PRE
+CLASS="SYNOPSIS"
+>FROM <TT
+CLASS="REPLACEABLE"
+><I
+>table_reference</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>AS</SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>alias</I
+></TT
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>column1</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>column2</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ...</SPAN
+>]</SPAN
+>] )</PRE
+><P>
+もし、実際のテーブルが持つ列よりも少ない数の列の別名が与えられる場合、残りの列は改名されません。
+この構文は、自己結合あるいは副問い合わせで特に役立ちます。
+    </P
+><P
+>別名が<TT
+CLASS="LITERAL"
+>JOIN</TT
+>句の結果に適用される場合、別名は<TT
+CLASS="LITERAL"
+>JOIN</TT
+>内で参照される元々の名を隠します。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a.* FROM my_table AS a JOIN your_table AS b ON ...</PRE
+><P>
+は有効なSQLですが、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a.* FROM (my_table AS a JOIN your_table AS b ON ...) AS c</PRE
+><P>
+は有効ではありません。
+テーブルの別名<TT
+CLASS="LITERAL"
+>a</TT
+>は、別名<TT
+CLASS="LITERAL"
+>c</TT
+>の外側では参照することができません。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="QUERIES-SUBQUERIES"
+>7.2.1.3. 副問い合わせ</A
+></H3
+><P
+>派生テーブルを指定する副問い合わせは括弧で囲む必要があります。
+また、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必ず</I
+></SPAN
+>テーブル別名が割り当てられている必要があります。
+（<A
+HREF="queries-table-expressions.html#QUERIES-TABLE-ALIASES"
+>&#38917;7.2.1.2</A
+>を参照してください。）
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>FROM (SELECT * FROM table1) AS alias_name</PRE
+><P>
+    </P
+><P
+>この例は<TT
+CLASS="LITERAL"
+>FROM table1 AS alias_name</TT
+>と同じです。
+さらに興味深いケースとして、副問い合わせがグループ化や集約を含んでいる場合、単純結合にまとめることはできないということがあります。
+    </P
+><P
+>また、副問い合わせを<TT
+CLASS="COMMAND"
+>VALUES</TT
+>リストとすることもできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>FROM (VALUES ('anne', 'smith'), ('bob', 'jones'), ('joe', 'blow'))
+     AS names(first, last)</PRE
+><P>
+繰り返しますが、テーブルの別名が必要です。
+<TT
+CLASS="COMMAND"
+>VALUES</TT
+>リストの列に別名を付与することは省略することもできますが、付与することを勧めます。
+<A
+HREF="queries-values.html"
+>&#38917;7.7</A
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="QUERIES-TABLEFUNCTIONS"
+>7.2.1.4. テーブル関数</A
+></H3
+><P
+>テーブル関数は、基本データ型（スカラ型）、もしくは複合データ型（テーブル行）からなる行の集合を生成する関数です。
+これらは、テーブル、ビュー、問い合わせの<TT
+CLASS="LITERAL"
+>FROM</TT
+>句内の副問い合わせのように使用されます。
+テーブル関数から返される列は、テーブル、ビュー、副問い合わせ列と同様の手順で、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>、<TT
+CLASS="LITERAL"
+>JOIN</TT
+>、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>の中に含めることができます。
+    </P
+><P
+>テーブル関数が基本データ型を返す場合、単一の結果列名は関数名に一致します。
+関数が複合型を返す場合は、結果列はその型の個々の属性と同じ名前になります。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句でテーブル関数に別名を付けることも、別名を付けずにそのまま使用することもできます。
+別名を付けずに<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で関数を使用した場合、関数名が出力テーブル名として使用されます。
+    </P
+><P
+>以下に数例示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE foo (fooid int, foosubid int, fooname text);
+
+CREATE FUNCTION getfoo(int) RETURNS SETOF foo AS $$
+    SELECT * FROM foo WHERE fooid = $1;
+$$ LANGUAGE SQL;
+
+SELECT * FROM getfoo(1) AS t1;
+
+SELECT * FROM foo
+    WHERE foosubid IN (
+                        SELECT foosubid
+                        FROM getfoo(foo.fooid) z
+                        WHERE z.fooid = foo.fooid
+                      );
+
+CREATE VIEW vw_getfoo AS SELECT * FROM getfoo(1);
+
+SELECT * FROM vw_getfoo;</PRE
+><P>
+    </P
+><P
+>呼び出し方法に応じて異なる列集合を返すテーブル関数を定義することが役に立つ場合があります。
+これをサポートするには、テーブル関数を<TT
+CLASS="TYPE"
+>record</TT
+>仮想型を返すものと宣言します。
+こうした関数を問い合わせで使用する場合、システムがその問い合わせをどのように解析し計画を作成すればよいのかが判断できるように、想定した行構造を問い合わせ自身内に指定しなければなりません。
+次の例で考えてみましょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT *
+    FROM dblink('dbname=mydb', 'SELECT proname, prosrc FROM pg_proc')
+      AS t1(proname name, prosrc text)
+    WHERE proname LIKE 'bytea%';</PRE
+><P>
+<A
+HREF="contrib-dblink-function.html"
+>dblink</A
+>関数（<A
+HREF="dblink.html"
+>dblink</A
+>モジュールの一部）は遠隔問い合わせを実行します。
+これは任意の問い合わせで使用できるように、<TT
+CLASS="TYPE"
+>record</TT
+>を返すものと宣言されています。
+実際の列集合は、パーサが例えば<TT
+CLASS="LITERAL"
+>*</TT
+>がどのように展開されるかを理解できるように、呼び出した問い合わせ内で指定されなければなりません。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-WHERE"
+>7.2.2. <TT
+CLASS="LITERAL"
+>WHERE</TT
+>句</A
+></H2
+><P
+><A
+HREF="sql-select.html#SQL-WHERE"
+><I
+><I
+>WHERE</I
+>句</I
+></A
+>の構文は以下の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+>WHERE <TT
+CLASS="REPLACEABLE"
+><I
+>search_condition</I
+></TT
+></PRE
+><P>
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>search_condition</I
+></TT
+>には<TT
+CLASS="TYPE"
+>boolean</TT
+>型を返すどのような評価式（<A
+HREF="sql-expressions.html"
+>&#38917;4.2</A
+>を参照）も指定できます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句の処理が終わった後、派生した仮想テーブルの各行は検索条件と照合されます。
+条件の結果が真の場合、その行は出力されます。
+そうでない（すなわち結果が偽またはNULLの）場合は、その行は捨てられます。
+一般的に検索条件は、<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で生成されたテーブルの最低１列を参照します。
+これは必須ではありませんが、そうしないと<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句はまったく意味がなくなります。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>内部結合の結合条件は、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句でも<TT
+CLASS="LITERAL"
+>JOIN</TT
+>句でも記述することができます。
+例えば、以下のテーブル式は等価です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>FROM a, b WHERE a.id = b.id AND b.val &gt; 5</PRE
+><P>
+および
+</P><PRE
+CLASS="PROGRAMLISTING"
+>FROM a INNER JOIN b ON (a.id = b.id) WHERE b.val &gt; 5</PRE
+><P>
+また、以下でも同じです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>FROM a NATURAL JOIN b WHERE b.val &gt; 5</PRE
+><P>
+どれを使うかは、主にスタイルの問題です。
+<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で<TT
+CLASS="LITERAL"
+>JOIN</TT
+>構文を使用すると、SQL標準であってもおそらく他のSQLデータベース管理システムに移植できません。
+外部結合については、<TT
+CLASS="LITERAL"
+>FROM</TT
+>句以外に選択の余地はありません。
+外部結合の<TT
+CLASS="LITERAL"
+>ON</TT
+>句または<TT
+CLASS="LITERAL"
+>USING</TT
+>句は、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>条件とは等しく<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ありません</I
+></SPAN
+>。
+なぜなら、最終結果での行を除去すると同様に、（一致しない入力行に対する）行の追加となるからです。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の例を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ... FROM fdt WHERE c1 &gt; 5
+
+SELECT ... FROM fdt WHERE c1 IN (1, 2, 3)
+
+SELECT ... FROM fdt WHERE c1 IN (SELECT c1 FROM t2)
+
+SELECT ... FROM fdt WHERE c1 IN (SELECT c3 FROM t2 WHERE c2 = fdt.c1 + 10)
+
+SELECT ... FROM fdt WHERE c1 BETWEEN (SELECT c3 FROM t2 WHERE c2 = fdt.c1 + 10) AND 100
+
+SELECT ... FROM fdt WHERE EXISTS (SELECT c1 FROM t2 WHERE c2 &gt; fdt.c1)</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>fdt</TT
+>は<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で派生されたテーブルです。
+<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の検索条件を満たさなかった行は、<TT
+CLASS="LITERAL"
+>fdt</TT
+>から削除されます。
+評価式としてのスカラ副問い合わせの使い方に注目してください。
+他の問い合わせのように、副問い合わせは複雑なテーブル式を使うことができます。
+副問い合わせの中でどのように<TT
+CLASS="LITERAL"
+>fdt</TT
+>が参照されるかにも注意してください。
+<TT
+CLASS="LITERAL"
+>c1</TT
+>を<TT
+CLASS="LITERAL"
+>fdt.c1</TT
+>のように修飾することは、<TT
+CLASS="LITERAL"
+>c1</TT
+>が副問い合わせの入力テーブルから派生した列名でもある時にだけ必要です。
+列名の修飾は、必須の場合ではなくても、明確にするために役立ちます。
+この例は、外側の問い合わせの列名の有効範囲を、どのようにして内側の問い合わせまで拡張するかを示します。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-GROUP"
+>7.2.3. <TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>と<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句</A
+></H2
+><P
+><TT
+CLASS="LITERAL"
+>WHERE</TT
+>フィルタを通した後、派生された入力テーブルを<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句でグループ化し、また、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句を使用して不要なグループを取り除くことができます。
+   </P
+><PRE
+CLASS="SYNOPSIS"
+>SELECT <TT
+CLASS="REPLACEABLE"
+><I
+>select_list</I
+></TT
+>
+    FROM ...
+    [<SPAN
+CLASS="OPTIONAL"
+>WHERE ...</SPAN
+>]
+    GROUP BY <TT
+CLASS="REPLACEABLE"
+><I
+>grouping_column_reference</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>grouping_column_reference</I
+></TT
+></SPAN
+>]...</PRE
+><P
+><A
+HREF="sql-select.html#SQL-GROUPBY"
+><I
+><I
+>GROUP BY</I
+>句</I
+></A
+>は、テーブル内で選択された全列で同じ値を所有する行をまとめてグループ化するために使用されます。
+列の列挙順は関係ありません。
+これは共通する値を持つそれぞれの行の集合をグループ内のすべての行を代表する１つのグループ行にまとめる効果があります。
+これにより、出力の冗長度を排除し、さらにまた、これらのグループに適用される集約が計算されます。
+以下に例を示します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT * FROM test1;</KBD
+>
+ x | y
+---+---
+ a | 3
+ c | 2
+ b | 5
+ a | 1
+(4 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT x FROM test1 GROUP BY x;</KBD
+>
+ x
+---
+ a
+ b
+ c
+(3 rows)</PRE
+><P>
+   </P
+><P
+>2番目の問い合わせでは、<TT
+CLASS="LITERAL"
+>SELECT * FROM test1 GROUP BY x</TT
+>と書くことはできません。
+各グループに関連付けられる列<TT
+CLASS="LITERAL"
+>y</TT
+>の値がないからです。
+グループごとに単一の値を持つので、選択リストで<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>で指定した列を参照することができます。
+   </P
+><P
+>一般的に、テーブルがグループ化されている場合、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>でリストされていない列は集約式を除いて参照することはできません。
+集約式の例は以下の通りです。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT x, sum(y) FROM test1 GROUP BY x;</KBD
+>
+ x | sum
+---+-----
+ a |   4
+ b |   5
+ c |   2
+(3 rows)</PRE
+><P>
+上記で<TT
+CLASS="LITERAL"
+>sum()</TT
+> は、グループ全体について単一の値を計算する集約関数です。
+使用可能な集約関数の詳細については、<A
+HREF="functions-aggregate.html"
+>&#38917;9.18</A
+>を参照してください。
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>集約式を使用しないグループ化は、列内の重複しない値の集合を効率良く計算します。
+これは<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>句（<A
+HREF="queries-select-lists.html#QUERIES-DISTINCT"
+>&#38917;7.3.3</A
+>を参照）の使用で同じように達成することができます。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>別の例を示します。
+これは各製品の総売上を計算します
+（全製品の総売上ではありません）。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT product_id, p.name, (sum(s.units) * p.price) AS sales
+    FROM products p LEFT JOIN sales s USING (product_id)
+    GROUP BY product_id, p.name, p.price;</PRE
+><P>
+この例では、<TT
+CLASS="LITERAL"
+>product_id</TT
+>列、<TT
+CLASS="LITERAL"
+>p.name</TT
+>列、<TT
+CLASS="LITERAL"
+>p.price</TT
+>列は必ず<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句で指定する必要があります。
+なぜなら、これらは問い合わせ選択リスト（後述）の中で使われているからです。
+<TT
+CLASS="LITERAL"
+>s.units</TT
+>列は<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>で指定する必要はありません。
+これは、製品ごとの売上計算の集約式（<CODE
+CLASS="FUNCTION"
+>sum(...)</CODE
+>）の中だけで使われるためです。
+この問い合わせは、各製品に対して製品の全販売に関する合計行が返されます。
+   </P
+><P
+>productsテーブルがそのように、つまり<TT
+CLASS="LITERAL"
+>product_id</TT
+>がプライマリキーであるように設定されている場合、nameとprice列は製品ID（product_id）に<I
+CLASS="FIRSTTERM"
+>関数依存</I
+>しており、このため製品IDグループそれぞれに対してどのnameとpriceの値を返すかに関するあいまいさがありませんので、上の例では<TT
+CLASS="LITERAL"
+>product_id</TT
+>でグループ化することで十分です。
+   </P
+><P
+>厳密なSQLでは、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>は、元となるテーブルの列によってのみグループ化できますが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、選択リストの列によるグループ化もできるように拡張されています。
+単純な列名の代わりに、評価式でグループ化することもできます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>を使ってグループ化されたテーブルで特定のグループのみ必要な場合、結果から不要なグループを除くのに、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句のように<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句を使うことができます。
+構文は以下の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+>SELECT <TT
+CLASS="REPLACEABLE"
+><I
+>select_list</I
+></TT
+> FROM ... [<SPAN
+CLASS="OPTIONAL"
+>WHERE ...</SPAN
+>] GROUP BY ... HAVING <TT
+CLASS="REPLACEABLE"
+><I
+>boolean_expression</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句内の式は、グループ化された式とグループ化されてない式（この場合は集約関数が必要になります）の両方を参照することができます。
+   </P
+><P
+>例を示します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT x, sum(y) FROM test1 GROUP BY x HAVING sum(y) &gt; 3;</KBD
+>
+ x | sum
+---+-----
+ a |   4
+ b |   5
+(2 rows)
+
+<SAMP
+CLASS="PROMPT"
+>=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT x, sum(y) FROM test1 GROUP BY x HAVING x &lt; 'c';</KBD
+>
+ x | sum
+---+-----
+ a |   4
+ b |   5
+(2 rows)</PRE
+><P>
+   </P
+><P
+>次に、より現実的な例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT product_id, p.name, (sum(s.units) * (p.price - p.cost)) AS profit
+    FROM products p LEFT JOIN sales s USING (product_id)
+    WHERE s.date &gt; CURRENT_DATE - INTERVAL '4 weeks'
+    GROUP BY product_id, p.name, p.price, p.cost
+    HAVING sum(p.price * s.units) &gt; 5000;</PRE
+><P>
+上の例で、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句は、グループ化されていない列によって行を選択している（この式では最近の4週間の売上のみが真になります）のに対し、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句は出力を売上高が5000を超えるグループに制限しています。
+集約式が、問い合わせ内で常に同じである必要がないことに注意してください。 
+   </P
+><P
+>ある問い合わせが集約関数を含んでいるが<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句がない場合でも、グループ化は依然として行われます。
+結果は単一グループ行（または<TT
+CLASS="LITERAL"
+>HAVING</TT
+>で単一行が削除されれば、行が多分全くなくなる）となります。
+<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句を含んでいれば、集約関数呼び出しや<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>句がまったく存在しなくても同じことが言えます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-WINDOW"
+>7.2.4. ウィンドウ関数処理</A
+></H2
+><P
+>問い合わせがウィンドウ関数（<A
+HREF="tutorial-window.html"
+>&#38917;3.5</A
+>、<A
+HREF="functions-window.html"
+>&#38917;9.19</A
+>と<A
+HREF="sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS"
+>&#38917;4.2.8</A
+>を参照）を含んでいれば、これらの関数はグループ化、集約および<TT
+CLASS="LITERAL"
+>HAVING</TT
+>条件検索が行われた後に評価されます。
+つまり、問い合わせが何らかの集約、<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>または<TT
+CLASS="LITERAL"
+>HAVING</TT
+>を使用していれば、ウィンドウ関数により見える行は<TT
+CLASS="LITERAL"
+>FROM</TT
+>/<TT
+CLASS="LITERAL"
+>WHERE</TT
+>での本来のテーブル行ではなく、グループ行となります。
+   </P
+><P
+>複数のウィンドウ関数が使用された場合、そのウィンドウ定義にある構文的に同等である<TT
+CLASS="LITERAL"
+>PARTITION BY</TT
+>および<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句を持つすべてのウィンドウ関数は、データ全体に渡って単一の実行手順により評価されることが保証されています。
+したがって、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>が一意的に順序付けを決定しなくても同一の並び替え順序付けを見ることができます。
+しかし、異なる<TT
+CLASS="LITERAL"
+>PARTITION BY</TT
+>または<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>仕様を持つ関数の評価については保証されません。
+（このような場合、並び替え手順がウィンドウ関数評価の諸手順間で一般的に必要となり、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>が等価と判断する行の順序付けを保存するような並び替えは保証されません。）
+   </P
+><P
+>現時点では、ウィンドウ関数は常に事前に並び替えられたデータを必要とするので、問い合わせ出力はウィンドウ関数の<TT
+CLASS="LITERAL"
+>PARTITION BY</TT
+>/<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句のどれか１つに従って順序付けされます。
+とはいえ、これに依存することは薦められません。
+確実に結果が特定の方法で並び替えられるようにしたいのであれば、明示的な最上階層の<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を使用します。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="queries-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="queries-select-lists.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>概要</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="queries.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>選択リスト</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

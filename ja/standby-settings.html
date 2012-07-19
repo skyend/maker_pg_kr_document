@@ -1,0 +1,329 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>スタンバイサーバの設定</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リカバリの設定"
+HREF="recovery-config.html"><LINK
+REL="PREVIOUS"
+TITLE="リカバリ対象の設定"
+HREF="recovery-target-settings.html"><LINK
+REL="NEXT"
+TITLE="データベース活動状況の監視"
+HREF="monitoring.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リカバリ対象の設定"
+HREF="recovery-target-settings.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リカバリの設定"
+HREF="recovery-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 26&#31456;リカバリの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リカバリの設定"
+HREF="recovery-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベース活動状況の監視"
+HREF="monitoring.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="STANDBY-SETTINGS"
+>26.3. スタンバイサーバの設定</A
+></H1
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="STANDBY-MODE"
+></A
+><TT
+CLASS="VARNAME"
+>standby_mode</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>          
+          <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> サーバをスタンバイとして起動するかどうかを指定します。
+          このパラメータが <TT
+CLASS="LITERAL"
+>on</TT
+> の場合、サーバはアーカイブWALファイルの最後に到達してもリカバリを終了せず、<TT
+CLASS="VARNAME"
+>restore_command</TT
+> の実行、および/あるいは、 <TT
+CLASS="VARNAME"
+>primary_conninfo</TT
+> で指定されたプライマリサーバへ接続することによって、新しいWALセグメントの取得を継続しようとします。
+         </P
+></DD
+><DT
+><A
+NAME="PRIMARY-CONNINFO"
+></A
+><TT
+CLASS="VARNAME"
+>primary_conninfo</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>          
+          スタンバイサーバがプライマリサーバに接続するための接続文字列を指定します。
+          この文字列は、<A
+HREF="libpq-connect.html"
+>&#38917;31.1</A
+> で説明されている libpq の <CODE
+CLASS="FUNCTION"
+>PQconnectdb</CODE
+> 関数が受け入れる書式で記述されます。
+          この文字列に何のオプションも指定されていない場合、これに対応する環境変数 (<A
+HREF="libpq-envars.html"
+>&#38917;31.13</A
+> 参照) が確認されます。
+          もし、環境変数も設定されていない場合、デフォルトの値が使われます。
+         </P
+><P
+>          
+          接続文字列では、プライマリサーバのホスト名（またはアドレス）、スタンバイサーバのデフォルトと異なるのであればポート番号も指定する必要があります。
+          また、プライマリサーバ上で <TT
+CLASS="LITERAL"
+>REPLICATION</TT
+> と <TT
+CLASS="LITERAL"
+>LOGIN</TT
+> の権限を保有するロールのユーザを指定しなければなりません (<A
+HREF="warm-standby.html#STREAMING-REPLICATION-AUTHENTICATION"
+>&#38917;25.2.5.1</A
+> 参照)。
+          プライマリサーバが要求するのであれば、パスワードも記述される必要があります。
+          パスワードは <TT
+CLASS="VARNAME"
+>primary_conninfo</TT
+> に記述することもできますし、スタンバイサーバ上の分離されたファイル <TT
+CLASS="FILENAME"
+>~/.pgpass</TT
+> に記述することもできます (データベース名には <TT
+CLASS="LITERAL"
+>replication</TT
+> を使います)。
+          <TT
+CLASS="VARNAME"
+>primary_conninfo</TT
+> 文字列の中には、データベース名を指定しないでください。
+         </P
+><P
+>          
+          <TT
+CLASS="VARNAME"
+>standby_mode</TT
+> が <TT
+CLASS="LITERAL"
+>off</TT
+> になっている場合、この設定は何の影響も持ちません。
+         </P
+></DD
+><DT
+><A
+NAME="TRIGGER-FILE"
+></A
+><TT
+CLASS="VARNAME"
+>trigger_file</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>          
+          スタンバイサーバにおいて、リカバリの完了を示すトリガファイルを指定します。
+          もしこの値が設定されていない場合、<TT
+CLASS="COMMAND"
+>pg_ctl promote</TT
+>を使ってスタンバイサーバを昇格させることができます。
+          <TT
+CLASS="VARNAME"
+>standby_mode</TT
+> が <TT
+CLASS="LITERAL"
+>off</TT
+> の時には、この設定は何の影響も持ちません。
+         </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="recovery-target-settings.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="monitoring.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リカバリ対象の設定</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="recovery-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データベース活動状況の監視</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,408 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SET CONSTRAINTS</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="SET"
+HREF="sql-set.html"><LINK
+REL="NEXT"
+TITLE="SET ROLE"
+HREF="sql-set-role.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SET"
+HREF="sql-set.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SET"
+HREF="sql-set.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SET ROLE"
+HREF="sql-set-role.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SET ROLE"
+HREF="sql-set-role.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-SET-CONSTRAINTS"
+></A
+>SET CONSTRAINTS</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN75529"
+></A
+><H2
+>&#21517;&#21069;</H2
+>SET CONSTRAINTS&nbsp;--&nbsp;現在のトランザクションの制約検査のタイミングを設定する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN75534"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>SET CONSTRAINTS { ALL | <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [, ...] } { DEFERRED | IMMEDIATE }</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75537"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>は、現在のトランザクションにおける制約の検査方法を設定します。
+<TT
+CLASS="OPTION"
+>IMMEDIATE</TT
+>制約は、1つの文の実行が終わるごとに検査されます。
+<TT
+CLASS="OPTION"
+>DEFERRED</TT
+>制約は、トランザクションがコミットされるまで検査されません。
+全ての制約は、<TT
+CLASS="LITERAL"
+>IMMEDIATE</TT
+>か<TT
+CLASS="LITERAL"
+>DEFERRED</TT
+>のどちらかのモードを持ちます。
+  </P
+><P
+>制約にはその生成時点で、<TT
+CLASS="LITERAL"
+>DEFERRABLE INITIALLY DEFERRED</TT
+>、<TT
+CLASS="LITERAL"
+>DEFERRABLE INITIALLY IMMEDIATE</TT
+>、<TT
+CLASS="LITERAL"
+>NOT DEFERRABLE</TT
+>の3つのうちのいずれかの性質が与えられます。
+3番目の<TT
+CLASS="LITERAL"
+>NOT DEFERRABLE</TT
+>制約は、常に<TT
+CLASS="LITERAL"
+>IMMEDIATE</TT
+>モードであり、<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>コマンドの影響を受けません。
+<TT
+CLASS="LITERAL"
+>DEFERRABLE INITIALLY DEFERRED</TT
+>制約と<TT
+CLASS="LITERAL"
+>DEFERRABLE INITIALLY IMMEDIATE</TT
+>制約の2つは、トランザクションを指定されたモードで開始しますが、トランザクション内で<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>を使用するとその振舞いを変更することができます。
+  </P
+><P
+>制約名のリストを持った<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>が変更するのは、これらの制約のモードのみです
+（これらは全て遅延可能です）。
+制約名はそれぞれスキーマ修飾可能です。
+スキーマ名が指定されていない場合、最初に一致する名前を見つけ出すために現在のスキーマ検索パスが使用されます。
+<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS ALL</TT
+>は遅延可能な全ての制約のモードを変更します。
+  </P
+><P
+>制約のモードを<TT
+CLASS="LITERAL"
+>DEFERRED</TT
+>から<TT
+CLASS="LITERAL"
+>IMMEDIATE</TT
+>に変更した場合は、新しい制約モードが遡及的に有効になります。 
+つまり<TT
+CLASS="LITERAL"
+>DEFERRED</TT
+>モードであればトランザクションの終了時に検査される未検査のデータ変更が、<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>コマンドの実行中に検査されます。
+もし、この時に何らかの制約違反があった場合、<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>は失敗します
+（そして、制約モードは変更されません）。
+したがって、<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>を利用すれば、トランザクションの特定の時点で強制的に制約の検査を実行することができます。
+  </P
+><P
+>現在<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>、<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>、<TT
+CLASS="LITERAL"
+>REFERENCES</TT
+>（外部キー）、<TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>制約のみがこの設定の影響を受けます。
+<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>および<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約は、行が挿入または変更された時に（文の終了時では<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ありません</I
+></SPAN
+>）、常に即座に検査されます。
+<TT
+CLASS="LITERAL"
+>DEFERRABLE</TT
+>宣言されていない一意性制約および排除制約も即座に検査されます。
+  </P
+><P
+>また、<SPAN
+CLASS="QUOTE"
+>"制約トリガ"</SPAN
+>として宣言されたトリガの発行もこの設定により制御されます。
+これらは関連する制約が検査されるはずの時に同時に発行されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75576"
+></A
+><H2
+>注釈</H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、スキーマ内で制約名が一意となることを要求していません（テーブル単位での一意性を要求します）ので、指定した制約名に複数が一致する可能性があります。
+この場合<TT
+CLASS="COMMAND"
+>SET CONSTRAINTS</TT
+>は一致するすべてに対して動作します。
+スキーマ修飾がない名前では、検索パス上のあるスキーマで1つまたは複数の一致があると、パス上で後に見つかったスキーマは無視されます。
+  </P
+><P
+>このコマンドが変更するのは、現在のトランザクション内の制約の動作のみです。
+したがって、トランザクションブロック（<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>/<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>の間）の外部でこのコマンドが実行されても場合、何ら効果はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75584"
+></A
+><H2
+>互換性</H2
+><P
+>このコマンドは、標準SQLで定義された動作に準拠しています。
+ただし、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>および<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約に適用できないという制限があります。
+また<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は非遅延一意性制約を、標準が提案する文の終わりにではなく、即座に検査します。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-set.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-set-role.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SET</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SET ROLE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

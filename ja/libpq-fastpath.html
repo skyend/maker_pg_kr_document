@@ -1,0 +1,325 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>近道インタフェース</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="PREVIOUS"
+TITLE="処理中の問い合わせのキャンセル"
+HREF="libpq-cancel.html"><LINK
+REL="NEXT"
+TITLE="非同期通知"
+HREF="libpq-notify.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="処理中の問い合わせのキャンセル"
+HREF="libpq-cancel.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 31&#31456;<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="非同期通知"
+HREF="libpq-notify.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LIBPQ-FASTPATH"
+>31.6. 近道インタフェース</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Postgres</SPAN
+>は、サーバへの簡単な関数呼び出しを送信する近道 (fast-path) インタフェースを用意しています。
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>この関数はどちらかというと廃れたものです。
+同様の性能やそれ以上の機能を、関数呼び出しを定義したプリペアド文を設定することで達成できるからです。
+そして、その文をパラメータと結果をバイナリ転送するように実行すれば、近道関数呼び出しを置き換えることになります。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+><CODE
+CLASS="FUNCTION"
+>PQfn</CODE
+>関数は近道インタフェースを使ってサーバ関数の実行を要求します。
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQfn(PGconn *conn,
+               int fnid,
+               int *result_buf,
+               int *result_len,
+               int result_is_int,
+               const PQArgBlock *args,
+               int nargs);
+
+typedef struct
+{
+    int len;
+    int isint;
+    union
+    {
+        int *ptr;
+        int integer;
+    } u;
+} PQArgBlock;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="PARAMETER"
+>fnid</TT
+>引数は実行する関数のOIDです。
+<TT
+CLASS="PARAMETER"
+>args</TT
+>と<TT
+CLASS="PARAMETER"
+>nargs</TT
+>は関数に渡すパラメータを定義します。
+これらは関数宣言における引数リストに一致しなければなりません。
+パラメータ構造体の<TT
+CLASS="PARAMETER"
+>isint</TT
+>が真の場合、<TT
+CLASS="PARAMETER"
+>u.integer</TT
+>の値はサーバに指定長の整数として送信されます。
+(これは1、2もしくは4バイトでなければなりません。)
+この時、適切なバイト順の交換が行なわれます。
+<TT
+CLASS="PARAMETER"
+>isint</TT
+>が偽の場合は、<TT
+CLASS="PARAMETER"
+>*u.ptr</TT
+>で指定されたバイト数が無処理で送信されます。
+関数のパラメータデータ型をバイナリ転送で行うために、このデータはサーバで想定する書式である必要があります。
+<TT
+CLASS="PARAMETER"
+>result_buf</TT
+>は戻り値を格納するバッファです。
+呼び出し側は戻り値を格納するのに十分な領域を確保しておかなければいけません。
+（ライブラリ側ではこの検査はしていません！）
+結果の実データ長は<TT
+CLASS="PARAMETER"
+>result_len</TT
+>が指す整数で返されます。   
+結果が1、2、4バイト整数だと想定できるなら<TT
+CLASS="PARAMETER"
+>result_is_int</TT
+>を1に、そうでなければ0を設定します。
+<TT
+CLASS="PARAMETER"
+>result_is_int</TT
+>を1にすれば、必要に応じて値のバイト順を入れ換えるよう<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>に指示することになります。 
+そしてクライアントマシン上で正しい<TT
+CLASS="TYPE"
+>int</TT
+>値となるように転送します。  
+<TT
+CLASS="PARAMETER"
+>result_is_int</TT
+>が0の場合は、バックエンドが送ったバイナリ書式のバイト列を何も修正せずに返します。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQfn</CODE
+>は常に有効な<TT
+CLASS="STRUCTNAME"
+>PGresult*</TT
+>を返します。
+結果を使う前にはまず、結果ステータスを調べておくべきでしょう。
+結果が必要なくなった時点で、<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>によって、<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>を解放するのは、呼び出し側の責任です。
+  </P
+><P
+>このインタフェースを使用した場合、NULL引数やNULL結果、セット値の結果を扱うことができないことに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libpq-cancel.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libpq-notify.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>処理中の問い合わせのキャンセル</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>非同期通知</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

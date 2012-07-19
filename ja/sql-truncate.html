@@ -1,0 +1,541 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>TRUNCATE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="START TRANSACTION"
+HREF="sql-start-transaction.html"><LINK
+REL="NEXT"
+TITLE="UNLISTEN"
+HREF="sql-unlisten.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="START TRANSACTION"
+HREF="sql-start-transaction.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="START TRANSACTION"
+HREF="sql-start-transaction.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="UNLISTEN"
+HREF="sql-unlisten.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="UNLISTEN"
+HREF="sql-unlisten.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-TRUNCATE"
+></A
+>TRUNCATE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN75984"
+></A
+><H2
+>&#21517;&#21069;</H2
+>TRUNCATE&nbsp;--&nbsp;1テーブルまたはテーブル群を空にする</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN75989"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>TRUNCATE [ TABLE ] [ ONLY ] <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [, ... ]
+    [ RESTART IDENTITY | CONTINUE IDENTITY ] [ CASCADE | RESTRICT ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75992"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>はテーブル群から全ての行を素早く削除します。
+各テーブルに対して条件指定のない<TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドの実行と同じ効果を持ちますが、実際にテーブルを走査しない分、このコマンドの方が高速です。
+さらに、その後に<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作を行うことなく、このコマンドはディスク領域を即座に回収します。
+このコマンドは、大きなテーブルを対象とする場合に最も有用です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75998"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>空にするテーブルの名前です（スキーマ修飾名も可）。
+<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定されている場合、そのテーブルのみを空にします。
+<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定されていない場合、そのテーブルとそのすべての子テーブル（もしあれば）を空にします。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RESTART IDENTITY</TT
+></DT
+><DD
+><P
+>消去されるテーブルの列により所有されるシーケンスを自動的に再起動させます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CONTINUE IDENTITY</TT
+></DT
+><DD
+><P
+>シーケンスの値を変更しません。これがデフォルトです。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CASCADE</TT
+></DT
+><DD
+><P
+>指定されたテーブル、または、<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>により削除対象テーブルとされたテーブルを参照する外部キーを持つテーブルすべてを自動的に空にします。
+
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RESTRICT</TT
+></DT
+><DD
+><P
+>外部キーにより対象のテーブルを参照するテーブルのいずれかがこのコマンドで指定されていない場合、操作を拒否します。
+これがデフォルトです。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76029"
+></A
+><H2
+>注釈</H2
+><P
+>テーブルを空にするためにはそのテーブルに<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>権限を持たなければなりません。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>は操作対象の各テーブルに対する<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>を獲得します。
+これは、この他のそのテーブルに対する同時操作をすべてブロックします。
+<TT
+CLASS="LITERAL"
+>RESTART IDENTITY</TT
+>が指定された場合、初期化対象のシーケンスがあると、それは同様に排他ロックされます。
+テーブルへの同時アクセスが必要ならば、代わりに <TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドを使用しなければなりません。
+  </P
+><P
+>そのテーブルが他のテーブルから外部キーで参照されている場合、1つの<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>でそれらのテーブルをすべて空にするように指定していない限り、<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>を使用することはできません。
+このような場合は、有効性を検査するためにテーブルスキャンが必要になりますが、テーブルスキャンを行うのであれば、このコマンドの利点がなくなるからです。
+<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>を使用して、自動的にすべての依存テーブルを含めることができます。
+しかし、意図しないデータ損失の可能性がありますので、このオプションを使用する時には十分に注意してください。
+
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>は、テーブルに存在するすべての<TT
+CLASS="LITERAL"
+>ON DELETE</TT
+>トリガを発行しません。
+しかし、<TT
+CLASS="LITERAL"
+>ON TRUNCATE</TT
+>トリガを発行します。
+テーブルのいずれかに<TT
+CLASS="LITERAL"
+>ON TRUNCATE</TT
+>トリガが定義されている場合、何らかの消去が行われる前にすべての<TT
+CLASS="LITERAL"
+>BEFORE TRUNCATE</TT
+>トリガが発行されます。
+また、最後の消去がなされ、シーケンスが初期化された後すべての<TT
+CLASS="LITERAL"
+>AFTER TRUNCATE</TT
+>トリガが発行されます。
+トリガは処理されるテーブルの順番（コマンドに列挙されたものが先、その後にカスケードのために追加されたもの）に発行されます。
+  </P
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#35686;&#21578;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>はMVCC的に安全ではありません。
+（MVCCに関する一般的な情報については<A
+HREF="mvcc.html"
+>&#31532;13&#31456;</A
+>を参照してください。）
+削除の後テーブルはすべてのトランザクションから見て、たとえそのトランザクションが始まる前のスナップショットを使用していたとしても、空になります。
+削除が始まる前にテーブルを参照しなかったトランザクションに関してのみ問題となります。
+そうしたトランザクションでは少なくとも <TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+>ロックを保持しますので、そのトランザクションが終わるまで<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>はブロックされます。
+このため、トランザクションでは、同一テーブルに対する後の問い合わせにおいてその内容に明らかな矛盾は発生しませんが、削除されたテーブルと他のテーブルとの間の内容に目に見える矛盾が発生します。
+   </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>テーブル内のデータという観点では、<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>はトランザクション的に安全です。
+前後のトランザクションがコミットされなければ消去は安全にロールバックされます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>RESTART IDENTITY</TT
+>が指定された場合、暗黙的に<TT
+CLASS="COMMAND"
+>ALTER SEQUENCE RESTART</TT
+>操作がトランザクション的に安全に行われます。
+つまりそれを囲むトランザクションがコミットされなければ、ロールバックされます。
+これは通常の<TT
+CLASS="COMMAND"
+>ALTER SEQUENCE RESTART</TT
+>とは異なる動作です。
+トランザクションがロールバックされる前に、初期化したシーケンスに対してさらにシーケンス操作を行う場合には注意してください。
+シーケンスに対するこれらの操作の影響はロールバックされますが、<CODE
+CLASS="FUNCTION"
+>currval()</CODE
+>への影響はロールバックされません。
+つまりトランザクションの後、<CODE
+CLASS="FUNCTION"
+>currval()</CODE
+>は、シーケンス自体と値とが一貫性のない状態になっていたとしても、失敗したトランザクションの内側で得た最後のシーケンス値を継続して反映します。
+これは、失敗したトランザクションの後の<CODE
+CLASS="FUNCTION"
+>currval()</CODE
+>の通常の動作と同じです。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76064"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>bigtable</TT
+>テーブルおよび<TT
+CLASS="LITERAL"
+>fattable</TT
+>テーブルを空にします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>TRUNCATE bigtable, fattable;</PRE
+><P>
+  </P
+><P
+>以下も同じですが、ここでは関連するシーケンスジェネレータをすべてリセットします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>TRUNCATE bigtable, fattable RESTART IDENTITY;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>othertable</TT
+>テーブル、および、外部キー制約により<TT
+CLASS="LITERAL"
+>othertable</TT
+>を参照するすべてのテーブルを空にします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>TRUNCATE othertable CASCADE;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76076"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQL:2008には、<TT
+CLASS="LITERAL"
+>TRUNCATE TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+></TT
+>という構文の<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>コマンドが含まれます。
+<TT
+CLASS="LITERAL"
+>CONTINUE IDENTITY</TT
+>/<TT
+CLASS="LITERAL"
+>RESTART IDENTITY</TT
+>句も標準に記載され、関連してはいるのですが、若干異なります。
+標準では、このコマンドの同時実行に関する動作の一部は実装に依存するものとされています。
+このため、上記注意を検討し、必要に応じて他の実装と比べなければなりません。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-start-transaction.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-unlisten.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>START TRANSACTION</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>UNLISTEN</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

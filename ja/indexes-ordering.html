@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>インデックスとORDER BY</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックス"
+HREF="indexes.html"><LINK
+REL="PREVIOUS"
+TITLE="複数列インデックス"
+HREF="indexes-multicolumn.html"><LINK
+REL="NEXT"
+TITLE="複数のインデックスの組み合わせ"
+HREF="indexes-bitmap-scans.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="複数列インデックス"
+HREF="indexes-multicolumn.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 11&#31456;インデックス</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="複数のインデックスの組み合わせ"
+HREF="indexes-bitmap-scans.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEXES-ORDERING"
+>11.4. インデックスと<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+></A
+></H1
+><P
+>単に問い合わせによって返される行を見つけ出すだけではなく、インデックスは、その行を指定した順番で取り出すことができます。
+これにより、別途ソート処理を行うことなく、問い合わせの<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>指定に従うことが可能です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が現在サポートするインデックスの種類の中で、B-Treeのみがソート出力を行うことができます。
+他の種類のインデックスでは指定なし、または、実装固有の順序で一致した行を返します。
+  </P
+><P
+>プランナは、指定に一致し利用可能なインデックスでスキャンする、または、テーブルを物理的な順番でスキャンし明示的なソートを行うことにより、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>指定を満足させるかを考慮します。
+テーブルの大部分のスキャンが必要な問い合わせでは、後に発生するシーケンシャルなアクセスパターンのために要求されるディスクI/Oが少ないため、インデックスを使用するよりも、明示的なソートの方が高速です。
+数行を取り出す必要がある場合のみ、インデックスの方が有用になります。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>と<TT
+CLASS="LITERAL"
+>LIMIT</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>が組み合わされた場合が、重要かつ特別です。
+先頭の<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>行を識別するために、明示的なソートを全データに対して行う必要があります。
+しかし、もし<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>に合うインデックスが存在すれば、残りの部分をスキャンすることなく、先頭の<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>行の取り出しを直接行うことができます。
+  </P
+><P
+>デフォルトでは、B-Treeインデックスは項目を昇順で格納し、NULLを最後に格納します。
+これは、<TT
+CLASS="LITERAL"
+>x</TT
+>列に対するインデックスの前方方向のスキャンで<TT
+CLASS="LITERAL"
+>ORDER BY x</TT
+>（より冗長にいえば<TT
+CLASS="LITERAL"
+>ORDER BY x ASC NULLS LAST</TT
+>）を満たす出力を生成することを意味します。
+また、インデックスを後方方向にスキャンすることもでき、この場合、<TT
+CLASS="LITERAL"
+>ORDER BY x DESC</TT
+>（より冗長にいえば<TT
+CLASS="LITERAL"
+>ORDER BY x DESC NULLS FIRST</TT
+>。<TT
+CLASS="LITERAL"
+>NULLS FIRST</TT
+>が<TT
+CLASS="LITERAL"
+>ORDER BY DESC</TT
+>のデフォルトだからです。）を満たす出力を生成します。
+  </P
+><P
+>インデックスを作成する時に、以下のように<TT
+CLASS="LITERAL"
+>ASC</TT
+>、<TT
+CLASS="LITERAL"
+>DESC</TT
+>、<TT
+CLASS="LITERAL"
+>NULLS FIRST</TT
+>、<TT
+CLASS="LITERAL"
+>NULLS LAST</TT
+>オプションを組み合わせて指定することにより、B-Treeインデックスの順序を調整することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX test2_info_nulls_low ON test2 (info NULLS FIRST);
+CREATE INDEX test3_desc_index ON test3 (id DESC NULLS LAST);</PRE
+><P>
+昇順かつNULL先頭という順で格納されたインデックスは、スキャンされる方向に依存して<TT
+CLASS="LITERAL"
+>ORDER BY x ASC NULLS FIRST</TT
+>または<TT
+CLASS="LITERAL"
+>ORDER BY x DESC NULLS LAST</TT
+>を満たすことができます。
+  </P
+><P
+>4つの全方向を提供する理由が何か、後方方向へのスキャンの可能性があることを考慮した2方向で、すべての種類の<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を網羅できるのではないかと疑問を持つかもしえません。
+単一列に対するインデックスでは、このオプションは実際冗長ですが、複数列に対するインデックスでは有用になります。
+<TT
+CLASS="LITERAL"
+>(x, y)</TT
+>という2つの列に対するインデックスを仮定します。
+これを前方方向にスキャンすれば<TT
+CLASS="LITERAL"
+>ORDER BY x, y</TT
+>を満たし、後方方向にスキャンすれば<TT
+CLASS="LITERAL"
+>ORDER BY x DESC, y DESC</TT
+>を満たします。
+しかし、<TT
+CLASS="LITERAL"
+>ORDER BY x ASC, y DESC</TT
+>をよく使用しなければならないアプリケーションが存在する可能性があります。
+簡素なインデックスからこの順序を取り出す方法がありません。
+しかし、インデックスが<TT
+CLASS="LITERAL"
+>(x ASC, y DESC)</TT
+>または<TT
+CLASS="LITERAL"
+>(x DESC, y ASC)</TT
+>として定義されていれば、取り出すことができます。
+  </P
+><P
+>明確なことですが、デフォルト以外のソート順を持つインデックスはかなり特殊な機能です。
+しかし、特定の問い合わせにおいては恐ろしいほどの速度を向上させることがあります。
+こうしたインデックスを維持する価値があるかどうかは、特殊なソート順を要求する問い合わせを使用する頻度に依存します。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="indexes-multicolumn.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="indexes-bitmap-scans.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>複数列インデックス</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>複数のインデックスの組み合わせ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

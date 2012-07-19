@@ -1,0 +1,327 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/Python関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"><LINK
+REL="PREVIOUS"
+TITLE="Python 2対Python 3"
+HREF="plpython-python23.html"><LINK
+REL="NEXT"
+TITLE="データ値"
+HREF="plpython-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="Python 2対Python 3"
+HREF="plpython-python23.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 42&#31456;PL/Python - Python手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ値"
+HREF="plpython-data.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPYTHON-FUNCS"
+>42.2. PL/Python関数</A
+></H1
+><P
+>PL/Pythonで作成された関数は標準的な<A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>構文で宣言されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>funcname</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>argument-list</I
+></TT
+>)
+  RETURNS <TT
+CLASS="REPLACEABLE"
+><I
+>return-type</I
+></TT
+>
+AS $$
+  # PL/Python function body
+$$ LANGUAGE plpythonu;</PRE
+><P>
+  </P
+><P
+>関数本体は単なるPythonスクリプトです。
+関数が呼び出されると、引数は<TT
+CLASS="VARNAME"
+>args[]</TT
+>リストの要素として渡されます。
+名前付きの引数も通常の変数としてPythonスクリプトに渡されます。
+通常、名前付き引数の方が可読性が高くなります。
+結果は、Pythonコードから通常の方法、<TT
+CLASS="LITERAL"
+>return</TT
+>または<TT
+CLASS="LITERAL"
+>yield</TT
+>（結果セット文の場合）で返されるものです。
+戻り値を提供しない場合、Pythonはデフォルトの<TT
+CLASS="SYMBOL"
+>None</TT
+>を返します。
+<SPAN
+CLASS="APPLICATION"
+>PL/Python</SPAN
+>はPythonの<TT
+CLASS="SYMBOL"
+>None</TT
+>をSQLのNULL値に変換します。
+  </P
+><P
+>たとえば、2つの整数の内大きな数を返す関数は以下のように定義することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION pymax (a integer, b integer)
+  RETURNS integer
+AS $$
+  if a &gt; b:
+    return a
+  return b
+$$ LANGUAGE plpythonu;</PRE
+><P>
+
+関数定義の本体として提供されたPythonのコードはPythonの関数に変換されます。
+例えば上の例は以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>def __plpython_procedure_pymax_23456():
+  if a &gt; b:
+    return a
+  return b</PRE
+><P>
+
+ここで、23456は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>により割り当てられたこの関数のOIDです。
+  </P
+><P
+>引数はグローバル変数として設定されます。
+Pythonのスコープ規則のため、これは、ブロック内でグローバルとして再宣言されていない限り、関数内で引数変数に変数名自身を含む式の値として再代入できないという難解な結果をもたらします。
+例えば以下は動作しません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION pystrip(x text)
+  RETURNS text
+AS $$
+  x = x.strip()  # error
+  return x
+$$ LANGUAGE plpythonu;</PRE
+><P>
+<TT
+CLASS="VARNAME"
+>x</TT
+>への代入は、<TT
+CLASS="VARNAME"
+>x</TT
+>をブロック全体に対するローカル変数にしようとし、そして、代入の右辺の<TT
+CLASS="VARNAME"
+>x</TT
+>がPL/Pythonの関数パラメータではなく、まだ割り当てられていないローカル変数<TT
+CLASS="VARNAME"
+>x</TT
+>を参照するためです。
+<TT
+CLASS="LITERAL"
+>global</TT
+>文を使用することで、動作するようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION pystrip(x text)
+  RETURNS text
+AS $$
+  global x
+  x = x.strip()  # ok now
+  return x
+$$ LANGUAGE plpythonu;</PRE
+><P>
+しかし、PL/Pythonのこうした詳細な実装に依存しないようにすることを勧めます。
+関数パラメータは読み取りのみとして扱うことを勧めます。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpython-python23.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpython-data.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Python 2対Python 3</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpython.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データ値</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,340 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>設定例</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="PREVIOUS"
+TITLE="辞書"
+HREF="textsearch-dictionaries.html"><LINK
+REL="NEXT"
+TITLE="テキスト検索のテストとデバッグ"
+HREF="textsearch-debugging.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="辞書"
+HREF="textsearch-dictionaries.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 12&#31456;全文検索</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="テキスト検索のテストとデバッグ"
+HREF="textsearch-debugging.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEXTSEARCH-CONFIGURATION"
+>12.7. 設定例</A
+></H1
+><P
+>    テキスト検索設定は、文書を<TT
+CLASS="TYPE"
+>tsvector</TT
+>に変換する必要なすべてのオプションを指定します。すなわち、テキストをトークンに分解するパーサ、そしてトークンを語彙素に変換する辞書です。<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>または<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>を呼び出すたびに、処理を進めるためにテキスト検索設定が必要になります。設定パラメータの<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TEXT-SEARCH-CONFIG"
+>default_text_search_config</A
+>は、デフォルトの設定を指定します。これは、明示的な設定が省略されたときにテキスト検索関数が使用します。<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>に設定するか、個々のセッションで<TT
+CLASS="COMMAND"
+>SET</TT
+>コマンドを使って設定できます。
+   </P
+><P
+>    既定のテキスト検索設定がいくつか利用できます。また、カスタム設定を作るのも容易です。テキスト検索オブジェクトを管理する機能を実現するために、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドが一通り用意されています。テキスト検索オブジェクトに関する情報を表示する<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>コマンドもいくつか用意されています(<A
+HREF="textsearch-psql.html"
+>&#38917;12.10</A
+>)。
+   </P
+><P
+>    例として、組み込みの<TT
+CLASS="LITERAL"
+>english</TT
+>設定のコピーを用いて、新しい<TT
+CLASS="LITERAL"
+>pg</TT
+>設定を作ります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TEXT SEARCH CONFIGURATION public.pg ( COPY = pg_catalog.english );</PRE
+><P>
+   </P
+><P
+>    PostgreSQL固有の同義語リストを使い、それを<TT
+CLASS="FILENAME"
+>$SHAREDIR/tsearch_data/pg_dict.syn</TT
+>に格納します。ファイルの内容は以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>postgres    pg
+pgsql       pg
+postgresql  pg</PRE
+><P>
+
+    同義語辞書を次のように定義します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TEXT SEARCH DICTIONARY pg_dict (
+    TEMPLATE = synonym,
+    SYNONYMS = pg_dict
+);</PRE
+><P>
+
+    次に、<SPAN
+CLASS="PRODUCTNAME"
+>Ispell</SPAN
+>辞書の<TT
+CLASS="LITERAL"
+>english_ispell</TT
+>を登録します。これにはそれ自身の設定があります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TEXT SEARCH DICTIONARY english_ispell (
+    TEMPLATE = ispell,
+    DictFile = english,
+    AffFile = english,
+    StopWords = english
+);</PRE
+><P>
+
+    ここで、<TT
+CLASS="LITERAL"
+>pg</TT
+>設定に単語用のマッピングを設定します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TEXT SEARCH CONFIGURATION pg
+    ALTER MAPPING FOR asciiword, asciihword, hword_asciipart,
+                      word, hword, hword_part
+    WITH pg_dict, english_ispell, english_stem;</PRE
+><P>
+
+    組み込み設定が扱っているいくつかのトークンに関しては、インデックス付けと検索に扱わないことにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TEXT SEARCH CONFIGURATION pg
+    DROP MAPPING FOR email, url, url_path, sfloat, float;</PRE
+><P>
+   </P
+><P
+>    これでここまで作った設定を試すことができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM ts_debug('public.pg', '
+PostgreSQL, the highly scalable, SQL compliant, open source object-relational
+database management system, is now undergoing beta testing of the next
+version of our software.
+');</PRE
+><P>
+   </P
+><P
+>    次に、セッションの中で新しい設定を使うようにします。この設定は、<TT
+CLASS="LITERAL"
+>public</TT
+>スキーマの中に作られています。
+
+</P><PRE
+CLASS="SCREEN"
+>=&gt; \dF
+   List of text search configurations
+ Schema  | Name | Description
+---------+------+-------------
+ public  | pg   |
+
+SET default_text_search_config = 'public.pg';
+SET
+
+SHOW default_text_search_config;
+ default_text_search_config
+----------------------------
+ public.pg</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="textsearch-dictionaries.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="textsearch-debugging.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>辞書</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>テキスト検索のテストとデバッグ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

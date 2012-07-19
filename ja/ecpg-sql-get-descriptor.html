@@ -1,0 +1,473 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>GET DESCRIPTOR</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="埋め込みSQLコマンド"
+HREF="ecpg-sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="EXECUTE IMMEDIATE"
+HREF="ecpg-sql-execute-immediate.html"><LINK
+REL="NEXT"
+TITLE="OPEN"
+HREF="ecpg-sql-open.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="EXECUTE IMMEDIATE"
+HREF="ecpg-sql-execute-immediate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="EXECUTE IMMEDIATE"
+HREF="ecpg-sql-execute-immediate.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="OPEN"
+HREF="ecpg-sql-open.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="OPEN"
+HREF="ecpg-sql-open.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="ECPG-SQL-GET-DESCRIPTOR"
+></A
+>GET DESCRIPTOR</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN43274"
+></A
+><H2
+>&#21517;&#21069;</H2
+>GET DESCRIPTOR&nbsp;--&nbsp;SQL記述子領域から情報を入手します。</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN43277"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>GET DESCRIPTOR <TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>:cvariable</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_header_item</I
+></TT
+> [, ... ]
+GET DESCRIPTOR <TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_name</I
+></TT
+> VALUE <TT
+CLASS="REPLACEABLE"
+><I
+>column_number</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>:cvariable</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_item</I
+></TT
+> [, ... ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43286"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>GET DESCRIPTOR</TT
+>はSQL記述子領域から問い合わせ結果セットに関する情報を取り出し、それをホスト変数に格納します。
+記述子領域は通常、このコマンドを使用してホスト言語変数に情報を転送する前に、<TT
+CLASS="COMMAND"
+>FETCH</TT
+>または<TT
+CLASS="COMMAND"
+>SELECT</TT
+>を用いて値が投入されます。
+    </P
+><P
+>このコマンドには２つの構文があります。
+１番目の構文では、そのまま結果セットに適用されている記述子の<SPAN
+CLASS="QUOTE"
+>"ヘッダ"</SPAN
+>項目を取り出します。
+行数が１つの例です。
+列番号を追加のパラメータとして必要とする２番目の構文では特定の列に関する情報を取り出します。
+例えば、列名と列の実際の値です。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43294"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_name</I
+></TT
+></DT
+><DD
+><P
+>記述子の名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_header_item</I
+></TT
+></DT
+><DD
+><P
+>どのヘッダ情報を取り出すかを識別するトークンです。
+結果セット内の列数を入手する<TT
+CLASS="LITERAL"
+>COUNT</TT
+>のみが現在サポートされています。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column_number</I
+></TT
+></DT
+><DD
+><P
+>情報を取り出す列の番号です。
+１から数えます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>descriptor_item</I
+></TT
+></DT
+><DD
+><P
+>どの列に関する情報を取り出すかを識別するトークンです。
+サポートされる項目のリストについては<A
+HREF="ecpg-descriptors.html#ECPG-NAMED-DESCRIPTORS"
+>&#38917;33.7.1</A
+>を参照してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>cvariable</I
+></TT
+></DT
+><DD
+><P
+>記述子領域から取り出したデータを受け取るホスト変数です。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43324"
+></A
+><H2
+>例</H2
+><P
+>この例は結果セット内の列数を取り出します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL GET DESCRIPTOR d :d_count = COUNT;</PRE
+><P>
+    </P
+><P
+>この例は最初の列のデータ長を取り出します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL GET DESCRIPTOR d VALUE 1 :d_returned_octet_length = RETURNED_OCTET_LENGTH;</PRE
+><P>
+    </P
+><P
+>この例は、２番目の列のデータ本体を文字列として取り出します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL GET DESCRIPTOR d VALUE 2 :d_data = DATA;</PRE
+><P>
+    </P
+><P
+>以下は、<TT
+CLASS="LITERAL"
+>SELECT current_database();</TT
+>を実行し、列数、列のデータ長、列のデータを表示する手続き全体を示す例です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>int
+main(void)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+    int  d_count;
+    char d_data[1024];
+    int  d_returned_octet_length;
+EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT TO testdb AS con1 USER testuser;
+    EXEC SQL ALLOCATE DESCRIPTOR d;
+
+    /* Declare, open a cursor, and assign a descriptor to the cursor  */
+    EXEC SQL DECLARE cur CURSOR FOR SELECT current_database();
+    EXEC SQL OPEN cur;
+    EXEC SQL FETCH NEXT FROM cur INTO SQL DESCRIPTOR d;
+
+    /* Get a number of total columns */
+    EXEC SQL GET DESCRIPTOR d :d_count = COUNT;
+    printf("d_count                 = %d\n", d_count);
+
+    /* Get length of a returned column */
+    EXEC SQL GET DESCRIPTOR d VALUE 1 :d_returned_octet_length = RETURNED_OCTET_LENGTH;
+    printf("d_returned_octet_length = %d\n", d_returned_octet_length);
+
+    /* Fetch the returned column as a string */
+    EXEC SQL GET DESCRIPTOR d VALUE 1 :d_data = DATA;
+    printf("d_data                  = %s\n", d_data);
+
+    /* Closing */
+    EXEC SQL CLOSE cur;
+    EXEC SQL COMMIT;
+
+    EXEC SQL DEALLOCATE DESCRIPTOR d;
+    EXEC SQL DISCONNECT ALL;
+
+    return 0;
+}</PRE
+><P>
+この例を実行すると、結果は以下のようになります。
+</P><PRE
+CLASS="SCREEN"
+>d_count                 = 1
+d_returned_octet_length = 6
+d_data                  = testdb</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43336"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>GET DESCRIPTOR</TT
+>は標準SQLで規定されています。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN43340"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="ecpg-sql-allocate-descriptor.html"
+>ALLOCATE DESCRIPTOR</A
+>, <A
+HREF="ecpg-sql-set-descriptor.html"
+>SET DESCRIPTOR</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-sql-execute-immediate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-sql-open.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>EXECUTE IMMEDIATE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg-sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>OPEN</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

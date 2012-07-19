@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>8.3以前のテキスト検索からの移行</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="PREVIOUS"
+TITLE="制限事項"
+HREF="textsearch-limitations.html"><LINK
+REL="NEXT"
+TITLE="同時実行制御"
+HREF="mvcc.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="制限事項"
+HREF="textsearch-limitations.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 12&#31456;全文検索</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="同時実行制御"
+HREF="mvcc.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEXTSEARCH-MIGRATION"
+>12.12. 8.3以前のテキスト検索からの移行</A
+></H1
+><P
+>   テキスト検索のために<A
+HREF="tsearch2.html"
+>tsearch2</A
+>モジュールを使っていたアプリケーションは、組み込みの機能に対して多少の調整が必要になります。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+>     いくつかの関数は名前が変わり、引数が変更され、すべて<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>スキーマに入りました。以前はこれらの関数は<TT
+CLASS="LITERAL"
+>public</TT
+>か、あるいはほかのシステム用でないスキーマに格納されていました。新しいバージョンの<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>が、この種の互換性問題を解決するためのレイヤーとして提供されています。
+    </P
+></LI
+><LI
+><P
+>     古い<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>関数と、その他のオブジェクトは、8.3以前のデータベースのダンプをロードする際に、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>無効にしておかなければなりません</I
+></SPAN
+>。ほとんどのものはどのみちロードできませんが、2, 3ロードされ、悪さをするものがあります。この問題に対処する簡単な方法は、ダンプファイルをリストアする前に、新しい<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>モジュールをロードしておくことです。そうすれば、古いオブジェクトがロードされるのを防ぐことができます。
+    </P
+></LI
+><LI
+><P
+>     テキスト検索設定をセットアップする方法がまったく変わりました。設定テーブルに手動で行を挿入する代わりに、この章の最初の方で説明した特別なSQLコマンドを使って設定するようになりました。既存の設定を8.3用に自動的に変換する方法は提供されていません。自分でやってください。
+    </P
+></LI
+><LI
+><P
+>     ほとんどの形式の辞書はデータベース外の設定ファイルに依存しています。これらは8.3以前の使い方と概ね互換性がありますが、一部以下のような違いがあります。
+
+     <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>       設定ファイルは、単一のディレクトリ(<TT
+CLASS="FILENAME"
+>$SHAREDIR/tsearch_data</TT
+>)に格納しておかなければなりません。そして、以前いろいろな種類の辞書形式について述べたように、その種類に応じて特定の拡張子を持たなければなりません。この制限はあらかじめセキュリティ上の問題を考慮して追加されました。
+       </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>        設定ファイルは、データベースエンコーディングが何であろうと、UTF-8エンコーディングで符号化しておかなければなりません。
+       </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>        同義語辞書設定ファイルでは、ストップワードは<TT
+CLASS="LITERAL"
+>?</TT
+>でマークしておかなければなりません。
+       </P
+></LI
+></UL
+><P>
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="textsearch-limitations.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="mvcc.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>制限事項</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>同時実行制御</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

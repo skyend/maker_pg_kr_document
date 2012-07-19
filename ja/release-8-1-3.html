@@ -1,0 +1,455 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.1.3</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.1.4"
+HREF="release-8-1-4.html"><LINK
+REL="NEXT"
+TITLE="リリース8.1.2"
+HREF="release-8-1-2.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.1.4"
+HREF="release-8-1-4.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.1.2"
+HREF="release-8-1-2.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-1-3"
+>E.92. リリース8.1.3</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2006-02-14</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.1.2の各種不具合を修正したもので、非常に深刻なセキュリティ問題を1つ含みます。
+8.1メジャーリリースにおける新機能については<A
+HREF="release-8-1.html"
+>&#38917;E.95</A
+>を参照してください。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN121731"
+>E.92.1. バージョン8.1.3への移行</A
+></H2
+><P
+>8.1.Xからの移行ではダンプ/リストアは不要です。
+しかし、8.1.2より前のバージョンからアップグレードする場合は、8.1.2のリリースノートを参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN121734"
+>E.92.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>任意のログインしたユーザが他の任意のデータベースユーザIDに<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>することができる不具合を修正しました。(CVE-2006-0553)</P
+><P
+>有効検査が不適切であったため、
+ユーザは
+通常<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>がエラーの後に以前のロール設定に戻すために使用する特殊な状況を不正利用することができました。
+これにより例えば、一般ユーザはスーパーユーザ状態を持つことができます。
+権限の拡大という危険は8.1.0から8.1.2までのみに存在します。
+しかし、7.3までさかのぼるすべてのリリースにおいて、アサートを有効にしてコンパイルした場合（これはデフォルトではありません）、非特権ユーザがサーバをクラッシュできるという、関連した不具合が<TT
+CLASS="COMMAND"
+>SET SESSION AUTHORIZATION</TT
+>にあります。
+この問題を報告してくれたAkio Ishidaに感謝します。</P
+></LI
+><LI
+><P
+>自身が挿入した行に関する行の可視性ロジックについての不具合を修正しました。
+ (Tom)</P
+><P
+>非常に稀な状況で、現在のコマンドが挿入した行が、本来無効であるべき時に既に有効になっているものとして扱われることがありました。
+リリース8.0.4、7.4.9、7.3.11で組み込まれた不具合を修正しました。</P
+></LI
+><LI
+><P
+>pg_clogおよびpg_subtransファイル生成時に<SPAN
+CLASS="QUOTE"
+>"ファイルが既に存在する"</SPAN
+>というエラーを引き起こす競合条件を修正しました。
+(Tom)</P
+></LI
+><LI
+><P
+>準備済み文内の<TT
+CLASS="LITERAL"
+>UNKNOWN</TT
+>パラメータ用の<TT
+CLASS="LITERAL"
+>DOMAIN</TT
+>制約を適切に検査します。
+(Neil)</P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>ALTER COLUMN TYPE</TT
+>が<TT
+CLASS="LITERAL"
+>FOREIGN KEY</TT
+>、<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>、<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>制約を確実に適切な順番で処理するようにしました。
+(Nakano Yoshihisa)</P
+></LI
+><LI
+><P
+>独自の演算子や演算子クラスを参照するクロススキーマを持つダンプをリストアできるように修正しました。
+(Tom)</P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>に失敗した後、<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>が適切に処理を継続できるようにしました。
+これまでは<TT
+CLASS="COMMAND"
+>COPY</TT
+>データの残りをSQLコマンドとして扱おうとしました。
+ (Stephen Frost)</P
+></LI
+><LI
+><P
+>データディレクトリを指定しない場合に<SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+> <TT
+CLASS="LITERAL"
+>unregister</TT
+>がクラッシュすることを修正しました。
+(Magnus)</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> <CODE
+CLASS="FUNCTION"
+>PQprint</CODE
+> HTMLタグを修正しました。
+(Christoph Zwerschke)</P
+></LI
+><LI
+><P
+>AMD64およびPPC上の<SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>のクラッシュを修正しました。
+(Neil)</P
+></LI
+><LI
+><P
+>関数の戻り値型宣言において、<TT
+CLASS="LITERAL"
+>SETOF</TT
+>と<TT
+CLASS="LITERAL"
+>%TYPE</TT
+>の両方を使用できるようにしました。</P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/python</SPAN
+>において、引数を渡す段階でエラーが発生した場合に適切に復旧するようにしました。
+(Neil)</P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>plperl_return_next</CODE
+>内のメモリリークを修正しました。
+(Neil)</P
+></LI
+><LI
+><P
+>Win32において、<SPAN
+CLASS="APPLICATION"
+>PL/perl</SPAN
+>のロケールの扱いをバックエンドに合わせるように修正しました。
+(Andrew)</P
+></LI
+><LI
+><P
+>オプティマイザのさまざまな修正。
+(Tom)</P
+></LI
+><LI
+><P
+>Win32において<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>で<TT
+CLASS="LITERAL"
+>log_min_messages</TT
+>が<TT
+CLASS="LITERAL"
+>DEBUG3</TT
+>以上に設定された時のクラッシュを修正しました。
+(Bruce)</P
+></LI
+><LI
+><P
+>Win32、Cygwin、OS X、AIX用の<SPAN
+CLASS="APPLICATION"
+>pgxs</SPAN
+> <TT
+CLASS="LITERAL"
+>-L</TT
+>ライブラリ検索パス指定を修正しました。
+(Bruce)</P
+></LI
+><LI
+><P
+>Win32の管理者権限を検査する時にSIDが有効か検査します。
+(Magnus)</P
+></LI
+><LI
+><P
+>範囲外の日付入力を適切に拒否します。
+(Kris Jurka)</P
+></LI
+><LI
+><P
+>configure時の<CODE
+CLASS="FUNCTION"
+>finite</CODE
+>および<CODE
+CLASS="FUNCTION"
+>isinf</CODE
+>の存在検査に関する移植性を修正しました。
+(Tom)</P
+></LI
+><LI
+><P
+>データ行単位のカーネルコールを止め、libpq経由の<TT
+CLASS="COMMAND"
+>COPY IN</TT
+>の速度を向上しました。
+(Alon Goldshuv)</P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/contrib/tsearch2</TT
+>のインデックス作成速度を向上しました。
+(Tom)</P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-1-4.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-1-2.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.1.4</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.1.2</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

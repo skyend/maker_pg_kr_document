@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ユーザ定義関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLの拡張"
+HREF="extend.html"><LINK
+REL="PREVIOUS"
+TITLE="PostgreSQLの型システム"
+HREF="extend-type-system.html"><LINK
+REL="NEXT"
+TITLE="問い合わせ言語（SQL）関数"
+HREF="xfunc-sql.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQLの型システム"
+HREF="extend-type-system.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 35&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の拡張</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="問い合わせ言語（SQL）関数"
+HREF="xfunc-sql.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="XFUNC"
+>35.3. ユーザ定義関数</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は4種類の関数を提供します。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>問い合わせ言語関数（<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>で作成された関数）（<A
+HREF="xfunc-sql.html"
+>&#38917;35.4</A
+>）
+     </P
+></LI
+><LI
+><P
+>手続型言語関数（<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>や<SPAN
+CLASS="APPLICATION"
+>PL/Tcl</SPAN
+>などで作成された関数）（<A
+HREF="xfunc-pl.html"
+>&#38917;35.7</A
+>）
+     </P
+></LI
+><LI
+><P
+>内部関数（<A
+HREF="xfunc-internal.html"
+>&#38917;35.8</A
+>）
+     </P
+></LI
+><LI
+><P
+>C言語関数（<A
+HREF="xfunc-c.html"
+>&#38917;35.9</A
+>）
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+>すべての関数は、基本型、複合型、またはこの組み合わせを引数（パラメータ）として受け付けることが可能です。
+また、すべての関数は基本型または複合型を返すことが可能です。
+関数は、基本型の集合または複合型の集合を返すように定義することもできます。
+  </P
+><P
+>多くの関数は特定の疑似型（多様型として）を引数としたり返したりすることができます。
+しかし、利用できる機能は様々です。
+詳細は各関数種類の説明を参照してください。
+  </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数の定義の方法が最も簡単ですので、そちらから説明します。
+<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数にある概念のほとんどは、他の種類の関数にも適用できます。
+  </P
+><P
+>本章の全体に関して、その例をより理解するために、<A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>コマンドのマニュアルページを一読することが有用です。
+本章の例のいくつかは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ソース配布物内の<TT
+CLASS="FILENAME"
+>src/tutorial</TT
+>ディレクトリにある<TT
+CLASS="FILENAME"
+>funcs.sql</TT
+>と<TT
+CLASS="FILENAME"
+>funcs.c</TT
+>でも参照することができます。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="extend-type-system.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="xfunc-sql.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の型システム</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="extend.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>問い合わせ言語（<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>）関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

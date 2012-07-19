@@ -1,0 +1,453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PREPARE TRANSACTION</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="PREPARE"
+HREF="sql-prepare.html"><LINK
+REL="NEXT"
+TITLE="REASSIGN OWNED"
+HREF="sql-reassign-owned.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PREPARE"
+HREF="sql-prepare.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PREPARE"
+HREF="sql-prepare.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="REASSIGN OWNED"
+HREF="sql-reassign-owned.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="REASSIGN OWNED"
+HREF="sql-reassign-owned.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-PREPARE-TRANSACTION"
+></A
+>PREPARE TRANSACTION</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN73379"
+></A
+><H2
+>&#21517;&#21069;</H2
+>PREPARE TRANSACTION&nbsp;--&nbsp;二相コミット用に現在のトランザクションを準備する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN73384"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>PREPARE TRANSACTION <TT
+CLASS="REPLACEABLE"
+><I
+>transaction_id</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73387"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>は、二相コミット用に現在のトランザクションを準備します。
+このコマンドの後、トランザクションは現在のセッションと関連しなくなります。
+トランザクションの状態は完全にディスク上に保存され、コミット要求前にデータベースがクラッシュしてしまったとしても、ほとんど確実に正常にコミットできるようになります。
+  </P
+><P
+>準備された後、そのトランザクションを<A
+HREF="sql-commit-prepared.html"
+>COMMIT PREPARED</A
+>や<A
+HREF="sql-rollback-prepared.html"
+>ROLLBACK PREPARED</A
+>によりコミットまたはロールバックすることができます。
+元のトランザクションを実行したセッションだけではなく、任意のトランザクションからこれらのコマンドを発行することができます。
+  </P
+><P
+>コマンドを発行したセッションから見ると、<TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>は<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>コマンドと似たような動作をします。
+実行した後、実行中の現在のトランザクションはなくなり、準備したトランザクションの効果は不可視になります。
+（そのトランザクションがコミットされた場合に効果が可視になります。）
+  </P
+><P
+>何らかの原因で<TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>コマンドが失敗した場合、<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>が行われます。
+つまり、現在のトランザクションが取り消されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73400"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>transaction_id</I
+></TT
+></DT
+><DD
+><P
+>後で<TT
+CLASS="COMMAND"
+>COMMIT PREPARED</TT
+>や<TT
+CLASS="COMMAND"
+>ROLLBACK PREPARED</TT
+>でトランザクションを識別するための任意の識別子です。
+この識別子は文字列リテラルでなければなりません。また、200バイト未満でなければなりません。
+また、その時点で準備されたトランザクションとして使用されている他の識別子と同じものは使用できません。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73410"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>はアプリケーションや対話式のセッションでの使用を目的としていません。
+この目的は、外部トランザクションマネージャにより、複数のデータベースやその他のトランザクションを持つリソースを跨るグローバルなトランザクションを原始的に実現できるようにすることです。
+トランザクションマネージャを作成しているのでなければ、おそらく<TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>を使用してはなりません。
+  </P
+><P
+>このコマンドはトランザクションブロック内で使用しなければなりません。
+トランザクションブロックを始めるには、<A
+HREF="sql-begin.html"
+>BEGIN</A
+>を使用してください。
+  </P
+><P
+>現時点では、一時テーブルを含む操作を行うトランザクションやカーソルを<TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>で作成するトランザクション、<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>または<TT
+CLASS="COMMAND"
+>UNLISTEN</TT
+>を実行するトランザクションを<TT
+CLASS="COMMAND"
+>PREPARE</TT
+>させることはできません。
+準備したトランザクションで便利に使用するには、これらの機能は現在のセッションにあまりに強く結びついているためです。
+  </P
+><P
+>トランザクションで何らかの実行時パラメータが（<TT
+CLASS="LITERAL"
+>LOCAL</TT
+>オプションなしの）<TT
+CLASS="COMMAND"
+>SET</TT
+>で設定されている場合、その影響は<TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>の後も残ります。
+また、<TT
+CLASS="COMMAND"
+>COMMIT PREPARED</TT
+>や<TT
+CLASS="COMMAND"
+>ROLLBACK PREPARED</TT
+>の後では、その影響はありません。
+したがって、この意味では、<TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+> は<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>より<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>と似た動きであるといえます。
+  </P
+><P
+>その時点で利用できるすべての準備されたトランザクションは<A
+HREF="view-pg-prepared-xacts.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_prepared_xacts</TT
+></A
+>システムビューで列挙されます。
+  </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>トランザクションを長期間準備された状態のままとすることは勧められません。
+これは格納領域を回収する<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>機能と相互作用し、極端な場合では、トランザクションの周回（<A
+HREF="routine-vacuuming.html#VACUUM-FOR-WRAPAROUND"
+>&#38917;23.1.4</A
+>参照）を回避するためにデータベースを停止させてしまいます。
+またトランザクションが保持している何からのロックを保持し続けていることにも注意してください。
+外部トランザクションマネージャが他のデータベースがコミットの準備をしたと検証した後すぐに、準備されたトランザクションは通常コミットまたはロールバックされることがこの機能の想定している使用方法です。
+
+   </P
+><P
+>準備されたトランザクションを追跡し、その終了を即座に確認できるように外部トランザクションマネージャを設定していない場合、<A
+HREF="runtime-config-resource.html#GUC-MAX-PREPARED-TRANSACTIONS"
+>max_prepared_transactions</A
+>をゼロに設定して準備されたトランザクション機能を無効にしておくことが最善です。
+こうすれば事故により準備されたトランザクションが作成され、忘れられた結果問題を引き起こすことを防ぐことができます。
+   </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-PREPARE-TRANSACTION-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+>二相コミット用に現在のトランザクションを準備します。
+トランザクション識別子として<TT
+CLASS="LITERAL"
+>foobar</TT
+>を使用します。
+   
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PREPARE TRANSACTION 'foobar';</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73445"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-commit-prepared.html"
+>COMMIT PREPARED</A
+>, <A
+HREF="sql-rollback-prepared.html"
+>ROLLBACK PREPARED</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-prepare.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-reassign-owned.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PREPARE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>REASSIGN OWNED</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

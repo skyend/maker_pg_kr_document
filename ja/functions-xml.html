@@ -1,0 +1,1459 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>XML関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="テキスト検索関数と演算子"
+HREF="functions-textsearch.html"><LINK
+REL="NEXT"
+TITLE="シーケンス操作関数"
+HREF="functions-sequence.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="テキスト検索関数と演算子"
+HREF="functions-textsearch.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="シーケンス操作関数"
+HREF="functions-sequence.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-XML"
+>9.14. XML関数</A
+></H1
+><P
+>  
+   この節で説明される関数および擬似関数式は、<TT
+CLASS="TYPE"
+>xml</TT
+>型の値に対して機能します。<TT
+CLASS="TYPE"
+>xml</TT
+>型についての情報は<A
+HREF="datatype-xml.html"
+>&#38917;8.13</A
+>を点検してください。<TT
+CLASS="TYPE"
+>xml</TT
+>型のやりとりを変換する<CODE
+CLASS="FUNCTION"
+>xmlparse</CODE
+>および<CODE
+CLASS="FUNCTION"
+>xmlserialize</CODE
+>擬似関数式はここでは繰り返しません。これらの多くの関数を使用するには、インストレーションの際<TT
+CLASS="COMMAND"
+>configure --with-libxml</TT
+>付きでビルドされていることが必要です。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-PRODUCING-XML"
+>9.14.1. XML内容の生成</A
+></H2
+><P
+>   
+    SQLデータからXML内容を生成するために関数と擬似関数式の一式が提供されています。
+    そのようなものとして、クライアントアプリケーションが問い合わせ結果を処理のためXML文書に書式化するのにこれらは特に適しています。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN15517"
+>9.14.1.1. <TT
+CLASS="LITERAL"
+>xmlcomment</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xmlcomment</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+>)</PRE
+><P
+>    
+     関数<CODE
+CLASS="FUNCTION"
+>xmlcomment</CODE
+>は特定のテキストを内容としてXMLコメントを含んだXML値を作成します。テキストには結果として構築されるXMLコメントが有効になるよう<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>--</TT
+>"</SPAN
+>または<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>-</TT
+>"</SPAN
+>で終結する内容を含んではなりません。引数がNULLならば結果もNULLになります。
+    </P
+><P
+>    
+     例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlcomment('hello');
+
+  xmlcomment
+--------------
+ &#60;!--hello--&#62;</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN15533"
+>9.14.1.2. <TT
+CLASS="LITERAL"
+>xmlconcat</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xmlconcat</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>xml</I
+></TT
+>[<SPAN
+CLASS="OPTIONAL"
+>, ...</SPAN
+>])</PRE
+><P
+>    
+     関数<CODE
+CLASS="FUNCTION"
+>xmlconcat</CODE
+>は、XMLの内容断片を含む単一値を作成するために個別のXML値のリストを結合します。
+     NULL値は削除され、NULL以外の引数が存在しないときのみ結果はNULLになります。
+    </P
+><P
+>    
+     例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlconcat('&#60;abc/&#62;', '&#60;bar&#62;foo&#60;/bar&#62;');
+
+      xmlconcat
+----------------------
+ &#60;abc/&#62;&#60;bar&#62;foo&#60;/bar&#62;</PRE
+><P>
+    </P
+><P
+>    
+     XML宣言が提示されている場合は次のように組み合わせることができます。全ての引数の値が同一のXMLversion宣言を持っていれば、そのversionが結果に使用されます。さもなければversionは使用されません。もし全ての引数の値がstandalone宣言値である<SPAN
+CLASS="QUOTE"
+>"yes"</SPAN
+>であれば、その値が結果に使用されます。もし全ての引数の値がstandalone宣言値であり、その中で１つでも<SPAN
+CLASS="QUOTE"
+>"no"</SPAN
+>がある場合、それが結果に使用されます。さもなければ、結果はstandalone宣言を持ちません。もし結果がstandalone宣言を必要としていても、standalone宣言がない場合には、XMLはversion宣言を含むXML宣言を要求するため、version 1.0のversion宣言が使用されます。encoding宣言は無視され、全ての場合で削除されます。
+    </P
+><P
+>    
+     例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlconcat('&#60;?xml version="1.1"?&#62;&#60;foo/&#62;', '&#60;?xml version="1.1" standalone="no"?&#62;&#60;bar/&#62;');
+
+             xmlconcat
+-----------------------------------
+ &#60;?xml version="1.1"?&#62;&#60;foo/&#62;&#60;bar/&#62;</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN15551"
+>9.14.1.3. <TT
+CLASS="LITERAL"
+>xmlelement</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xmlelement</CODE
+>(name <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, xmlattributes(<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>AS <TT
+CLASS="REPLACEABLE"
+><I
+>attname</I
+></TT
+></SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>])</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>, content, ...</I
+></TT
+></SPAN
+>])</PRE
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>xmlelement</CODE
+>式は与えられた名前、属性、および内容を持つXML要素を生成します。
+    </P
+><P
+>    
+     例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlelement(name foo);
+
+ xmlelement
+------------
+ &#60;foo/&#62;
+
+SELECT xmlelement(name foo, xmlattributes('xyz' as bar));
+
+    xmlelement
+------------------
+ &#60;foo bar="xyz"/&#62;
+
+SELECT xmlelement(name foo, xmlattributes(current_date as bar), 'cont', 'ent');
+
+             xmlelement
+-------------------------------------
+ &#60;foo bar="2007-01-26"&#62;content&#60;/foo&#62;</PRE
+><P>
+    </P
+><P
+>    
+     有効でないXML名の要素と属性名は、シーケンス<TT
+CLASS="LITERAL"
+>_x<TT
+CLASS="REPLACEABLE"
+><I
+>HHHH</I
+></TT
+>_</TT
+>により障害となる文字を置換することでエスケープされます。ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>HHHH</I
+></TT
+>は16進数によるその文字のUnicode文字コード番号です。例をあげます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlelement(name "foo$bar", xmlattributes('xyz' as "a&#38;b"));
+
+            xmlelement
+----------------------------------
+ &#60;foo_x0024_bar a_x0026_b="xyz"/&#62;</PRE
+><P>
+    </P
+><P
+>    
+     属性値が列参照の場合、明示的な属性名を指定する必要はありません。この場合、デフォルトで列名が属性名として使用されます。いずれの場合でも、属性は明示的な名前で与えられなければなりません。従って、以下の例は有効です。
+</P><PRE
+CLASS="SCREEN"
+>CREATE TABLE test (a xml, b xml);
+SELECT xmlelement(name test, xmlattributes(a, b)) FROM test;</PRE
+><P>
+     しかし、以下の例は有効ではありません。
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlelement(name test, xmlattributes('constant'), a, b) FROM test;
+SELECT xmlelement(name test, xmlattributes(func(a, b))) FROM test;</PRE
+><P>
+    </P
+><P
+>    
+    もし要素内容が指定されればそのデータ型に従って書式化されます。もし内容そのものが<TT
+CLASS="TYPE"
+>xml</TT
+>型であれば、複合XML文書が構築されます。例をあげます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlelement(name foo, xmlattributes('xyz' as bar),
+                            xmlelement(name abc),
+                            xmlcomment('test'),
+                            xmlelement(name xyz));
+
+                  xmlelement
+----------------------------------------------
+ &#60;foo bar="xyz"&#62;&#60;abc/&#62;&#60;!--test--&#62;&#60;xyz/&#62;&#60;/foo&#62;</PRE
+><P>
+
+     そのほかの型の内容は有効なXML文字データにフォーマットされます。これは特に文字&lt;、&gt;、および&amp;がエンティティに変換されることを意味します。バイナリデータ（データ型は<TT
+CLASS="TYPE"
+>bytea</TT
+>）は、構成パラメータ<A
+HREF="runtime-config-client.html#GUC-XMLBINARY"
+>xmlbinary</A
+>の設定にしたがって、base64もしくは16進符号化方式で表現されます。個々のデータ型に対する特定の動作は、XMLスキーマ仕様でのSQLおよびPostgreSQLデータ型に調整するため展開されると期待されます。この時点でより詳細な記述が出現します。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN15583"
+>9.14.1.4. <TT
+CLASS="LITERAL"
+>xmlforest</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xmlforest</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>content</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>AS <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>, ...</SPAN
+>])</PRE
+><P
+>     
+     <CODE
+CLASS="FUNCTION"
+>xmlforest</CODE
+>式は与えられた名前と内容を使用し、要素のXMLフォレスト（シーケンス）を生成します。
+    </P
+><P
+>    
+     例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlforest('abc' AS foo, 123 AS bar);
+
+          xmlforest
+------------------------------
+ &#60;foo&#62;abc&#60;/foo&#62;&#60;bar&#62;123&#60;/bar&#62;
+
+
+SELECT xmlforest(table_name, column_name)
+FROM information_schema.columns
+WHERE table_schema = 'pg_catalog';
+
+                                         xmlforest
+-------------------------------------------------------------------------------------------
+ &#60;table_name&#62;pg_authid&#60;/table_name&#62;&#60;column_name&#62;rolname&#60;/column_name&#62;
+ &#60;table_name&#62;pg_authid&#60;/table_name&#62;&#60;column_name&#62;rolsuper&#60;/column_name&#62;
+ ...</PRE
+><P>
+
+     第２の例に見られるように、内容の値が列参照の場合要素名は省略可能です。この時は、列名がデフォルトで使用されます。そうでない時は、名前が指定されなければなりません。
+    </P
+><P
+>    
+     有効なXML名ではない要素名は上の<CODE
+CLASS="FUNCTION"
+>xmlelement</CODE
+>で説明した通りエスケープされます。
+     同様にして、既に<TT
+CLASS="TYPE"
+>xml</TT
+>型であるものを除き、内容データは有効なXML内容になるようにエスケープされます。
+    </P
+><P
+>    
+     XMLフォレストは１より多い要素からなる場合、有効なXML文書ではないことに注意してください。
+     したがって、<CODE
+CLASS="FUNCTION"
+>xmlelement</CODE
+>に<CODE
+CLASS="FUNCTION"
+>xmlforest</CODE
+>式をラップすることが有用なことがあります。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN15604"
+>9.14.1.5. <TT
+CLASS="LITERAL"
+>xmlpi</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xmlpi</CODE
+>(name <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>content</I
+></TT
+></SPAN
+>])</PRE
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>xmlpi</CODE
+>式はXML処理命令を作成します。内容が存在すれば、その内容は<TT
+CLASS="LITERAL"
+>?&gt;</TT
+>文字シーケンスを含んではなりません。
+    </P
+><P
+>    
+     例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlpi(name php, 'echo "hello world";');
+
+            xmlpi
+-----------------------------
+ &#60;?php echo "hello world";?&#62;</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN15619"
+>9.14.1.6. <TT
+CLASS="LITERAL"
+>xmlroot</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xmlroot</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>xml</I
+></TT
+>, version <TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+> | no value [<SPAN
+CLASS="OPTIONAL"
+>, standalone yes|no|no value</SPAN
+>])</PRE
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>xmlroot</CODE
+>式はXML値のルートノードの属性を変更します。versionが指定されていると、ルートノードのversion宣言での値を変更し、standalone設定が指定されていると、ルートノードのstandalone宣言での値を変更します。
+    </P
+><P
+></P><PRE
+CLASS="SCREEN"
+>SELECT xmlroot(xmlparse(document '&#60;?xml version="1.1"?&#62;&#60;content&#62;abc&#60;/content&#62;'),
+               version '1.0', standalone yes);
+
+                xmlroot
+----------------------------------------
+ &#60;?xml version="1.0" standalone="yes"?&#62;
+ &#60;content&#62;abc&#60;/content&#62;</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="FUNCTIONS-XML-XMLAGG"
+>9.14.1.7. <TT
+CLASS="LITERAL"
+>xmlagg</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xmlagg</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>xml</I
+></TT
+>)</PRE
+><P
+>    
+     ここで説明している関数とは異なり、<CODE
+CLASS="FUNCTION"
+>xmlagg</CODE
+>関数は集約関数です。単一行の要素ではなく、複数行にまたがった連結となりますが、<CODE
+CLASS="FUNCTION"
+>xmlconcat</CODE
+>が行うように、入力値を集約関数呼び出しに連結します。集約関数についての追加情報は<A
+HREF="functions-aggregate.html"
+>&#38917;9.18</A
+>を参照してください。
+    </P
+><P
+>    
+     例：
+</P><PRE
+CLASS="SCREEN"
+>CREATE TABLE test (y int, x xml);
+INSERT INTO test VALUES (1, '&#60;foo&#62;abc&#60;/foo&#62;');
+INSERT INTO test VALUES (2, '&#60;bar/&#62;');
+SELECT xmlagg(x) FROM test;
+        xmlagg
+----------------------
+ &#60;foo&#62;abc&#60;/foo&#62;&#60;bar/&#62;</PRE
+><P>
+    </P
+><P
+>    
+     連結の順序を決定するため、<A
+HREF="sql-expressions.html#SYNTAX-AGGREGATES"
+>&#38917;4.2.7</A
+>に記述されているように<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句を集計呼び出しに追加すると良いでしょう。 以下は例です。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlagg(x ORDER BY y DESC) FROM test;
+        xmlagg
+----------------------
+ &#60;bar/&#62;&#60;foo&#62;abc&#60;/foo&#62;</PRE
+><P>
+    </P
+><P
+>    
+     下記は以前のバージョンで推奨されていた、非標準的な方法例です。特定のケースでは有用かもしれません。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlagg(x) FROM (SELECT * FROM test ORDER BY y DESC) AS tab;
+        xmlagg
+----------------------
+ &#60;bar/&#62;&#60;foo&#62;abc&#60;/foo&#62;</PRE
+><P>
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-XML-PREDICATES"
+>9.14.2. XML述語</A
+></H2
+><P
+>    
+     この節で記述されている式は、<TT
+CLASS="TYPE"
+>xml</TT
+>値の属性をチュックします。
+    </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN15657"
+>9.14.2.1. <TT
+CLASS="LITERAL"
+>IS DOCUMENT</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>xml</I
+></TT
+> IS DOCUMENT</PRE
+><P
+>    
+     式<TT
+CLASS="LITERAL"
+>IS DOCUMENT</TT
+>は引数XML値が適切なXML文書であれば真を返し、そうでなければ（つまり、内容の断片）偽を返すか、もしくは引数がNULLであればNULLを返します。文書と内容の断片の差異については<A
+HREF="datatype-xml.html"
+>&#38917;8.13</A
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="XML-EXISTS"
+>9.14.2.2. <TT
+CLASS="LITERAL"
+>XMLEXISTS</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>XMLEXISTS</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+> PASSING [<SPAN
+CLASS="OPTIONAL"
+>BY REF</SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>xml</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>BY REF</SPAN
+>])</PRE
+><P
+>    
+     関数<CODE
+CLASS="FUNCTION"
+>xmlexists</CODE
+>はXPath式の第一引数が何かしらのノードであれば真を返し、そうでなければ偽を返します。(もしいずれの引数もNULLであった場合はNULLを返します。)
+    </P
+><P
+>    
+     例:
+     </P><PRE
+CLASS="SCREEN"
+>SELECT xmlexists('//town[text() = ''Toronto'']' PASSING BY REF '&#60;towns&#62;&#60;town&#62;Toronto&#60;/town&#62;&#60;town&#62;Ottawa&#60;/town&#62;&#60;/towns&#62;');
+
+ xmlexists
+------------
+ t
+(1 row)</PRE
+><P>
+    </P
+><P
+>    
+     <TT
+CLASS="LITERAL"
+>BY REF</TT
+>句は、PostgreSQLには何の影響も与えませんが、別製品とのSQL互換性や順応性のため、付与することができます。
+     SQL標準では最初に<TT
+CLASS="LITERAL"
+>BY REF</TT
+>を必要としており、2つ目の引数以降はオプショナルです。加えてSQL標準では<CODE
+CLASS="FUNCTION"
+>xmlexists</CODE
+>はXQueryを第一引数として取る構成としていますが、
+     PostgreSQLでは現在XQueryのサブセットにあたるXpathのみサポートしていることに注意してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="XML-IS-WELL-FORMED"
+>9.14.2.3. <TT
+CLASS="LITERAL"
+>xml_is_well_formed</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xml_is_well_formed</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+>)
+<CODE
+CLASS="FUNCTION"
+>xml_is_well_formed_document</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+>)
+<CODE
+CLASS="FUNCTION"
+>xml_is_well_formed_content</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>text</I
+></TT
+>)</PRE
+><P
+>    
+     これらの関数は<TT
+CLASS="TYPE"
+>text</TT
+>文字列が整形式かどうかをチェックし、論理値で結果を返します。
+     <CODE
+CLASS="FUNCTION"
+>xml_is_well_formed_document</CODE
+>は文書が整形式かをチェックし、一方<CODE
+CLASS="FUNCTION"
+>xml_is_well_formed_content</CODE
+>は内容が整形式かをチェックします。
+     <CODE
+CLASS="FUNCTION"
+>xml_is_well_formed</CODE
+>は、<A
+HREF="runtime-config-client.html#GUC-XMLOPTION"
+>xmloption</A
+>パラメータ値が<TT
+CLASS="LITERAL"
+>DOCUMENT</TT
+>に設定されていれば前者を、<TT
+CLASS="LITERAL"
+>CONTENT</TT
+>が設定されていれば後者のチェックを実施します。
+     これは、<CODE
+CLASS="FUNCTION"
+>xml_is_well_formed</CODE
+>は単純な<TT
+CLASS="TYPE"
+>xml</TT
+>型へのキャストが成功するかの判断に有用であり、その他の２つの関数は<CODE
+CLASS="FUNCTION"
+>XMLPARSE</CODE
+>の対応による変換が成功するかの判断に有用であることを意味します。
+    </P
+><P
+>    
+     例:
+
+</P><PRE
+CLASS="SCREEN"
+>SET xmloption TO DOCUMENT;
+SELECT xml_is_well_formed('&#60;&#62;');
+ xml_is_well_formed 
+--------------------
+ f
+(1 row)
+
+SELECT xml_is_well_formed('&#60;abc/&#62;');
+ xml_is_well_formed 
+--------------------
+ t
+(1 row)
+
+SET xmloption TO CONTENT;
+SELECT xml_is_well_formed('abc');
+ xml_is_well_formed 
+--------------------
+ t
+(1 row)
+
+SELECT xml_is_well_formed_document('&#60;pg:foo xmlns:pg="http://postgresql.org/stuff"&#62;bar&#60;/pg:foo&#62;');
+ xml_is_well_formed_document 
+-----------------------------
+ t
+(1 row)
+
+SELECT xml_is_well_formed_document('&#60;pg:foo xmlns:pg="http://postgresql.org/stuff"&#62;bar&#60;/my:foo&#62;');
+ xml_is_well_formed_document 
+-----------------------------
+ f
+(1 row)</PRE
+><P>
+
+    
+     最後の例は、名前空間が正しく一致しているかのチェックも含むことを示しています。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-XML-PROCESSING"
+>9.14.3. XMLの処理</A
+></H2
+><P
+>   
+    データ型<TT
+CLASS="TYPE"
+>xml</TT
+>の値を処理するため、PostgreSQLは関数<CODE
+CLASS="FUNCTION"
+>xpath</CODE
+>と<CODE
+CLASS="FUNCTION"
+>xpath_exists</CODE
+>を提供しており、それはXPath 1.0式を評価します。
+   </P
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xpath</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>xpath</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>xml</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>nsarray</I
+></TT
+></SPAN
+>])</PRE
+><P
+>   
+    関数<CODE
+CLASS="FUNCTION"
+>xpath</CODE
+>は、XML値<TT
+CLASS="REPLACEABLE"
+><I
+>xml</I
+></TT
+>に対し、XPath式<TT
+CLASS="REPLACEABLE"
+><I
+>xpath</I
+></TT
+>(ひとつの<TT
+CLASS="TYPE"
+>text</TT
+>値)を評価します。そして、XPath式で作成されたノードセットに対応するXML値の配列を返します。
+   </P
+><P
+>   
+    2番目の引数は整形済XML文書でなければなりません。特に、単一のルートノード要素を持たなければなりません。
+  </P
+><P
+>   
+    オプショナルな関数の３番目の引数は名前空間マッピング配列です。この配列は、第２軸が２に等しい長さをもつ２次元<TT
+CLASS="TYPE"
+>text</TT
+>配列です（つまり、それは配列の配列で、それぞれは正確に２つの要素からなります）。それぞれの配列のエントリの最初の要素は名前空間の名前（別名）で、２番目は名前空間のURIです。この配列内で提供される別名がXML文書自身で使用されるものと同じであることは必要ではありません（言い換えると、XML文書内および<CODE
+CLASS="FUNCTION"
+>xpath</CODE
+>関数の両方の文脈の中で、別名は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ローカル</I
+></SPAN
+>です）。
+   </P
+><P
+>   
+    例：
+</P><PRE
+CLASS="SCREEN"
+>SELECT xpath('/my:a/text()', '&#60;my:a xmlns:my="http://example.com"&#62;test&#60;/my:a&#62;',
+             ARRAY[ARRAY['my', 'http://example.com']]);
+
+ xpath  
+--------
+ {test}
+(1 row)</PRE
+><P>
+   </P
+><P
+>   
+    デフォルト(匿名)名前空間を取り扱うためには、以下のようなことを実施してください。
+</P><PRE
+CLASS="SCREEN"
+>SELECT xpath('//mydefns:b/text()', '&#60;a xmlns="http://example.com"&#62;&#60;b&#62;test&#60;/b&#62;&#60;/a&#62;',
+             ARRAY[ARRAY['mydefns', 'http://example.com']]);
+
+ xpath
+--------
+ {test}
+(1 row)</PRE
+><P>
+   </P
+><PRE
+CLASS="SYNOPSIS"
+><CODE
+CLASS="FUNCTION"
+>xpath_exists</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>xpath</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>xml</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>nsarray</I
+></TT
+></SPAN
+>])</PRE
+><P
+>   
+    関数<CODE
+CLASS="FUNCTION"
+>xpath_exists</CODE
+>は、<CODE
+CLASS="FUNCTION"
+>xpath</CODE
+>関数の特別な形式です。この関数は、XPathを満足する個別のXML値を返す代わりに、問い合わせがそれを満足するかどうかを論理値で返します。
+    この関数は、名前空間にマッピングされた引数をもサポートする点を除き、標準の<TT
+CLASS="LITERAL"
+>XMLEXISTS</TT
+>述語と同じです。
+   </P
+><P
+>   
+    例:
+</P><PRE
+CLASS="SCREEN"
+>SELECT xpath_exists('/my:a/text()', '&#60;my:a xmlns:my="http://example.com"&#62;test&#60;/my:a&#62;',
+                     ARRAY[ARRAY['my', 'http://example.com']]);
+
+ xpath_exists  
+--------------
+ t
+(1 row)</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FUNCTIONS-XML-MAPPING"
+>9.14.4. XMLにテーブルをマップ</A
+></H2
+><P
+>   
+    以下の関数はリレーショナルテーブルの内容をXML値にマップします。これらはXMLエクスポート機能と考えることができます。
+</P><PRE
+CLASS="SYNOPSIS"
+>table_to_xml(tbl regclass, nulls boolean, tableforest boolean, targetns text)
+query_to_xml(query text, nulls boolean, tableforest boolean, targetns text)
+cursor_to_xml(cursor refcursor, count int, nulls boolean,
+              tableforest boolean, targetns text)</PRE
+><P>
+    それぞれの関数の戻り値型は<TT
+CLASS="TYPE"
+>xml</TT
+>です。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>table_to_xml</CODE
+>は、パラメータ<TT
+CLASS="PARAMETER"
+>tbl</TT
+>として渡された名前付きのテーブルの内容をマップします。<TT
+CLASS="TYPE"
+>regclass</TT
+>型はオプションのスキーマ修飾と二重引用符を含む、通常の表記法を使用しテーブルを特定する文字列を受け付けます。<CODE
+CLASS="FUNCTION"
+>query_to_xml</CODE
+>は、パラメータ<TT
+CLASS="PARAMETER"
+>query</TT
+>としてテキストが渡された問い合わせを実行し、結果セットをマップします。<CODE
+CLASS="FUNCTION"
+>cursor_to_xml</CODE
+>は、パラメータ<TT
+CLASS="PARAMETER"
+>cursor</TT
+>で指定されたカーソルから提示された行数を取得します。この変異形は、それぞれの関数により結果値がメモリーに構築されるため、巨大なテーブルをマップする必要がある場合推奨されます。
+   </P
+><P
+>   
+    <TT
+CLASS="PARAMETER"
+>tableforest</TT
+>が偽であれば、結果のXML文書は以下のようになります。
+</P><PRE
+CLASS="SCREEN"
+>&#60;tablename&#62;
+  &#60;row&#62;
+    &#60;columnname1&#62;data&#60;/columnname1&#62;
+    &#60;columnname2&#62;data&#60;/columnname2&#62;
+  &#60;/row&#62;
+
+  &#60;row&#62;
+    ...
+  &#60;/row&#62;
+
+  ...
+&#60;/tablename&#62;</PRE
+><P>
+
+    <TT
+CLASS="PARAMETER"
+>tableforest</TT
+>が真であれば、結果は以下のようなXML文書の断片です。
+</P><PRE
+CLASS="SCREEN"
+>&#60;tablename&#62;
+  &#60;columnname1&#62;data&#60;/columnname1&#62;
+  &#60;columnname2&#62;data&#60;/columnname2&#62;
+&#60;/tablename&#62;
+
+&#60;tablename&#62;
+  ...
+&#60;/tablename&#62;
+
+...</PRE
+><P>
+
+    テーブル名が１つも有効でなければ、つまり、問い合わせ、またはカーソルをマップする時、文字列<TT
+CLASS="LITERAL"
+>table</TT
+>が最初の書式で使用され、<TT
+CLASS="LITERAL"
+>row</TT
+>が２番目の書式で使用されます。
+   </P
+><P
+>   
+    これらどの書式を選択するのかはユーザ次第です。最初の書式は適切なXML文書で、多くのアプリケーションにおいて重要です。第２の書式は、後に結果値が１つの文書に再び組み立てられる場合、<CODE
+CLASS="FUNCTION"
+>cursor_to_xml</CODE
+>関数内でより有用になる傾向があります。上記で説明したXML内容を作成する関数、特に<CODE
+CLASS="FUNCTION"
+>xmlelement</CODE
+>は結果を好みにかえるために使用することができます。
+   </P
+><P
+>   
+    データの値は上記関数<CODE
+CLASS="FUNCTION"
+>xmlelement</CODE
+>で説明したのと同じ方法でマップされます。
+   </P
+><P
+>   
+    パラメータ<TT
+CLASS="PARAMETER"
+>nulls</TT
+>は出力にNULL値が含まれる必要があるかを決定します。もし真であれば列内のNULL値は以下のように表現されます。
+</P><PRE
+CLASS="SCREEN"
+>&#60;columnname xsi:nil="true"/&#62;</PRE
+><P>
+    ここで<TT
+CLASS="LITERAL"
+>xsi</TT
+>はXMLスキーマインスタンスに対するXML名前空間接頭辞です。適切な名前空間宣言が結果値に追加されます。もし偽の場合、NULL値を含む列は単に出力から削除されます。
+   </P
+><P
+>   
+    パラメータ<TT
+CLASS="PARAMETER"
+>targetns</TT
+>は結果の希望するXML名前空間を指定します。特定の名前空間が必要なければ、空文字列を渡す必要があります。
+   </P
+><P
+>   
+    以下の関数は、対応する上記関数により行われたマッピングを記述するXMLスキーマ文書を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>table_to_xmlschema(tbl regclass, nulls boolean, tableforest boolean, targetns text)
+query_to_xmlschema(query text, nulls boolean, tableforest boolean, targetns text)
+cursor_to_xmlschema(cursor refcursor, nulls boolean, tableforest boolean, targetns text)</PRE
+><P>
+    一致するXMLデータマッピングとXMLスキーマ文書を取得するため、同じパラメータが渡されることが不可欠です。
+   </P
+><P
+>   
+    以下の関数は、XMLデータマッピングとそれに対応するXMLスキーマがお互いにリンクされた、１つの文書（またはフォレスト）を作成します。これらは自己完結した、自己記述的な結果を希望する場合に便利です。
+</P><PRE
+CLASS="SYNOPSIS"
+>table_to_xml_and_xmlschema(tbl regclass, nulls boolean, tableforest boolean, targetns text)
+query_to_xml_and_xmlschema(query text, nulls boolean, tableforest boolean, targetns text)</PRE
+><P>
+   </P
+><P
+>   
+    さらに、以下の関数がスキーマ全体、または現在のデータベース全体の類似マッピングを作成するため利用できます。
+</P><PRE
+CLASS="SYNOPSIS"
+>schema_to_xml(schema name, nulls boolean, tableforest boolean, targetns text)
+schema_to_xmlschema(schema name, nulls boolean, tableforest boolean, targetns text)
+schema_to_xml_and_xmlschema(schema name, nulls boolean, tableforest boolean, targetns text)
+
+database_to_xml(nulls boolean, tableforest boolean, targetns text)
+database_to_xmlschema(nulls boolean, tableforest boolean, targetns text)
+database_to_xml_and_xmlschema(nulls boolean, tableforest boolean, targetns text)</PRE
+><P>
+
+    これらはメモリー内に作成される必要がある、多くのデータを生成する潜在的可能性があることに注意してください。巨大なスキーマ、またはデータベースの内容マッピングを要求する際は、カーソル経由の可能性があっても、その代わりにテーブルを別々にマップすることを検討することは無駄ではありません。
+   </P
+><P
+>   
+    スキーマ内容マッピングの結果は以下のようになります。
+
+</P><PRE
+CLASS="SCREEN"
+>&#60;schemaname&#62;
+
+table1-mapping
+
+table2-mapping
+
+...
+
+&#60;/schemaname&#62;</PRE
+><P>
+
+    ここで、テーブルマッピング書式は上で説明したとおり<TT
+CLASS="PARAMETER"
+>tableforest</TT
+>パラメータに依存します。
+   </P
+><P
+>   
+    データベース内容マッピング書式は以下のようになります。
+
+</P><PRE
+CLASS="SCREEN"
+>&#60;dbname&#62;
+
+&#60;schema1name&#62;
+  ...
+&#60;/schema1name&#62;
+
+&#60;schema2name&#62;
+  ...
+&#60;/schema2name&#62;
+
+...
+
+&#60;/dbname&#62;</PRE
+><P>
+
+    ここで、スキーママッピングは上記のとおりです。
+   </P
+><P
+>   
+    これらの関数で作成された出力を使用する１つの例として、<A
+HREF="functions-xml.html#XSLT-XML-HTML"
+>&#22259;9-1</A
+>は、テーブルデータの表形式への翻訳を含む<CODE
+CLASS="FUNCTION"
+>table_to_xml_and_xmlschema</CODE
+>からHTML文書への出力の変換をおこなうXSLTスタイルシートを示します。同じようにして、これらの関数の結果は他のXML基準書式に変換されます。
+   </P
+><DIV
+CLASS="FIGURE"
+><A
+NAME="XSLT-XML-HTML"
+></A
+><P
+><B
+>&#22259; 9-1. SQL/XML出力をHTMLに変換するXSLTスタイルシート</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>&#60;?xml version="1.0"?&#62;
+&#60;xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.w3.org/1999/xhtml"
+&#62;
+
+  &#60;xsl:output method="xml"
+      doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
+      doctype-public="-//W3C/DTD XHTML 1.0 Strict//EN"
+      indent="yes"/&#62;
+
+  &#60;xsl:template match="/*"&#62;
+    &#60;xsl:variable name="schema" select="//xsd:schema"/&#62;
+    &#60;xsl:variable name="tabletypename"
+                  select="$schema/xsd:element[@name=name(current())]/@type"/&#62;
+    &#60;xsl:variable name="rowtypename"
+                  select="$schema/xsd:complexType[@name=$tabletypename]/xsd:sequence/xsd:element[@name='row']/@type"/&#62;
+
+    &#60;html&#62;
+      &#60;head&#62;
+        &#60;title&#62;&#60;xsl:value-of select="name(current())"/&#62;&#60;/title&#62;
+      &#60;/head&#62;
+      &#60;body&#62;
+        &#60;table&#62;
+          &#60;tr&#62;
+            &#60;xsl:for-each select="$schema/xsd:complexType[@name=$rowtypename]/xsd:sequence/xsd:element/@name"&#62;
+              &#60;th&#62;&#60;xsl:value-of select="."/&#62;&#60;/th&#62;
+            &#60;/xsl:for-each&#62;
+          &#60;/tr&#62;
+
+          &#60;xsl:for-each select="row"&#62;
+            &#60;tr&#62;
+              &#60;xsl:for-each select="*"&#62;
+                &#60;td&#62;&#60;xsl:value-of select="."/&#62;&#60;/td&#62;
+              &#60;/xsl:for-each&#62;
+            &#60;/tr&#62;
+          &#60;/xsl:for-each&#62;
+        &#60;/table&#62;
+      &#60;/body&#62;
+    &#60;/html&#62;
+  &#60;/xsl:template&#62;
+
+&#60;/xsl:stylesheet&#62;</PRE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-textsearch.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-sequence.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>テキスト検索関数と演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>シーケンス操作関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

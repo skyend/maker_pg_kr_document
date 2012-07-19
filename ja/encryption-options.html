@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>暗号化オプション</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの準備と運用"
+HREF="runtime.html"><LINK
+REL="PREVIOUS"
+TITLE="サーバのなりすまし防止"
+HREF="preventing-server-spoofing.html"><LINK
+REL="NEXT"
+TITLE="SSLによる安全なTCP/IP接続"
+HREF="ssl-tcp.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバのなりすまし防止"
+HREF="preventing-server-spoofing.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 17&#31456;サーバの準備と運用</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SSLによる安全なTCP/IP接続"
+HREF="ssl-tcp.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ENCRYPTION-OPTIONS"
+>17.8. 暗号化オプション</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、複数レベルの暗号化を備え、データベースサーバ自身、管理者の注意不足、安全ではないネットワークを原因とした漏洩からデータを柔軟に保護することができます。
+また、診療記録や財務業務など高セキュリティが求められるデータを格納する場合に暗号化が必要な場合もあります。
+  </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>パスワード格納に関する暗号化</DT
+><DD
+><P
+>デフォルトでは、データベースユーザのパスワードはMD5ハッシュとして格納されます。
+ですので、ユーザに割り当てられているパスワードは管理者でも分かりません。
+MD5暗号化がクライアント認証に使用されている場合、平文のパスワードはサーバ上に瞬間的にも存在することはありません。
+ネットワーク上に流れる前にクライアントがMD5暗号化を行うからです。
+    </P
+></DD
+><DT
+>特定の列に関する暗号化</DT
+><DD
+><P
+><A
+HREF="pgcrypto.html"
+>pgcrypto</A
+>モジュールにより、あるフィールドを暗号化して保存することができます。
+データの一部が極秘データであるような場合に有用です。
+クライアントが提供した復号化用のキーで、サーバ上のデータを復号化し、クライアントに返されます。
+    </P
+><P
+>復号化されたデータと復号化用のキーは、復号処理中およびクライアントサーバ間の通信中サーバ上に存在します。
+このため、データベースサーバへのすべてのアクセス権限を持つユーザ（例えばシステム管理者）によって、データとキーが盗まれる瞬間があります。
+    </P
+></DD
+><DT
+>データパーティションに関する暗号化</DT
+><DD
+><P
+>Linuxでは<SPAN
+CLASS="QUOTE"
+>"loopback device"</SPAN
+>を使用してファイルシステムの最上位で暗号化を行うことができます。
+これにより、ファイルシステムパーティション全体をディスク上で暗号化することができます。
+これはオペレーティングシステムにより復号化されます。
+これと同等の機能は、FreeBSDではGEOMベースのディスク暗号化、<ACRONYM
+CLASS="ACRONYM"
+>gbde</ACRONYM
+>と呼ばれます。
+また、Windowsを含む他のオペレーティングシステムの多くでもこうした機能をサポートします。
+    </P
+><P
+>この機構により、ディスク装置やコンピュータ全体が盗まれた場合でも、ディスクから平文のデータが読み取られることを防止できます。
+ファイルシステムがマウントされている時は、この機構による保護は働きません。
+マウント時にはオペレーティングシステムが復号化したデータを提供するからです。
+しかし、ファイルシステムをマウントするためになんらかの方法で暗号化キーをオペレーティングシステムに渡さなければなりません。
+そのディスク装置をマウントするホストのどこかに暗号化キーを格納している場合もあります。
+    </P
+></DD
+><DT
+>ネットワーク越しのパスワード暗号化</DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>MD5</TT
+>認証方式は、サーバにパスワードを送信する前に、パスワードを二重に暗号化します。
+まず、ユーザ名を元にパスワードをMD5で暗号化します。
+そして、データベース接続が確立した時に、ランダムなソルトを使用して更に暗号化します。
+この二重に暗号化された値が、ネットワーク越しにサーバへ渡されます。
+二重の暗号化により、パスワードの盗聴を防ぐだけではなく、将来確立する別の接続で同じ暗号化値が使用されなくなります。
+     </P
+></DD
+><DT
+>ネットワーク越しのデータ暗号化</DT
+><DD
+><P
+>SSL接続により、ネットワーク越しに送信されるデータ（パスワード、問い合わせ、結果のデータ）はすべて暗号化されます。
+<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイルを使用して、管理者はどのホストは暗号化しない接続を使用し（<TT
+CLASS="LITERAL"
+>host</TT
+>）、どのホストがSSLで暗号化された接続を必要とするか（<TT
+CLASS="LITERAL"
+>hostssl</TT
+>）を指定することができます。
+また、SSL経由のサーバとの接続のみを使用するようにクライアントで指定することもできます。
+<SPAN
+CLASS="APPLICATION"
+>Stunnel</SPAN
+>や<SPAN
+CLASS="APPLICATION"
+>SSH</SPAN
+>を使用して暗号化転送を行うこともできます。
+     </P
+></DD
+><DT
+>SSLホスト認証</DT
+><DD
+><P
+>クライアントとサーバの両方で証明書を互いに提供することができます。
+これには両方で追加の設定を行わなければなりませんが、これにより単なるパスワードの使用よりも強力な身元の検証を行うことができます。
+クライアントから送信されたパスワードを盗聴する偽装サーバからコンピュータを保護します。
+また、クライアントとサーバとの間にあるコンピュータがサーバになりすまし、クライアントとサーバ間で流れるデータを読み取り中継する、<SPAN
+CLASS="QUOTE"
+>"中間者"</SPAN
+>攻撃から保護することもできます。
+    </P
+></DD
+><DT
+>クライアントサイドの暗号化</DT
+><DD
+><P
+>サーバマシンのシステム管理者を信頼できない場合、クライアント側でデータを暗号化する必要があります。
+この場合、平文のデータはデータベースサーバ上に存在しません。
+データはサーバに送信される前にクライアント上で暗号化されます。
+また、使用する前にデータベースからの結果をクライアントで復号化しなければなりません。
+    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="preventing-server-spoofing.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ssl-tcp.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>サーバのなりすまし防止</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SSLによる安全なTCP/IP接続</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

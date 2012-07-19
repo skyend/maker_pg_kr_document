@@ -1,0 +1,481 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PREPARE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="NOTIFY"
+HREF="sql-notify.html"><LINK
+REL="NEXT"
+TITLE="PREPARE TRANSACTION"
+HREF="sql-prepare-transaction.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="NOTIFY"
+HREF="sql-notify.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="NOTIFY"
+HREF="sql-notify.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PREPARE TRANSACTION"
+HREF="sql-prepare-transaction.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PREPARE TRANSACTION"
+HREF="sql-prepare-transaction.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-PREPARE"
+></A
+>PREPARE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN73287"
+></A
+><H2
+>&#21517;&#21069;</H2
+>PREPARE&nbsp;--&nbsp;実行する文を準備する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN73295"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>PREPARE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+> [, ...] ) ] AS <TT
+CLASS="REPLACEABLE"
+><I
+>statement</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73300"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>PREPARE</TT
+>は準備された文を作成します。
+準備された文は、性能を最適化するために利用可能なサーバ側オブジェクトです。
+<TT
+CLASS="COMMAND"
+>PREPARE</TT
+>文を実行すると、指定された問い合わせの構文解析、書き換え、実行計画の作成が行われます。
+その後、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>文が発行された際は、準備された文に必要な処理は実行のみになります。
+このため、構文解析、書き換え、実行計画の作成が一度で済み、問い合わせが実行される度にこれらを行う必要がなくなります。
+  </P
+><P
+>準備された文はパラメータ、すなわち文が実行される時に代入される値を取ることができます。
+準備された文を作成する時には<TT
+CLASS="LITERAL"
+>$1</TT
+>や<TT
+CLASS="LITERAL"
+>$2</TT
+>などを使用して、位置によりパラメータを参照してください。
+省略可能ですが、対応するパラメータのデータ型のリストを指定することもできます。
+パラメータのデータ型の指定がない、または、<TT
+CLASS="LITERAL"
+>unknown</TT
+>と宣言されている場合、型はパラメータが使用される文脈より（可能ならば）推測されます。
+文の実行時には、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>文内にこれらのパラメータの実際の値を指定します。
+詳細は<A
+HREF="sql-execute.html"
+>EXECUTE</A
+>を参照してください。
+  </P
+><P
+>準備された文は現在のデータベースセッションの期間中にのみ保持されます。
+セッションが終了すると、準備された文は破棄されます。
+そのため、再び利用する場合は、再作成する必要があります。
+また、これは、1つの準備された文を複数のデータベースクライアントから使用することはできないことを意味します。
+ただし、各クライアントが個別に準備された文を作成することはできます。
+準備された文を手作業で削除するには、<A
+HREF="sql-deallocate.html"
+>DEALLOCATE</A
+>コマンドを使用します。
+  </P
+><P
+>準備された文の利点を最大限に発揮できるのは、単一のセッションで同類の問い合わせを多数実行する場合です。
+パフォーマンスの違いは、文の書き換えや実行計画が複雑なほど顕著になるでしょう。
+例えば、問い合わせに多数のテーブルの結合が含まれている場合や、いくつものルールを適用しなければならない場合などが考えられます。 
+書き換えおよび実行計画が比較的単純で、実行コストが高い文の場合は、準備された文の効果はそれほど現れないでしょう。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73315"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>個々の準備された文に与えられる任意の名前です。
+この名前は、1つのセッション内で一意でなければいけません。準備された文の実行および削除の時に、この名前が使用されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+></DT
+><DD
+><P
+>準備された文に対するパラメータのデータ型です。
+特定のパラメータのデータ型の指定がない、または、<TT
+CLASS="LITERAL"
+>unknown</TT
+>と指定された場合、パラメータが使用される文脈から推測されます。
+準備された文自体の中でこのパラメータを参照する時は、<TT
+CLASS="LITERAL"
+>$1</TT
+>、<TT
+CLASS="LITERAL"
+>$2</TT
+>などを使用します。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>statement</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、<TT
+CLASS="COMMAND"
+>VALUES</TT
+>文のいずれかです。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73341"
+></A
+><H2
+>注釈</H2
+><P
+>状況によっては、準備された文用に生成された問い合わせ計画が、普通に送信され実行された場合の問い合わせ計画よりも劣ってしまう場合があります。
+これは、実行計画を作成する際、プランナが最適な問い合わせ計画を判断するために、文の中で指定されたパラメータの実際の値を使用できないことが原因です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、テーブル内のデータ分布に関する統計を取り、文中の定数を使って問い合わせの実行結果を予測しています。
+パラメータを持つ準備された文の実行計画を作成する場合は、このようなデータを使用できないため、選択された計画が最適ではない可能性があります。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が準備された文に対して選択した問い合わせ計画を検査するには、<A
+HREF="sql-explain.html"
+>EXPLAIN</A
+>を使用してください。
+  </P
+><P
+>問い合わせの実行計画や問い合わせの最適化のために<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が収集する統計に関する詳細は、<A
+HREF="sql-analyze.html"
+>ANALYZE</A
+>のドキュメントを参照してください。
+  </P
+><P
+><A
+HREF="view-pg-prepared-statements.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_prepared_statements</TT
+></A
+>システムビューを問い合わせることによりセッションで利用可能な準備された文をすべて確認することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-PREPARE-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>文に対して準備された文を作成し、実行します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PREPARE fooplan (int, text, bool, numeric) AS
+    INSERT INTO foo VALUES($1, $2, $3, $4);
+EXECUTE fooplan(1, 'Hunter Valley', 't', 200.00);</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>文に対して準備された文を作成し、実行します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PREPARE usrrptplan (int) AS
+    SELECT * FROM users u, logs l WHERE u.usrid=$1 AND u.usrid=l.usrid
+    AND l.date = $2;
+EXECUTE usrrptplan(1, current_date);</PRE
+><P>
+
+第2パラメータのデータ型が指定されていないことに注目してください。
+このため<TT
+CLASS="LITERAL"
+>$2</TT
+>が使用される文脈からデータ型が推測されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73362"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>PREPARE</TT
+>文が含まれていますが、埋め込みSQLでの使用に限られています。
+また、標準SQLの<TT
+CLASS="COMMAND"
+>PREPARE</TT
+>文では多少異なる構文が使用されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73367"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-deallocate.html"
+>DEALLOCATE</A
+>, <A
+HREF="sql-execute.html"
+>EXECUTE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-notify.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-prepare-transaction.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>NOTIFY</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PREPARE TRANSACTION</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

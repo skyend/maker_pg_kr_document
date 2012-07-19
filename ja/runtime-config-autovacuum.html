@@ -1,0 +1,546 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>自動Vacuum作業</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="実行時統計情報"
+HREF="runtime-config-statistics.html"><LINK
+REL="NEXT"
+TITLE="クライアント接続デフォルト"
+HREF="runtime-config-client.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="実行時統計情報"
+HREF="runtime-config-statistics.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="クライアント接続デフォルト"
+HREF="runtime-config-client.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-AUTOVACUUM"
+>18.10. 自動Vacuum作業</A
+></H1
+><P
+>     
+      以下に示す設定は<I
+CLASS="FIRSTTERM"
+>自動バキューム</I
+>機能の動作を制御します。詳細は<A
+HREF="routine-vacuuming.html#AUTOVACUUM"
+>&#38917;23.1.5</A
+>を参照してください。
+     </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-AUTOVACUUM"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	サーバがautovacuumランチャデーモンを実行すべきかどうかを管理します。
+デフォルトでは有効です。
+しかしautovacuumを作動させるためには<A
+HREF="runtime-config-statistics.html#GUC-TRACK-COUNTS"
+>track_counts</A
+>も有効でなければなりません。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+       </P
+><P
+>       
+	このパラメータが無効であってとしてもシステムは、トランザクションIDの周回を防止する必要があれば、autovacuumプロセスを起動することに注意してください。
+詳細は<A
+HREF="routine-vacuuming.html#VACUUM-FOR-WRAPAROUND"
+>&#38917;23.1.4</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-LOG-AUTOVACUUM-MIN-DURATION"
+></A
+><TT
+CLASS="VARNAME"
+>log_autovacuum_min_duration</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	少なくとも指定ミリ秒実行した場合、autovacuu,で実行される各活動がログに残るようになります。
+これをゼロに設定すると、すべてのautovacuumの活動がログに残ります。
+マイナス1（デフォルト）はautovacuum活動のログを無効にします。
+例えば、これを<TT
+CLASS="LITERAL"
+>250ms</TT
+>に設定すると、250ms以上かかって実行されたautovacuumや解析はすべてログに残ります。
+        さらに、<TT
+CLASS="LITERAL"
+>-1</TT
+>以外の値にこのパラメータが設定された場合、競合するロックの存在によりオートバキューム動作が省略されるとメッセージはログに記録されます。
+        このパラメータを有効にすることは、autovacuum活動の追跡に役に立ちます。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-MAX-WORKERS"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_max_workers</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	同時に実行することができるautovacuumプロセス（autovacuumランチャ以外）の最大数を指定します。
+デフォルトは3です。
+サーバ起動時のみで設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-NAPTIME"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_naptime</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	あるデータベースについて実行されるautovacuumデーモンの最小遅延を指定します。
+それぞれの周期で、デーモンはそのデータベースを試験し、そしてそのデータベース内のテーブルで必要性が認められると、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>および<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>コマンドを発行します。
+遅延は秒単位で計測され、デフォルトは1分（<TT
+CLASS="LITERAL"
+>1min</TT
+>）です。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-VACUUM-THRESHOLD"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_vacuum_threshold</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	いかなる1つのテーブル内に<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>をトリガする必要のある、更新もしくは削除されたタプルの最小数を指定します。
+デフォルトは50タプルです。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+この設定は<TT
+CLASS="STRUCTNAME"
+>pg_autovacuum</TT
+>内の項目により、それぞれのテーブルに対して上書きすることができます。
+
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-ANALYZE-THRESHOLD"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_analyze_threshold</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	いかなる1つのテーブル内に<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>をトリガする必要のある、挿入、更新、もしくは削除されたタプルの最小数を指定します。
+デフォルトは50タプルです。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+この設定はにより、それぞれのテーブルに対して上書きすることができます。     
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-VACUUM-SCALE-FACTOR"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_vacuum_scale_factor</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>をトリガするか否かを決定する場合、<TT
+CLASS="VARNAME"
+>autovacuum_vacuum_threshold</TT
+>に追加するテーブル容量の断片を指定します。
+デフォルトは0.2（テーブルサイズの20%）です。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+この設定は格納パラメータの変更により、それぞれのテーブルに対して上書きされます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-ANALYZE-SCALE-FACTOR"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_analyze_scale_factor</TT
+> (<TT
+CLASS="TYPE"
+>floating point</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>をトリガするか否かを決定する場合、<TT
+CLASS="VARNAME"
+>autovacuum_vacuum_threshold</TT
+>に追加するテーブル容量の小部分を指定します。
+デフォルトは0.1（テーブルサイズの10%）です。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインでのみで設定されます。
+この設定は格納パラメータの変更により、それぞれのテーブルに対して上書きされます
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-FREEZE-MAX-AGE"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_freeze_max_age</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	トランザクションID周回を防ぐために<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作が強制される前までにテーブルの<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>relfrozenxid</TT
+> フィールドが到達できる最大（トランザクションにおける）年代を指定します。
+自動バキュームが無効であった時でも、システムは周回を防ぐために自動バキューム子プロセスを起動することに注意してください。
+	</P
+><P
+>       
+	vacuumは同時に<TT
+CLASS="FILENAME"
+>pg_clog</TT
+>サブディレクトリから古いファイルの削除を許可します。
+	これはなぜフォルトが2億トランザクションをやや下回る理由です。
+	このパラメータはサーバ起動時にのみ設定可能です。
+しかし、この設定は格納パラメータの変更により、それぞれのテーブルで減らすことができます。
+詳細は<A
+HREF="routine-vacuuming.html#VACUUM-FOR-WRAPAROUND"
+>&#38917;23.1.4</A
+>を参照してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-VACUUM-COST-DELAY"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_vacuum_cost_delay</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	自動<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作に使用されるコスト遅延値を指定します。
+        -1に指定されると、一定の <A
+HREF="runtime-config-resource.html#GUC-VACUUM-COST-DELAY"
+>vacuum_cost_delay</A
+>の値が使用されます。
+デフォルト値は20ミリ秒です。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル内、または、サーバのコマンドラインのみで設定可能です。
+この設定は格納パラメータの変更により、それぞれのテーブルに対して上書きすることができます。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-AUTOVACUUM-VACUUM-COST-LIMIT"
+></A
+><TT
+CLASS="VARNAME"
+>autovacuum_vacuum_cost_limit</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	自動<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作に使用されるコスト限界値を指定します。
+（デフォルトの）-1が指定されると、一定の <A
+HREF="runtime-config-resource.html#GUC-VACUUM-COST-LIMIT"
+>vacuum_cost_limit</A
+>の値が使用されます。
+この値は、実行中の自動バキュームワーカが複数存在する場合ワーカすべてに比例分配されることに注意してください。
+したがって各ワーカの制限を足し合わせてもこの変数による制限を超えることはありません。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、または、サーバのコマンドラインのみで設定可能です。
+この設定は格納パラメータの変更により、それぞれのテーブルに対して上書きすることができます。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-statistics.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-client.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>実行時統計情報</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>クライアント接続デフォルト</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,613 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>トリガ動作の概要</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="トリガ"
+HREF="triggers.html"><LINK
+REL="PREVIOUS"
+TITLE="トリガ"
+HREF="triggers.html"><LINK
+REL="NEXT"
+TITLE="データ変更の可視性"
+HREF="trigger-datachanges.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="トリガ"
+HREF="triggers.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="トリガ"
+HREF="triggers.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 36&#31456;トリガ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="トリガ"
+HREF="triggers.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ変更の可視性"
+HREF="trigger-datachanges.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TRIGGER-DEFINITION"
+>36.1. トリガ動作の概要</A
+></H1
+><P
+>トリガとは、データベースが、ある特定の操作が行われた時に常に自動的に実行しなければならない特定の機能に関する規定です。
+トリガはテーブルとビューの双方に付与することができます。
+  </P
+><P
+>テーブル上では、トリガを<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作の前後に、行を変更する度、あるいは<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文ごとに実行するように定義することができます。
+<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>トリガについては、特定のカラムが<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>文の<TT
+CLASS="LITERAL"
+>SET</TT
+>句の対象になった時のみ発動するよう設定することができます。また、トリガは<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>文についても実行できます。
+トリガイベントが起こると、トリガ関数がそのイベントを扱う適切な時点で呼び出されます。
+   </P
+><P
+>   
+    ビュー上では、トリガを<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作の代わりに実行するものとして定義できます。<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガは、ビュー内の変更を行うために必要となる行それぞれに対して一度発行されます。
+    元になっているテーブルへの必要な変更の実施、そして必要に応じて、ビュー上で見えるであろう変更された行を返却するのは、トリガ関数の責任です。ビューへのトリガは、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文ごとに、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作の前後で実行させるよう定義することができます。
+   </P
+><P
+>トリガ関数は、トリガ自体が作成される前までに定義しておく必要があります。
+トリガ関数は、引数を取らない、<TT
+CLASS="LITERAL"
+>trigger</TT
+>型を返す関数として宣言される必要があります
+（トリガ関数は、通常の関数で使用される引数という形ではなく、<TT
+CLASS="STRUCTNAME"
+>TriggerData</TT
+>構造体で入力を受け取ります）。
+   </P
+><P
+>適切なトリガ関数が作成されると、<A
+HREF="sql-createtrigger.html"
+>CREATE TRIGGER</A
+>を使用してトリガを構築することができます。
+同一のトリガ関数を複数のトリガに使用することができます。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、<I
+CLASS="FIRSTTERM"
+>行単位の</I
+>トリガと<I
+CLASS="FIRSTTERM"
+>文単位の</I
+>トリガの両方を提供します。
+行単位のトリガでは、トリガを発行した文によって影響を受ける行ごとにトリガ関数が呼び出されます。
+反対に、文単位のトリガでは、適切な文が実行された時に、その文で何行が影響を受けたかどうかは関係なく、一度だけ呼び出されます。
+特に、行に影響を与えない文であっても、適切な文単位のトリガがあれば実行されます。
+この2種類のトリガはそれぞれ<I
+CLASS="FIRSTTERM"
+>行レベル</I
+>トリガと<I
+CLASS="FIRSTTERM"
+>文レベル</I
+>トリガ&#60;と呼ばれることがあります。<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>に対するトリガは文レベルトリガのみに定義することができます。
+ビューでは、文レベルでのみ、処理の前後での実行をするよう定義することができるでしょう。一方、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>の代わりに実行するトリガは行レベルでのみ定義できるでしょう。
+   </P
+><P
+>また、トリガはそれらが操作の<I
+CLASS="FIRSTTERM"
+>前</I
+>、<I
+CLASS="FIRSTTERM"
+>後</I
+>または<I
+CLASS="FIRSTTERM"
+>代わり</I
+>のどれで実行されるかに応じて分けられます。これらはそれぞれ<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガ、<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガ、そして<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガと呼ばれます。
+文レベルの<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガは、文が何かを始める前に自然に発行され、文レベルの<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガは文の本当に最後に発行されます。これらのタイプのトリガはテーブルまたはビューで定義されるでしょう。
+行レベルの<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガは、特定の行が操作される直前に発行され、行レベルの<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガは文の終わり（ただし、全ての文レベルの<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガの前）に発行されます。これらのタイプのトリガはテーブルにのみ定義されるでしょう。
+行レベルの<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガはビューにのみ定義され、ビュー上の行ごとに操作が必要と判断された場合に即座に発行されます。
+   </P
+><P
+>文単位のトリガによって呼び出されるトリガ関数は常に<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を返さなければなりません。
+行単位のトリガによって呼び出されるトリガ関数は呼び出し元のエクゼキュータにテーブル行（<TT
+CLASS="STRUCTNAME"
+>HeapTuple</TT
+>型の値）を返すように選択することができます。
+操作前に発行された行レベルのトリガでは以下の選択肢があります。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="SYMBOL"
+>NULL</TT
+>を返して、現在の行への操作を飛ばすことができます。
+これは、エクゼキュータにトリガの元になった行レベルの操作（特定のテーブル行の挿入、更新、削除）を行わないよう指示します。
+      </P
+></LI
+><LI
+><P
+>行レベルの<TT
+CLASS="COMMAND"
+>INSERT</TT
+>および<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>トリガの場合のみ、返される行が挿入される、もしくは実際に更新される行になります。
+これにより、トリガ関数で、挿入される行もしくは更新される行を変更することができます。
+      </P
+></LI
+></UL
+><P>
+
+これらの動作をさせたくない行レベルの<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガについては、渡された行（つまり、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>および<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>トリガでは<TT
+CLASS="VARNAME"
+>NEW</TT
+>行、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>の場合は<TT
+CLASS="VARNAME"
+>OLD</TT
+>行）と同じ行結果を返すように気を付ける必要があります。
+   </P
+><P
+>   
+    行レベルの<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガは、ビューの元となった元テーブルのデータをまったく変更しないことを表す<TT
+CLASS="SYMBOL"
+>NULL</TT
+>、または、渡されたビューの行（<TT
+CLASS="COMMAND"
+>INSERT</TT
+>と<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>操作の場合<TT
+CLASS="VARNAME"
+>NEW</TT
+>行、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作の場合<TT
+CLASS="VARNAME"
+>OLD</TT
+>行）を返さなければなりません。
+    非NULLの戻り値は、そのトリガがビューにおいて必要なデータ変更を実行したことを通知するために使用されます。
+    これにより影響を受けた行数を数えるカウンタは増加されます。
+    <TT
+CLASS="COMMAND"
+>INSERT</TT
+>と<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>操作では、トリガは戻す前に<TT
+CLASS="VARNAME"
+>NEW</TT
+>行を変更することができます。
+    これは<TT
+CLASS="COMMAND"
+>INSERT RETURNING</TT
+>または<TT
+CLASS="COMMAND"
+>UPDATE RETURNING</TT
+>で返されるデータを変更しますので、ビューが提供されたデータと正確に同じ結果を返さない場合に有益です。
+   </P
+><P
+>操作の後に発生する行レベルトリガでは戻り値は無視されますので、これらは<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を返すことができます。
+   </P
+><P
+>同一リレーション、同一イベントに対して1つ以上のトリガが定義された場合、トリガはその名前のアルファベット順に発生します。
+<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガと<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガの場合では、各トリガで返される、変更された可能性がある行が次のトリガの入力となります。
+もし、ある<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガや<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガが<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を返したら、(いまのところ)操作はその行で中断し、残りのトリガは発生しません。
+   </P
+><P
+>トリガ定義は、トリガを発動するかどうかを<TT
+CLASS="LITERAL"
+>WHEN</TT
+>句の論理条件で指定することも可能です。行レベルトリガにおいて、<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件は行の列の古い値と(あるいは)新しい値を検索することができます。(あまり有用ではありませんが、文レベルトリガでも<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件で同じことができます。)<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガでは、実質的にトリガ関数の開始時と同じ条件で検査できるように、<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件の評価が関数の実施直前になされます。しかし<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガでは、<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件の評価は行の更新直後に行われ、文の終わり(コミット時)にトリガを発動するためのイベントを待ち行列に入れるかどうかを決めます。そのため、ある<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガの<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件が真を返さなかった場合は、イベントを待ち行列に入れる必要も文の終わりに行を再取得する必要もありません。これは、大量の行の変更が発生するけれども、トリガがその内の少数の行に対してのみ発動させる必要がある、といった文の処理速度を大幅に上げる効果があります。<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガは<TT
+CLASS="LITERAL"
+>WHEN</TT
+>条件をサポートしていません。
+   </P
+><P
+>通常、行レベルの<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガは、挿入あるいは更新される予定のデータの検査や変更のために使用されます。
+例えば、<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガは、<TT
+CLASS="TYPE"
+>timestamp</TT
+>型の列に現在時刻を挿入するために、あるいは行の2つの要素の整合性を検査するために使用される可能性があります。
+行レベルの<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガは、ほとんど常識的に他のテーブルに更新を伝播させるために、あるいは他のテーブルとの整合性を検査するために使用されます。
+こうした仕事の切り分け理由は、<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガは行の最終値を見ることができ、<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>トリガは見ることができないという点です。
+トリガを<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>にするか<TT
+CLASS="LITERAL"
+>AFTER</TT
+>にするかを決める時に特別な理由がないのであれば、操作の情報を行が終わるまで保持する必要がない分、<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>を使う方が効率的です。
+   </P
+><P
+>トリガ関数がSQLコマンドを処理する場合、これらの問い合わせがトリガを再度発行することがあります。
+これはカスケードされたトリガと呼ばれます。
+カスケードの段数に直接的な制限はありません。
+カスケードの場合、同じトリガを再帰的に呼び出すことが可能です。
+例えば、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>トリガで同じテーブルに追加の行を挿入する問い合わせが実行された場合、その結果として<TT
+CLASS="COMMAND"
+>INSERT</TT
+>トリガが再度発行されます。
+こうした状況で無限再帰を防ぐのは、トリガプログラマの責任です。
+   </P
+><P
+>    
+トリガを定義する時、そのトリガ用の引数を指定することができます。
+トリガ定義に引数を含めた目的は、似たような要求の異なるトリガに同じ関数を呼び出すことができるようにすることです。
+例えば、2つの列名を引数とし、片方に現在のユーザをもう片方に現在のタイムスタンプを取る、汎化トリガ関数があるとします。
+適切に作成すれば、この関数が特定のトリガの発行元となるテーブルに依存することはなくなります。
+同じ関数を使用して、例えば、トランザクションテーブルに作成記録を自動的に登録させるために、適切な列を持つ任意のテーブルの<TT
+CLASS="COMMAND"
+>INSERT</TT
+>イベントに使用することができます。
+また、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>として定義すれば、最終更新イベントを追跡するために使用することも可能です。
+   </P
+><P
+>トリガをサポートするプログラミング言語はそれぞれ独自の方法で、トリガ関数で利用できるトリガの入力データを作成します。
+この入力データにはトリガイベント種類（例えば<TT
+CLASS="COMMAND"
+>INSERT</TT
+>や<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>など、<TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>で指定された全ての引数）が含まれます。
+行レベルトリガの入力データには、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>および<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>トリガの場合は<TT
+CLASS="VARNAME"
+>NEW</TT
+>行が、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>および<TT
+CLASS="COMMAND"
+>DELETE</TT
+>トリガの場合は<TT
+CLASS="VARNAME"
+>OLD</TT
+>行が含まれます。
+文レベルトリガには現在、文によって変更される個々の行を検査するための手段がありません。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="triggers.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="trigger-datachanges.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>トリガ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="triggers.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データ変更の可視性</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

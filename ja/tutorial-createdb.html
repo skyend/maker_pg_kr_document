@@ -1,0 +1,445 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データベースの作成</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"><LINK
+REL="PREVIOUS"
+TITLE="構造的な基本事項"
+HREF="tutorial-arch.html"><LINK
+REL="NEXT"
+TITLE="データベースへのアクセス"
+HREF="tutorial-accessdb.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="構造的な基本事項"
+HREF="tutorial-arch.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 1&#31456;さあ始めましょう</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベースへのアクセス"
+HREF="tutorial-accessdb.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-CREATEDB"
+>1.3. データベースの作成</A
+></H1
+><P
+>データベースサーバにアクセスできるかどうかがわかる最初の試験は、データベースの作成を試みることです。
+稼働中の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバは多くのデータベースを管理することができます。
+典型的には、プロジェクトやユーザごとにデータベースは分割されます。
+   </P
+><P
+>サイト管理者により使用できるデータベースが既に作成されている場合もあります。
+その場合、管理者は使用できるデータベースの名前をユーザに通知しなければなりません。
+この場合、この段階を飛ばして、次の節まで進んでください。
+   </P
+><P
+>新しいデータベースを作成するには、以下のコマンドを使用してください。
+この例では<TT
+CLASS="LITERAL"
+>mydb</TT
+>という名前です。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>createdb mydb</KBD
+></PRE
+><P>
+この手順で何も応答がなければ、この段階は成功し、本節の残りは飛ばすことができます。
+   </P
+><P
+>以下のようなメッセージが現れた場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が正しくインストールされていません。
+</P><PRE
+CLASS="SCREEN"
+>createdb: command not found</PRE
+><P>
+インストールがまったくされていないか使用しているシェルの検索パスが盛り込むように設定されていないのいずれかです。
+代わりに絶対パスでそのコマンドを実行してみてください。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>/usr/local/pgsql/bin/createdb mydb</KBD
+></PRE
+><P>
+このパスはサイトによって異なるかもしれません。
+この問題を解決するには、サイト管理者に連絡するか、状況を修正するためインストール取扱説明書を調べてください。
+   </P
+><P
+>他の応答として以下もあります。
+</P><PRE
+CLASS="SCREEN"
+>createdb: could not connect to database postgres: could not connect to server: No such file or directory
+        Is the server running locally and accepting
+        connections on Unix domain socket "/tmp/.s.PGSQL.5432"?</PRE
+><P>
+これは、サーバが起動していないか、<TT
+CLASS="COMMAND"
+>createdb</TT
+>が想定している状態でサーバが起動していないかを示しています。
+こちらも、インストール手順を点検するか管理者に相談してください。
+   </P
+><P
+>他の応答として以下もあります。
+</P><PRE
+CLASS="SCREEN"
+>createdb: could not connect to database postgres: FATAL:  role "joe" does not exist</PRE
+><P>
+今回はログインした時のユーザ名が記載されています。
+これは、管理者がそのユーザ用の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウントを作成していない時に起こります
+（<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウントは、オペレーティングシステムのユーザアカウントとは異なります）。
+管理者であれば、アカウントの作成方法に関して<A
+HREF="user-manag.html"
+>&#31532;20&#31456;</A
+>を参照してください。
+最初のユーザアカウントを作成するためには、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>をインストールした時のオペレーティングシステムのユーザ（通常<TT
+CLASS="LITERAL"
+>postgres</TT
+>）になる必要があります。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウントがオペレーティングシステムのユーザ名と異なる名前で用意されているかもしれません。
+その場合は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のユーザ名を指定するために、<TT
+CLASS="OPTION"
+>-U</TT
+>スイッチを使用するか、<TT
+CLASS="ENVAR"
+>PGUSER</TT
+>環境変数を設定する必要があります。
+   </P
+><P
+>ユーザアカウントを持っているが、データベースを作成するために必要な権限を持っていない場合は、以下のメッセージが現れます。
+</P><PRE
+CLASS="SCREEN"
+>createdb: database creation failed: ERROR:  permission denied to create database</PRE
+><P>
+全てのユーザがデータベースを新規に作成できる権限を持っているわけではありません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がデータベースの作成を拒否した場合、サイト管理者はデータベースを作成する権限をユーザに付与する必要があります。
+これが発生した場合はサイト管理者に相談してください。
+自身で<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>をインストールしたのであれば、このチュートリアルの目的のために、サーバを起動したユーザアカウントでログインしなければなりません。
+
+    <A
+NAME="AEN471"
+HREF="#FTN.AEN471"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+>
+   </P
+><P
+>他の名前のデータベースを作成することもできます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、与えられたサイトでいくつでもデータベースを作成することを許可しています。
+データベース名は、先頭がアルファベット文字から始まる、63バイトまでの長さでなければなりません。
+簡単な選択は、現在のユーザ名と同じ名前のデータベースを作成することです。
+多くのツールでは、データベース名のデフォルトとしてそれを仮定していますので、これにより入力数を減らすことができます。
+このデータベースを作成するには、単純に以下を実行します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>createdb</KBD
+></PRE
+><P>
+   </P
+><P
+>データベースを使用しなくなったら、削除することができます。
+例えば、<TT
+CLASS="LITERAL"
+>mydb</TT
+>データベースの所有者（作成者）であれば、以下のコマンドでそれを廃棄することができます。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>dropdb mydb</KBD
+></PRE
+><P>
+（このコマンドでは、データベース名のデフォルトはユーザアカウント名ではありません。
+常に指定しなければなりません。）
+この動作は、そのデータベースに関する全てのファイルを物理的に削除しますので、取り消すことはできません。
+事前に熟考した場合にのみこれを実施してください。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>createdb</TT
+>や<TT
+CLASS="COMMAND"
+>dropdb</TT
+>の詳細は、それぞれ<A
+HREF="app-createdb.html"
+><SPAN
+CLASS="APPLICATION"
+>createdb</SPAN
+></A
+>と<A
+HREF="app-dropdb.html"
+><SPAN
+CLASS="APPLICATION"
+>dropdb</SPAN
+></A
+>にあります。
+   </P
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>&#27880;&#24847;</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN471"
+HREF="tutorial-createdb.html#AEN471"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>何故これで上手くいくのかについての説明：<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のユーザ名はオペレーティングシステムのユーザアカウントとは分離されています。
+データベースに接続する場合、接続に利用する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のユーザ名を選択します。
+選択しなければ、デフォルトで現在のオペレーティングシステムのアカウントと同じ名前となります。
+これにより、サーバを起動するオペレーティングシステムのユーザと同じ名前の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウントは、常に存在します。 
+そしてまた、このユーザは常にデータベースを作成する権限を持ちます。
+そのユーザとしてログインする代わりに、<TT
+CLASS="OPTION"
+>-U</TT
+>オプションを毎回使用して、接続する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のユーザ名を選択することができます。
+     </P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-arch.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-accessdb.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>構造的な基本事項</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-start.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データベースへのアクセス</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テーブル間を結合</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQL言語"
+HREF="tutorial-sql.html"><LINK
+REL="PREVIOUS"
+TITLE="テーブルへの問い合わせ"
+HREF="tutorial-select.html"><LINK
+REL="NEXT"
+TITLE="集約関数"
+HREF="tutorial-agg.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="テーブルへの問い合わせ"
+HREF="tutorial-select.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 2&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="集約関数"
+HREF="tutorial-agg.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-JOIN"
+>2.6. テーブル間を結合</A
+></H1
+><P
+>ここまでの問い合わせは、一度に1つのテーブルにのみアクセスするものでした。
+問い合わせは、一度に複数のテーブルにアクセスすることも、同時にテーブル内の複数の行の処理を行う場合など、同じテーブルにアクセスすることも可能です。
+一度に同一のテーブルまたは複数のテーブルの複数の行にアクセスする問い合わせは、<I
+CLASS="FIRSTTERM"
+>結合</I
+>問い合わせと呼ばれます。
+例として、関連する都市の位置情報を気象データと一緒に表示したい場合が挙げられます。
+それを行うためには、<TT
+CLASS="STRUCTNAME"
+>weather</TT
+>テーブルの各行の<TT
+CLASS="STRUCTFIELD"
+>city</TT
+>列と、<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルの全ての行の<TT
+CLASS="STRUCTFIELD"
+>name</TT
+>列を比較し、両者の値が一致する行の組み合わせを選択しなければなりません。
+    </P><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>これは概念的なモデルでしかありません。
+実際の結合は通常、1つひとつの行の組み合わせを比べるのではなく、もっと効率的な方法で行われます。
+しかし、これはユーザからはわかりません。
+     </P
+></BLOCKQUOTE
+></DIV
+><P>
+これは、以下の問い合わせによって行うことができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT *
+    FROM weather, cities
+    WHERE city = name;</PRE
+><P>
+
+</P><PRE
+CLASS="SCREEN"
+>     city      | temp_lo | temp_hi | prcp |    date    |     name      | location
+---------------+---------+---------+------+------------+---------------+-----------
+ San Francisco |      46 |      50 | 0.25 | 1994-11-27 | San Francisco | (-194,53)
+ San Francisco |      43 |      57 |    0 | 1994-11-29 | San Francisco | (-194,53)
+(2 rows)</PRE
+><P>
+
+   </P
+><P
+>この結果から2つのことがわかります。
+    <P
+></P
+></P><UL
+><LI
+><P
+>Hayward市についての結果行はありません。
+<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルにはHaywardに一致する項目がなく、結合の際に<TT
+CLASS="STRUCTNAME"
+>weather</TT
+>テーブル内の一致しない行は無視されるからです。
+これがどのようになされるのかを、簡単に見てみましょう。
+      </P
+></LI
+><LI
+><P
+>都市名を持つ２つの列があります。
+<TT
+CLASS="STRUCTNAME"
+>weather</TT
+>テーブルと<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルからの列のリストが連結されているためこのようになります。
+しかし実際には、これは望ましい結果ではないため、<TT
+CLASS="LITERAL"
+>*</TT
+>を使わずに、明示的に出力列のリストを指定することになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT city, temp_lo, temp_hi, prcp, date, location
+    FROM weather, cities
+    WHERE city = name;</PRE
+><P>
+      </P
+></LI
+></UL
+><P>
+   </P
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>練習: </B
+><TT
+CLASS="LITERAL"
+>WHERE</TT
+>句を省略した場合のこの問い合わせの意味を決定してください。
+    </P
+></DIV
+><P
+>列はそれぞれ異なる名前ですので、パーサは自動的にどのテーブルの列かを見つけます。
+2つのテーブルで列名が重複していた場合は、以下のようにどちらの列を表示させたいかを示すために列名を<I
+CLASS="FIRSTTERM"
+>修飾</I
+>しなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT weather.city, weather.temp_lo, weather.temp_hi,
+       weather.prcp, weather.date, cities.location
+    FROM weather, cities
+    WHERE cities.name = weather.city;</PRE
+><P>
+
+結合問い合わせではすべての列名を修飾する方式が優れているとよく考えられています。
+テーブルのいずれかに後で重複する名前を持つ列が追加された場合に、問い合わせが失敗するからです。
+   </P
+><P
+>ここで示すような結合問い合わせは、以下のように別の形で表すことができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT *
+    FROM weather INNER JOIN cities ON (weather.city = cities.name);</PRE
+><P>
+
+この構文は先の例よりも一般的に使用されるものではありませんが、以降の話題の理解を助けるためにここで示しています。
+   </P
+><P
+>    
+
+ここで、どのようにすればHaywardのレコードを得ることができるようになるのでしょうか。
+実行したい問い合わせは、<TT
+CLASS="STRUCTNAME"
+>weather</TT
+>をスキャンし、各行に対して、<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>行に一致するかを判断するものです。
+一致しない行があった場合、<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルの列の部分を何らかの<SPAN
+CLASS="QUOTE"
+>"空の値"</SPAN
+>に置き換えたいのです。
+この種の問い合わせは<I
+CLASS="FIRSTTERM"
+>外部結合</I
+>と呼ばれます
+（これまで示してきた結合は内部結合です）。
+以下のようなコマンドになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT *
+    FROM weather LEFT OUTER JOIN cities ON (weather.city = cities.name);
+
+     city      | temp_lo | temp_hi | prcp |    date    |     name      | location
+---------------+---------+---------+------+------------+---------------+-----------
+ Hayward       |      37 |      54 |      | 1994-11-29 |               |
+ San Francisco |      46 |      50 | 0.25 | 1994-11-27 | San Francisco | (-194,53)
+ San Francisco |      43 |      57 |    0 | 1994-11-29 | San Francisco | (-194,53)
+(3 rows)</PRE
+><P>
+
+この問い合わせは<I
+CLASS="FIRSTTERM"
+>左外部結合</I
+>と呼ばれます。
+結合演算子の左側に指定したテーブルの各行が最低でも一度出力され、一方で、右側のテーブルでは左側のテーブルの行に一致するもののみが出力されるからです。
+右側のテーブルに一致しない、左側のテーブルの行を出力する時、右側のテーブルの列は空の値（NULL）で置換されます。
+   </P
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>練習: </B
+>右外部結合や完全外部結合も存在します。
+これらが何を行うかを考えてください。
+    </P
+></DIV
+><P
+>    
+    
+
+テーブルを自分自身に対して結合させることができます。
+これは<I
+CLASS="FIRSTTERM"
+>自己結合</I
+>と呼ばれます。
+例として、他の気象データの気温範囲内にある気象データを全て取り出すことを考えます。
+<TT
+CLASS="STRUCTNAME"
+>weather</TT
+>各行の<TT
+CLASS="STRUCTFIELD"
+>temp_lo</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>temp_hi</TT
+>を、他の<TT
+CLASS="STRUCTNAME"
+>weather</TT
+>行の<TT
+CLASS="STRUCTFIELD"
+>temp_lo</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>temp_hi</TT
+>列とを比較しなければなりません。
+以下の問い合わせを使用して行うことができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT W1.city, W1.temp_lo AS low, W1.temp_hi AS high,
+    W2.city, W2.temp_lo AS low, W2.temp_hi AS high
+    FROM weather W1, weather W2
+    WHERE W1.temp_lo &lt; W2.temp_lo
+    AND W1.temp_hi &gt; W2.temp_hi;
+
+     city      | low | high |     city      | low | high
+---------------+-----+------+---------------+-----+------
+ San Francisco |  43 |   57 | San Francisco |  46 |   50
+ Hayward       |  37 |   54 | San Francisco |  46 |   50
+(2 rows)</PRE
+><P>
+
+ここで、結合の左側と右側を区別することができるように、weatherテーブルに<TT
+CLASS="LITERAL"
+>W1</TT
+>と<TT
+CLASS="LITERAL"
+>W2</TT
+>というラベルを付けています。
+また、入力量を省くために、他の問い合わせでもこの種の別名を使用することができます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT *
+    FROM weather w, cities c
+    WHERE w.city = c.name;</PRE
+><P>
+こういった形の省略はかなりよく行われます。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-select.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-agg.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>テーブルへの問い合わせ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>集約関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

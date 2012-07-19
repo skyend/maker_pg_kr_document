@@ -1,0 +1,676 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データベース接続の管理</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="概念"
+HREF="ecpg-concept.html"><LINK
+REL="NEXT"
+TITLE="SQLコマンドの実行"
+HREF="ecpg-commands.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="概念"
+HREF="ecpg-concept.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLコマンドの実行"
+HREF="ecpg-commands.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-CONNECT"
+>33.2. データベース接続の管理</A
+></H1
+><P
+>この節では、データベース接続の開始、終了、および切り替え方について解説します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-CONNECTING"
+>33.2.1. データベースサーバへの接続</A
+></H2
+><P
+>以下のSQL文を使用して、データベースへ接続します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL CONNECT TO <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>AS <TT
+CLASS="REPLACEABLE"
+><I
+>connection-name</I
+></TT
+></SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>USER <TT
+CLASS="REPLACEABLE"
+><I
+>user-name</I
+></TT
+></SPAN
+>];</PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+>は以下の方法で指定されます。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+>[<SPAN
+CLASS="OPTIONAL"
+>@<TT
+CLASS="REPLACEABLE"
+><I
+>hostname</I
+></TT
+></SPAN
+>][<SPAN
+CLASS="OPTIONAL"
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></SPAN
+>]</TT
+>
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+>tcp:postgresql://<TT
+CLASS="REPLACEABLE"
+><I
+>hostname</I
+></TT
+>[<SPAN
+CLASS="OPTIONAL"
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></SPAN
+>][<SPAN
+CLASS="OPTIONAL"
+>/<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></SPAN
+>][<SPAN
+CLASS="OPTIONAL"
+>?<TT
+CLASS="REPLACEABLE"
+><I
+>options</I
+></TT
+></SPAN
+>]</TT
+>
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+>unix:postgresql://<TT
+CLASS="REPLACEABLE"
+><I
+>hostname</I
+></TT
+>[<SPAN
+CLASS="OPTIONAL"
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></SPAN
+>][<SPAN
+CLASS="OPTIONAL"
+>/<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></SPAN
+>][<SPAN
+CLASS="OPTIONAL"
+>?<TT
+CLASS="REPLACEABLE"
+><I
+>options</I
+></TT
+></SPAN
+>]</TT
+>
+     </P
+></LI
+><LI
+><P
+>上の形式のいずれかを含むSQL文字列リテラル。
+     </P
+></LI
+><LI
+><P
+>上の形式のいずれかを含む文字変数への参照。
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>
+     </P
+></LI
+></UL
+><P>
+
+接続対象をリテラル（つまり、変数を参照しない形）で指定し、その値を引用符でくくらなかった場合、大文字小文字の区別に関して通常のSQLの規則が適用されます。
+また、この場合、必要に応じて個々のパラメータを二重引用符で別々にくくることもできます。
+実際には、おそらく（単一引用符でくくられた）文字列リテラルもしくは変数の参照を使用した方がエラーをより防止することができます。
+<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>接続対象は、デフォルトデータベース、デフォルトのユーザ名で接続を初期化します。
+この場合は、ユーザ名と接続名を分けて指定することができません。
+  </P
+><P
+>ユーザ名を指定するには、別の方法もあります。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+></TT
+>
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+>/<TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></TT
+>
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+> IDENTIFIED BY <TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></TT
+>
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></TT
+>
+     </P
+></LI
+></UL
+><P>
+
+これまで同様、<TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+>は、SQL識別子、SQL文字列リテラル、文字型変数への参照を取ることができます。
+  </P
+><P
+>1つのプログラム内で複数の接続を処理する場合には、<TT
+CLASS="REPLACEABLE"
+><I
+>connection-name</I
+></TT
+>を使用します。
+プログラムで1つしか接続を使わない場合は省略して構いません。
+最も最近に開かれた接続が現在の接続になり、SQL文を実行しようとする時にデフォルトでこの接続が使用されます（本章の後で説明します）。
+  </P
+><P
+>以下に<TT
+CLASS="COMMAND"
+>CONNECT</TT
+>文について、数例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL CONNECT TO mydb@sql.mydomain.com;
+
+EXEC SQL CONNECT TO unix:postgresql://sql.mydomain.com/mydb AS myconnection USER john;
+
+EXEC SQL BEGIN DECLARE SECTION;
+const char *target = "mydb@sql.mydomain.com";
+const char *user = "john";
+EXEC SQL END DECLARE SECTION;
+ ...
+EXEC SQL CONNECT TO :target USER :user;</PRE
+><P>
+最後の形式では、文字変数参照として上を参照する変数を使用しています。
+後の節で、接頭辞にコロンを持つ場合のSQL文内でのC変数の使用方法について説明します。
+  </P
+><P
+>接続対象の書式は標準SQLでは規定されていないことに注意してください。
+そのため、移植可能なアプリケーションを開発したいのであれば、上の例の最後の方法を基にして、接続対象文字列をどこかにカプセル化してください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-SET-CONNECTION"
+>33.2.2. 接続の選択</A
+></H2
+><P
+>前節で示したSQL文は現在の接続、つまり、最も最近に開いた接続上で実行されます。
+複数の接続を管理する必要があるアプリケーションでは、これを処理する2つの方法があります。
+  </P
+><P
+>1つ目の選択肢は、各SQL文で明示的に接続を選択することです。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL AT <TT
+CLASS="REPLACEABLE"
+><I
+>connection-name</I
+></TT
+> SELECT ...;</PRE
+><P>
+アプリケーションが複数の接続を不特定な順番で使用する必要がある場合、この選択肢は特に適しています。
+  </P
+><P
+>アプリケーションの実行に複数スレッドを使用する場合、スレッド間で接続を同時に共有できません。
+接続へのアクセスを（ミューテクスを使用して）明示的に制御するか、または各スレッド用の接続を使用するかを行わなければなりません。
+各スレッドが個別の接続を使用する場合、AT句を使用してそのスレッドが使用する接続を指定する必要があります。
+  </P
+><P
+>2番目の選択肢は、現在の接続を切り替えるSQL文を実行することです。
+以下のSQL文です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL SET CONNECTION <TT
+CLASS="REPLACEABLE"
+><I
+>connection-name</I
+></TT
+>;</PRE
+><P>
+多くのSQL文を同一接続に対して使用する場合、この選択肢は特に便利です。
+これはスレッドを考慮していません。
+  </P
+><P
+>以下に複数のデータベースコネクションを管理しているプログラムの例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include &#60;stdio.h&#62;
+
+EXEC SQL BEGIN DECLARE SECTION;
+    char dbname[1024];
+EXEC SQL END DECLARE SECTION;
+
+int
+main()
+{
+    EXEC SQL CONNECT TO testdb1 AS con1 USER testuser;
+    EXEC SQL CONNECT TO testdb2 AS con2 USER testuser;
+    EXEC SQL CONNECT TO testdb3 AS con3 USER testuser;
+
+    /* This query would be executed in the last opened database "testdb3". */
+    EXEC SQL SELECT current_database() INTO :dbname;
+    printf("current=%s (should be testdb3)\n", dbname);
+
+    /* Using "AT" to run a query in "testdb2" */
+    EXEC SQL AT con2 SELECT current_database() INTO :dbname;
+    printf("current=%s (should be testdb2)\n", dbname);
+
+    /* Switch the current connection to "testdb1". */
+    EXEC SQL SET CONNECTION con1;
+
+    EXEC SQL SELECT current_database() INTO :dbname;
+    printf("current=%s (should be testdb1)\n", dbname);
+
+    EXEC SQL DISCONNECT ALL;
+    return 0;
+}</PRE
+><P>
+
+   この例は、次のような出力を生成します。
+</P><PRE
+CLASS="SCREEN"
+>current=testdb3 (should be testdb3)
+current=testdb2 (should be testdb2)
+current=testdb1 (should be testdb1)</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-DISCONNECT"
+>33.2.3. 接続を閉じる</A
+></H2
+><P
+>接続を閉じるには以下のSQL文を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DISCONNECT [<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>connection</I
+></TT
+></SPAN
+>];</PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>connection</I
+></TT
+>は以下の方法で指定されます。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>connection-name</I
+></TT
+></TT
+>
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+>CURRENT</TT
+>
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="LITERAL"
+>ALL</TT
+>
+     </P
+></LI
+></UL
+><P>
+
+接続名の指定がなければ、現在の接続が閉じられます。
+  </P
+><P
+>アプリケーションでは、過去に開いたすべての接続を明示的に閉じることを推奨します。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-concept.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-commands.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>概念</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SQLコマンドの実行</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,1939 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ltree</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="lo"
+HREF="lo.html"><LINK
+REL="NEXT"
+TITLE="oid2name"
+HREF="oid2name.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="lo"
+HREF="lo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="oid2name"
+HREF="oid2name.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LTREE"
+>F.21. ltree</A
+></H1
+><P
+>本モジュールは階層ツリーを模擬した構造に格納されたデータのラベルを表現する <TT
+CLASS="TYPE"
+>ltree</TT
+>データ型を実装します。
+ラベルツリー全体を検索する高度な機能を提供します。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134206"
+>F.21.1. 定義</A
+></H2
+><P
+><I
+CLASS="FIRSTTERM"
+>ラベル</I
+>は、アルファベット文字とアンダースコア（例えばCロケールでは<TT
+CLASS="LITERAL"
+>A-Za-z0-9_</TT
+>文字が許されます。）の並びです。
+ラベルの長さは256バイト未満でなければなりません。
+  </P
+><P
+>例えば<TT
+CLASS="LITERAL"
+>42</TT
+>、<TT
+CLASS="LITERAL"
+>Personal_Services</TT
+>です。
+  </P
+><P
+><I
+CLASS="FIRSTTERM"
+>ラベル経路</I
+>は、例えば<TT
+CLASS="LITERAL"
+>L1.L2.L3</TT
+>のようなドットで区切られた0個以上のラベルの並びであり、階層ツリーのルートから特定のノードまでの経路を表します。
+ラベル経路の長さは65キロバイトまでに制限されていますが、2キロバイト以下のサイズがよく使われます。
+実際のところこれは主要な制限ではありません。
+例えばDMOZカタログ（<A
+HREF="http://www.dmoz.org"
+TARGET="_top"
+>http://www.dmoz.org</A
+>）における最大ラベル経路はおよそ240バイトです。
+  </P
+><P
+>例：<TT
+CLASS="LITERAL"
+>'Top.Countries.Europe.Russia'</TT
+>
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>ltree</TT
+>モジュールは以下の複数のデータ型を提供します。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="TYPE"
+>ltree</TT
+>はラベル経路を格納します。
+    </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>lquery</TT
+>は、<TT
+CLASS="TYPE"
+>ltree</TT
+>値に一致する正規表現のようなパターンを表現します。
+単一の単語は経路内のラベルに一致します。
+スター記号（<TT
+CLASS="LITERAL"
+>*</TT
+>）は0個以上のラベルに一致します。
+以下に例を示します。
+</P><PRE
+CLASS="SYNOPSIS"
+>foo         <I
+CLASS="LINEANNOTATION"
+>正確に<TT
+CLASS="LITERAL"
+>foo</TT
+>というラベル経路に一致します。</I
+>
+*.foo.*     <I
+CLASS="LINEANNOTATION"
+><TT
+CLASS="LITERAL"
+>foo</TT
+>というラベルを含むラベル経路すべてに一致します。</I
+>
+*.foo       <I
+CLASS="LINEANNOTATION"
+><TT
+CLASS="LITERAL"
+>foo</TT
+>というラベルで終わるラベル経路すべてに一致します。</I
+></PRE
+><P>
+    </P
+><P
+>スター印は一致可能なラベル数を制限するために量指定を行うことができます。
+</P><PRE
+CLASS="SYNOPSIS"
+>*{<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>}        <I
+CLASS="LINEANNOTATION"
+>正確に<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>個のラベルに一致します。</I
+>
+*{<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>,}       <I
+CLASS="LINEANNOTATION"
+>少なくとも<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>個のラベルに一致します。</I
+>
+*{<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>}      <I
+CLASS="LINEANNOTATION"
+>少なくとも<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>個に一致し、多くても<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>個を超えないラベルに一致します。</I
+>
+*{,<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>}       <I
+CLASS="LINEANNOTATION"
+>最大<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>個のラベルに一致します。つまり</I
+> *{0,<TT
+CLASS="REPLACEABLE"
+><I
+>m</I
+></TT
+>}と同じです。</PRE
+><P>
+    </P
+><P
+>単なる正確な一致以上の一致を行うために、<TT
+CLASS="TYPE"
+>lquery</TT
+>の非スターラベルの終端に記述することができる複数の修飾子が存在します。
+</P><PRE
+CLASS="SYNOPSIS"
+>@           <I
+CLASS="LINEANNOTATION"
+>大文字小文字を区別しない一致。例えば<TT
+CLASS="LITERAL"
+>a@</TT
+>は<TT
+CLASS="LITERAL"
+>A</TT
+>に一致します。</I
+>
+*           <I
+CLASS="LINEANNOTATION"
+>この接頭辞を持つすべてのラベルに一致。例えば<TT
+CLASS="LITERAL"
+>foo*</TT
+>は<TT
+CLASS="LITERAL"
+>foobar</TT
+>に一致します。</I
+>
+%           <I
+CLASS="LINEANNOTATION"
+>最初のアンダースコアで区切られた単語に一致。</I
+></PRE
+><P>
+<TT
+CLASS="LITERAL"
+>%</TT
+>の動作は多少複雑です。
+ラベル全体ではなく単語一致を試みます。
+例えば<TT
+CLASS="LITERAL"
+>foo_bar%</TT
+>は<TT
+CLASS="LITERAL"
+>foo_bar_baz</TT
+>に一致しますが<TT
+CLASS="LITERAL"
+>foo_barbaz</TT
+>に一致しません。
+<TT
+CLASS="LITERAL"
+>*</TT
+>と組み合わせる場合、接頭辞一致が各単語ごとに適用されます。
+例えば<TT
+CLASS="LITERAL"
+>foo_bar%*</TT
+>は<TT
+CLASS="LITERAL"
+>foo1_bar2_baz</TT
+>に一致しますが、<TT
+CLASS="LITERAL"
+>foo1_br2_baz</TT
+>に一致しません。
+    </P
+><P
+>また、ラベルのいずれかに一致させるために<TT
+CLASS="LITERAL"
+>|</TT
+>（論理和）で区切って、複数のおそらく修飾子が付いたラベルを記述することもできます。
+さらに、先頭に<TT
+CLASS="LITERAL"
+>!</TT
+> (否定)を記述して選択肢のいずれかにも一致しないすべてのラベルに一致させることもできます。
+    </P
+><P
+>以下に注釈付きの<TT
+CLASS="TYPE"
+>lquery</TT
+>の例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>Top.*{0,2}.sport*@.!football|tennis.Russ*|Spain
+a.  b.     c.      d.               e.</PRE
+><P>
+この問い合わせは以下のようなラベルに一致します。
+    </P
+><P
+></P
+><OL
+TYPE="a"
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>Top</TT
+>ラベルから始まる。
+      </P
+></LI
+><LI
+><P
+>次いで0から2個のラベルを持つ。
+      </P
+></LI
+><LI
+><P
+>直後に<TT
+CLASS="LITERAL"
+>sport</TT
+>接頭辞（大文字小文字の区別無）から始まるラベルを持つ。
+      </P
+></LI
+><LI
+><P
+>そして、<TT
+CLASS="LITERAL"
+>football</TT
+>と<TT
+CLASS="LITERAL"
+>tennis</TT
+>に一致しないラベルを持つ。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>Russ</TT
+>から始まる、または、正確に<TT
+CLASS="LITERAL"
+>Spain</TT
+>に一致するラベルで終わる。
+      </P
+></LI
+></OL
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>ltxtquery</TT
+>は<TT
+CLASS="TYPE"
+>ltree</TT
+>値に対する全文検索のようなパターンを表します。
+<TT
+CLASS="TYPE"
+>ltxtquery</TT
+>値は、おそらく最後に<TT
+CLASS="LITERAL"
+>@</TT
+>、<TT
+CLASS="LITERAL"
+>*</TT
+>、<TT
+CLASS="LITERAL"
+>%</TT
+>修飾子を持った単語からなります。
+修飾子の意味は<TT
+CLASS="TYPE"
+>lquery</TT
+>と同じです。
+単語は<TT
+CLASS="LITERAL"
+>&amp;</TT
+> (論理積)、<TT
+CLASS="LITERAL"
+>|</TT
+> (論理和)、<TT
+CLASS="LITERAL"
+>!</TT
+> (否定)、括弧を組み合わせることが可能です。
+主な<TT
+CLASS="TYPE"
+>lquery</TT
+>との違いは、<TT
+CLASS="TYPE"
+>ltxtquery</TT
+>はラベル経路上の位置を考慮せずに単語に一致することです。
+    </P
+><P
+><TT
+CLASS="TYPE"
+>ltxtquery</TT
+>の例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>Europe &amp; Russia*@ &amp; !Transportation</PRE
+><P>
+これは<TT
+CLASS="LITERAL"
+>Europe</TT
+>ラベルと<TT
+CLASS="LITERAL"
+>Russia</TT
+>（大文字小文字の区別無）から始まるラベルを含む経路に一致します。
+しかし、<TT
+CLASS="LITERAL"
+>Transportation</TT
+>ラベルを含む経路は一致しません。
+経路内の単語の位置は重要ではありません。
+また、<TT
+CLASS="LITERAL"
+>%</TT
+>が使用された場合、位置に関係なく、単語をラベル内のアンダースコアで区切られた何らかの単語に一致させることができます。
+    </P
+></LI
+></UL
+><P
+>注意：<TT
+CLASS="TYPE"
+>ltxtquery</TT
+>ではシンボルの間に空白を入れることができますが、<TT
+CLASS="TYPE"
+>ltree</TT
+>と<TT
+CLASS="TYPE"
+>lquery</TT
+>ではできません。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134321"
+>F.21.2. 演算子と関数</A
+></H2
+><P
+><TT
+CLASS="TYPE"
+>ltree</TT
+>型は、通常の比較演算子<TT
+CLASS="LITERAL"
+>=</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;=</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;=</TT
+>を持ちます。
+比較では、ツリーの巡回順でソートされ、ノードの子要素はラベルテキストでソートされます。
+さらに、<A
+HREF="ltree.html#LTREE-OP-TABLE"
+>&#34920;F-12</A
+>に示す特殊な演算子が使用可能です。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="LTREE-OP-TABLE"
+></A
+><P
+><B
+>&#34920; F-12. <TT
+CLASS="TYPE"
+>ltree</TT
+>演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>@&gt;</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>左辺の引数が右辺の祖先要素（か同じ）かどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>&lt;@</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>左辺の引数が右辺の子孫要素（か同じ）かどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>~</TT
+> <TT
+CLASS="TYPE"
+>lquery</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>が<TT
+CLASS="TYPE"
+>lquery</TT
+>に一致するかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>lquery</TT
+> <TT
+CLASS="LITERAL"
+>~</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>が<TT
+CLASS="TYPE"
+>lquery</TT
+>に一致するかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>?</TT
+> <TT
+CLASS="TYPE"
+>lquery[]</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>が配列内のいずれかの<TT
+CLASS="TYPE"
+>lquery</TT
+>に一致するかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>lquery[]</TT
+> <TT
+CLASS="LITERAL"
+>?</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>が配列内のいずれかの<TT
+CLASS="TYPE"
+>lquery</TT
+>に一致するかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>@</TT
+> <TT
+CLASS="TYPE"
+>ltxtquery</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>が<TT
+CLASS="TYPE"
+>ltxtquery</TT
+>に一致するかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltxtquery</TT
+> <TT
+CLASS="LITERAL"
+>@</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>が<TT
+CLASS="TYPE"
+>ltxtquery</TT
+>に一致するかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>||</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>経路を連結します</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>||</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+>テキストを<TT
+CLASS="TYPE"
+>ltree</TT
+>に変換し、連結します</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+> <TT
+CLASS="LITERAL"
+>||</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+>テキストを<TT
+CLASS="TYPE"
+>ltree</TT
+>に変換し、連結します</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>@&gt;</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>配列に<TT
+CLASS="TYPE"
+>ltree</TT
+>の祖先要素が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>&lt;@</TT
+> <TT
+CLASS="TYPE"
+>ltree[]</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>配列に<TT
+CLASS="TYPE"
+>ltree</TT
+>の祖先要素が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>&lt;@</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>配列に<TT
+CLASS="TYPE"
+>ltree</TT
+>の子孫要素が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+> <TT
+CLASS="LITERAL"
+>@&gt;</TT
+> <TT
+CLASS="TYPE"
+>ltree[]</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>配列に<TT
+CLASS="TYPE"
+>ltree</TT
+>の子孫要素が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>~</TT
+> <TT
+CLASS="TYPE"
+>lquery</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>配列に<TT
+CLASS="TYPE"
+>lquery</TT
+>に一致する経路が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>lquery</TT
+> <TT
+CLASS="LITERAL"
+>~</TT
+> <TT
+CLASS="TYPE"
+>ltree[]</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>配列に<TT
+CLASS="TYPE"
+>lquery</TT
+>に一致する経路が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>?</TT
+> <TT
+CLASS="TYPE"
+>lquery[]</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>配列にいずれかの<TT
+CLASS="TYPE"
+>lquery</TT
+>に一致する経路が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>lquery[]</TT
+> <TT
+CLASS="LITERAL"
+>?</TT
+> <TT
+CLASS="TYPE"
+>ltree[]</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>配列にいずれかの<TT
+CLASS="TYPE"
+>lquery</TT
+>に一致する経路が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>@</TT
+> <TT
+CLASS="TYPE"
+>ltxtquery</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>配列に<TT
+CLASS="TYPE"
+>ltxtquery</TT
+>に一致する経路が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltxtquery</TT
+> <TT
+CLASS="LITERAL"
+>@</TT
+> <TT
+CLASS="TYPE"
+>ltree[]</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>配列に<TT
+CLASS="TYPE"
+>ltxtquery</TT
+>に一致する経路が含まれるかどうか</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>?@&gt;</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>の祖先要素となる配列内の最初の要素。存在しなければNULL</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>?&lt;@</TT
+> <TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>の子孫要素となる配列内の最初の要素。存在しなければNULL</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>?~</TT
+> <TT
+CLASS="TYPE"
+>lquery</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>lquery</TT
+>に一致する配列内の最初の要素。存在しなければNULL</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+> <TT
+CLASS="LITERAL"
+>?@</TT
+> <TT
+CLASS="TYPE"
+>ltxtquery</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltxtquery</TT
+>に一致する配列内の最初の要素。存在しなければNULL</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>&lt;@</TT
+>、<TT
+CLASS="LITERAL"
+>@&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>@</TT
+>、<TT
+CLASS="LITERAL"
+>~</TT
+>演算子は<TT
+CLASS="LITERAL"
+>^&lt;@</TT
+>、<TT
+CLASS="LITERAL"
+>^@&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>^@</TT
+>、<TT
+CLASS="LITERAL"
+>^~</TT
+>と類似です。
+これらはインデックスを使用しない点を除き、同一です。
+これらは試験の際にだけ役に立ちます。
+  </P
+><P
+>使用可能な関数を<A
+HREF="ltree.html#LTREE-FUNC-TABLE"
+>&#34920;F-13</A
+>に示します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="LTREE-FUNC-TABLE"
+></A
+><P
+><B
+>&#34920; F-13. <TT
+CLASS="TYPE"
+>ltree</TT
+>関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値型</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>subltree(ltree, int start, int end)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="PARAMETER"
+>start</TT
+>位置から<TT
+CLASS="PARAMETER"
+>end</TT
+>-1位置までの<TT
+CLASS="TYPE"
+>ltree</TT
+>の部分経路（位置は0から始まります）。
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>subltree('Top.Child1.Child2',1,2)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>Child1</TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>subpath(ltree, int offset, int len)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="PARAMETER"
+>offset</TT
+>位置から<TT
+CLASS="PARAMETER"
+>len</TT
+>個の<TT
+CLASS="TYPE"
+>ltree</TT
+>の部分経路（位置は0から始まります）。
+<TT
+CLASS="PARAMETER"
+>offset</TT
+>が負の場合、部分経路は経路の終端から数えた位置から始まります。
+<TT
+CLASS="PARAMETER"
+>len</TT
+>が負の場合、経路の終端から指定個のラベルを除きます。
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>subpath('Top.Child1.Child2',0,2)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>Top.Child1</TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>subpath(ltree, int offset)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="PARAMETER"
+>offset</TT
+>位置から経路の終端までの<TT
+CLASS="TYPE"
+>ltree</TT
+>の部分経路（位置は0から始まります）。
+<TT
+CLASS="PARAMETER"
+>offset</TT
+>が負の場合、部分経路は経路の終端から数えた位置から始まります。</TD
+><TD
+><TT
+CLASS="LITERAL"
+>subpath('Top.Child1.Child2',1)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>Child1.Child2</TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>nlevel(ltree)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>integer</TT
+></TD
+><TD
+>経路内のラベル数</TD
+><TD
+><TT
+CLASS="LITERAL"
+>nlevel('Top.Child1.Child2')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>3</TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>index(ltree a, ltree b)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>integer</TT
+></TD
+><TD
+><TT
+CLASS="PARAMETER"
+>a</TT
+>内で<TT
+CLASS="PARAMETER"
+>b</TT
+>が最初に出現する位置。存在しなければ-1
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>index('0.1.2.3.5.4.5.6.8.5.6.8','5.6')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>6</TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>index(ltree a, ltree b, int offset)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>integer</TT
+></TD
+><TD
+><TT
+CLASS="PARAMETER"
+>a</TT
+>内で<TT
+CLASS="PARAMETER"
+>offset</TT
+>から検索を始めて<TT
+CLASS="PARAMETER"
+>b</TT
+>が最初に出現する位置。
+負の<TT
+CLASS="PARAMETER"
+>offset</TT
+>は経路終端から<TT
+CLASS="PARAMETER"
+>-offset</TT
+>ラベルから検索を始めることを意味します。
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>index('0.1.2.3.5.4.5.6.8.5.6.8','5.6',-4)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>9</TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>text2ltree(text)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+>を<TT
+CLASS="TYPE"
+>ltree</TT
+>にキャスト</TD
+><TD
+><TT
+CLASS="LITERAL"
+></TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+></TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>ltree2text(ltree)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+>を<TT
+CLASS="TYPE"
+>text</TT
+>にキャスト</TD
+><TD
+><TT
+CLASS="LITERAL"
+></TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+></TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>lca(ltree, ltree, ...)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+>最少共通祖先。つまり、経路で共通する最長接頭辞。（最大8個の引数をサポート）
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>lca('1.2.2.3','1.2.3.4.5.6')</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>1.2</TT
+></TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>lca(ltree[])</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>ltree</TT
+></TD
+><TD
+>最少共通祖先。つまり、経路で共通する最長接頭辞。
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>lca(array['1.2.2.3'::ltree,'1.2.3'])</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>1.2</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134718"
+>F.21.3. インデックス</A
+></H2
+><P
+><TT
+CLASS="FILENAME"
+>ltree</TT
+>は、以下で示された演算子を高速化できる、複数種類のインデックスをサポートします。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="TYPE"
+>ltree</TT
+>に対するB-treeインデックス：<TT
+CLASS="LITERAL"
+>&lt;</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;=</TT
+>、<TT
+CLASS="LITERAL"
+>=</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;=</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;</TT
+>
+    </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>ltree</TT
+>に対するGiSTインデックス：
+<TT
+CLASS="LITERAL"
+>&lt;</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;=</TT
+>、<TT
+CLASS="LITERAL"
+>=</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;=</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>@&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>&lt;@</TT
+>、<TT
+CLASS="LITERAL"
+>@</TT
+>、<TT
+CLASS="LITERAL"
+>~</TT
+>、<TT
+CLASS="LITERAL"
+>?</TT
+>
+    </P
+><P
+>インデックスの作成例を以下に示します。
+    </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX path_gist_idx ON test USING GIST (path);</PRE
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>ltree[]</TT
+>に対するGiSTインデックス：<TT
+CLASS="LITERAL"
+>ltree[] &lt;@ ltree</TT
+>、<TT
+CLASS="LITERAL"
+>ltree @&gt; ltree[]</TT
+>、<TT
+CLASS="LITERAL"
+>@</TT
+>、<TT
+CLASS="LITERAL"
+>~</TT
+>、<TT
+CLASS="LITERAL"
+>?</TT
+>
+    </P
+><P
+>インデックスの作成例を以下に示します。
+    </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX path_gist_idx ON test USING GIST (array_path);</PRE
+><P
+>注意：この種類のインデックスは非可逆です。
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134757"
+>F.21.4. 例</A
+></H2
+><P
+>この例は、後述のデータを使用します（ソース配布内の<TT
+CLASS="FILENAME"
+>contrib/ltree/ltreetest.sql</TT
+>ファイルでも利用可能です）。
+  </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test (path ltree);
+INSERT INTO test VALUES ('Top');
+INSERT INTO test VALUES ('Top.Science');
+INSERT INTO test VALUES ('Top.Science.Astronomy');
+INSERT INTO test VALUES ('Top.Science.Astronomy.Astrophysics');
+INSERT INTO test VALUES ('Top.Science.Astronomy.Cosmology');
+INSERT INTO test VALUES ('Top.Hobbies');
+INSERT INTO test VALUES ('Top.Hobbies.Amateurs_Astronomy');
+INSERT INTO test VALUES ('Top.Collections');
+INSERT INTO test VALUES ('Top.Collections.Pictures');
+INSERT INTO test VALUES ('Top.Collections.Pictures.Astronomy');
+INSERT INTO test VALUES ('Top.Collections.Pictures.Astronomy.Stars');
+INSERT INTO test VALUES ('Top.Collections.Pictures.Astronomy.Galaxies');
+INSERT INTO test VALUES ('Top.Collections.Pictures.Astronomy.Astronauts');
+CREATE INDEX path_gist_idx ON test USING gist(path);
+CREATE INDEX path_idx ON test USING btree(path);</PRE
+><P
+>これで、以下の階層を記述するデータが投入された<TT
+CLASS="STRUCTNAME"
+>test</TT
+>テーブルができます。
+  </P
+><PRE
+CLASS="LITERALLAYOUT"
+>                        Top
+                     /   |  \
+             Science Hobbies Collections
+                 /       |              \
+        Astronomy   Amateurs_Astronomy Pictures
+           /  \                            |
+Astrophysics  Cosmology                Astronomy
+                                        /  |    \
+                                 Galaxies Stars Astronauts</PRE
+><P
+>継承を行うことができます。
+</P><PRE
+CLASS="SCREEN"
+>ltreetest=&gt; SELECT path FROM test WHERE path &lt;@ 'Top.Science';
+                path
+------------------------------------
+ Top.Science
+ Top.Science.Astronomy
+ Top.Science.Astronomy.Astrophysics
+ Top.Science.Astronomy.Cosmology
+(4 rows)</PRE
+><P>
+  </P
+><P
+>経路一致の例をいくつか示します。
+</P><PRE
+CLASS="SCREEN"
+>ltreetest=&gt; SELECT path FROM test WHERE path ~ '*.Astronomy.*';
+                     path
+-----------------------------------------------
+ Top.Science.Astronomy
+ Top.Science.Astronomy.Astrophysics
+ Top.Science.Astronomy.Cosmology
+ Top.Collections.Pictures.Astronomy
+ Top.Collections.Pictures.Astronomy.Stars
+ Top.Collections.Pictures.Astronomy.Galaxies
+ Top.Collections.Pictures.Astronomy.Astronauts
+(7 rows)
+
+ltreetest=&gt; SELECT path FROM test WHERE path ~ '*.!pictures@.*.Astronomy.*';
+                path
+------------------------------------
+ Top.Science.Astronomy
+ Top.Science.Astronomy.Astrophysics
+ Top.Science.Astronomy.Cosmology
+(3 rows)</PRE
+><P>
+  </P
+><P
+>全文検索の例をいくつか示します。
+</P><PRE
+CLASS="SCREEN"
+>ltreetest=&gt; SELECT path FROM test WHERE path @ 'Astro*% &amp; !pictures@';
+                path
+------------------------------------
+ Top.Science.Astronomy
+ Top.Science.Astronomy.Astrophysics
+ Top.Science.Astronomy.Cosmology
+ Top.Hobbies.Amateurs_Astronomy
+(4 rows)
+
+ltreetest=&gt; SELECT path FROM test WHERE path @ 'Astro* &amp; !pictures@';
+                path
+------------------------------------
+ Top.Science.Astronomy
+ Top.Science.Astronomy.Astrophysics
+ Top.Science.Astronomy.Cosmology
+(3 rows)</PRE
+><P>
+  </P
+><P
+>関数を使用した経路構築の例です。
+</P><PRE
+CLASS="SCREEN"
+>ltreetest=&gt; SELECT subpath(path,0,2)||'Space'||subpath(path,2) FROM test WHERE path &lt;@ 'Top.Science.Astronomy';
+                 ?column?
+------------------------------------------
+ Top.Science.Space.Astronomy
+ Top.Science.Space.Astronomy.Astrophysics
+ Top.Science.Space.Astronomy.Cosmology
+(3 rows)</PRE
+><P>
+  </P
+><P
+>経路内の位置にラベルを挿入するSQL関数を作成することで、これを簡略化することができます。
+</P><PRE
+CLASS="SCREEN"
+>CREATE FUNCTION ins_label(ltree, int, text) RETURNS ltree
+    AS 'select subpath($1,0,$2) || $3 || subpath($1,$2);'
+    LANGUAGE SQL IMMUTABLE;
+
+ltreetest=&gt; SELECT ins_label(path,2,'Space') FROM test WHERE path &lt;@ 'Top.Science.Astronomy';
+                ins_label
+------------------------------------------
+ Top.Science.Space.Astronomy
+ Top.Science.Space.Astronomy.Astrophysics
+ Top.Science.Space.Astronomy.Cosmology
+(3 rows)</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134775"
+>F.21.5. 作者</A
+></H2
+><P
+>開発はすべてTeodor Sigaev (<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:teodor@stack.net"
+>teodor@stack.net</A
+>&#62;</CODE
+>)とOleg Bartunov (<CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:oleg@sai.msu.su"
+>oleg@sai.msu.su</A
+>&#62;</CODE
+>)によりなされました。
+さらなる情報については<A
+HREF="http://www.sai.msu.su/~megera/postgres/gist/"
+TARGET="_top"
+>http://www.sai.msu.su/~megera/postgres/gist/</A
+>を参照してください。
+作者は有用な議論を行ったEugeny Rodichevに感謝しています。
+コメントや不具合報告を歓迎します。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="lo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="oid2name.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>lo</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>oid2name</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

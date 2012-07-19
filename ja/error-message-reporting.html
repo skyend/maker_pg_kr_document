@@ -1,0 +1,648 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>サーバ内部からのエラーの報告</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"><LINK
+REL="PREVIOUS"
+TITLE="書式"
+HREF="source-format.html"><LINK
+REL="NEXT"
+TITLE="エラーメッセージのスタイルガイド"
+HREF="error-style-guide.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="書式"
+HREF="source-format.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 47&#31456;PostgreSQLコーディング規約</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="エラーメッセージのスタイルガイド"
+HREF="error-style-guide.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ERROR-MESSAGE-REPORTING"
+>47.2. サーバ内部からのエラーの報告</A
+></H1
+><P
+>サーバコード内から生成されるエラー、警告、ログメッセージは、<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>もしくはこれに似た古い<CODE
+CLASS="FUNCTION"
+>elog</CODE
+>を使用して作成してください。
+この関数の使用はいくつか説明が必要なほど複雑です。
+   </P
+><P
+>すべてのメッセージには、深刻度レベル（<TT
+CLASS="LITERAL"
+>DEBUG</TT
+>から<TT
+CLASS="LITERAL"
+>PANIC</TT
+>までの範囲）と主メッセージテキストという、2つの必須要素があります。
+さらに、省略可能な要素があります。
+その中で最もよく使用されるのは、SQL仕様のSQLSTATE規則に従うエラー識別コードです。
+<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>自身はシェル関数で、主に、メッセージ生成をCソースコード内の関数呼び出しのように行わせる、構文の便宜上存在します。
+<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>で直接受け付けられる唯一のパラメータは深刻度レベルです。
+主メッセージテキストと任意の省略可能なメッセージ要素は、<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>呼び出し内で<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>などの補助関数を呼び出すことで生成されます。
+   </P
+><P
+>典型的な<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>の呼び出しは以下のようなものです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ereport(ERROR,
+        (errcode(ERRCODE_DIVISION_BY_ZERO),
+         errmsg("division by zero")));</PRE
+><P>
+これはエラー深刻度レベル<TT
+CLASS="LITERAL"
+>ERROR</TT
+>（普通のエラー）を指定します。
+<CODE
+CLASS="FUNCTION"
+>errcode</CODE
+>呼び出しは、<TT
+CLASS="FILENAME"
+>src/include/utils/errcodes.h</TT
+>で定義されたマクロを使用してSQLSTATEエラーコードを指定します。
+<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>呼び出しは主メッセージテキストを提供します。
+補助関数呼び出しを囲む余計な括弧群に注意してください。
+これらはいらいらさせられますが、構文上必要です。
+   </P
+><P
+>以下に、より複雑な例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ereport(ERROR,
+        (errcode(ERRCODE_AMBIGUOUS_FUNCTION),
+         errmsg("function %s is not unique",
+                func_signature_string(funcname, nargs,
+                                      NIL, actual_arg_types)),
+         errhint("Unable to choose a best candidate function. "
+                 "You might need to add explicit typecasts.")));</PRE
+><P>
+これは、実行時の値をメッセージテキスト内に埋め込むための整形用コードの使用を示します。
+また、省略可能な<SPAN
+CLASS="QUOTE"
+>"ヒント"</SPAN
+>メッセージも提供されています。
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>で使用可能な補助ルーチンを以下に示します。
+  <P
+></P
+></P><UL
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errcode(sqlerrcode)</CODE
+>は、その条件用のSQLSTATEエラー識別コードを指定します。
+このルーチンが呼び出されないと、エラー識別子のデフォルトは、エラー深刻度レベルが<TT
+CLASS="LITERAL"
+>ERROR</TT
+>以上の場合には<TT
+CLASS="LITERAL"
+>ERRCODE_INTERNAL_ERROR</TT
+>に、エラー深刻度レベルが<TT
+CLASS="LITERAL"
+>WARNING</TT
+>の場合には<TT
+CLASS="LITERAL"
+>ERRCODE_WARNING</TT
+>に、さもなければ（<TT
+CLASS="LITERAL"
+>NOTICE</TT
+>以下）<TT
+CLASS="LITERAL"
+>ERRCODE_SUCCESSFUL_COMPLETION</TT
+>になります。
+これらのデフォルトはしばしば便利ですが、<CODE
+CLASS="FUNCTION"
+>errcode()</CODE
+>呼び出しを省略する前に、常に適切かどうかを検討してください。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errmsg(const char *msg, ...)</CODE
+>は、主エラーメッセージテキストを指定し、また、実行時の値をそこに挿入することもできます。
+挿入は、<CODE
+CLASS="FUNCTION"
+>sprintf</CODE
+>様式の書式コードで指定されます。
+<CODE
+CLASS="FUNCTION"
+>sprintf</CODE
+>で受け付けられる標準の書式コードに加え、<TT
+CLASS="LITERAL"
+>%m</TT
+>書式コードを使用して、現在の<TT
+CLASS="LITERAL"
+>errno</TT
+>の値用の<CODE
+CLASS="FUNCTION"
+>strerror</CODE
+>で返されるエラーメッセージを挿入することができます。
+     <A
+NAME="AEN93188"
+HREF="#FTN.AEN93188"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+>
+<TT
+CLASS="LITERAL"
+>%m</TT
+>は<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>のパラメータリスト内に対応する項目を必要としません。
+メッセージ文字列は、書式コードの処理を行う前に、地域化のために<CODE
+CLASS="FUNCTION"
+>gettext</CODE
+>を通ることに注意してください。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errmsg_internal(const char *msg, ...)</CODE
+>は、そのメッセージ文字列は変換されずに国際化用メッセージ辞書が含まれない点を除き、<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>と同一です。
+これは、おそらく翻訳作業を行う価値がない<SPAN
+CLASS="QUOTE"
+>"発生できなかった"</SPAN
+>場合用に使用すべきです。
+    </P
+></LI
+><LI
+><P
+>    
+<CODE
+CLASS="FUNCTION"
+>errmsg_plural(const char *fmt_singular, const char *fmt_plural, unsigned long n, ...)</CODE
+>は<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>のようですが、メッセージの各種の複数書式があります。
+<TT
+CLASS="REPLACEABLE"
+><I
+>fmt_singular</I
+></TT
+>は英語の単数書式、<TT
+CLASS="REPLACEABLE"
+><I
+>fmt_plural</I
+></TT
+>は英語の複数書式、<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>はどの複数書式が必要なのかを決定する整数値で、残りの引数は選択された書式文字列に従って書式化されます。
+より詳細な情報は<A
+HREF="nls-programmer.html#NLS-GUIDELINES"
+>&#38917;48.2.2</A
+>を参照してください。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errdetail(const char *msg, ...)</CODE
+>は省略可能な<SPAN
+CLASS="QUOTE"
+>"詳細"</SPAN
+>メッセージを提供します。
+これは、主メッセージ内に記述するには不適切と考えられる追加情報がある場合に使用されます。
+このメッセージ文字列は<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>とまったく同じ方法で処理されます。
+    </P
+></LI
+><LI
+><P
+>    
+<CODE
+CLASS="FUNCTION"
+>errdetail_internal(const char *msg, ...)</CODE
+>は、メッセージが翻訳されない、または、国際化メッセージ辞書内に含まれない点を除き、<CODE
+CLASS="FUNCTION"
+>errdetail</CODE
+>と同じです。
+これは、例えばほとんどのユーザに役に立つにはあまりにも技術的すぎるなど、翻訳する手間をかける価値がない詳細メッセージで有用であるはずです。
+    </P
+></LI
+><LI
+><P
+>    
+<CODE
+CLASS="FUNCTION"
+>errdetail_plural(const char *fmt_singular, const char *fmt_plural, unsigned long n, ...)</CODE
+>は<CODE
+CLASS="FUNCTION"
+>errdetail</CODE
+>と似ていますが、メッセージの各種の複数書式をサポートします。
+より詳細な情報は<A
+HREF="nls-programmer.html#NLS-GUIDELINES"
+>&#38917;48.2.2</A
+>を参照してください。
+    </P
+></LI
+><LI
+><P
+>この文字列がサーバログのみに渡り、クライアントに渡らない点を除き<CODE
+CLASS="FUNCTION"
+>errdetail_log(const char *msg, ...)</CODE
+>は<CODE
+CLASS="FUNCTION"
+>errdetail</CODE
+>と同一です。
+<CODE
+CLASS="FUNCTION"
+>errdetail</CODE
+>（や上記の等価物の１つ）と<CODE
+CLASS="FUNCTION"
+>errdetail_log</CODE
+>が共に使用された場合、１つの文字列はクライアントに渡り、もう１つはログに渡ります。
+クライアントに送られるレポートに含めるにはセキュリティに対して慎重を期さなければならないもの、あるいは膨大すぎるエラー詳細に対して効果があります。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errhint(const char *msg, ...)</CODE
+>は、省略可能な<SPAN
+CLASS="QUOTE"
+>"ヒント"</SPAN
+>メッセージを提供します。
+これは、何が悪かったのかについての事実に基づく詳細とは反対で、問題を解決させる方法に関する提言を提供するために使用されます。
+このメッセージ文字列は<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>とまったく同じ方法で処理されます。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errcontext(const char *msg, ...)</CODE
+>は通常<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>メッセージ側から直接呼び出されません。
+エラーが発生したコンテキスト、例えばPL関数の現在位置の情報を提供するために<TT
+CLASS="LITERAL"
+>error_context_stack</TT
+>コールバック関数内で使用されます。
+メッセージ文字列は<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>とまったく同じ方法で処理されます。
+他の補助関数とは異なり、1つの<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>呼び出しで何度も呼び出すことができます。
+こうして提供される文字列の並びは、改行で区切った形で連結されます。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errposition(int cursorpos)</CODE
+>は、問い合わせ文字列内でエラーが発生した位置をテキストで指定します。
+現在、問い合わせ処理の字句解析および構文解析段階でエラーが検出された場合にのみ役に立ちます。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errcode_for_file_access()</CODE
+>は、ファイルアクセス関連のシステムコールでの失敗用のSQLSTATEエラー識別子を適切に選択する、便利な関数です。
+保存された<TT
+CLASS="LITERAL"
+>errno</TT
+>を使用して、どのエラーコードを生成するかを決定します。
+通常、これは主エラーメッセージテキスト内で<TT
+CLASS="LITERAL"
+>%m</TT
+>と組み合わせて使用されなければなりません。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errcode_for_socket_access()</CODE
+>は、ソケット関連のシステムコールでの失敗用のSQLSTATEエラー識別子を適切に選択する、便利な関数です。
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>errhidestmt(bool hide_stmt)</CODE
+>は、postmasterのログ内のメッセージにおける<TT
+CLASS="LITERAL"
+>STATEMENT:</TT
+>部分を抑制するために呼び出すことができます。
+通常これは、メッセージテキスト内にすでに現在の文が含まれている場合に適しています。
+    </P
+></LI
+></UL
+><P>
+   </P
+><P
+>まだ頻繁に使用されている、古めの<CODE
+CLASS="FUNCTION"
+>elog</CODE
+>関数があります。
+以下の<CODE
+CLASS="FUNCTION"
+>elog</CODE
+>呼び出しは、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>elog(level, "format string", ...);</PRE
+><P>
+以下とまったく同じです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ereport(level, (errmsg_internal("format string", ...)));</PRE
+><P>
+SQLSTATEエラーコードが常にデフォルトになること、メッセージ文字列が変換されないことに注意してください。
+したがって、<CODE
+CLASS="FUNCTION"
+>elog</CODE
+>は、内部エラーと低レベルなデバッグ用ログにのみ使用すべきです。
+一般ユーザを対象とする任意のメッセージは<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>を使用すべきです。
+それでもなお、システム内の<SPAN
+CLASS="QUOTE"
+>"発生できなかった"</SPAN
+>内部エラーの検査に<CODE
+CLASS="FUNCTION"
+>elog</CODE
+>がまだ多く使用されています。
+これは、こうした単純な表記のメッセージに適しています。
+   </P
+><P
+><A
+HREF="error-style-guide.html"
+>&#38917;47.3</A
+>に推奨するエラーメッセージの作成についての提言を示します。
+   </P
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>&#27880;&#24847;</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN93188"
+HREF="error-message-reporting.html#AEN93188"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>つまり、<CODE
+CLASS="FUNCTION"
+>ereport</CODE
+>呼び出しに達した時点の値です。
+補助報告ルーチン内で<TT
+CLASS="LITERAL"
+>errno</TT
+>を変更しても効果はありません。
+<CODE
+CLASS="FUNCTION"
+>errmsg</CODE
+>内で<TT
+CLASS="LITERAL"
+>strerror(errno)</TT
+>を明示的に記述したとしても正確なものにはなりません。
+したがって、このようにはしないでください。
+      </P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="source-format.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="error-style-guide.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>書式</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="source.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>エラーメッセージのスタイルガイド</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

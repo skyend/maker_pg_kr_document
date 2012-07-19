@@ -1,0 +1,2004 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER TABLE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER SERVER"
+HREF="sql-alterserver.html"><LINK
+REL="NEXT"
+TITLE="ALTER TABLESPACE"
+HREF="sql-altertablespace.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER SERVER"
+HREF="sql-alterserver.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER SERVER"
+HREF="sql-alterserver.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER TABLESPACE"
+HREF="sql-altertablespace.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER TABLESPACE"
+HREF="sql-altertablespace.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERTABLE"
+></A
+>ALTER TABLE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN61767"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER TABLE&nbsp;--&nbsp;テーブル定義を変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN61772"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER TABLE [ ONLY ] <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ * ]
+    <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> [, ... ]
+ALTER TABLE [ ONLY ] <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ * ]
+    RENAME [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_column</I
+></TT
+>
+ALTER TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>
+ALTER TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    SET SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+>
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+>は以下のいずれかです。</SPAN
+></SPAN
+>
+
+    ADD [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+> [ COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+> ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>column_constraint</I
+></TT
+> [ ... ] ]
+    DROP [ COLUMN ] [ IF EXISTS ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [ RESTRICT | CASCADE ]
+    ALTER [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [ SET DATA ] TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+> [ COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+> ] [ USING <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ]
+    ALTER [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> SET DEFAULT <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>
+    ALTER [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> DROP DEFAULT
+    ALTER [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> { SET | DROP } NOT NULL
+    ALTER [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> SET STATISTICS <TT
+CLASS="REPLACEABLE"
+><I
+>integer</I
+></TT
+>
+    ALTER [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> SET ( <TT
+CLASS="REPLACEABLE"
+><I
+>attribute_option</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> [, ... ] )
+    ALTER [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> RESET ( <TT
+CLASS="REPLACEABLE"
+><I
+>attribute_option</I
+></TT
+> [, ... ] )
+    ALTER [ COLUMN ] <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> SET STORAGE { PLAIN | EXTERNAL | EXTENDED | MAIN }
+    ADD <TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint</I
+></TT
+> [ NOT VALID ]
+    ADD <TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint_using_index</I
+></TT
+>
+    VALIDATE CONSTRAINT <TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+>
+    DROP CONSTRAINT [ IF EXISTS ]  <TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+> [ RESTRICT | CASCADE ]
+    DISABLE TRIGGER [ <TT
+CLASS="REPLACEABLE"
+><I
+>trigger_name</I
+></TT
+> | ALL | USER ]
+    ENABLE TRIGGER [ <TT
+CLASS="REPLACEABLE"
+><I
+>trigger_name</I
+></TT
+> | ALL | USER ]
+    ENABLE REPLICA TRIGGER <TT
+CLASS="REPLACEABLE"
+><I
+>trigger_name</I
+></TT
+>
+    ENABLE ALWAYS TRIGGER <TT
+CLASS="REPLACEABLE"
+><I
+>trigger_name</I
+></TT
+>
+    DISABLE RULE <TT
+CLASS="REPLACEABLE"
+><I
+>rewrite_rule_name</I
+></TT
+>
+    ENABLE RULE <TT
+CLASS="REPLACEABLE"
+><I
+>rewrite_rule_name</I
+></TT
+>
+    ENABLE REPLICA RULE <TT
+CLASS="REPLACEABLE"
+><I
+>rewrite_rule_name</I
+></TT
+>
+    ENABLE ALWAYS RULE <TT
+CLASS="REPLACEABLE"
+><I
+>rewrite_rule_name</I
+></TT
+>
+    CLUSTER ON <TT
+CLASS="REPLACEABLE"
+><I
+>index_name</I
+></TT
+>
+    SET WITHOUT CLUSTER
+    SET WITH OIDS
+    SET WITHOUT OIDS
+    SET ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> [, ... ] )
+    RESET ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> [, ... ] )
+    INHERIT <TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+>
+    NO INHERIT <TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+>
+    OF <TT
+CLASS="REPLACEABLE"
+><I
+>type_name</I
+></TT
+>
+    NOT OF
+    OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+>
+    SET TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>new_tablespace</I
+></TT
+>
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint_using_index</I
+></TT
+>は以下のいずれかです。</SPAN
+></SPAN
+>
+
+    [ CONSTRAINT <TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+> ]
+    { UNIQUE | PRIMARY KEY } USING INDEX <TT
+CLASS="REPLACEABLE"
+><I
+>index_name</I
+></TT
+>
+    [ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61831"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>は既存のテーブルの定義を変更します。 
+このコマンドには、次のような副構文があります。
+
+  <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>ADD COLUMN</TT
+></DT
+><DD
+><P
+>この構文を使用すると、<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>と同じ構文を使って新しい列をテーブルに追加できます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DROP COLUMN [ IF EXISTS ]</TT
+></DT
+><DD
+><P
+>この構文を使用すると、テーブルから列を削除できます。  
+削除する列を含んでいるインデックスおよびテーブル制約も自動的に削除されます。  
+また、削除する列にテーブル以外（例えば、外部キー制約、ビューなど）が依存している場合、<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>を付ける必要があります。
+<TT
+CLASS="LITERAL"
+>IF EXISTS</TT
+>が指定されている場合、もしその列がなかったとしてもエラーにはなりません。
+この場合は代わりに注意が出力されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET DATA TYPE</TT
+></DT
+><DD
+><P
+>この構文を使用すると、テーブルの列の型を変更できます。
+その列を含むインデックスと簡単なテーブル制約は、元々与えられた式を再解析し、新しい型を使用するように自動的に変換されます。
+省略可能な<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句は、新しい列の照合順を指定します。
+省略時の照合順は新しい列の型のデフォルトになります。
+<TT
+CLASS="LITERAL"
+>USING</TT
+>句は、古い列値をどのように新しい値に計算するかを指定します。この句は省略可能です。
+省略された場合、デフォルトの変換は、古いデータ型から新しいデータ型への代入キャストと同じになります。
+古いデータ型から新しいデータ型への暗黙キャストあるいは代入キャストがない場合、<TT
+CLASS="LITERAL"
+>USING</TT
+>句を指定しなければなりません。
+
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET</TT
+>/<TT
+CLASS="LITERAL"
+>DROP DEFAULT</TT
+></DT
+><DD
+><P
+>これらの構文を使用すると、列のデフォルト値を設定または削除できます。
+指定したデフォルト値は、変更後に行われる<TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンドのみに適用されます。 
+テーブル内の既存の行は変更されません。 
+デフォルト値はビューに対して設定することも可能です。
+この場合、ビューの<TT
+CLASS="LITERAL"
+>ON INSERT</TT
+>ルールが適用される前に、ビューの<TT
+CLASS="COMMAND"
+>INSERT</TT
+>文にデフォルトが挿入されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET</TT
+>/<TT
+CLASS="LITERAL"
+>DROP NOT NULL</TT
+></DT
+><DD
+><P
+>これらの構文は、列の値としてNULL値を使用できるかどうか設定します。
+<TT
+CLASS="LITERAL"
+>SET NOT NULL</TT
+>は、その列にNULL値が1つもない場合にのみ設定可能です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET STATISTICS</TT
+></DT
+><DD
+><P
+>この構文は、コマンド実行後に行なわれる<A
+HREF="sql-analyze.html"
+>ANALYZE</A
+>操作において、列単位での統計情報収集対象を設定します。
+対象として、0から10000までの範囲の値を設定可能です。
+対象を-1に設定すると、システムのデフォルト統計情報対象（<A
+HREF="runtime-config-query.html#GUC-DEFAULT-STATISTICS-TARGET"
+>default_statistics_target</A
+>）が使用されます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の問い合わせプランナによる統計情報の使用に関する詳細は、<A
+HREF="planner-stats.html"
+>&#38917;14.2</A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET ( <TT
+CLASS="REPLACEABLE"
+><I
+>attribute_option</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> [, ... ] )</TT
+><BR><TT
+CLASS="LITERAL"
+>RESET ( <TT
+CLASS="REPLACEABLE"
+><I
+>attribute_option</I
+></TT
+> [, ... ] )</TT
+></DT
+><DD
+><P
+>この構文は属性単位のオプションの設定または設定解除を行います。
+現時点では属性単位のオプションで定義されているのは<TT
+CLASS="LITERAL"
+>n_distinct</TT
+>および<TT
+CLASS="LITERAL"
+>n_distinct_inherited</TT
+>のみです。
+これらのオプションは、その後の<A
+HREF="sql-analyze.html"
+>ANALYZE</A
+>操作により生成される個別値数の推定値を上書きします。
+<TT
+CLASS="LITERAL"
+>n_distinct</TT
+>はテーブル自身の統計情報に影響を与え、<TT
+CLASS="LITERAL"
+>n_distinct_inherited</TT
+>はテーブルとそれを継承した子テーブルから集めた統計情報に影響を与えます。
+正の値の場合、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>は、その列には、正確に指定された非NULLの個別値が存在するものとみなします。
+負の値の場合、この値は-1以上でなければなりませんが、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>は、その列内の非NULLの個別値はテーブルのサイズに線形であるとみなし、推定テーブルサイズに指定した値の絶対値を乗じた値が個別値数であるとみなします。
+たとえば、-1という値は、列内のすべての値に重複がないことを意味し、-0.5という値は個々の値は平均して2回現れることを意味します。
+テーブルの行数との乗算は問い合わせ計画を作詞得するまで行われませんので、テーブルサイズが変わり続けるような場合にこれは有用かもしれません。
+0という値を指定することで、個別値数の推定を通常に戻します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>問い合わせプランナにおける統計情報の使用に関しては<A
+HREF="planner-stats.html"
+>&#38917;14.2</A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET STORAGE</TT
+></DT
+><DD
+><P
+>この構文は、列の保管モードを設定します。
+列をインラインで保持するか補助TOASTテーブルに保持するか、また、データを圧縮するかどうかを制御できます。
+<TT
+CLASS="LITERAL"
+>PLAIN</TT
+>は、<TT
+CLASS="TYPE"
+>integer</TT
+>のような固定長の値に対して使用します。インラインで保持され、圧縮されません。
+<TT
+CLASS="LITERAL"
+>MAIN</TT
+>は、インラインで保持されていて、圧縮可能なデータに使用します。
+<TT
+CLASS="LITERAL"
+>EXTERNAL</TT
+>は圧縮されていない外部データに使用します。
+<TT
+CLASS="LITERAL"
+>EXTENDED</TT
+>は圧縮された外部データに使用します。
+<TT
+CLASS="LITERAL"
+>EXTENDED</TT
+>は、<TT
+CLASS="LITERAL"
+>PLAIN</TT
+>以外の保管をサポートするほとんどのデータ型におけるデフォルトです。
+<TT
+CLASS="LITERAL"
+>EXTERNAL</TT
+>を使用すると、非常に長い<TT
+CLASS="TYPE"
+>text</TT
+>および<TT
+CLASS="TYPE"
+>bytea</TT
+>列に対する部分文字列操作の処理速度が向上しますが、必要な保管容量が増えるというデメリットがあります。
+<TT
+CLASS="LITERAL"
+>SET STORAGE</TT
+>自体はテーブルをまったく変更しないことに注意してください。
+以後のテーブルの更新時に遂行する戦略を設定するだけです。
+詳細は<A
+HREF="storage-toast.html"
+>&#38917;55.2</A
+>を参照してください。
+  </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ADD <TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint</I
+></TT
+> [ NOT VALID ]</TT
+></DT
+><DD
+><P
+>この構文は、<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>と同じ構文に加え、現時点では外部キー制約でのみ許される<TT
+CLASS="LITERAL"
+>NOT VALID</TT
+>オプションを使って新しい制約をテーブルに追加します。
+制約が<TT
+CLASS="LITERAL"
+>NOT VALID</TT
+>と印付けされた場合、テーブル内のすべての行が制約を満たすかどうかを検証するための、時間がかかるかもしれない初期検査が飛ばされます。
+制約はその後の挿入や更新に対して強制されます（つまり被参照テーブルに一致する行が存在しない限り失敗します）。
+しかしデータベースは、<TT
+CLASS="LITERAL"
+>VALIDATE CONSTRAINT</TT
+>オプションを使用して検証されるまで、テーブル内のすべての行で制約が保持されていると仮定しません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ADD <TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint_using_index</I
+></TT
+></TT
+></DT
+><DD
+><P
+>この構文は、既存の一意性インデックスに基づき、テーブルに<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>または<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>制約を新たに追加します。
+インデックスのすべての列がこの制約に含まれます。
+     </P
+><P
+>このインデックスには式列や部分インデックスを持つことはできません。
+またこれはデフォルトのソート順序を持つB-Treeインデックスでなければなりません。
+これらの制限により、このインデックスが通常の<TT
+CLASS="LITERAL"
+>ADD PRIMARY KEY</TT
+>または<TT
+CLASS="LITERAL"
+>ADD UNIQUE</TT
+>コマンドにより構築されたインデックスと等価であることを確実にします。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>が指定され、インデックスの列がすでに<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>と印付けされている場合、このコマンドはこうした列のそれぞれに対して<TT
+CLASS="LITERAL"
+>ALTER COLUMN SET NOT NULL</TT
+>の実施を試みます。
+これは列にNULLが含まれないことを検証するために完全なテーブルスキャンを必要とします。
+この他の場合のすべてにおいて、これが最速の操作です。
+     </P
+><P
+>制約名が提供された場合、インデックスの名前は制約名に合うように変更されます。
+提供されない場合は制約にはインデックスと同じ名前が付けられます。
+     </P
+><P
+>このコマンドの実行後、インデックスは、インデックスが通常の<TT
+CLASS="LITERAL"
+>ADD PRIMARY KEY</TT
+>または<TT
+CLASS="LITERAL"
+>ADD UNIQUE</TT
+>により構築された場合と同様に、制約により<SPAN
+CLASS="QUOTE"
+>"所有"</SPAN
+>されます。
+特にこの制約を削除するとインデックスも消えてしまいます。
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>既存のインデックスを使用した制約の追加は、長時間のテーブル更新をブロックすることなく新しい制約を追加しなければならない場合に有用になる可能性があります。
+このためには、<TT
+CLASS="COMMAND"
+>CREATE INDEX CONCURRENTLY</TT
+>を用いてインデックスを作成し、この構文を使用して正式の制約としてインストールしてください。
+後述の例を参照してください。
+      </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>VALIDATE CONSTRAINT</TT
+></DT
+><DD
+><P
+>この構文は、過去<TT
+CLASS="LITERAL"
+>NOT VALID</TT
+>として作成された外部キー制約を、一致しない行が存在しないことを確認するためにテーブルをスキャンして、検証します。
+すでに有効であると記録された制約の場合は何も起こりません。
+制約の初期生成時から検証を分離する利点は、制約生成時より検証の方がテーブルロックがより少ないことです。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DROP CONSTRAINT [ IF EXISTS ]</TT
+></DT
+><DD
+><P
+>この構文を使用すると、テーブル上の指定した制約を削除できます。 
+<TT
+CLASS="LITERAL"
+>IF EXISTS</TT
+>が指定された場合、その制約がなくてもエラーになりません。
+この場合は代わりに注意が出力されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DISABLE</TT
+>/<TT
+CLASS="LITERAL"
+>ENABLE [ REPLICA | ALWAYS ] TRIGGER</TT
+></DT
+><DD
+><P
+>この構文を使用すると、テーブルに属するトリガの発行について設定することができます。
+無効にされたトリガはシステム上に存在し続けますが、トリガイベントが発生したとしても実行されません。
+遅延トリガの場合、有効無効状態の確認は、トリガ関数を実際に実行しようとする時ではなく、イベントの発生時に行われます。
+名前でトリガを1つ指定して有効または無効にすることもできますし、テーブル上のすべてのトリガを指定することもできます。
+また、ユーザトリガのみを指定することも可能です
+（このオプションは、外部キー制約、遅延可能な一意性および排他制約を実装するために使用される内部向けに生成される制約トリガを除外します。）
+内部向けに生成される制約トリガを有効または無効にするにはスーパーユーザ権限が必要です。
+トリガが実行されなかった場合に当然ながら制約の整合性が保証されませんので、注意して実行しなければなりません。
+また、トリガ発行機構は<A
+HREF="runtime-config-client.html#GUC-SESSION-REPLICATION-ROLE"
+>session_replication_role</A
+>設定変数の影響を受けます。
+単に有効としたトリガでは、リプリケーションロールが<SPAN
+CLASS="QUOTE"
+>"オリジン"</SPAN
+>（デフォルト）または<SPAN
+CLASS="QUOTE"
+>"ローカル"</SPAN
+>の場合に発行されます。
+<TT
+CLASS="LITERAL"
+>ENABLE REPLICA</TT
+>としたトリガでは、セッションが<SPAN
+CLASS="QUOTE"
+>"リプリカ"</SPAN
+>モードである場合のみ発行されます。
+そして、<TT
+CLASS="LITERAL"
+>ENABLE ALWAYS</TT
+>としたトリガでは、現在のリプリケーションモードに関係なく発行されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DISABLE</TT
+>/<TT
+CLASS="LITERAL"
+>ENABLE [ REPLICA | ALWAYS ] RULE</TT
+></DT
+><DD
+><P
+>この構文を使用すると、テーブルに属する書き換えルールの実行について設定することができます。
+ルールは無効にしてもシステムに残りますが、問い合わせ書き換え時に適用されません。
+この意味はトリガの有効化、無効化と同じです。
+この設定は<TT
+CLASS="LITERAL"
+>ON SELECT</TT
+>ルールでは無視されます。
+現在のセッションがデフォルト以外のリプリケーションモードであったとしても、ビュー操作を維持するために常に適用されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CLUSTER</TT
+></DT
+><DD
+><P
+>この構文は、以後の<A
+HREF="sql-cluster.html"
+>CLUSTER</A
+>操作用のデフォルトインデックスを選択します。
+実際のテーブルの再クラスタ化は行いません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET WITHOUT CLUSTER</TT
+></DT
+><DD
+><P
+>この構文は、テーブルから、一番最後に適用された<A
+HREF="sql-cluster.html"
+>CLUSTER</A
+>インデックス指定を削除します。
+以後のインデックスを指定しないクラスタ操作に影響を及ぼします。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET WITH OIDS</TT
+></DT
+><DD
+><P
+>この構文は<TT
+CLASS="LITERAL"
+>oid</TT
+>システム列をテーブルに追加します（<A
+HREF="ddl-system-columns.html"
+>&#38917;5.4</A
+>を参照してください）。
+テーブルがすでにOIDを持つ場合は何も行いません。
+     </P
+><P
+>これが、システム列ではなく<TT
+CLASS="LITERAL"
+>oid</TT
+>という名前が付いただけの通常の列を追加する<TT
+CLASS="LITERAL"
+>ADD COLUMN oid oid</TT
+>と同じではないことに注意してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET WITHOUT OIDS</TT
+></DT
+><DD
+><P
+>この構文は、テーブルから<TT
+CLASS="LITERAL"
+>oid</TT
+>システム列を削除します。
+既に<TT
+CLASS="LITERAL"
+>oid</TT
+>列が存在しなくても警告が表示されない点を除けば、<TT
+CLASS="LITERAL"
+>DROP COLUMN oid RESTRICT</TT
+>とまったく同等です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> [, ... ] )</TT
+></DT
+><DD
+><P
+>この構文は、1つ以上のテーブルの格納パラメータを変更します。
+設定可能なパラメータに関しては<A
+HREF="sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS"
+><I
+>格納パラメータ</I
+></A
+>を参照してください。
+このコマンドによってテーブルの内容が即座に変更されない点に注意してください。
+パラメータによりますが、予定の効果を得るためにテーブルを書き換える必要がある場合があります。
+このためには、テーブルを強制的に書き換える<A
+HREF="sql-vacuum.html"
+>VACUUM FULL</A
+>、<A
+HREF="sql-cluster.html"
+>CLUSTER</A
+>または<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>の構文のいずれかを使用してください。
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>では<TT
+CLASS="LITERAL"
+>OIDS</TT
+>を<TT
+CLASS="LITERAL"
+>WITH (<TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+>)</TT
+>構文で指定することができますが、<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>では<TT
+CLASS="LITERAL"
+>OIDS</TT
+>を格納パラメータとして扱っていません。
+OIDの状態を変更するためには代わりに<TT
+CLASS="LITERAL"
+>SET WITH OIDS</TT
+>および<TT
+CLASS="LITERAL"
+>SET WITHOUT OIDS</TT
+>構文を使用してください。
+      </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RESET ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> [, ... ] )</TT
+></DT
+><DD
+><P
+>この構文は、1つ以上の格納パラメターをデフォルト値に再設定します。
+<TT
+CLASS="LITERAL"
+>SET</TT
+>同様、テーブル全体を更新するためにテーブルの書き換えが必要になる場合があります。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>INHERIT <TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+></TT
+></DT
+><DD
+><P
+>&#13;この構文は、対象テーブルを指定した親テーブルの子テーブルとして追加します。
+その後に行われる親テーブルへの問い合わせには対象テーブルの項目も含まれます。
+子テーブルとして追加するためには、対象テーブルには親テーブルと同じ列がすべて含まれていなければなりません。
+（この他の列を持つこともできます。）
+これらの列のデータ型は一致している必要があり、親テーブルで<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>制約がある場合は、子テーブルでも同様に<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>制約を持たなければなりません。
+     </P
+><P
+>また、親テーブルの<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約すべてについても、一致する制約が子テーブルに存在しなければなりません。
+現時点では<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>、<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>、<TT
+CLASS="LITERAL"
+>FOREIGN KEY</TT
+>制約は無視されますが、将来変更されるかもしれません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NO INHERIT <TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+></TT
+></DT
+><DD
+><P
+>この構文は、指定した親テーブルから子テーブル群を削除します。
+親テーブルへの問い合わせでは、対象としたテーブルからのデータが含まれなくなります。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OF <TT
+CLASS="REPLACEABLE"
+><I
+>type_name</I
+></TT
+></TT
+></DT
+><DD
+><P
+>この構文は、<TT
+CLASS="COMMAND"
+>CREATE TABLE OF</TT
+>で形成されたかのように、テーブルと複合型とを関連付けします。
+テーブルの列名とその型のリストは、複合型のものと正確に一致していなければなりません。
+<TT
+CLASS="LITERAL"
+>oid</TT
+>システム列の有無は異なっていても構いません。
+テーブルは他の任意のテーブルを継承していてはいけません。
+これらの制限により<TT
+CLASS="COMMAND"
+>CREATE TABLE OF</TT
+>がまったく同じテーブル定義を確実に許すことができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NOT OF</TT
+></DT
+><DD
+><P
+>この構文は型から型付けされたテーブルの関連を取り除きます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OWNER</TT
+></DT
+><DD
+><P
+>この形式を使用すると、テーブル、シーケンス、またはビューの所有者を、指定したユーザに変更できます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET TABLESPACE</TT
+></DT
+><DD
+><P
+>この構文を使用すると、テーブルのテーブル空間を指定したテーブル空間に変更し、テーブルに関連するデータファイルを新しいテーブル空間に移動することができます。
+テーブルにインデックスがあっても移動されません。
+インデックスを移動するには、別途<TT
+CLASS="LITERAL"
+>SET TABLESPACE</TT
+>コマンドを実行します。
+<A
+HREF="sql-createtablespace.html"
+>CREATE TABLESPACE</A
+>も参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RENAME</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>RENAME</TT
+>構文を使用すると、テーブル（もしくは、インデックス、シーケンス、ビュー）の名前や、テーブルの個々の列名を変更できます。 
+格納されているデータへの影響はありません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET SCHEMA</TT
+></DT
+><DD
+><P
+>この構文を使用して、テーブルを別のスキーマに移動することができます。
+関連するインデックスや制約、テーブル列により所有されるシーケンスも同様に移動されます。
+     </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>RENAME</TT
+>および<TT
+CLASS="LITERAL"
+>SET SCHEMA</TT
+>以外の全ての操作は、結合して複数の変更リストにまとめて、並行に処理することができます。
+例えば、複数の列の追加、型の変更を単一のコマンドで実行することができます。
+これは特に巨大なテーブルでは便利です。変更のために必要なテーブル全体の走査が1回で済むからです。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>コマンドを使用するには、変更するテーブルを所有している必要があります。
+テーブルのスキーマを変更するには、新しいスキーマにおける<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限も持たなければなりません。
+親テーブルに新しい子テーブルを追加するには、親テーブルも同様に所有している必要があります。
+また、所有者を変更するには、新しい所有ロールの直接あるいは間接的なメンバでなければならず、かつ、そのロールがテーブルのスキーマにおける<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限を持たなければなりません
+（この制限により強制的に所有者の変更が、テーブルの削除と再作成を行ってもできないことを行わないようにします。
+ただし、スーパーユーザはすべてのテーブルの所有者を変更することができます）。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62106"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>変更対象となる既存のテーブルの名前です（スキーマ修飾名も可）。 
+<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定された場合、そのテーブルのみが変更されます。 
+<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定されていない場合、そのテーブルおよびそのテーブルを継承する全てのテーブルが更新されます。 
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+></DT
+><DD
+><P
+>	新規または既存の列の名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_column</I
+></TT
+></DT
+><DD
+><P
+>	既存の列の新しい名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>	テーブルの新しい名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>type</I
+></TT
+></DT
+><DD
+><P
+>	新しい列のデータ型、もしくは既存の列に対する新しいデータ型です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint</I
+></TT
+></DT
+><DD
+><P
+>	テーブルの新しいテーブル制約です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+></DT
+><DD
+><P
+>	削除する既存の制約の名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CASCADE</TT
+></DT
+><DD
+><P
+>削除された列や制約に依存しているオブジェクト（例えば、削除された列を参照しているビューなど）を、自動的に削除します。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RESTRICT</TT
+></DT
+><DD
+><P
+>依存しているオブジェクトがある場合、列または制約の削除要求を拒否します。
+これがデフォルトの動作です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>trigger_name</I
+></TT
+></DT
+><DD
+><P
+>有効または無効にする単一のトリガの名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ALL</TT
+></DT
+><DD
+><P
+>テーブルに属するすべてのトリガを有効または無効にします。
+（外部キー制約、遅延可能な一意性および排他制約を実装するために使用される、内部向けに生成される制約トリガが含まれる場合、スーパーユーザ権限が必要です。）
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>USER</TT
+></DT
+><DD
+><P
+>外部キー制約、遅延可能な一意性および排他制約を実装するために使用される、内部向けに生成されるトリガを除く、テーブルに属するトリガすべてを有効または無効にします。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>index_name</I
+></TT
+></DT
+><DD
+><P
+>指定したインデックス名でテーブルをクラスタ化するように印を付けます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+></DT
+><DD
+><P
+>テーブルの格納パラメータの名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+></DT
+><DD
+><P
+>テーブルの格納パラメータの新しい値です。
+パラメータによりこれは数値となることも文字列となることもあります。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+></DT
+><DD
+><P
+>このテーブルに関連付ける、または、このテーブルから関連付けを取り除く親テーブルです。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></DT
+><DD
+><P
+>	テーブルの新しい所有者のユーザ名です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_tablespace</I
+></TT
+></DT
+><DD
+><P
+>テーブルを移動する先のテーブル空間の名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></DT
+><DD
+><P
+>テーブルを移動する先のスキーマの名前です。
+
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62206"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="LITERAL"
+>COLUMN</TT
+>キーワードはノイズであり、省略可能です。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>ADD COLUMN</TT
+>によって列を追加した時、テーブル内の既存行に追加された列は、全てデフォルト値（<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>が指定されていない場合はNULL）で初期化されます。
+   </P
+><P
+>NULLではないデフォルト値を持つ列を追加したり、既存の列の型を変更するには、テーブルとインデックス全体の書き換えが必要になります。
+例外として、<TT
+CLASS="LITERAL"
+>USING</TT
+>句が列の内容を変更せず、かつ、古いデータ型が新しい型とバイナリ変換可能であるか新しい型全体に対する制約のないドメインである場合、テーブルの書き換えは必要ありません。
+しかし影響を受ける列に対するインデックスはすべて再構築されなければなりません。
+システム<TT
+CLASS="LITERAL"
+>oid</TT
+>列の追加や削除も同様にテーブル全体の書き換えが必要です。
+テーブルが巨大な場合、テーブル、インデックスまたはその両方の再構築に非常に時間がかかる可能性があります。
+また、一時的に2倍のディスク容量が必要とされます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>CHECK</TT
+>あるいは<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>制約を追加する時は、既存の行が制約に従うかどうかを検証するためにテーブルの走査が必要になります。
+   </P
+><P
+>単一の<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>内に複数の変更を指定できるオプションを提供する主な理由は、複数のテーブル走査や書き換えを1回のテーブル走査にまとめることができるようにすることです。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>DROP COLUMN</TT
+>構文は、列を物理的には削除せず、SQLを操作する上で不可視にします。  
+このコマンドを実行した後、テーブルに挿入または更新が行われると、削除した列にはNULLが格納されます。 
+したがって、列の削除は短時間で行えます。
+しかし、削除された列が占めていた領域がまだ回収されていないため、テーブルのディスク上のサイズはすぐには小さくなりません。  
+この領域は、その後既存の行が更新されるタイミングで回収されます。 
+（システム<TT
+CLASS="LITERAL"
+>oid</TT
+>列を削除する場合はこれらの文は適用されません。
+これは即座の書き換えが行われます。）
+   </P
+><P
+>テーブルの書き換えを即座に強制するために、<A
+HREF="sql-vacuum.html"
+>VACUUM FULL</A
+>、<A
+HREF="sql-cluster.html"
+>CLUSTER</A
+>、書き換えを強制するALTER TABLE構文を使用することができます。
+これにより、見た目にはテーブルに有意な変更はありませんが、使用されなくなったデータが取り除かれます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>SET DATA TYPE</TT
+>の<TT
+CLASS="LITERAL"
+>USING</TT
+>オプションでは、その行の古い値を含め、どのような式でも指定できます。
+つまり、変換対象の列と同様に、その他の列も参照することができます。
+そのため、一般的な変換を<TT
+CLASS="LITERAL"
+>SET DATA TYPE</TT
+>構文で行うことができます。
+この柔軟性のため、<TT
+CLASS="LITERAL"
+>USING</TT
+>式は列のデフォルト値には（仮に存在していても）適用されません。
+結果が定数式にならない可能性があるためです（デフォルト値は定数式でなければいけません）。
+したがって、古い型から新しい型への暗黙キャストや代入キャストが存在しない場合、<TT
+CLASS="LITERAL"
+>USING</TT
+>が指定されていても、<TT
+CLASS="LITERAL"
+>SET DATA TYPE</TT
+>がデフォルト値の変換に失敗する可能性があります。
+この場合は、<TT
+CLASS="LITERAL"
+>DROP DEFAULT</TT
+>でデフォルト値を削除し、<TT
+CLASS="LITERAL"
+>ALTER TYPE</TT
+>を実行した後で、<TT
+CLASS="LITERAL"
+>SET DEFAULT</TT
+>を使用して再度適切なデフォルト値を指定してください。
+変更対象の列を持つインデックスと制約も同様の配慮が必要です。
+   </P
+><P
+>そのテーブルを継承するテーブルがある場合、子テーブルに同じ処理を実行しなければ、親テーブルに対する列の追加、列の名前、型の変更を実行することはできません。
+つまり、<TT
+CLASS="COMMAND"
+>ALTER TABLE ONLY</TT
+>コマンドは受け付けられません。
+この制限により、子テーブルの列が常に親テーブルと一致していることが保証されます。
+   </P
+><P
+>再帰的な<TT
+CLASS="LITERAL"
+>DROP COLUMN</TT
+>操作では、子テーブルが他の親テーブルからその列を継承しておらず、かつ、独立した列定義を持っていない場合のみ、その子テーブルの列を削除します。 
+再帰的でない<TT
+CLASS="LITERAL"
+>DROP COLUMN</TT
+>（例えば、<TT
+CLASS="COMMAND"
+>ALTER TABLE ONLY ... DROP COLUMN</TT
+>など）操作では、継承された列は削除されません。
+削除する代わりに、その列は継承されておらず独立して定義されているという印を付けます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>TRIGGER</TT
+>、<TT
+CLASS="LITERAL"
+>CLUSTER</TT
+>、<TT
+CLASS="LITERAL"
+>OWNER</TT
+>および<TT
+CLASS="LITERAL"
+>TABLESPACE</TT
+>は子テーブルに再帰的に伝わりません。
+つまり、常に<TT
+CLASS="LITERAL"
+>ONLY</TT
+>が指定されているかのように動作します。
+制約の追加は、<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約に関してのみ再帰的に伝わります。
+こうした制約ではこのように動作することが求められています。
+   </P
+><P
+>システムカタログテーブルについては、いかなる部分の変更も許可されていません。
+   </P
+><P
+>有効なパラメータの詳しい説明は<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>を参照してください。
+<A
+HREF="ddl.html"
+>&#31532;5&#31456;</A
+>に、継承に関するさらに詳しい情報があります。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62254"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="TYPE"
+>varchar</TT
+>型の列をテーブルに追加します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors ADD COLUMN address varchar(30);</PRE
+><P>
+  </P
+><P
+>   テーブルから列を削除します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors DROP COLUMN address RESTRICT;</PRE
+><P>
+  </P
+><P
+>1つの操作で既存の2つの列の型を変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors
+    ALTER COLUMN address TYPE varchar(80),
+    ALTER COLUMN name TYPE varchar(100);</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>USING</TT
+>句を使用して、Unixタイムスタンプを持つinteger型の列を<TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+>に変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE foo
+    ALTER COLUMN foo_timestamp SET DATA TYPE timestamp with time zone
+    USING
+        timestamp with time zone 'epoch' + foo_timestamp * interval '1 second';</PRE
+><P>
+  </P
+><P
+>上と同じです。
+ただし、その列は、自動的に新しいデータ型にキャストされないデフォルト式を持ちます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE foo
+    ALTER COLUMN foo_timestamp DROP DEFAULT,
+    ALTER COLUMN foo_timestamp TYPE timestamp with time zone
+    USING
+        timestamp with time zone 'epoch' + foo_timestamp * interval '1 second',
+    ALTER COLUMN foo_timestamp SET DEFAULT now();</PRE
+><P>
+  </P
+><P
+>既存の列の名前を変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors RENAME COLUMN address TO city;</PRE
+><P>
+  </P
+><P
+>既存のテーブルの名前を変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors RENAME TO suppliers;</PRE
+><P>
+  </P
+><P
+>列に非NULL制約を付与します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors ALTER COLUMN street SET NOT NULL;</PRE
+><P>
+列から非NULL制約を削除します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors ALTER COLUMN street DROP NOT NULL;</PRE
+><P>
+  </P
+><P
+>テーブルとその子テーブルすべてにCHECK制約を付与します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors ADD CONSTRAINT zipchk CHECK (char_length(zipcode) = 5);</PRE
+><P>
+  </P
+><P
+>テーブルとその子テーブルからCHECK制約を削除します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors DROP CONSTRAINT zipchk;</PRE
+><P>
+  </P
+><P
+>1つのテーブルのみからCHECK制約を削除します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE ONLY distributors DROP CONSTRAINT zipchk;</PRE
+><P>
+（このCHECK制約はすべての子テーブルで残ったままです。）
+  </P
+><P
+>テーブルに外部キー制約を付与します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address) MATCH FULL;</PRE
+><P>
+  </P
+><P
+>テーブルに（複数列の）一意性制約を付与します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors ADD CONSTRAINT dist_id_zipcode_key UNIQUE (dist_id, zipcode);</PRE
+><P>
+  </P
+><P
+>自動的に命名されるプライマリキー制約をテーブルに付与します。 
+1つのテーブルが持てるプライマリキーは1つだけであることに注意してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors ADD PRIMARY KEY (dist_id);</PRE
+><P>
+  </P
+><P
+>テーブルを別のテーブル空間に移動します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE distributors SET TABLESPACE fasttablespace;</PRE
+><P>
+  </P
+><P
+>テーブルを別のスキーマに移動します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE myschema.distributors SET SCHEMA yourschema;</PRE
+><P>
+  </P
+><P
+>インデックスを再構築している間の更新をブロックすることなく、プライマリキー制約を再作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE UNIQUE INDEX CONCURRENTLY dist_id_temp_idx ON distributors (dist_id);
+ALTER TABLE distributors DROP CONSTRAINT distributors_pkey,
+    ADD CONSTRAINT distributors_pkey PRIMARY KEY USING INDEX dist_id_temp_idx;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62294"
+></A
+><H2
+>互換性</H2
+><P
+>（<TT
+CLASS="LITERAL"
+>USING INDEX</TT
+>がない）<TT
+CLASS="LITERAL"
+>ADD</TT
+>、<TT
+CLASS="LITERAL"
+>DROP</TT
+>、<TT
+CLASS="LITERAL"
+>SET DEFAULT</TT
+>、<TT
+CLASS="LITERAL"
+>SET DATA TYPE</TT
+>（<TT
+CLASS="LITERAL"
+>USING</TT
+>がない）構文は標準SQLに従います。
+他の構文は標準SQLに対する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+また、単一の<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>コマンド内に複数の操作を指定する機能も<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TABLE DROP COLUMN</TT
+>を使って、1つしか列がないテーブルから列を削除して、列がないテーブルを作成することができます。
+これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。SQLでは、列を持たないテーブルは認められていません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62309"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alterserver.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-altertablespace.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER SERVER</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER TABLESPACE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

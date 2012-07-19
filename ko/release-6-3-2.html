@@ -1,0 +1,273 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>릴리스 6.3.2 </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \" 릴리스 노트 \"\n
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE = \"릴리스 6.4\"\n
+HREF="release-6-4.html"><LINK
+REL="NEXT"
+TITLE = \"릴리스 6.3.1 \"\n
+HREF="release-6-3-1.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \"릴리스 6.4\"\n
+HREF="release-6-4.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" 릴리스 노트 \"\n
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 릴리스 노트 \"\n
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \"릴리스 6.3.1 \"\n
+HREF="release-6-3-1.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-6-3-2"
+>E.200 . 릴리스 6.3.2 </A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>릴리스 날짜 : </B\n
+>1998-04-07</P
+></BLOCKQUOTE
+></DIV
+><P
+>이 릴리스 6.3.x 의 불편을 개조한 것입니다.
+ 새로운 기능의 전체 요약은 버전 6.3 릴리스 노트를 참조 하십시오. </P
+><P
+>개요 :\n\n
+
+<P
+></P
+></P><UL
+><LI
+><P
+>Linux 등 여러 플랫폼의 자동 설정 지원 에서 버전 6.3.1 로 잘못 도입된 오류를 복구 했습니다. </P
+></LI
+><LI
+><P
+>BETWEEN 과 LIKE 절의 왼쪽 에서 함수 호출 취급을 수정 했습니다. </P
+></LI
+></UL
+><P></P
+><P
+>6.3 및 6.3.1 에서 덤프 / 복구는 필요하지 않습니다. <TT
+CLASS="LITERAL"
+> make distclean</TT
+>、<TT
+CLASS="LITERAL"
+>make</TT
+>、<TT
+CLASS="LITERAL"
+>make install</TT
+>만이 필요합니다. 이 마지막 단계는 postmaster 를 실행 하지 않을 때 이루어져야 합니다. <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>라이브러리를 사용하여 자신의 응용 프로그램을 다시 링크해야 합니다. </P
+><P
+>6.3 이전 설치에서 업그레이 드의 경우  버전 6.3 의 설치 마이 그 레이션 지침을 참조 하십시오. </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN130931"
+>E.200.1 . 변경 사항 </A
+></H2
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>Configure detection improvements for tcl/tk(Brook Milligan, Alvin)
+Manual page improvements(Bruce)
+BETWEEN and LIKE fix(Thomas)
+fix for psql \connect used by pg_dump(Oliver Elphick)
+New odbc driver
+pgaccess, version 0.86
+qsort removed, now uses libc version, cleanups(Jeroen)
+fix for buffer over-runs detected(Maurice Gittens)
+fix for buffer overrun in libpgtcl(Randy Kunkee)
+fix for UNION with DISTINCT or ORDER BY(Bruce)
+gettimeofday configure check(Doug Winterburn)
+Fix "indexes not used" bug(Vadim)
+docs additions(Thomas)
+Fix for backend memory leak(Bruce)
+libreadline cleanup(Erwan MAS)
+Remove DISTDIR(Bruce)
+Makefile dependency cleanup(Jeroen van Vianen)
+ASSERT fixes(Bruce)</PRE
+><P>
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-6-4.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-6-3-1.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>릴리스 6.4 </TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>릴리스 6.3.1 </TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

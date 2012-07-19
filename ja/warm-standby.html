@@ -1,0 +1,928 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ログシッピングスタンバイサーバ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"><LINK
+REL="PREVIOUS"
+TITLE="様々な解法の比較"
+HREF="different-replication-solutions.html"><LINK
+REL="NEXT"
+TITLE="フェールオーバ"
+HREF="warm-standby-failover.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="様々な解法の比較"
+HREF="different-replication-solutions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 25&#31456;高可用性、負荷分散およびレプリケーション</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="フェールオーバ"
+HREF="warm-standby-failover.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WARM-STANDBY"
+>25.2. ログシッピングスタンバイサーバ</A
+></H1
+><P
+>継続的なアーカイブ処理を使用して、プライマリサーバが失敗した場合に操作を引き継ぐ準備がなされた、1つ以上の<I
+CLASS="FIRSTTERM"
+>スタンバイサーバ</I
+>を持つ<I
+CLASS="FIRSTTERM"
+>高可用性</I
+>(HA)クラスタ構成を作成することができます。
+この機能は<I
+CLASS="FIRSTTERM"
+>ウォームスタンバイ</I
+>または<I
+CLASS="FIRSTTERM"
+>ログシッピング</I
+>として広く知られています。
+  </P
+><P
+>プライマリサーバとスタンバイサーバは、この機能を提供するために共同して稼動しますが、サーバとサーバはゆるく結合しています。
+プライマリサーバは継続的アーカイブモードで動作し、各スタンバイサーバはプライマリからWALファイルを読み取る、継続的リカバリモードで動作します。
+この機能を可能にするために、データベースのテーブル変更は不要です。
+したがって、他のレプリケーションの解法に比べて、管理にかかるオーバーヘッドが減少します。
+この構成はプライマリサーバの性能への影響も相対的に減少させます。
+  </P
+><P
+>あるデータベースサーバから他へ直接WALレコードを移動することは通常、ログシッピングと説明されます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はファイルベースのログシッピングを実装します。
+つまりWALレコードはある時点で1つのファイル(WALセグメント)として送信されることを意味します。
+WALファイル(16MB)は隣り合うシステム、同じサイトの別システム、地球の裏側のシステムなど距離に関わらず、簡単かつ安価に送付することができます。
+この技法に必要な帯域幅はプライマリサーバのトランザクションの頻度に応じて変動します。
+レコードベースのログシッピングはより粒度を細かくしたもので、ネットワーク接続を介してWALの変更を増分的に流します（<A
+HREF="warm-standby.html#STREAMING-REPLICATION"
+>&#38917;25.2.5</A
+>参照）。
+  </P
+><P
+>ログシッピングが非同期であることに注意しなければなりません。
+つまり、WALレコードはトランザクションがコミットした後に転送されます。
+結果として、プライマリサーバが災害などの致命的な失敗をうけた場合、送信されていないトランザクションが失われますので、データを損失する空白期間があります。
+ファイルベースのログシッピングにおけるデータ損失の空白期間量を<TT
+CLASS="VARNAME"
+>archive_timeout</TT
+>パラメータを用いて制限することができます。
+これは数秒程度まで小さく設定することができます。
+しかし、低く設定するとファイル転送に必要な帯域幅が増大します。
+ストリーミングレプリケーション（<A
+HREF="warm-standby.html#STREAMING-REPLICATION"
+>&#38917;25.2.5</A
+>参照）により、データを損失する期間を非常に小さくすることができます。
+  </P
+><P
+>リカバリ処理の性能は十分よく、一度実施されれば、スタンバイサーバが完全な状態から逸脱するのは一時的にしかすぎません。
+結果としてこれは、高可用性を提供するウォームスタンバイ構成と呼ばれます。
+保管されたベースバックアップからサーバをリストアし、ロールフォワードを行うことはおそらく長時間かかりますので、これは高可用性のための解法とはいえず、災害からのリカバリのための解法です。
+スタンバイサーバは読み取り専用の問い合わせに使用することもできます。
+この場合ホットスタンバイサーバと呼ばれます。
+詳細については<A
+HREF="hot-standby.html"
+>&#38917;25.5</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="STANDBY-PLANNING"
+>25.2.1. 計画</A
+></H2
+><P
+>プライマリサーバとスタンバイサーバを、少なくともデータベースサーバという見地でできる限り同じになるように作成することを通常勧めます。
+具体的には、テーブル空間に関連するパス名はそのまま渡されますので、テーブル空間機能を使用する場合には、プライマリとスタンバイサーバの両方でテーブル空間用のマウントパスを同じにしておかなければなりません。
+<A
+HREF="sql-createtablespace.html"
+>CREATE TABLESPACE</A
+>をプライマリで実行する場合、そのコマンドを実行する前に必要な新しいマウントポイントをプライマリとすべてのスタンバイサーバで作成しなければならないことに注意してください。
+ハードウェアをまったく同じにする必要はありませんが、経験上アプリケーションとシステムの運用期間に渡って2つの同じシステムを管理する方が、異なる2つのシステムを管理するよりも簡単です。
+いずれにしてもハードウェアアーキテクチャは必ず同じでなければなりません。
+例えば32ビットシステムから64ビットシステムへのシッピングは動作しません。
+   </P
+><P
+>マイナーリリースの更新ではディスク書式を変更しないというのがPostgreSQLグローバル開発グループの方針ですので、プライマリサーバとスタンバイサーバとの間でマイナーリリースレベルの違いがあってもうまく動作するはずです。
+しかし、この場合、公的なサポートは提供されません。
+できる限りプライマリサーバとスタンバイサーバとで同じリリースレベルを使用してください。
+新しいマイナーリリースに更新する場合、もっとも安全な方針はスタンバイサーバを先に更新することです。
+新しいマイナーリリースは以前のマイナーリリースのWALファイルを読み込むことはできますが、逆はできないかもしれません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="STANDBY-SERVER-OPERATION"
+>25.2.2. スタンバイサーバの動作</A
+></H2
+><P
+>スタンバイモードでは、サーバは継続的にマスタサーバから受け取ったWALを適用します。
+スタンバイサーバはWALアーカイブ(<A
+HREF="archive-recovery-settings.html#RESTORE-COMMAND"
+>restore_command</A
+>参照)から、または直接TCP接続(ストリーミングレプリケーション)を介してマスタサーバから、WALを読み取ることができます。
+またスタンバイサーバはスタンバイクラスタの<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>ディレクトリにあるすべてのWALをリストアしようと試みます。
+これはよくサーバの再起動後、スタンバイが再起動前にマスタから流れ込んだWALを再生する時に発生します。
+しかしまたファイルを再生する任意の時点で、手作業で<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>にコピーすることもできます。
+   </P
+><P
+>起動時、スタンバイサーバは<TT
+CLASS="VARNAME"
+>restore_command</TT
+>を呼び出して、アーカイブ場所にある利用可能なすべてのWALをリストアすることから始めます。
+そこで利用可能なWALの終端に達し、<TT
+CLASS="VARNAME"
+>restore_command</TT
+>が失敗すると、<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>ディレクトリにある利用可能な任意のWALのリストアを試みます。
+ストリーミングレプリケーションが設定されている場合、これに失敗すると、スタンバイはプライマリサーバへの接続を試み、アーカイブまたは<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>内に存在した最終の有効レコードからWALのストリーミングを開始します。
+ストリーミングレプリケーションが未設定時にこれに失敗する場合、または、接続が後で切断される場合、スタンバイは最初に戻り、アーカイブからのファイルのリストアを繰り返し行います。
+このアーカイブ、<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>、ストリーミングレプリケーションからという再試行の繰り返しはサーバが停止する、あるいはトリガファイルによるフェールオーバが発行されるまで続きます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>pg_ctl promote</TT
+>が実行された時またはトリガファイル(<TT
+CLASS="VARNAME"
+>trigger_file</TT
+>)が存在する時、スタンバイモードは終了し、サーバは通常の動作に切り替わります。
+フェールオーバの前に、アーカイブまたは<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>内の即座に利用可能なWALをすべてリストアします。
+しかし、マスタへの接続を行おうとはしません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PREPARING-MASTER-FOR-STANDBY"
+>25.2.3. スタンバイサーバのためのマスタの準備</A
+></H2
+><P
+><A
+HREF="continuous-archiving.html"
+>&#38917;24.3</A
+>で説明したように、スタンバイからアクセス可能なアーカイブディレクトリに対してプライマリで継続的なアーカイブを設定してください。
+このアーカイブ場所はマスタが停止した時であってもスタンバイからアクセス可能でなければなりません。
+つまり、マスタサーバ上ではなく、スタンバイサーバ自身上に存在するか、または他の高信頼性サーバ上に存在しなければなりません。
+   </P
+><P
+>ストリーミングレプリケーションを使用したい場合、スタンバイサーバ(複数可)からのレプリケーション接続を受け付けるようにプライマリサーバで認証を設定してください。
+つまり、ロールを作成し適切な項目を提供、あるいは、そのデータベースフィールドとして<TT
+CLASS="LITERAL"
+>replication</TT
+>を持つ項目を<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>内に設定してください。
+また、プライマリサーバの設定ファイルにおいて<TT
+CLASS="VARNAME"
+>max_wal_senders</TT
+>が十分大きな値に設定されていることを確認してください。
+   </P
+><P
+><A
+HREF="continuous-archiving.html#BACKUP-BASE-BACKUP"
+>&#38917;24.3.2</A
+>に記述したように、スタンバイサーバの再起動のために、ベースバックアップを取得してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="STANDBY-SERVER-SETUP"
+>25.2.4. スタンバイサーバの設定</A
+></H2
+><P
+>スタンバイサーバを設定するためには、プライマリサーバから取得したベースバックアップをリストアしてください(<A
+HREF="continuous-archiving.html#BACKUP-PITR-RECOVERY"
+>&#38917;24.3.3</A
+>参照)。
+スタンバイのクラスタデータディレクトリ内に<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>リカバリコマンドファイルを作成し、<TT
+CLASS="VARNAME"
+>standby_mode</TT
+>を有効にしてください。
+WALアーカイブからファイルをコピーする簡単なコマンドを<TT
+CLASS="VARNAME"
+>restore_command</TT
+>に設定してください。
+高可用性のために複数のスタンバイサーバを持たせようとしている場合、<TT
+CLASS="VARNAME"
+>recovery_target_timeline</TT
+>を<TT
+CLASS="LITERAL"
+>latest</TT
+>に設定し、スタンバイサーバが他のスタンバイにフェールオーバする時に発生するタイムラインの変更に従うようにします。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>ここで説明した組込みのスタンバイモードといっしょにpg_standbyや類似ツールを使用しないでください。
+<TT
+CLASS="VARNAME"
+>restore_command</TT
+>はファイルが存在しない場合に即座に終了しなければなりません。
+サーバが必要に応じてそのコマンドを再度実行します。
+pg_standbyのようなツールを使用するためには<A
+HREF="log-shipping-alternative.html"
+>&#38917;25.4</A
+>を参照してください。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>ストリーミングレプリケーションを使用したい場合には、ホスト名(またはIPアドレス)とプライマリサーバとの接続に必要な追加情報を含む、libpq接続文字列で<TT
+CLASS="VARNAME"
+>primary_conninfo</TT
+>を記述してください。
+プライマリで認証用のパスワードが必要な場合は<TT
+CLASS="VARNAME"
+>primary_conninfo</TT
+>にそのパスワードも指定する必要があります。
+   </P
+><P
+>スタンバイサーバを高可用性を目的に設定しているのであれば、スタンバイサーバはフェールオーバの後プライマリサーバとして動作しますので、プライマリサーバと同様にWALアーカイブ処理、接続、認証を設定してください。
+   </P
+><P
+>WALアーカイブを使用している場合、<A
+HREF="archive-recovery-settings.html#ARCHIVE-CLEANUP-COMMAND"
+>archive_cleanup_command</A
+>パラメータを使用してスタンバイサーバで不要となったファイルを削除することで、その容量を最小化することができます。
+特に<SPAN
+CLASS="APPLICATION"
+>pg_archivecleanup</SPAN
+>ユーティリティは、典型的な単一スタンバイ構成（<A
+HREF="pgarchivecleanup.html"
+>pg_archivecleanup</A
+>参照）における<TT
+CLASS="VARNAME"
+>archive_cleanup_command</TT
+>と共に使用されるように設計されています。
+しかし、バックアップを目的にアーカイブを使用している場合には、スタンバイから必要とされなくなったファイルであっても、最新のベースバックアップの時点からリカバリするために必要なファイルを保持しなければならないことに注意してください。
+   </P
+><P
+><TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>の簡単な例を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>standby_mode = 'on'
+primary_conninfo = 'host=192.168.1.50 port=5432 user=foo password=foopass'
+restore_command = 'cp /path/to/archive/%f %p'
+archive_cleanup_command = 'pg_archivecleanup /path/to/archive %r'</PRE
+><P>
+   </P
+><P
+>スタンバイサーバの台数に制限はありませんが、ストリーミングレプリケーションを使用するなら、プライマリサーバに同時に接続できるように<TT
+CLASS="VARNAME"
+>max_wal_senders</TT
+>を十分な数に設定してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="STREAMING-REPLICATION"
+>25.2.5. ストリーミングレプリケーション</A
+></H2
+><P
+>ストリーミングレプリケーションによりスタンバイサーバはファイルベースのログシッピングよりもより最近の状態を維持できるようになります。
+スタンバイは、WALレコードが生成された時にWALファイルがいっぱいになるまで待機せずにWALレコードをスタンバイに流し出すプライマリと接続します。
+   </P
+><P
+>ストリーミングレプリケーションは非同期です。
+このため、プライマリでトランザクションがコミットされてから、その変更がスタンバイ側で参照可能になるまでの間にわずかな遅延がまだあります。
+しかし、この遅延はファイルベースのログシッピングよりも非常に小さなもので、ロードを維持できる程度の能力があるスタンバイであれば通常は1秒以下です。
+ストリーミングレプリケーションでは、データ損失期間を減らすための<TT
+CLASS="VARNAME"
+>archive_timeout</TT
+>を必要としません。
+   </P
+><P
+>ファイルベースの継続的アーカイブのないストリーミングレプリケーションを使用している場合、マスタにおいて<TT
+CLASS="VARNAME"
+>wal_keep_segments</TT
+>の値を、スタンバイが古いWALセグメントに追随する必要がある時にそれらががあまりに早く回収されないことが確実になるように、十分大きく設定しなければなりません。
+スタンバイ側が大きく遅れてしまった場合、新しいベースバックアップから再初期化する必要があります。
+スタンバイからアクセスできるようにWALアーカイブを設定する場合は、スタンバイは常に追随するためにアーカイブを使用することができますので、<TT
+CLASS="VARNAME"
+>wal_keep_segments</TT
+>は必要ありません。
+   </P
+><P
+>ストリーミングレプリケーションを使用するためには、<A
+HREF="warm-standby.html"
+>&#38917;25.2</A
+>の説明のようにファイルベースのログシッピングを行うスタンバイサーバを設定してください。
+ファイルベースのログシッピングを行うスタンバイをストリーミングレプリケーションを行うスタンバイに切り替える手順は、<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>内の<TT
+CLASS="VARNAME"
+>primary_conninfo</TT
+>設定をプライマリサーバを指し示すように設定することです。
+スタンバイサーバがプライマリサーバ上の<TT
+CLASS="LITERAL"
+>replication</TT
+>疑似データベースに接続できる(<A
+HREF="warm-standby.html#STREAMING-REPLICATION-AUTHENTICATION"
+>&#38917;25.2.5.1</A
+>参照)ように、プライマリで<A
+HREF="runtime-config-connection.html#GUC-LISTEN-ADDRESSES"
+>listen_addresses</A
+>と認証オプション(<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>参照)を設定してください。
+   </P
+><P
+>キープアライブソケットオプションをサポートするシステムでは、<A
+HREF="runtime-config-connection.html#GUC-TCP-KEEPALIVES-IDLE"
+>tcp_keepalives_idle</A
+>、<A
+HREF="runtime-config-connection.html#GUC-TCP-KEEPALIVES-INTERVAL"
+>tcp_keepalives_interval</A
+>および<A
+HREF="runtime-config-connection.html#GUC-TCP-KEEPALIVES-COUNT"
+>tcp_keepalives_count</A
+>を設定することで、プライマリの接続切断の即時検知に有用です。
+   </P
+><P
+>スタンバイサーバからの同時接続数の最大値を設定してください（詳細は<A
+HREF="runtime-config-replication.html#GUC-MAX-WAL-SENDERS"
+>max_wal_senders</A
+>を参照）。
+   </P
+><P
+>スタンバイが起動し、<TT
+CLASS="VARNAME"
+>primary_conninfo</TT
+>が正しく設定されると、スタンバイはアーカイブ内で利用可能なWALファイルをすべて再生した後にプライマリと接続します。
+接続の確立に成功すると、スタンバイでWAL受信プロセスが存在し、プライマリで対応するWAL送信プロセスが存在します。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="STREAMING-REPLICATION-AUTHENTICATION"
+>25.2.5.1. 認証</A
+></H3
+><P
+>信頼できるユーザのみがWALストリームを読み取ることができるように、レプリケーション用のアクセス権限を設定することは非常に重要です。
+WALから機密情報を取り出すことは簡単だからです。
+スタンバイサーバはプライマリに対して<TT
+CLASS="LITERAL"
+>REPLICATION</TT
+>権限を持つアカウントとして認証されなければなりません。
+このため、<TT
+CLASS="LITERAL"
+>REPLICATION</TT
+>および<TT
+CLASS="LITERAL"
+>LOGIN</TT
+>権限を持つロールをプライマリ上で作成しなければなりません。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>レプリケーションに専念するユーザアカウントを使用することを勧めます。
+<TT
+CLASS="LITERAL"
+>REPLICATION</TT
+>権限はデフォルトでスーパーユーザアカウントに付与されていますが、レプリケーションでスーパーユーザアカウントを使用することは勧めません。
+<TT
+CLASS="LITERAL"
+>REPLICATION</TT
+>権限は非常に高度な権限を与えますが、<TT
+CLASS="LITERAL"
+>SUPERUSER</TT
+>権限が行うような主システムにおけるデータの変更は許されていません。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+>レプリケーション用のクライアント認証は<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>内でその<TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>フィールドに<TT
+CLASS="LITERAL"
+>replication</TT
+>を指定したレコードで制御されます。
+例えば、スタンバイがIPアドレス<TT
+CLASS="LITERAL"
+>192.168.1.100</TT
+>のホストで稼動し、レプリケーション用のアカウントの名前が<TT
+CLASS="LITERAL"
+>foo</TT
+>である場合、管理者はプライマリ上の<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>に以下の行を追加することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+># 利用者 foo のホスト 192.168.1.100 からプライマリサーバへのレプリケーションスタンバイとしての接続を
+# 利用者のパスワードが正しく入力されたならば許可する
+#
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+host    replication     foo             192.168.1.100/32        md5</PRE
+><P>
+    </P
+><P
+>プライマリサーバのホスト名とポート番号、接続する利用者名およびパスワードは、<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>ファイルで指定します。
+パスワードはスタンバイサーバの<TT
+CLASS="FILENAME"
+>~/.pgpass</TT
+>ファイルでも設定できます（<TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>フィールドの<TT
+CLASS="LITERAL"
+>replication</TT
+>を指定します）。
+例えば、プライマリサーバが稼動するホストの IP アドレスが<TT
+CLASS="LITERAL"
+>192.168.1.50</TT
+>でポート番号が<TT
+CLASS="LITERAL"
+>5432</TT
+>であり、レプリケーションのアカウント名が<TT
+CLASS="LITERAL"
+>foo</TT
+>であり、パスワードが<TT
+CLASS="LITERAL"
+>foopass</TT
+>である場合、管理者はスタンバイサーバの<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>ファイルに次行を追加できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+># プライマリサーバが 192.168.1.50 のホストの 5432ポートで稼動し
+# 利用者名が foo でパスワードが foopass とする
+primary_conninfo = 'host=192.168.1.50 port=5432 user=foo password=foopass'</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="STREAMING-REPLICATION-MONITORING"
+>25.2.5.2. 監視</A
+></H3
+><P
+>ストリーミングレプリケーションの重要な健全性尺度は、プライマリサーバで生成されたがスタンバイサーバではまだ適用されていないWALレコードの量です。
+プライマリサーバの現在のWAL書き込み位置とスタンバイサーバの受理したWALの最終位置を比較すれば、この遅延を計算できます。
+これらの位置は、プライマリサーバでは<CODE
+CLASS="FUNCTION"
+>pg_current_xlog_location</CODE
+>を、スタンバイサーバでは<CODE
+CLASS="FUNCTION"
+>pg_last_xlog_receive_location</CODE
+>を使用すれば検索できます（詳細は<A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-BACKUP-TABLE"
+>&#34920;9-56</A
+>および<A
+HREF="functions-admin.html#FUNCTIONS-RECOVERY-INFO-TABLE"
+>&#34920;9-57</A
+>を参照）。
+スタンバイサーバの最終位置は、<TT
+CLASS="COMMAND"
+>ps</TT
+>コマンドを使用して WAL 受理プロセスの状態としても表示できます（詳細は<A
+HREF="monitoring-ps.html"
+>&#38917;27.1</A
+>を参照）。
+    </P
+><P
+><A
+HREF="monitoring-stats.html#MONITORING-STATS-VIEWS-TABLE"
+><TT
+CLASS="LITERAL"
+>pg_stat_replication</TT
+></A
+>ビューを介してWAL送信処理プロセスのリストを入手することができます。
+<CODE
+CLASS="FUNCTION"
+>pg_current_xlog_location</CODE
+>と<TT
+CLASS="LITERAL"
+>sent_location</TT
+>フィールドとの違いが大きい場合、マスタサーバが高負荷状態であることを示している可能性があります。
+一方でスタンバイサーバ上の<TT
+CLASS="LITERAL"
+>sent_location</TT
+>と<CODE
+CLASS="FUNCTION"
+>pg_last_xlog_receive_location</CODE
+>の値の差異は、ネットワーク遅延、またはスタンバイっが高負荷状態であることを示す可能性があります。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SYNCHRONOUS-REPLICATION"
+>25.2.6. 同期レプリケーション</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のストリーミングレプリケーションはデフォルトで非同期です。
+プライマリサーバがクラッシュした場合、コミットされた一部のトランザクションがスタンバイサーバに複製されず、データ損失を引き起こす可能性があります。
+データ損失量はフェールオーバ時点のレプリケーション遅延に比例します。
+   </P
+><P
+>同期レプリケーションは、あるトランザクションでなされた変更はすべて、１つの同期スタンバイサーバに転送されていることを確実にする機能を提供します。
+これはトランザクションコミットで提供される永続性の標準レベルを拡張します。
+この保護レベルはコンピュータ科学理論では2-safeレプリケーションと呼ばれます。
+   </P
+><P
+>同期レプリケーションを要求する時、書き込みトランザクションのコミットはそれぞれ、そのコミットがプライマリサーバおよびスタンバイサーバの両方で、ディスク上のトランザクションログに書き込まれたという確認を受けとるまで待機します。
+データ損失が起こる可能性は、プライマリサーバとスタンバイサーバが同時にクラッシュしてしまった場合のみです。
+これは非常に高い永続性を提供することができますが、それはシステム管理者が２つのサーバの設置と管理に関して注意を払っている場合のみです。
+確認のための待機は、サーバがクラッシュした場合でも変更が失われないということでユーザからの信頼性が大きくなりますが、同時に要求するトランザクションの応答時間も必ず大きくなります。
+最小待機時間はプライマリとスタンバイの間の往復遅延時間です。
+   </P
+><P
+>読み取り専用のトランザクションおよびトランザクションのロールバックはスタンバイサーバからの応答を待つ必要はありません。
+副トランザクションのコミットもスタンバイサーバからの応答を待つことはなく、最上位レベルのコミットのみ待機します。
+データロード処理やインデックス構築など長時間実行される操作は、最終コミットメッセージまで待機しません。
+準備およびコミットの両方を含め、二相コミット動作はすべてコミット待機を必要とします。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="SYNCHRONOUS-REPLICATION-CONFIG"
+>25.2.6.1. 基本設定</A
+></H3
+><P
+>ストリーミングレプリケーションが設定されている場合、同期レプリケーションの設定には必要な追加設定は１つだけです。
+<A
+HREF="runtime-config-replication.html#GUC-SYNCHRONOUS-STANDBY-NAMES"
+>synchronous_standby_names</A
+>を空でない値に設定しなければなりません。
+また<TT
+CLASS="VARNAME"
+>synchronous_commit</TT
+>は<TT
+CLASS="LITERAL"
+>on</TT
+>に設定されていなければなりませんが、これはデフォルト値ですので、通常は変更する必要はありません。
+この設定によりスタンバイがそのコミットレコードを信頼できるストレージに書き込んだことが確認できるまで、それに非常に時間がかかる場合であっても、各コミットが待たされるようになります。
+<TT
+CLASS="VARNAME"
+>synchronous_replication</TT
+>は個々のユーザによって設定することができます。
+このため、トランザクション単位を基準とした永続性の保証を制御するために、設定ファイルの中で特定のユーザまたはデータベースについて設定することも、アプリケーションによって動的に設定することもできます。
+   </P
+><P
+>コミットレコードがプライマリ上のディスクに書き出された後、WALレコードがスタンバイに送信されます。
+スタンバイにて<TT
+CLASS="VARNAME"
+>wal_receiver_status_interval</TT
+>がゼロに設定されていない限り、スタンバイは新しいWALデータのバッチがディスクに書き出す度にメッセージを返します。
+スタンバイが、プライマリ上の<TT
+CLASS="VARNAME"
+>synchronous_standby_names</TT
+>で指定したものと最初に一致するスタンバイである場合、そのスタンバイからの応答メッセージがコミットレコードの受領を確認するまでの待機を解除するために使用されます。
+これらのパラメータにより管理者はどのスタンバイサーバが同期スタンバイとすべきかを指定することができます。
+同期レプリケーションの設定は主にマスタでなされることに注意してください。
+   </P
+><P
+>高速シャットダウンが要求された場合、ユーザは待機を停止します。
+しかし非同期レプリケーションを使用している時、送信中のWALレコードが現在接続しているスタンバイサーバに転送されるまで、サーバは完全に停止しません。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="SYNCHRONOUS-REPLICATION-PERFORMANCE"
+>25.2.6.2. 性能に関する考慮</A
+></H3
+><P
+>通常、同期レプリケーションは、アプリケーションが満足できる程度に実行されることを確実にするために、注意深くスタンバイサーバを計画し設置しなければなりません。
+待機のためにシステムリソースを使用することはありませんが、トランザクションロックは転送が確認されるまで継続して保持されます。
+結果として同期レプリケーションを注意せずに使用すると、応答時間が増加する、および競合がより高くなるため、データベースアプリケーションの性能は低下します。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではアプリケーション開発者がレプリケーション経由で必要とする永続性レベルを指定することができます。
+これをシステム全体に対して指定することができますし、特定のユーザ、接続、個々のトランザクションに対してさえ指定することもできます。
+   </P
+><P
+>例えばアプリケーションの作業量が、重要な顧客詳細の変更が10%、ユーザ間のチャットメッセージなど、あまり重要ではなく、失ったとしても業務をより簡単に戻すことができるようなデータの変更が90% という構成を考えてみます。
+   </P
+><P
+>（プライマリ上で）アプリケーションレベルで指定する同期レプリケーションオプションを使用して、作業全体を低速化させることなく、最も重要な変更に対して同期レプリケーションを企てることができます。
+アプリケーションレベルのオプションは、高い性能が求められるアプリケーションで同期レプリケーションの利点が得られる、重要かつ現実的な手段です。
+   </P
+><P
+>生成されるWALデータの割合よりネットワーク帯域幅が大きくなければならないことを考慮しなければなりません。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="SYNCHRONOUS-REPLICATION-HA"
+>25.2.6.3. 高可用性に関する検討</A
+></H3
+><P
+><TT
+CLASS="VARNAME"
+>synchronous_commit</TT
+>が<TT
+CLASS="LITERAL"
+>on</TT
+>に設定された場合、なされたコミットは同期スタンバイの応答まで待機されます。
+応答は最後のまたは唯一のスタンバイがクラッシュした場合には決して返されません。
+   </P
+><P
+>データ損失を防止するための最善の解法は、最後に残る同期スタンバイを失わないことを確実にすることです。
+<TT
+CLASS="VARNAME"
+>synchronous_standby_names</TT
+>を使用して複数の潜在的な同期スタンバイを指名することで実現することができます。
+最初に指名されたスタンバイは同期スタンバイとして使用されます。
+この後に列挙されたスタンバイは、最初のスタンバイが失敗した場合に同期スタンバイの役割を引き継ぎます。
+   </P
+><P
+>スタンバイが最初にプライマリに付与された時、それはまだ適切に同期されていません。
+これは<TT
+CLASS="LITERAL"
+>catchup</TT
+>モードと呼ばれます。
+最初にスタンバイとプライマリ間の遅延がゼロになった時に、実時間<TT
+CLASS="LITERAL"
+>streaming</TT
+>状態に移ります。
+追従（catchup）期間はスタンバイが作成された直後は長くなるかもしれません。
+スタンバイが停止している場合、追従期間はスタンバイの停止期間にしたがって長くなります。
+スタンバイは、<TT
+CLASS="LITERAL"
+>streaming</TT
+>状態に達した後でのみ、同期スタンバイになることができます。
+   </P
+><P
+>コミットが受領通知を待機している間にプライマリが再起動した場合、プライマリデータベースが復旧した後、待機中のトランザクションは完全にコミットされたものと記録されます。
+すべてのスタンバイがプライマリのクラッシュ時点で送信中のWALデータのすべてを受信したかどうかを確認する方法はありません。
+トランザクションの一部は、プライマリではコミットされたものと表示されていたとしても、コミットされていないと表示されるかもしれません。
+提供できる保証は、WALデータがスタンバイで安全に受信したことが分かるまで、アプリケーションは明示的なトランザクションコミットの成功に関する受領通知を受けとらないことです。
+   </P
+><P
+>最終スタンバイサーバを本当に失った場合、<TT
+CLASS="VARNAME"
+>synchronous_standby_names</TT
+>を無効にし、プライマリサーバの設定ファイルを再読み込みしなければなりません。
+   </P
+><P
+>プライマリが残りのスタンバイサーバと孤立された場合、残りのスタンバイサーバの中から最善の候補にフェールオーバさせなければなりません。
+   </P
+><P
+>トランザクションの待機中にスタンバイサーバを再作成する必要がある場合、pg_start_backup()およびpg_stop_backup()を実行するコマンドを<TT
+CLASS="VARNAME"
+>synchronous_commit</TT
+> = <TT
+CLASS="LITERAL"
+>off</TT
+>であるセッション内で確実に実行してください。
+さもないとこれらの要求はスタンバイに現れるまで永遠に待機します。
+   </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="different-replication-solutions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="warm-standby-failover.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>様々な解法の比較</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="high-availability.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>フェールオーバ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

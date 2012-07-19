@@ -1,0 +1,465 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER FOREIGN DATA WRAPPER</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER EXTENSION"
+HREF="sql-alterextension.html"><LINK
+REL="NEXT"
+TITLE="ALTER FOREIGN TABLE"
+HREF="sql-alterforeigntable.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER EXTENSION"
+HREF="sql-alterextension.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER EXTENSION"
+HREF="sql-alterextension.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER FOREIGN TABLE"
+HREF="sql-alterforeigntable.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER FOREIGN TABLE"
+HREF="sql-alterforeigntable.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERFOREIGNDATAWRAPPER"
+></A
+>ALTER FOREIGN DATA WRAPPER</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN60219"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER FOREIGN DATA WRAPPER&nbsp;--&nbsp;外部データラッパの定義を変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN60224"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER FOREIGN DATA WRAPPER <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    [ HANDLER <TT
+CLASS="REPLACEABLE"
+><I
+>handler_function</I
+></TT
+> | NO HANDLER ]
+    [ VALIDATOR <TT
+CLASS="REPLACEABLE"
+><I
+>validator_function</I
+></TT
+> | NO VALIDATOR ]
+    [ OPTIONS ( [ ADD | SET | DROP ] <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> ['<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>'] [, ... ]) ]
+ALTER FOREIGN DATA WRAPPER <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60233"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER FOREIGN DATA WRAPPER</TT
+>は外部データラッパの定義を変更します。
+このコマンドの最初の構文はサポート関数または外部データラッパの一般的なオプションを変更します。
+（少なくとも1つの句が必要です。）
+第2の構文は外部データラッパの所有者を変更します。
+  </P
+><P
+>スーパーユーザのみが外部データラッパを変更することができます。
+さらにスーパーユーザのみが外部データラッパを所有することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60238"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>既存の外部データラッパの名前です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>HANDLER <TT
+CLASS="REPLACEABLE"
+><I
+>handler_function</I
+></TT
+></TT
+></DT
+><DD
+><P
+>外部データラッパ用の新しいハンドラ関数を指定します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NO HANDLER</TT
+></DT
+><DD
+><P
+>これを使用して外部データラッパがハンドラ関数を持たないことを指定します。
+     </P
+><P
+>ハンドラを持たない外部データラッパを使用する外部テーブルにはアクセスできないことに注意してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>VALIDATOR <TT
+CLASS="REPLACEABLE"
+><I
+>validator_function</I
+></TT
+></TT
+></DT
+><DD
+><P
+>外部データラッパ用の新しい検証関数を指定します。
+     </P
+><P
+>検証関数を変更した後、外部データラッパのオプション、サーバ、ユーザマップが無効になることがあることに注意してください。
+外部データラッパを使用する前にこれらのオプションが正しいことを確実にすることはユーザの責任です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NO VALIDATOR</TT
+></DT
+><DD
+><P
+>これは、外部データラッパが検証関数を持たないことを指定するために使用されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OPTIONS ( [ ADD | SET | DROP ] <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> ['<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>'] [, ... ] )</TT
+></DT
+><DD
+><P
+>外部データラッパ用のオプションを変更します。
+<TT
+CLASS="LITERAL"
+>ADD</TT
+>、<TT
+CLASS="LITERAL"
+>SET</TT
+>、<TT
+CLASS="LITERAL"
+>DROP</TT
+>は実行する動作を指定します。
+明示的な動作の指定がなければ<TT
+CLASS="LITERAL"
+>ADD</TT
+>とみなされます。
+オプション名は一意でなければなりません。
+また名前と値は外部データラッパの検証関数を使用して検証されます。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60281"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>dbi</TT
+>外部データラッパを変更し、<TT
+CLASS="LITERAL"
+>foo</TT
+>オプションを追加し、<TT
+CLASS="LITERAL"
+>bar</TT
+>オプションを削除します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER FOREIGN DATA WRAPPER dbi OPTIONS (ADD foo '1', DROP 'bar');</PRE
+><P>
+  </P
+><P
+>外部データラッパ<TT
+CLASS="LITERAL"
+>dbi</TT
+>の検証関数を<TT
+CLASS="LITERAL"
+>bob.myvalidator</TT
+>に変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER FOREIGN DATA WRAPPER dbi VALIDATOR bob.myvalidator;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60292"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER FOREIGN DATA WRAPPER</TT
+>はISO/IEC 9075-9 (SQL/MED)に従います。
+ただし、 <TT
+CLASS="LITERAL"
+>HANDLER</TT
+>、<TT
+CLASS="LITERAL"
+>VALIDATOR</TT
+>、<TT
+CLASS="LITERAL"
+>OWNER TO</TT
+>句は拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60299"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createforeigndatawrapper.html"
+>CREATE FOREIGN DATA WRAPPER</A
+>, <A
+HREF="sql-dropforeigndatawrapper.html"
+>DROP FOREIGN DATA WRAPPER</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alterextension.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alterforeigntable.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER EXTENSION</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER FOREIGN TABLE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

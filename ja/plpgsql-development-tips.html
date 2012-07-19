@@ -1,0 +1,459 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/pgSQLによる開発向けのヒント</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/pgSQLの秘訣"
+HREF="plpgsql-implementation.html"><LINK
+REL="NEXT"
+TITLE="Oracle PL/SQLからの移植"
+HREF="plpgsql-porting.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQLの秘訣"
+HREF="plpgsql-implementation.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="Oracle PL/SQLからの移植"
+HREF="plpgsql-porting.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-DEVELOPMENT-TIPS"
+>39.11. <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>による開発向けのヒント</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>で開発する1つの良い方法は、関数を作成するのに自分の好きなテキストエディタを使い、もう1つのウィンドウで<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を使用して関数を読み込ませて試験を行うことです。
+この方法で行う場合には<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>を使用して関数を作成する方が良いでしょう。
+この方法でファイルを再読み込みすると、関数定義を更新することができます。
+例えば以下のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION testfunc(integer) RETURNS integer AS $$
+          ....
+$$ LANGUAGE plpgsql;</PRE
+><P>
+   </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を実行し、以下のように関数定義ファイルを読み込み、または再読み込みすることができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>\i filename.sql</PRE
+><P>
+その後すぐに、関数を試験するためにSQLコマンドを発行することができます。
+   </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>における開発のもう1つの良い方法は、手続き言語の開発機能を持つGUIデータベースアクセスツールを使用することです。
+他にもありますが、<SPAN
+CLASS="APPLICATION"
+>pgAdmin</SPAN
+>がこうしたツールの一例です。
+こうしたツールは、単一引用符をエスケープさせたり、関数の作り直しやデバッグが容易に行えたりする便利な機能をよく持っています。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-QUOTE-TIPS"
+>39.11.1. 引用符の扱い</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数のコードは<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>内で文字列リテラルとして指定されます。
+単一引用符で囲む通常のやり方で文字列リテラルを記述する時、関数本体内部の全ての単一引用符を二重化しなければなりません。
+同様に、全てのバックスラッシュを二重化しなければなりません。
+なお、文字列としてエスケープする構文が使用されると仮定します。
+引用符を単に重ねるやり方は最も冗長であり、簡単に想像できると思いますが、複雑な状態では数個以上の隣接した引用符が必要となるため、コードを率直には理解しにくくなります。
+それに代わって推奨されるのは、関数本体を<SPAN
+CLASS="QUOTE"
+>"ドル引用符"</SPAN
+>の文字列リテラルとして記述することです（<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING"
+>&#38917;4.1.2.4</A
+>を見てください）。
+ドル引用符を用いるやり方では他の引用符を二重化する必要はありませんが、それぞれの入れ子になった階層ごとに異なったドル引用符による区切り符号を用いなければなりません。
+例えば、<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドを以下のように記述しても構いません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION testfunc(integer) RETURNS integer AS $PROC$
+          ....
+$PROC$ LANGUAGE plpgsql;</PRE
+><P>
+
+このやり方では、SQLコマンドの中で単純なリテラル文字列に対して引用符を使用でき、文字列として集積したSQLコマンドの断片を区切るために<TT
+CLASS="LITERAL"
+>$$</TT
+>を使用できます。
+もし<TT
+CLASS="LITERAL"
+>$$</TT
+>を含んだテキストを引用符で囲む時は、<TT
+CLASS="LITERAL"
+>$Q$</TT
+>のような記述を使用できます。
+   </P
+><P
+>以下の表はドル引用符を用いない時の引用符の記述法を示したものです。
+ドル引用符を用いる以前における引用符の記述を理解するのに、この表は役立つと思われます。
+  </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>1つの引用符</DT
+><DD
+><P
+>関数本体の先頭と末尾。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION foo() RETURNS integer AS '
+          ....
+' LANGUAGE plpgsql;</PRE
+><P>
+関数本体内部では引用符は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必ず</I
+></SPAN
+>ペアで現れます。
+     </P
+></DD
+><DT
+>2つの引用符</DT
+><DD
+><P
+>関数本体内部の文字列リテラル用。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>a_output := ''Blah'';
+SELECT * FROM users WHERE f_name=''foobar'';</PRE
+><P>
+ドル引用符を用いる時は、次のように記述します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>a_output := 'Blah';
+SELECT * FROM users WHERE f_name='foobar';</PRE
+><P>
+どちらも<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>パーサから見ると同一となります。
+     </P
+></DD
+><DT
+>4つの引用符</DT
+><DD
+><P
+>関数本体内部の文字列リテラル内の単一引用符がある場合。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>a_output := a_output || '' AND name LIKE ''''foobar'''' AND xyz''</PRE
+><P>
+実際に<TT
+CLASS="LITERAL"
+>a_output</TT
+>に追加される値は、<TT
+CLASS="LITERAL"
+> AND name LIKE 'foobar' AND xyz</TT
+>です。
+     </P
+><P
+>ドル引用符を用いる時は、次のように記述します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>a_output := a_output || $$ AND name LIKE 'foobar' AND xyz$$</PRE
+><P>
+なお、ドル引用符の区切り文字は<TT
+CLASS="LITERAL"
+>$$</TT
+>だけとは限らないことに注意してください。
+     </P
+></DD
+><DT
+>6つの引用符</DT
+><DD
+><P
+>関数本体内部の文字列内の単一引用符が、文字列定数の末尾にある場合。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>a_output := a_output || '' AND name LIKE ''''foobar''''''</PRE
+><P>
+実際に<TT
+CLASS="LITERAL"
+>a_output</TT
+>に追加される値は、<TT
+CLASS="LITERAL"
+> AND name LIKE 'foobar'</TT
+>です。
+     </P
+><P
+>ドル引用符を用いる時は、次のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>a_output := a_output || $$ AND name LIKE 'foobar'$$</PRE
+><P>
+     </P
+></DD
+><DT
+>10個の引用符</DT
+><DD
+><P
+>文字列定数内に 2つの単一引用符を持たせたい場合（これで8個の単一引用符になり）、かつ、この文字列定数の末尾にある場合（これで2個追加されます）。
+おそらく、他の関数を生成する関数を作成する場合（<A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-EX2"
+>&#20363;39-8</A
+>）のみにこれが必要になるでしょう。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>a_output := a_output || '' if v_'' || 
+    referrer_keys.kind || '' like '''''''''' 
+    || referrer_keys.key_string || '''''''''' 
+    then return ''''''  || referrer_keys.referrer_type 
+    || ''''''; end if;''; </PRE
+><P>
+<TT
+CLASS="LITERAL"
+>a_output</TT
+>の値は以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>if v_... like ''...'' then return ''...''; end if;</PRE
+><P>
+     </P
+><P
+>ドル引用符を用いる時は、次のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>a_output := a_output || $$ if v_$$ || referrer_keys.kind || $$ like '$$
+    || referrer_keys.key_string || $$'
+    then return '$$  || referrer_keys.referrer_type 
+    || $$'; end if;$$; </PRE
+><P>
+ここで単一引用符は使用前に再評価されるため、<TT
+CLASS="LITERAL"
+>a_output</TT
+>内部だけで必要であると仮定します。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-implementation.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-porting.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の秘訣</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+> PL/SQLからの移植</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

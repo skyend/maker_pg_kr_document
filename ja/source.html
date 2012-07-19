@@ -1,0 +1,303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PostgreSQLコーディング規約</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="内部情報"
+HREF="internals.html"><LINK
+REL="PREVIOUS"
+TITLE="プロトコル2.0からの変更点の要約"
+HREF="protocol-changes.html"><LINK
+REL="NEXT"
+TITLE="書式"
+HREF="source-format.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="プロトコル2.0からの変更点の要約"
+HREF="protocol-changes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="フロントエンド/バックエンドプロトコル"
+HREF="protocol.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="多言語サポート"
+HREF="nls.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="書式"
+HREF="source-format.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="SOURCE"
+></A
+>&#31532; 47&#31456;PostgreSQLコーディング規約</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>47.1. <A
+HREF="source-format.html"
+>書式</A
+></DT
+><DT
+>47.2. <A
+HREF="error-message-reporting.html"
+>サーバ内部からのエラーの報告</A
+></DT
+><DT
+>47.3. <A
+HREF="error-style-guide.html"
+>エラーメッセージのスタイルガイド</A
+></DT
+><DD
+><DL
+><DT
+>47.3.1. <A
+HREF="error-style-guide.html#AEN93272"
+>何がどこで起こったか</A
+></DT
+><DT
+>47.3.2. <A
+HREF="error-style-guide.html#AEN93281"
+>整形</A
+></DT
+><DT
+>47.3.3. <A
+HREF="error-style-guide.html#AEN93285"
+>引用符</A
+></DT
+><DT
+>47.3.4. <A
+HREF="error-style-guide.html#AEN93289"
+>引用符の使用</A
+></DT
+><DT
+>47.3.5. <A
+HREF="error-style-guide.html#AEN93295"
+>文法と句読点</A
+></DT
+><DT
+>47.3.6. <A
+HREF="error-style-guide.html#AEN93302"
+>大文字と小文字</A
+></DT
+><DT
+>47.3.7. <A
+HREF="error-style-guide.html#AEN93306"
+>受動態の禁止</A
+></DT
+><DT
+>47.3.8. <A
+HREF="error-style-guide.html#AEN93312"
+>現在形と過去形</A
+></DT
+><DT
+>47.3.9. <A
+HREF="error-style-guide.html#AEN93322"
+>オブジェクトの種類</A
+></DT
+><DT
+>47.3.10. <A
+HREF="error-style-guide.html#AEN93327"
+>角括弧</A
+></DT
+><DT
+>47.3.11. <A
+HREF="error-style-guide.html#AEN93331"
+>エラーメッセージの組み立て</A
+></DT
+><DT
+>47.3.12. <A
+HREF="error-style-guide.html#AEN93336"
+>エラーの理由</A
+></DT
+><DT
+>47.3.13. <A
+HREF="error-style-guide.html#AEN93340"
+>関数名</A
+></DT
+><DT
+>47.3.14. <A
+HREF="error-style-guide.html#AEN93347"
+>ややこしい単語の防止</A
+></DT
+><DT
+>47.3.15. <A
+HREF="error-style-guide.html#AEN93390"
+>適切なスペル</A
+></DT
+><DT
+>47.3.16. <A
+HREF="error-style-guide.html#AEN93405"
+>地域化</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="protocol-changes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="source-format.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>プロトコル2.0からの変更点の要約</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="internals.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>書式</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

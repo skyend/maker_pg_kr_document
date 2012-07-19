@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>選択リスト</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="問い合わせ"
+HREF="queries.html"><LINK
+REL="PREVIOUS"
+TITLE="テーブル式"
+HREF="queries-table-expressions.html"><LINK
+REL="NEXT"
+TITLE="問い合わせの結合"
+HREF="queries-union.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="テーブル式"
+HREF="queries-table-expressions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="問い合わせ"
+HREF="queries.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 7&#31456;問い合わせ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="問い合わせ"
+HREF="queries.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="問い合わせの結合"
+HREF="queries-union.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="QUERIES-SELECT-LISTS"
+>7.3. 選択リスト</A
+></H1
+><P
+>前節で示したように、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンド中のテーブル式は、テーブルの結合やビュー、行の抽出、グループ化などにより中間の仮想テーブルを作ります。 
+このテーブルは最終的に<I
+CLASS="FIRSTTERM"
+>選択リスト</I
+>に渡されます。
+選択リストは、中間のテーブルのどの<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>列</I
+></SPAN
+>を実際に出力するかを決めます。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-SELECT-LIST-ITEMS"
+>7.3.1. 選択リスト項目</A
+></H2
+><P
+>テーブル式が生成するすべての列を出力する<TT
+CLASS="LITERAL"
+>*</TT
+>が最も簡単な選択リストです。
+そうでなければ、選択リストは、カンマで区切られた（<A
+HREF="sql-expressions.html"
+>&#38917;4.2</A
+>で定義された）評価式のリストです。
+例えば、以下のような列名のリストであっても構いません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a, b, c FROM ...</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>a</TT
+>、<TT
+CLASS="LITERAL"
+>b</TT
+>、<TT
+CLASS="LITERAL"
+>c</TT
+>という列名は、<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で参照されるテーブルの実際の列名か、あるいは<A
+HREF="queries-table-expressions.html#QUERIES-TABLE-ALIASES"
+>&#38917;7.2.1.2</A
+>で説明したような列名に対する別名です。
+グループ化されていなければ、選択リストで使用可能な名前空間は<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句と同じです。
+グループ化されている場合は、<TT
+CLASS="LITERAL"
+>HAVING</TT
+>句と同じとなります。
+   </P
+><P
+>もし、2つ以上のテーブルで同じ名前の列がある場合は、次のように、テーブル名を必ず指定しなければいけません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT tbl1.a, tbl2.a, tbl1.b FROM ...</PRE
+><P>
+複数のテーブルを使用する場合、特定のテーブルのすべての列を求める方法も便利かもしれません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT tbl1.*, tbl2.a FROM ...</PRE
+><P>
+（<A
+HREF="queries-table-expressions.html#QUERIES-WHERE"
+>&#38917;7.2.2</A
+>も参照してください。）
+   </P
+><P
+>任意の評価式が選択リストで使われる場合、返されるテーブルは、概念的には新たに仮想的な列を追加したものとなります。
+評価式は、それぞれの結果行で、その列参照を置換した行の値としていったん評価されます。
+しかし、選択リストの式は<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で指定されたテーブル式内の列を参照するものである必要はありません。例えば、定数算術式であっても構いません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-COLUMN-LABELS"
+>7.3.2. 列ラベル</A
+></H2
+><P
+>選択リスト中の項目は、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句の中での参照、もしくはクライアントアプリケーションによる表示に使うように、それに続く処理のために名前を割り当てることができます。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a AS value, b + c AS sum FROM ...</PRE
+><P>
+   </P
+><P
+>もし<TT
+CLASS="LITERAL"
+>AS</TT
+>を使った列名の指定がなかった場合、システムはデフォルトの列名を割り当てます。
+単純な列参照では参照された列名となります。
+関数呼び出しでは関数名となります。
+複雑な表現についてはシステムが汎用の名前を生成します。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>AS</TT
+>キーワードは省略することができますが、新規列名が<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>キーワード（<A
+HREF="sql-keywords-appendix.html"
+>&#20184;&#37682;C</A
+>を参照）のいかなるものとも一致しない場合のみです。
+あるキーワードと予測外の一致を防ぐために、列名を二重引用符で囲むことができます。
+例えば、<TT
+CLASS="LITERAL"
+>VALUE</TT
+>はキーワードですのでうまく動作しません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a value, b + c AS sum FROM ...</PRE
+><P>
+しかしこれは動きます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a "value", b + c AS sum FROM ...</PRE
+><P>
+ありえそうな将来のキーワードの追加に対応するため、<TT
+CLASS="LITERAL"
+>AS</TT
+>を記述するか、出力列名を二重引用符で囲むかのいずれかを推奨します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>ここでの出力列の名前は、<TT
+CLASS="LITERAL"
+>FROM</TT
+>句（<A
+HREF="queries-table-expressions.html#QUERIES-TABLE-ALIASES"
+>&#38917;7.2.1.2</A
+>を参照）で示したものとは異なります。
+同じ列の名前を2度変更することができますが、渡されるのは選択リストの中で割り当てられたものです。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="QUERIES-DISTINCT"
+>7.3.3. <TT
+CLASS="LITERAL"
+>DISTINCT</TT
+></A
+></H2
+><P
+>選択リストが処理された後、結果テーブルの重複行を削除の対象にすることもできます。
+これを指定するためには、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>の直後に<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>キーワードを記述します。
+</P><PRE
+CLASS="SYNOPSIS"
+>SELECT DISTINCT <TT
+CLASS="REPLACEABLE"
+><I
+>select_list</I
+></TT
+> ...</PRE
+><P>
+（<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>の代わりに<TT
+CLASS="LITERAL"
+>ALL</TT
+>キーワードを指定すると、すべての行がデフォルトで保持されます。）
+   </P
+><P
+>少なくとも1つの列の値が異なる場合、それら2行は別個とみなされます。
+NULL値は、この比較において等しいとみなされます。
+   </P
+><P
+>また、任意の式を使用して、どの行が別であるかを決定することもできます。
+</P><PRE
+CLASS="SYNOPSIS"
+>SELECT DISTINCT ON (<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ...</SPAN
+>]) <TT
+CLASS="REPLACEABLE"
+><I
+>select_list</I
+></TT
+> ...</PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>は、すべての行で評価される任意の評価式です。
+すべての式が等しくなる行の集合は、重複しているとみなされ、集合の最初の行だけが出力されます。
+<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>フィルタに掛けられる行の順序の一意性を保証できるよう問い合わせが列を並び替えしない限り、出力される集合の<SPAN
+CLASS="QUOTE"
+>"最初の行"</SPAN
+>は予想不可能であることに注意してください。
+（<TT
+CLASS="LITERAL"
+>DISTINCT ON</TT
+>処理は、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>による並び替えの後に行われます。）
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>DISTINCT ON</TT
+>句は標準SQLではありません。
+さらに、結果が不定となる可能性があるため、好ましくないスタイルとみなされることもあります。
+<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>と<TT
+CLASS="LITERAL"
+>FROM</TT
+>中の副問い合わせをうまく使うことにより、この構文を使わずに済みますが、<TT
+CLASS="LITERAL"
+>DISTINCT ON</TT
+>句はしばしば非常に便利な代案となります。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="queries-table-expressions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="queries-union.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>テーブル式</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="queries.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>問い合わせの結合</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

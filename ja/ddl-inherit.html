@@ -1,0 +1,656 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>継承</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ定義"
+HREF="ddl.html"><LINK
+REL="PREVIOUS"
+TITLE="スキーマ"
+HREF="ddl-schemas.html"><LINK
+REL="NEXT"
+TITLE="パーティショニング"
+HREF="ddl-partitioning.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="スキーマ"
+HREF="ddl-schemas.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 5&#31456;データ定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="パーティショニング"
+HREF="ddl-partitioning.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DDL-INHERIT"
+>5.8. 継承</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、データベース設計者にとって便利なテーブルの継承を実装しています。
+（SQL:1999以降は型の継承を定義していますが、ここで述べられている継承とは多くの点で異なっています。）
+  </P
+><P
+>まず例から始めましょう。
+市（cities）のデータモデルを作成しようとしていると仮定してください。
+それぞれの州にはたくさんの市がありますが、州都（capitals）は1つのみです。
+特定の州から州都を素早く検索したいとします。
+これは、2つのテーブルを作成することにより実現できます。
+1つは州都のテーブルで、もう1つは州都ではないテーブルです。
+しかし、州都であるか否かに関わらない市に対するデータを問い合わせたときには何が起こるでしょうか？
+継承はこの問題を解決できます。
+<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>から継承される<TT
+CLASS="STRUCTNAME"
+>capitals</TT
+>テーブルを定義するのです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE cities (
+    name            text,
+    population      float,
+    altitude        int     -- in feet
+);
+
+CREATE TABLE capitals (
+    state           char(2)
+) INHERITS (cities);</PRE
+><P>
+
+この場合、<TT
+CLASS="STRUCTNAME"
+>capitals</TT
+>テーブルは、その親テーブルである<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルの列をすべて<I
+CLASS="FIRSTTERM"
+>継承</I
+>します。
+州都は1つの余分な列<TT
+CLASS="STRUCTFIELD"
+>state</TT
+>を持ち、州を表現します。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、1つのテーブルは、0以上のテーブルから継承することが可能です。
+また、問い合わせはテーブルのすべての行、またはテーブルのすべての行と継承されたテーブルのすべての行のいずれかを参照できます。
+後者がデフォルトの動作になります。
+例えば次の問い合わせは、500フィートより上に位置している州都を含んだ、すべての市の名前を検索します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT name, altitude
+    FROM cities
+    WHERE altitude &gt; 500;</PRE
+><P>
+
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>チュートリアルからのサンプルデータ（<A
+HREF="tutorial-sql-intro.html"
+>&#38917;2.1</A
+>を参照してください）に対して、この問い合わせは、以下の結果を出力します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>   name    | altitude
+-----------+----------
+ Las Vegas |     2174
+ Mariposa  |     1953
+ Madison   |      845</PRE
+><P>
+  </P
+><P
+>一方、次の問い合わせは、州都ではなく500フィートより上に位置しているすべての市を検索します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT name, altitude
+    FROM ONLY cities
+    WHERE altitude &gt; 500;
+
+   name    | altitude
+-----------+----------
+ Las Vegas |     2174
+ Mariposa  |     1953</PRE
+><P>
+  </P
+><P
+>ここで<TT
+CLASS="LITERAL"
+>ONLY</TT
+>キーワードは、問い合わせが<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルのみを対象にし<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>以下の継承の階層にあるテーブルは対象としないことを意味します。
+これまで議論したコマンドの多く&mdash;<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>そして<TT
+CLASS="COMMAND"
+>DELETE</TT
+> &mdash;が<TT
+CLASS="LITERAL"
+>ONLY</TT
+>キーワードをサポートしています。
+  </P
+><P
+>場合によっては、ある特定の行がどのテーブルからきたものか知りたいということがあるかもしれません。
+それぞれのテーブルには<TT
+CLASS="STRUCTFIELD"
+>tableoid</TT
+>という、元になったテーブルを示すシステム列があります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT c.tableoid, c.name, c.altitude
+FROM cities c
+WHERE c.altitude &gt; 500;</PRE
+><P>
+
+出力は以下の通りです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+> tableoid |   name    | altitude
+----------+-----------+----------
+   139793 | Las Vegas |     2174
+   139793 | Mariposa  |     1953
+   139798 | Madison   |      845</PRE
+><P>
+
+（この例をそのまま実行しても、おそらく異なる数値OIDが得られるでしょう。）
+<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>と結合することで、テーブルの実際の名前が分かります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT p.relname, c.name, c.altitude
+FROM cities c, pg_class p
+WHERE c.altitude &gt; 500 AND c.tableoid = p.oid;</PRE
+><P>
+
+出力は以下の通りです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+> relname  |   name    | altitude
+----------+-----------+----------
+ cities   | Las Vegas |     2174
+ cities   | Mariposa  |     1953
+ capitals | Madison   |      845</PRE
+><P>
+  </P
+><P
+>継承は<TT
+CLASS="COMMAND"
+>INSERT</TT
+>または<TT
+CLASS="COMMAND"
+>COPY</TT
+>により、継承の階層にある他のテーブルにデータを自動的に伝播することはありません。
+この例では、次の<TT
+CLASS="COMMAND"
+>INSERT</TT
+>文は失敗します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO cities (name, population, altitude, state)
+VALUES ('New York', NULL, NULL, 'NY');</PRE
+><P>
+データが、どうにかして<TT
+CLASS="STRUCTNAME"
+>capitals</TT
+>テーブルまで到達できればいいのですが、そのようにはなりません。
+<TT
+CLASS="COMMAND"
+>INSERT</TT
+>は、いつも指定されたテーブルに対してデータを挿入します。
+ルール（詳細は<A
+HREF="rules.html"
+>&#31532;37&#31456;</A
+>を参照してください）を使用して挿入を中継できる場合もあります。
+しかし、ルールを使用しても上記のような場合には適用できません。
+なぜなら、<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルには<TT
+CLASS="STRUCTFIELD"
+>state</TT
+>列は含んでいませんし、ルールが適用される前にコマンドは拒否されてしまうからです。
+  </P
+><P
+>親テーブル上の検査制約と非NULL制約はその子テーブルに自動的に継承されます。
+他の種類の制約（一意性制約、プライマリキー、外部キー制約）は継承されません。
+  </P
+><P
+>テーブルは1つ以上の親テーブルから継承可能です。
+この場合、テーブルは親テーブルで定義された列の和になります。
+子テーブルで宣言された列は、これらの列に追加されることになります。
+もし親テーブルに同じ名前の列がある場合、もしくは、親テーブルと子テーブルに同じ名前の列がある場合は、列が<SPAN
+CLASS="QUOTE"
+>"統合"</SPAN
+>されて子テーブルではただ1つの列となります。
+統合されるには列は同じデータ型を持っている必要があります。
+異なるデータ型の場合にはエラーとなります。
+統合された列は、元となったテーブルで列定義が持つすべての検査制約のコピーを持ちます。
+そして、列定義のいずれかが非NULL制約を持てば、非NULLという印が付きます。
+  </P
+><P
+>テーブル継承は、通常、<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>文の<TT
+CLASS="LITERAL"
+>INHERITS</TT
+>句を使用して、子テーブルを作成する時に確立します。
+他にも、互換性を持つ方法で定義済みのテーブルに新しく親子関係を付けることも可能です。
+これには<A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>の<TT
+CLASS="LITERAL"
+>INHERIT</TT
+>形式を使用します。
+このためには、新しい子テーブルは親テーブルと同じ名前の列を持ち、その列の型は同じデータ型でなければなりません。
+また、親テーブルと同じ名前、同じ式の検査制約を持っていなければなりません。
+<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>の<TT
+CLASS="LITERAL"
+>NO INHERIT</TT
+>形式を使用して、同様に継承関係を子テーブルから取り除くことも可能です。
+このような継承関係の動的追加、動的削除は、継承関係をテーブル分割（<A
+HREF="ddl-partitioning.html"
+>&#38917;5.9</A
+>を参照）に使用している場合に有用です。
+  </P
+><P
+>後で子テーブルとする予定の、互換性を持つテーブルを簡単に作成する方法の1つは、<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>で<TT
+CLASS="LITERAL"
+>LIKE</TT
+>句を使用することです。
+これは、元としたテーブルと同じ列を持つテーブルを新しく作成します。
+新しい子テーブルが必ず親テーブルと一致する制約を持ち、互換性があるものとみなされるように、元となるテーブルで<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約が存在する場合は、<TT
+CLASS="LITERAL"
+>LIKE</TT
+>に<TT
+CLASS="LITERAL"
+>INCLUDING CONSTRAINTS</TT
+>オプションを指定すべきです。
+  </P
+><P
+>子テーブルが存在する場合親テーブルを削除することはできません。
+また、子テーブルでは、親テーブルから継承した列、または検査制約を削除することも変更することもできません。
+テーブルとそのすべての子テーブルを削除したければ、<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>オプションを付けて親テーブルを削除することが簡単な方法です。
+  </P
+><P
+><A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>は、列データ定義と検査制約の変更を継承の階層にあるテーブルに伝えます。
+繰り返しになりますが、他のテーブルに依存する列の削除は<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>オプションを使用したときのみ可能となります。
+<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>は、重複列の統合時に適用される規則と<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>時に適用される拒否の規則に従います。
+  </P
+><P
+>テーブルアクセス権限がどのように扱われるかに注意して下さい。
+親テーブルへの問い合わせでは、それ以上アクセス権限を検査することなく自動的に子テーブルのデータにアクセスできます。
+これによりデータが親テーブルに（も）あるように見えることが保たれます。
+しかし、子テーブルへの直接のアクセスは自動的に許可されることはなく、追加の権限の付与が要求されるでしょう。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-INHERIT-CAVEATS"
+>5.8.1. 警告</A
+></H2
+><P
+>すべてのSQLコマンドが継承階層に対して動作できるとは限らないことに注意してください。
+データの検索、データの変更、スキーマの変更のために使用されるコマンド（例えば<TT
+CLASS="LITERAL"
+>SELECT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、<TT
+CLASS="LITERAL"
+>ALTER TABLE</TT
+>のほとんどの構文です。しかし<TT
+CLASS="LITERAL"
+>INSERT</TT
+>および<TT
+CLASS="LITERAL"
+>ALTER TABLE ... RENAME</TT
+>は除きます。）は通常、デフォルトで子テーブルを含み、また、それを除外するための<TT
+CLASS="LITERAL"
+>ONLY</TT
+>記法をサポートします。
+データベース保守およびチューニング（例えば<TT
+CLASS="LITERAL"
+>REINDEX</TT
+>、<TT
+CLASS="LITERAL"
+>VACUUM</TT
+>）を行うコマンドは通常、個々の物理テーブルに対してのみ動作し、継承階層に対する再帰をサポートしません。
+個々のコマンドのそれぞれの動作はそのマニュアルページ（<A
+HREF="sql-commands.html"
+>&#21442;&#29031;I, <I
+>SQLコマンド</I
+></A
+>）に記載されています。
+  </P
+><P
+>継承機能の厳しい制限として、（一意性制約を含む）インデックス、および外部キーは、そのテーブルのみに適用され、それを継承した子テーブルには適用されないことがあります。これは外部キーの参照側、被参照側でも同様に適用されません。
+したがって、上の例では
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>もし、<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>name</TT
+>を<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>または<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>と宣言しても、<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルの行と重複した行を<TT
+CLASS="STRUCTNAME"
+>capitals</TT
+>テーブル内に持つことを禁止することにはなりません。
+さらに、これらの重複した行はデフォルトで<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルへの問い合わせで現れるでしょう。
+事実として、<TT
+CLASS="STRUCTNAME"
+>capitals</TT
+>テーブルはデフォルトで一意性制約を持っていませんし、同一の名前の複数の行を持つことがあり得ます。
+<TT
+CLASS="STRUCTNAME"
+>capitals</TT
+>テーブルに一意性制約を追加できますが、これは<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>テーブルと比較して重複を禁止することにはなりません。
+     </P
+></LI
+><LI
+><P
+>同じように、もし<TT
+CLASS="STRUCTNAME"
+>cities</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>name</TT
+> <TT
+CLASS="LITERAL"
+>REFERENCES</TT
+>他のテーブルとしても、この制約は自動的に<TT
+CLASS="STRUCTNAME"
+>capitals</TT
+>に引き継がれるわけではありません。
+この場合は<TT
+CLASS="STRUCTNAME"
+>capitals</TT
+>テーブルに同一の<TT
+CLASS="LITERAL"
+>REFERENCES</TT
+>制約を手動で追加しなければいけません。
+     </P
+></LI
+><LI
+><P
+>他のテーブルの列<TT
+CLASS="LITERAL"
+>REFERENCES cities(name)</TT
+>を指定することは、他のテーブルが市の名前を持つことを許可しますが、州都の名前を持つことを許可しません。
+この場合は次善策はありません。
+     </P
+></LI
+></UL
+><P>
+
+これらの機能の不足は、今後のリリースでおそらく改善されるでしょう。
+しかし当面、継承がアプリケーションにとって有用であるかどうかを判断する際に十分注意してください。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>推奨しない設定: </B
+>7.1より前のリリースの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、問い合わせにおいて子テーブルを含まないことがデフォルトでした。
+これはエラーとなりやすく、また標準SQLにも抵触しています。
+7.1より前の古い動作を行うようにするには、<A
+HREF="runtime-config-compatible.html#GUC-SQL-INHERITANCE"
+>sql_inheritance</A
+>設定オプションを無効にしてください。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ddl-schemas.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ddl-partitioning.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>スキーマ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ddl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>パーティショニング</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

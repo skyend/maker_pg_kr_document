@@ -1,0 +1,636 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>citext</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="chkpass"
+HREF="chkpass.html"><LINK
+REL="NEXT"
+TITLE="cube"
+HREF="cube.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="chkpass"
+HREF="chkpass.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="cube"
+HREF="cube.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CITEXT"
+>F.7. citext</A
+></H1
+><P
+> 
+  <TT
+CLASS="FILENAME"
+>citext</TT
+>モジュールは、大文字小文字の区別がない文字列型を提供します。
+  これは値の比較の際、基本的に内部的で<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>を呼び出します。
+  この他はほぼ<TT
+CLASS="TYPE"
+>text</TT
+>と同様に動作します。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131594"
+>F.7.1. 論拠</A
+></H2
+><P
+>  
+   <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>において大文字小文字の区別のない比較を行う標準的な手法は、値を比べる際に以下のように<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>関数を使用することでした。例です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM tab WHERE lower(col) = LOWER(?);</PRE
+><P>
+  </P
+><P
+>  
+   これはまあまあ動作しますが、数多くの欠点があります。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+>     
+      作成するSQL文を冗長にします。
+      また常に列と問い合わせの値両方に<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>を使用することを忘れないようにしなければなりません。
+     </P
+></LI
+><LI
+><P
+>     
+      <CODE
+CLASS="FUNCTION"
+>lower</CODE
+>を使用して関数インデックスを作成していない限り、インデックスを使用しません。
+     </P
+></LI
+><LI
+><P
+>     
+      <TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>または<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>として列を宣言するのであれば、暗黙的に生成されるインデックスは大文字小文字を区別します。このため、大文字小文字を区別しない検索では使えず、また、大文字小文字を区別しない一意性を強制させられません。
+     </P
+></LI
+></UL
+><P
+>   
+    <TT
+CLASS="TYPE"
+>citext</TT
+>データ型によりSQL問い合わせ内の<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>呼び出しを省くことができます。
+    さらに、大文字小文字の区別がないプライマリキーを実現できます。
+    <TT
+CLASS="TYPE"
+>citext</TT
+>は<TT
+CLASS="TYPE"
+>text</TT
+>と同様にロケールも考慮します。
+    つまり大文字と小文字のマッチングは、<TT
+CLASS="LITERAL"
+>LC_CTYPE</TT
+>データベース設定の規則に依存します。
+    繰り返しますが、この動作は<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>を使用した問い合わせと同一です。
+    しかしこのデータ型により、ロケールの考慮は透過的に行われますので、問い合わせで特殊なことを行うことを覚えておく必要はありません。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131619"
+>F.7.2. 使用法</A
+></H2
+><P
+>  
+   簡単な例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE users (
+    nick CITEXT PRIMARY KEY,
+    pass TEXT   NOT NULL
+);
+
+INSERT INTO users VALUES ( 'larry',  md5(random()::text) );
+INSERT INTO users VALUES ( 'Tom',    md5(random()::text) );
+INSERT INTO users VALUES ( 'Damian', md5(random()::text) );
+INSERT INTO users VALUES ( 'NEAL',   md5(random()::text) );
+INSERT INTO users VALUES ( 'Bj&oslash;rn',  md5(random()::text) );
+
+SELECT * FROM users WHERE nick = 'Larry';</PRE
+><P>
+
+   <TT
+CLASS="COMMAND"
+>SELECT</TT
+>文は、<TT
+CLASS="STRUCTFIELD"
+>nick</TT
+>列が<TT
+CLASS="LITERAL"
+>larry</TT
+>に設定され、問い合わせが<TT
+CLASS="LITERAL"
+>Larry</TT
+>に対してであっても、１つのタプルを返します。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131627"
+>F.7.3. 文字列比較の動作</A
+></H2
+><P
+><TT
+CLASS="TYPE"
+>citext</TT
+>はそれぞれの文字列を（<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>が呼ばれますが）小文字に変換して結果を普通に比較します。
+よって、例えば<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>で小文字にした場合に同じ結果となるような２つの文字列が等しいとみなされます。
+  </P
+><P
+>  
+   大文字小文字の区別のない照合をできる限り正確にエミュレートするために、数多くの<TT
+CLASS="TYPE"
+>citext</TT
+>独自版の各種文字列処理演算子と関数があります。
+   したがって、例えば正規表現演算子<TT
+CLASS="LITERAL"
+>~</TT
+>および<TT
+CLASS="LITERAL"
+>~*</TT
+>は、<TT
+CLASS="TYPE"
+>citext</TT
+>に適用する時に同じ動作を提供します。
+   これら両方は大文字小文字を区別することなくマッチさせます。
+   <TT
+CLASS="LITERAL"
+>!~</TT
+>や<TT
+CLASS="LITERAL"
+>!~*</TT
+>だけではなく<TT
+CLASS="LITERAL"
+>LIKE</TT
+>演算子、<TT
+CLASS="LITERAL"
+>~~</TT
+>、<TT
+CLASS="LITERAL"
+>~~*</TT
+>、<TT
+CLASS="LITERAL"
+>!~~</TT
+>、<TT
+CLASS="LITERAL"
+>!~~*</TT
+>でも同じことが言えます。
+   もし大文字小文字を区別して比較したい場合は、演算子の引数を<TT
+CLASS="TYPE"
+>text</TT
+>にキャストすることができます。
+  </P
+><P
+>  
+   引数が<TT
+CLASS="TYPE"
+>citext</TT
+>であれば、同様にして以下の関数は大文字小文字を区別しない一致を実行します。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+>      <CODE
+CLASS="FUNCTION"
+>regexp_replace()</CODE
+>
+    </P
+></LI
+><LI
+><P
+>      <CODE
+CLASS="FUNCTION"
+>regexp_split_to_array()</CODE
+>
+    </P
+></LI
+><LI
+><P
+>      <CODE
+CLASS="FUNCTION"
+>regexp_split_to_table()</CODE
+>
+    </P
+></LI
+><LI
+><P
+>      <CODE
+CLASS="FUNCTION"
+>replace()</CODE
+>
+    </P
+></LI
+><LI
+><P
+>      <CODE
+CLASS="FUNCTION"
+>split_part()</CODE
+>
+    </P
+></LI
+><LI
+><P
+>      <CODE
+CLASS="FUNCTION"
+>strpos()</CODE
+>
+    </P
+></LI
+><LI
+><P
+>      <CODE
+CLASS="FUNCTION"
+>translate()</CODE
+>
+    </P
+></LI
+></UL
+><P
+>  
+   正規表現関数（RegExp関数）では、大文字小文字を区別して一致させたい場合<SPAN
+CLASS="QUOTE"
+>"c"</SPAN
+>フラグを付けて、強制的に大文字小文字を区別して一致させることができます。
+   そうしないと、大文字小文字を区別させたい場合にはこれらの関数のいずれかを使用する前段階で<TT
+CLASS="TYPE"
+>text</TT
+>にキャストしなければなりません。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131673"
+>F.7.4. 制限</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>     
+      <TT
+CLASS="TYPE"
+>citext</TT
+>の大文字小文字を区別しない動作は使用するデータベースの<TT
+CLASS="LITERAL"
+>LC_CTYPE</TT
+>に依存します。
+      どのように値を比較するかは、データベースが作成されたときに決定されます。
+      Unicode標準の定義という観点では、真に大文字小文字の区別がないわけではありません。
+      実質的に何を意味しているかというと、使用している照合が十分なものであれば、<TT
+CLASS="TYPE"
+>citext</TT
+>による比較も十分なものになるはずです。
+      しかしデータベースに様々な言語でデータを格納している場合は、ある言語のユーザは照合が他の言語用のものであった場合想定外の問い合わせ結果を得るかもしれません。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.1では、<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>指定を<TT
+CLASS="TYPE"
+>citext</TT
+>列もしくはデータ値に付け加えることができます。
+現状では、<TT
+CLASS="TYPE"
+>citext</TT
+>演算子は大文字小文字を含んだ文字列を比較する際に、デフォルトではない<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>指定を重んじます。
+しかし、最初の小文字変換はデータベースの<TT
+CLASS="LITERAL"
+>LC_CTYPE</TT
+>設定にしたがって、常に実行されます（つまり、<TT
+CLASS="LITERAL"
+>COLLATE "default"</TT
+>が指定されたようになります）
+これは、両方のステップが入力された<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>指定に従うように、将来のリリースにおいて変更されるでしょう。
+     </P
+></LI
+><LI
+><P
+>     
+       演算子関数およびB-Tree比較関数でデータの複製を作成しそれを比較のために小文字に変換しなければなりませんので、<TT
+CLASS="TYPE"
+>citext</TT
+>は<TT
+CLASS="TYPE"
+>text</TT
+>ほど効率的ではありません。
+       しかし大文字小文字の区別をしない一致をさせるために<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>を使用する場合よりかなり効率的です。
+     </P
+></LI
+><LI
+><P
+>     
+      <TT
+CLASS="TYPE"
+>citext</TT
+>は、ある文脈では大文字小文字の区別を行い、またある文脈では大文字小文字の区別を行わない比較をする必要がある場合、あまり役に立ちません。
+      標準的な解法は<TT
+CLASS="TYPE"
+>text</TT
+>型を使用し、大文字小文字を区別する比較が必要であれば手作業で<CODE
+CLASS="FUNCTION"
+>lower</CODE
+>関数を使用することです。
+      これは大文字小文字を区別しない比較の必要性がまれであれば、問題なく動作します。
+      大文字小文字を区別しない比較がほとんどで、大文字小文字を区別する比較の必要性がまれである場合は、データを<TT
+CLASS="TYPE"
+>citext</TT
+>として格納し、大文字小文字を区別する比較の際にその列を明示的に<TT
+CLASS="TYPE"
+>text</TT
+>にキャストすることを検討してください。
+      どちらの場合でも、2種類の検索の両方を高速にするために２つのインデックスを作成しなければならないでしょう。
+    </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>citext</TT
+>演算子を含んだスキーマは、現在の<TT
+CLASS="VARNAME"
+>search_path</TT
+>(典型的には<TT
+CLASS="LITERAL"
+>public</TT
+>)に
+存在しなければいけません。もし無い場合は通常の大文字小文字が区別される<TT
+CLASS="TYPE"
+>text</TT
+>比較が代わりに呼び出されます。
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131709"
+>F.7.5. 作者</A
+></H2
+><P
+>   David E. Wheeler <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:david@kineticode.com"
+>david@kineticode.com</A
+>&#62;</CODE
+>
+  </P
+><P
+>  
+    Donald Fraserによる<TT
+CLASS="TYPE"
+>citext</TT
+>モジュール原本からのヒント
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="chkpass.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="cube.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>chkpass</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>cube</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

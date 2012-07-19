@@ -1,0 +1,288 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>インデックスアクセスメソッドのインタフェース定義</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="内部情報"
+HREF="internals.html"><LINK
+REL="PREVIOUS"
+TITLE="さらに深く知るには"
+HREF="geqo-biblio.html"><LINK
+REL="NEXT"
+TITLE="インデックス用のカタログ項目"
+HREF="index-catalog.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="さらに深く知るには"
+HREF="geqo-biblio.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="遺伝的問い合わせ最適化"
+HREF="geqo.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="GiSTインデックス"
+HREF="gist.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックス用のカタログ項目"
+HREF="index-catalog.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="INDEXAM"
+></A
+>&#31532; 52&#31456;インデックスアクセスメソッドのインタフェース定義</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>52.1. <A
+HREF="index-catalog.html"
+>インデックス用のカタログ項目</A
+></DT
+><DT
+>52.2. <A
+HREF="index-functions.html"
+>インデックスアクセスメソッド関数</A
+></DT
+><DT
+>52.3. <A
+HREF="index-scanning.html"
+>インデックススキャン</A
+></DT
+><DT
+>52.4. <A
+HREF="index-locking.html"
+>インデックスのロック処理に関する検討</A
+></DT
+><DT
+>52.5. <A
+HREF="index-unique-checks.html"
+>インデックス一意性検査</A
+></DT
+><DT
+>52.6. <A
+HREF="index-cost-estimation.html"
+>インデックスコスト推定関数</A
+></DT
+></DL
+></DIV
+><P
+>本章は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のコアシステムと個々のインデックス種類を管理する<I
+CLASS="FIRSTTERM"
+>インデックスアクセスメソッド</I
+>との間のインタフェースを定義します。
+コアシステムはインデックスの仕様のみを把握しています。
+したがって、追加コードを記述することで完全に新しいインデックス種類を開発することができます。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のインデックスはすべて、技術的には<I
+CLASS="FIRSTTERM"
+>補助的なインデックス</I
+>として知られるものです。
+つまり、インデックスは対象となるテーブルファイルとは物理的に分かれています。
+各インデックスは独自の物理的な<I
+CLASS="FIRSTTERM"
+>リレーション</I
+>として格納され、また、<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>カタログ内の項目として記述されます。
+インデックスの内容は完全にそのインデックスアクセスメソッドの制御下にあります。
+実際、すべてのインデックスアクセスメソッドは、通常の格納マネージャとバッファマネージャを使用してインデックスの内容にアクセスできるように、インデックスを標準サイズのページに分割します。
+（既存のすべてのインデックスアクセスメソッドではさらに、<A
+HREF="storage-page-layout.html"
+>&#38917;55.6</A
+>で説明する標準ページレイアウトを使用し、すべて同じ書式をインデックスタプルヘッダに使用します。
+しかし、これはアクセスメソッドに強制されていることではありません。）
+  </P
+><P
+>インデックスは効率的にあるデータキー値を、インデックスの親テーブル内の行バージョン（タプル）の<I
+CLASS="FIRSTTERM"
+>タプル識別子</I
+>言い換えると<ACRONYM
+CLASS="ACRONYM"
+>TID</ACRONYM
+>に関連付けます。
+TIDは、ブロック番号、ブロック内の項目番号（<A
+HREF="storage-page-layout.html"
+>&#38917;55.6</A
+>を参照）から構成されます。
+これは、特定の行バージョンをテーブルから取り出すのに十分な情報です。
+MVCCでは1つの論理的な行に複数の現在のバージョンがあることを、インデックスが直接意識することはありません。
+インデックスでは、各タプルは、独自にインデックス項目を持たなければならない独立したオブジェクトです。
+したがって、行を更新すると、キーの値が変わっていなかってとしても、その行に対してまったく新しいインデックス項目が作成されます。
+（HOTタプルはこの説明の例外ですが、インデックスはこれらにも関与しません。）
+（バキューム実行によって）不要タプル自身が回収された時に、不要タプルに対するインデックス項目は回収されます。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="geqo-biblio.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="index-catalog.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>さらに深く知るには</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="internals.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>インデックス用のカタログ項目</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

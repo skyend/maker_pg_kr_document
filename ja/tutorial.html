@@ -1,0 +1,370 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>チュートリアル</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="バグレポートガイドライン"
+HREF="bug-reporting.html"><LINK
+REL="NEXT"
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="PART"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="バグレポートガイドライン"
+HREF="bug-reporting.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="はじめに"
+HREF="preface.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="sql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="TUTORIAL"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+>I. チュートリアル</H1
+><DIV
+CLASS="PARTINTRO"
+><A
+NAME="AEN382"
+></A
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のチュートリアルにようこそ。
+本書は数章から構成され、ここで、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>やリレーショナルデータベースの概念、SQL言語を初めて使用する方向けに、簡単に紹介します。
+ここでは、コンピュータの一般的な使い方についての知識だけを前提としています。
+Unixやプログラミングに関する経験は必要ありません。
+ここでは、主に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>システムの重要なポイントについて実践的な経験を得ることを目的としています。
+扱っているトピックについての完全で詳細な処理を記述しているものではありません。
+   </P
+><P
+>このチュートリアルの内容を読んだ後、SQL言語のより形式的な知識を学習したいのであれば、<A
+HREF="sql.html"
+>&#12497;&#12540;&#12488;II</A
+>を、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>用のアプリケーションの開発に関する情報を学習したいのであれば、<A
+HREF="client-interfaces.html"
+>&#12497;&#12540;&#12488;IV</A
+>を続いて読んでください。
+また、サーバをセットアップおよび管理される方は、<A
+HREF="admin.html"
+>&#12497;&#12540;&#12488;III</A
+>も参照してください。 
+   </P
+></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>1&#31456;<A
+HREF="tutorial-start.html"
+>さあ始めましょう</A
+></DT
+><DD
+><DL
+><DT
+>1.1. <A
+HREF="tutorial-install.html"
+>インストール</A
+></DT
+><DT
+>1.2. <A
+HREF="tutorial-arch.html"
+>構造的な基本事項</A
+></DT
+><DT
+>1.3. <A
+HREF="tutorial-createdb.html"
+>データベースの作成</A
+></DT
+><DT
+>1.4. <A
+HREF="tutorial-accessdb.html"
+>データベースへのアクセス</A
+></DT
+></DL
+></DD
+><DT
+>2&#31456;<A
+HREF="tutorial-sql.html"
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語</A
+></DT
+><DD
+><DL
+><DT
+>2.1. <A
+HREF="tutorial-sql-intro.html"
+>序文</A
+></DT
+><DT
+>2.2. <A
+HREF="tutorial-concepts.html"
+>概念</A
+></DT
+><DT
+>2.3. <A
+HREF="tutorial-table.html"
+>新しいテーブルの作成</A
+></DT
+><DT
+>2.4. <A
+HREF="tutorial-populate.html"
+>テーブルに行を挿入</A
+></DT
+><DT
+>2.5. <A
+HREF="tutorial-select.html"
+>テーブルへの問い合わせ</A
+></DT
+><DT
+>2.6. <A
+HREF="tutorial-join.html"
+>テーブル間を結合</A
+></DT
+><DT
+>2.7. <A
+HREF="tutorial-agg.html"
+>集約関数</A
+></DT
+><DT
+>2.8. <A
+HREF="tutorial-update.html"
+>更新</A
+></DT
+><DT
+>2.9. <A
+HREF="tutorial-delete.html"
+>削除</A
+></DT
+></DL
+></DD
+><DT
+>3&#31456;<A
+HREF="tutorial-advanced.html"
+>高度な諸機能</A
+></DT
+><DD
+><DL
+><DT
+>3.1. <A
+HREF="tutorial-advanced-intro.html"
+>はじめに</A
+></DT
+><DT
+>3.2. <A
+HREF="tutorial-views.html"
+>ビュー</A
+></DT
+><DT
+>3.3. <A
+HREF="tutorial-fk.html"
+>外部キー</A
+></DT
+><DT
+>3.4. <A
+HREF="tutorial-transactions.html"
+>トランザクション</A
+></DT
+><DT
+>3.5. <A
+HREF="tutorial-window.html"
+>ウィンドウ関数</A
+></DT
+><DT
+>3.6. <A
+HREF="tutorial-inheritance.html"
+>継承</A
+></DT
+><DT
+>3.7. <A
+HREF="tutorial-conclusion.html"
+>まとめ</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="bug-reporting.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-start.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>バグレポートガイドライン</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>さあ始めましょう</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

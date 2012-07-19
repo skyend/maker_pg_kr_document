@@ -1,0 +1,939 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>パーティショニング</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ定義"
+HREF="ddl.html"><LINK
+REL="PREVIOUS"
+TITLE="継承"
+HREF="ddl-inherit.html"><LINK
+REL="NEXT"
+TITLE="外部データ"
+HREF="ddl-foreign-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="継承"
+HREF="ddl-inherit.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 5&#31456;データ定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="外部データ"
+HREF="ddl-foreign-data.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DDL-PARTITIONING"
+>5.9. パーティショニング</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は基本的なテーブルのパーティショニング（分割）をサポートしています。
+この節では、データベース設計において、なぜそしてどのようにしてパーティショニングを実装するのかを解説します。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-PARTITIONING-OVERVIEW"
+>5.9.1. 概要</A
+></H2
+><P
+>パーティショニングは論理的に1つの大きなテーブルを、物理的に小さなパーティションに分けることを指します。
+パーティショニングはいくつかの利点があります。
+   <P
+></P
+></P><UL
+><LI
+><P
+>特定の状況において、問い合わせのパフォーマンスが劇的に改善されます。
+具体的には、アクセスが多いテーブル内の行を単一パーティションまたは一部のパーティション内に収めることです。
+パーティショニングはインデックスの先頭の列を置き換え、インデックスサイズが減少します。
+このため、インデックス内のよく使用される部分がメモリ内により収まりやすくなります。
+     </P
+></LI
+><LI
+><P
+>問い合わせや更新が単一パーティションの大部分にアクセスする場合、インデックススキャンとテーブル全体に渡って散乱したランダムアクセス読み取りの代わりに、そのパーティションのシーケンシャルスキャンとすることができ、性能は改善します。
+     </P
+></LI
+><LI
+><P
+>その指定がパーティション設計に合うように計画されていれば、一括でのロードや削除が、パーティションの追加や削除によってなされる可能性があります。
+<TT
+CLASS="COMMAND"
+>ALTER TABLE NO INHERIT</TT
+>や<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>は両方とも一括操作よりもずっと高速です。
+また、これらのコマンドは大量の<TT
+CLASS="COMMAND"
+>DELETE</TT
+>によって発生する<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>のオーバーヘッドを完全に防ぎます。
+     </P
+></LI
+><LI
+><P
+>めったに使用されないデータは、安価で遅い記憶メディアに移行できます。
+     </P
+></LI
+></UL
+><P>
+
+この利点は、テーブルのサイズがとても大きくなる場合に価値が出てきます。
+テーブルのパーティショニングによる利点はアプリケーションに依存しますが、経験的にテーブルのサイズがデータベースサーバの物理メモリを超えるかどうかということがポイントになります。
+   </P
+><P
+>現状では<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、パーティショニングをテーブルの継承によりサポートしています。
+それぞれのパーティションは1つの親テーブルの子テーブルとして作成されなくてはいけません。
+親テーブル自身は通常、空のテーブルとなり、全体のデータを代表するために存在します。
+パーティショニングを設定する前に、継承（<A
+HREF="ddl-inherit.html"
+>&#38917;5.8</A
+>を参照してください）について詳しく知っておく必要があります。
+   </P
+><P
+>パーティショニングについて次の種類が<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に実装されています。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>範囲分割</DT
+><DD
+><P
+>テーブルは、キーとなる列もしくは列のセットにより定義される<SPAN
+CLASS="QUOTE"
+>"範囲"</SPAN
+>に分割されます。異なるパーティションに割り当てられた値の範囲は重なることはありません。
+例えば、日付の範囲により分割されたり、特定のビジネスオブジェクトの識別子の範囲により分割されたりします。
+       </P
+></DD
+><DT
+>リスト分割</DT
+><DD
+><P
+>キー値がそれぞれのパーティションに現れるような明示的なリストにより、テーブルが分割されます。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-PARTITIONING-IMPLEMENTATION"
+>5.9.2. パーティショニングの実装</A
+></H2
+><P
+>テーブルのパーティショニングを実装するには、以下を行ってください。
+     <P
+></P
+></P><OL
+COMPACT="COMPACT"
+TYPE="1"
+><LI
+><P
+>すべてのパーティションが継承することになる、<SPAN
+CLASS="QUOTE"
+>"マスタ"</SPAN
+>テーブルを作成してください。
+       </P
+><P
+>このテーブルはデータを格納しません。
+このテーブルにはすべてのパーティションに対して適用されるつもりでなければ検査制約は定義しないでください。
+同様にインデックスや一意制約を定義することも意味がありません。
+       </P
+></LI
+><LI
+><P
+>マスタテーブルから継承された、いくつかの<SPAN
+CLASS="QUOTE"
+>"子"</SPAN
+>テーブルを作成します。
+通常、これらの子テーブルはマスタから継承された列以外には列を追加しないようにします。
+       </P
+><P
+>子テーブルは、あらゆる点で<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の普通のテーブルですが、子テーブルをパーティションとして参照することになります。
+       </P
+></LI
+><LI
+><P
+>それぞれのパーティションでのキー値を定義するために、分割されたテーブルにテーブル制約を追加してください。
+       </P
+><P
+>典型的な例は、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CHECK ( x = 1 )
+CHECK ( county IN ( 'Oxfordshire', 'Buckinghamshire', 'Warwickshire' ))
+CHECK ( outletID &gt;= 100 AND outletID &lt; 200 )</PRE
+><P>
+制約が、異なるパーティションにおいて許可されているキー値の間で重なりが無いことを保証してください。
+よくある間違いは範囲制約を次のように設定してしまうことです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CHECK ( outletID BETWEEN 100 AND 200 )
+CHECK ( outletID BETWEEN 200 AND 300 )</PRE
+><P>
+キー値の200がどちらのパーティションに属するのかが明確になっていないため、これは間違いになります。
+       </P
+><P
+>範囲分割とリスト分割の間に構文の違いは無いことに注意してください。
+これらの字句は記述上のものだけです。
+       </P
+></LI
+><LI
+><P
+>それぞれのパーティションにおいて、他のインデックスと同様にキーとなる列（列の集合）にインデックスを作成してください。
+（キーのインデックスは必ずしも必要でありませんが、たいていの場合に役立ちます。もしキー値が一意であることを意図するのであればいつでも、一意もしくは主キー制約をそれぞれのパーティションに作成してください。）
+       </P
+></LI
+><LI
+><P
+>また、マスタテーブルに挿入されたデータを適当なパーティションに中継するためにトリガもしくはルールを定義してください。
+       </P
+></LI
+><LI
+><P
+><A
+HREF="runtime-config-query.html#GUC-CONSTRAINT-EXCLUSION"
+>constraint_exclusion</A
+>設定パラメータが<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>内で無効になっていないことを確認してください。無効であると、問い合わせは思ったとおりに最適化されません。
+       </P
+></LI
+></OL
+><P>
+    </P
+><P
+>例えば、大規模なアイスクリーム会社のデータベースを構築すると仮定してください。会社は、それぞれの地方のアイスクリームの売上と同様に毎日の最高気温を計測しています。
+概念的に、次のようなテーブルが必要になります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE measurement (
+    city_id         int not null,
+    logdate         date not null,
+    peaktemp        int,
+    unitsales       int
+);</PRE
+><P>
+
+ほとんどの問い合わせが先週、先月もしくは半年前のデータを問い合わせるものであることが分かっています。
+その理由は、このテーブルが経営に関するオンラインのレポートを作成することに主に使用されるからです。
+必要な過去のデータ量を減らすために、過去3ヶ月のデータのみを保存することにします。月の始めに過去のデータを削除します。
+    </P
+><P
+>このような場合、measurementテーブルに対する異なる要求をすべて満たすようにパーティショニングを利用できます。上記で述べた方法で、パーティショニングを次のように設定します。
+    </P
+><P
+>     <P
+></P
+></P><OL
+COMPACT="COMPACT"
+TYPE="1"
+><LI
+><P
+>マスタテーブルは、上記で宣言された<TT
+CLASS="STRUCTNAME"
+>measurement</TT
+>テーブルです。
+       </P
+></LI
+><LI
+><P
+>次にそれぞれの月に対して1つのパーティションを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE measurement_y2006m02 ( ) INHERITS (measurement);
+CREATE TABLE measurement_y2006m03 ( ) INHERITS (measurement);
+...
+CREATE TABLE measurement_y2007m11 ( ) INHERITS (measurement);
+CREATE TABLE measurement_y2007m12 ( ) INHERITS (measurement);
+CREATE TABLE measurement_y2008m01 ( ) INHERITS (measurement);</PRE
+><P>
+
+それぞれのパーティションは、完結したテーブルですが<TT
+CLASS="STRUCTNAME"
+>measurement</TT
+>テーブルからの定義を継承しています。
+       </P
+><P
+>これは古いデータの削除という問題を解決します。
+毎月、最も古い子テーブルを<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>し新規の月に対しては子テーブルを作成するだけでいいのです。
+       </P
+></LI
+><LI
+><P
+>重なりの無いテーブル制約を付ける必要があります。
+上記のようにパーティションを単に作成するよりも、以下のようにすべきでしょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE measurement_y2006m02 (
+    CHECK ( logdate &gt;= DATE '2006-02-01' AND logdate &lt; DATE '2006-03-01' )
+) INHERITS (measurement);
+CREATE TABLE measurement_y2006m03 (
+    CHECK ( logdate &gt;= DATE '2006-03-01' AND logdate &lt; DATE '2006-04-01' )
+) INHERITS (measurement);
+...
+CREATE TABLE measurement_y2007m11 (
+    CHECK ( logdate &gt;= DATE '2007-11-01' AND logdate &lt; DATE '2007-12-01' )
+) INHERITS (measurement);
+CREATE TABLE measurement_y2007m12 (
+    CHECK ( logdate &gt;= DATE '2007-12-01' AND logdate &lt; DATE '2008-01-01' )
+) INHERITS (measurement);
+CREATE TABLE measurement_y2008m01 (
+    CHECK ( logdate &gt;= DATE '2008-01-01' AND logdate &lt; DATE '2008-02-01' )
+) INHERITS (measurement);</PRE
+><P>
+       </P
+></LI
+><LI
+><P
+>キーとなる列にインデックスが必要になるでしょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX measurement_y2006m02_logdate ON measurement_y2006m02 (logdate);
+CREATE INDEX measurement_y2006m03_logdate ON measurement_y2006m03 (logdate);
+...
+CREATE INDEX measurement_y2007m11_logdate ON measurement_y2007m11 (logdate);
+CREATE INDEX measurement_y2007m12_logdate ON measurement_y2007m12 (logdate);
+CREATE INDEX measurement_y2008m01_logdate ON measurement_y2008m01 (logdate);</PRE
+><P>
+
+今回は、これ以上のインデックスを付けないことにします。
+       </P
+></LI
+><LI
+><P
+>アプリケーションで<TT
+CLASS="LITERAL"
+>INSERT INTO measurement ...</TT
+>を実行したら、適切なパーティションテーブルにデータが中継されるようにしたいとします。
+そのような場合は、適切なトリガ関数をマスタテーブルに設定することにより可能となります。
+もしデータが最新のパーティションにのみ追加される場合は、非常に簡単なトリガ関数を使用できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION measurement_insert_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO measurement_y2008m01 VALUES (NEW.*);
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;</PRE
+><P>
+
+関数を作成した後で、このトリガ関数を呼ぶトリガを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TRIGGER insert_measurement_trigger
+    BEFORE INSERT ON measurement
+    FOR EACH ROW EXECUTE PROCEDURE measurement_insert_trigger();</PRE
+><P>
+
+毎月、トリガ関数を再定義しなくてはいけません。それにより現在のパーティションをいつも指すことになります。
+しかし、トリガ定義は更新する必要はありません。
+       </P
+><P
+>データを挿入したら、サーバが行を追加すべきパーティションを自動的に決定するようにしたいかもしれません。
+これは以下のようなもっと複雑なトリガ関数を作成することにより可能です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION measurement_insert_trigger()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF ( NEW.logdate &gt;= DATE '2006-02-01' AND
+         NEW.logdate &lt; DATE '2006-03-01' ) THEN
+        INSERT INTO measurement_y2006m02 VALUES (NEW.*);
+    ELSIF ( NEW.logdate &gt;= DATE '2006-03-01' AND
+            NEW.logdate &lt; DATE '2006-04-01' ) THEN
+        INSERT INTO measurement_y2006m03 VALUES (NEW.*);
+    ...
+    ELSIF ( NEW.logdate &gt;= DATE '2008-01-01' AND
+            NEW.logdate &lt; DATE '2008-02-01' ) THEN
+        INSERT INTO measurement_y2008m01 VALUES (NEW.*);
+    ELSE
+        RAISE EXCEPTION 'Date out of range.  Fix the measurement_insert_trigger() function!';
+    END IF;
+    RETURN NULL;
+END;
+$$
+LANGUAGE plpgsql;</PRE
+><P>
+
+トリガ定義は前と同じです。
+それぞれの<TT
+CLASS="LITERAL"
+>IF</TT
+>テストをパーティションの<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約と正確に一致させなければならないことに注意してください。
+       </P
+><P
+>この関数は単一月の場合より複雑になりますが、頻繁に更新する必要はありません。なぜなら条件分岐を前もって追加しておくことが可能だからです。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>実際には、ほとんどの挿入が一番新しいパーティションに入る場合は、そのパーティションを最初に検査することが最善です。簡単に、この例でのほかの部分と同じ順番でトリガのテストを示しました。
+        </P
+></BLOCKQUOTE
+></DIV
+></LI
+></OL
+><P>
+    </P
+><P
+>以上のように、複雑なパーティション化の計画はたくさんのDDLが必要となります。上記の例では、毎月新しいパーティションを作成することになりますが、必要となるDDLを自動的に生成するスクリプトを書くのが賢明です。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-PARTITIONING-MANAGING-PARTITIONS"
+>5.9.3. パーティションの管理</A
+></H2
+><P
+>通常、初期定義でテーブルを静的なままにするつもりではない場合、一群のパーティションを作ることになります。
+古いデータのパーティションの削除や新規データ向けの定期的な新規パーティションの追加という要求はよくあります。
+こうしたそうでなければ苦痛を伴う作業を、大量のデータを物理的に移動させずに、パーティション構造を操作することでほとんど瞬間的に行うことができます。
+パーティショニングの最も重要な利点の一つはまさにこの点です。
+   </P
+><P
+>古いデータを削除する最も簡単な方法は、単に不要となったパーティションを削除することです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DROP TABLE measurement_y2006m02;</PRE
+><P>
+レコードごとに削除する必要がありませんので、これは高速に何百万ものレコードを削除することができます。
+   </P
+><P
+>この他、よく使用される方法は、テーブル自体へのアクセス権限をそのまま残したまま、パーティション付けされたテーブルからパーティションを削除することです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE measurement_y2006m02 NO INHERIT measurement;</PRE
+><P>
+これにより、削除前にデータ操作をさらに行うことができます。
+例えば、<TT
+CLASS="COMMAND"
+>COPY</TT
+>、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>などのツールを使用してデータをバックアップすることはよくあります。
+また、データをより小さな書式に集約したり、他のデータ操作を行ったり、報告を作成したりすることもよくあります。
+   </P
+><P
+>同様に、新しいデータを扱うために新しいパーティションを追加することもできます。
+上で元々のパーティションを作成した時と同じように、パーティション付けテーブルに空のパーティションを作成することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE measurement_y2008m02 (
+    CHECK ( logdate &gt;= DATE '2008-02-01' AND logdate &lt; DATE '2008-03-01' )
+) INHERITS (measurement);</PRE
+><P>
+
+この他の方法として、パーティション構造の外部で新しいテーブルを作成し、後で適切にパーティションとすることが便利な場合もあります。
+これにより、パーティション付けしたテーブルに追加する前に、データをロードし、検査、変換することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE measurement_y2008m02
+  (LIKE measurement INCLUDING DEFAULTS INCLUDING CONSTRAINTS);
+ALTER TABLE measurement_y2008m02 ADD CONSTRAINT y2008m02
+   CHECK ( logdate &gt;= DATE '2008-02-01' AND logdate &lt; DATE '2008-03-01' );
+\copy measurement_y2008m02 from 'measurement_y2008m02'
+-- 何らかの準備操作を行うことができます。
+ALTER TABLE measurement_y2008m02 INHERIT measurement;</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-PARTITIONING-CONSTRAINT-EXCLUSION"
+>5.9.4. パーティショニングと制約による除外</A
+></H2
+><P
+><I
+CLASS="FIRSTTERM"
+>制約による除外</I
+>は、上記の方法で定義された分割されたテーブルに対するパフォーマンスを向上させる問い合わせの最適化技術です。例えば、
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET constraint_exclusion = on;
+SELECT count(*) FROM measurement WHERE logdate &gt;= DATE '2008-01-01';</PRE
+><P>
+
+制約による除外が有効になっているとき、プランナはそれぞれのパーティションの制約を検証し、パーティションが問い合わせの<TT
+CLASS="LITERAL"
+>WHERE</TT
+>に一致する行を含んでいないためにスキャンされる必要が無いことを証明しようとします。
+プランナはこれを証明すると、問い合わせ計画からそのパーティションを除外します。
+   </P
+><P
+><TT
+CLASS="VARNAME"
+>constraint_exclusion</TT
+>を有効とした時の計画と無効にした時の計画の違いを明らかにするため、<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>コマンドを使用できます。
+この種類のテーブル設定に対する典型的な最適化されない計画は以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET constraint_exclusion = off;
+EXPLAIN SELECT count(*) FROM measurement WHERE logdate &gt;= DATE '2008-01-01';
+
+                                          QUERY PLAN
+-----------------------------------------------------------------------------------------------
+ Aggregate  (cost=158.66..158.68 rows=1 width=0)
+   -&gt;  Append  (cost=0.00..151.88 rows=2715 width=0)
+         -&gt;  Seq Scan on measurement  (cost=0.00..30.38 rows=543 width=0)
+               Filter: (logdate &gt;= '2008-01-01'::date)
+         -&gt;  Seq Scan on measurement_y2006m02 measurement  (cost=0.00..30.38 rows=543 width=0)
+               Filter: (logdate &gt;= '2008-01-01'::date)
+         -&gt;  Seq Scan on measurement_y2006m03 measurement  (cost=0.00..30.38 rows=543 width=0)
+               Filter: (logdate &gt;= '2008-01-01'::date)
+...
+         -&gt;  Seq Scan on measurement_y2007m12 measurement  (cost=0.00..30.38 rows=543 width=0)
+               Filter: (logdate &gt;= '2008-01-01'::date)
+         -&gt;  Seq Scan on measurement_y2008m01 measurement  (cost=0.00..30.38 rows=543 width=0)
+               Filter: (logdate &gt;= '2008-01-01'::date)</PRE
+><P>
+
+一部のパーティション、もしくはすべてのパーティションで、テーブル全体に対するシーケンシャルスキャンではなく、インデックススキャンが使用される可能性があります。
+しかしここでのポイントは、この問い合わせに対する回答のために古いパーティションをスキャンする必要はまったく無いということです。
+制約による除外を有効にしたとき、大幅により安価な同じ回答を返す計画を得ることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET constraint_exclusion = on;
+EXPLAIN SELECT count(*) FROM measurement WHERE logdate &gt;= DATE '2008-01-01';
+                                          QUERY PLAN
+-----------------------------------------------------------------------------------------------
+ Aggregate  (cost=63.47..63.48 rows=1 width=0)
+   -&gt;  Append  (cost=0.00..60.75 rows=1086 width=0)
+         -&gt;  Seq Scan on measurement  (cost=0.00..30.38 rows=543 width=0)
+               Filter: (logdate &gt;= '2008-01-01'::date)
+         -&gt;  Seq Scan on measurement_y2008m01 measurement  (cost=0.00..30.38 rows=543 width=0)
+               Filter: (logdate &gt;= '2008-01-01'::date)</PRE
+><P>
+   </P
+><P
+>制約による除外は<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約のみで動作し、インデックスの有無では動作しないことに注意してください。よってキー列のインデックスを定義することは必要ではありません。
+あるパーティションでインデックスが必要かどうかは、パーティションをスキャンする問い合わせがパーティションの大部分もしくは小さな部分をスキャンするのかによります。前者ではなく後者において、インデックスは役立ちます。
+   </P
+><P
+>実のところ、<A
+HREF="runtime-config-query.html#GUC-CONSTRAINT-EXCLUSION"
+>constraint_exclusion</A
+>のデフォルト（かつ推奨）の設定は、<TT
+CLASS="LITERAL"
+>on</TT
+>でも<TT
+CLASS="LITERAL"
+>off</TT
+>でもなく、<TT
+CLASS="LITERAL"
+>partition</TT
+>という中間の設定です。
+これによりこの技法は、パーティショニングされたテーブルに対して動作することになる問い合わせのみに適用されるようになります。
+<TT
+CLASS="LITERAL"
+>on</TT
+>設定により、プランナはすべての問い合わせで<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約を検証するようになります。
+これは単純な問い合わせでも行われ、プラスになりそうでありません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-PARTITIONING-ALTERNATIVES"
+>5.9.5. 他のパーティショニング方法</A
+></H2
+><P
+>適当なパーティションテーブルにリダイレクトする別の方法は、トリガの替わりにルールをマスターテーブル上に作成することです。例えば
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE RULE measurement_insert_y2006m02 AS
+ON INSERT TO measurement WHERE
+    ( logdate &gt;= DATE '2006-02-01' AND logdate &lt; DATE '2006-03-01' )
+DO INSTEAD
+    INSERT INTO measurement_y2006m02 VALUES (NEW.*);
+...
+CREATE RULE measurement_insert_y2008m01 AS
+ON INSERT TO measurement WHERE
+    ( logdate &gt;= DATE '2008-01-01' AND logdate &lt; DATE '2008-02-01' )
+DO INSTEAD
+    INSERT INTO measurement_y2008m01 VALUES (NEW.*);</PRE
+><P>
+
+ルールはトリガよりもかなりオーバーヘッドがありますが、行ごとよりもむしろ問い合わせごとのオーバーヘッドとなります。
+よってこの方法は、一括挿入といった場合に有効となります。
+しかし多くの場合、トリガを使用する方が、良い性能となります。
+    </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>はルールを無視することに注意してください。
+もしデータを挿入するのに<TT
+CLASS="COMMAND"
+>COPY</TT
+>を使用したい場合は、マスタテーブルより正しいパーティションテーブルにコピーすることが必要となるでしょう。
+<TT
+CLASS="COMMAND"
+>COPY</TT
+>はトリガを起動します。
+よってトリガを使用する方法をとれば、普通に<TT
+CLASS="COMMAND"
+>COPY</TT
+>を使用することができます。
+    </P
+><P
+>ルールを使用する方法のもうひとつの欠点は、一連のルールが挿入日付を扱わないときにエラーを強制する簡単な方法がないことです。
+データは代わりにマスタテーブルに暗黙のうちに挿入されます。
+    </P
+><P
+>パーティショニングは、テーブルの継承の代わりに<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>ビューを使用することによっても使用できます。
+例えば、
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW measurement AS
+          SELECT * FROM measurement_y2006m02
+UNION ALL SELECT * FROM measurement_y2006m03
+...
+UNION ALL SELECT * FROM measurement_y2007m11
+UNION ALL SELECT * FROM measurement_y2007m12
+UNION ALL SELECT * FROM measurement_y2008m01;</PRE
+><P>
+
+しかしビューを再作成することで、データセットの個別のパーティションを追加したり削除したりする余分な手順が増えます。
+実際には、この方法は継承を使用する方法と比較してお勧めする点はほとんどありません。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-PARTITIONING-CAVEATS"
+>5.9.6. 警告</A
+></H2
+><P
+>以下の警告がパーティション付けテーブルに対して適用されます。
+   <P
+></P
+></P><UL
+><LI
+><P
+>すべての<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約が相互に排他であるかどうか自動で確認する方法はありません。
+パーティションを生成し、関連付けられたオブジェクトを作成もしくは修正するコードを作成する方が、それらをいちいち手書きするよりも安全です。
+     </P
+></LI
+><LI
+><P
+>ここで示すスキーマは、行のパーティションキー列が変更しない、もしくは少なくとも他のパーティションに移動することが要求されるほどの変更がないことを仮定しています。
+別のパーティションに移るような<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>は、<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約により失敗するでしょう。
+このような場合を扱うには、適切な更新トリガをパーティションテーブルに設定します。
+しかしこれにより管理構造がさらに複雑になります。
+     </P
+></LI
+><LI
+><P
+>もし手動の<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>もしくは<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>コマンドを使用している場合は、それぞれのパーティションで個別に実行することを忘れないでください。
+以下のようなコマンドは
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ANALYZE measurement;</PRE
+><P>
+マスタテーブルのみ処理することになります。
+     </P
+></LI
+></UL
+><P>
+   </P
+><P
+>以下の警告が制約による除外に適用されます。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>制約による除外は問い合わせの<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句が定数を含んでいたときのみに動作します。パラメータ化された問い合わせは最適化されません。その理由はプランナは実行時に、パラメータ値がどのパーティションを選択するか知り得ないためです。
+同様の理由で、<CODE
+CLASS="FUNCTION"
+>CURRENT_DATE</CODE
+>のような<SPAN
+CLASS="QUOTE"
+>"安定"</SPAN
+>関数は避けなくてはいけません。
+     </P
+></LI
+><LI
+><P
+>パーティション制約を簡単にしておいてください。そうしないとプランナは、パーティションを使う必要がないことを立証できません。
+前述の例で示したとおり、リスト分割のために簡単な等号条件を使用してください。また範囲分割のために簡単な範囲テストを使用してください。
+手っ取り早い良い方法は、パーティショニングの制約がパーティション列とB-treeインデックス作成可能な演算子を用いた定数の比較のみを含んでいることです。
+     </P
+></LI
+><LI
+><P
+>マスタテーブルのすべてのパーティションのすべての制約は、制約による除外で試験されます。
+よってパーティションの数が多くなれば問い合わせ計画の時間がかなり増加します。
+これらの技術を使用したパーティショニングは、おそらく100個までのパーティションでうまく動作します。
+何千ものパーティションを使用することは避けてください。
+     </P
+></LI
+></UL
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ddl-inherit.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ddl-foreign-data.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>継承</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ddl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>外部データ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

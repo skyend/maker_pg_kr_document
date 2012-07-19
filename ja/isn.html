@@ -1,0 +1,785 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>isn</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="intarray"
+HREF="intarray.html"><LINK
+REL="NEXT"
+TITLE="lo"
+HREF="lo.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="intarray"
+HREF="intarray.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="lo"
+HREF="lo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ISN"
+>F.19. isn</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>isn</TT
+>モジュールは、EAN13、UPC、ISBN (書籍)、ISMN (音楽)、ISSN (連番)という国際的な標準製品番号に従うデータ型を提供します。
+番号は入力時にハードコードされた接頭辞の一覧に基づいて検証されます。
+この接頭辞の一覧は出力時に数字にハイフンを付けるのにも使われます。
+新しい接頭辞が時々追加されますので、接頭辞の一覧は古くなっているかもしれません。
+このモジュールの将来のバージョンでは、必要なときにユーザが簡単に更新できる一つもしくは複数のテーブルから接頭辞の一覧を取得することが望まれます。
+しかし、現時点では、一覧はソースコードを修正し再コンパイルすることでしか更新できません。
+あるいは、接頭辞の検証とハイフン付けのサポートはこのモジュールの将来のバージョンからは外されるかもしれません。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN133965"
+>F.19.1. データ型</A
+></H2
+><P
+><A
+HREF="isn.html#ISN-DATATYPES"
+>&#34920;F-10</A
+>に<TT
+CLASS="FILENAME"
+>isn</TT
+>モジュールで提供されるデータ型を示します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="ISN-DATATYPES"
+></A
+><P
+><B
+>&#34920; F-10. <TT
+CLASS="FILENAME"
+>isn</TT
+>データ型</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>データ型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>EAN13</TT
+></TD
+><TD
+>ヨーロッパ統一商品コード。
+常にEAN13用表示形式で表示されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ISBN13</TT
+></TD
+><TD
+>国際標準図書番号。
+新しいEAN13用表示形式で表示されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ISMN13</TT
+></TD
+><TD
+>国際標準楽譜番号。
+新しいEAN13用表示形式で表示されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ISSN13</TT
+></TD
+><TD
+>国際標準逐次刊行物番号。
+新しいEAN13用表示形式で表示されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ISBN</TT
+></TD
+><TD
+>国際標準図書番号。
+旧式の簡略表示形式で表示されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ISMN</TT
+></TD
+><TD
+>国際標準楽譜番号。
+旧式の簡略表示形式で表示されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>ISSN</TT
+></TD
+><TD
+>国際標準逐次刊行物番号。
+旧式の簡略表示形式で表示されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>UPC</TT
+></TD
+><TD
+>統一商品コード。
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>数点注意事項があります。
+  </P
+><P
+></P
+><OL
+TYPE="1"
+><LI
+><P
+>ISBN13、ISMN13、ISSN13番号はすべてEAN13数値です。</P
+></LI
+><LI
+><P
+>EAN13番号は常にISBN13、ISMN13、ISSN13のいずれかではありません (一部はそうです)。</P
+></LI
+><LI
+><P
+>一部のISBN13番号はISBNとして表示可能です。</P
+></LI
+><LI
+><P
+>一部のISMN13番号はISMNとして表示可能です。</P
+></LI
+><LI
+><P
+>一部のISSN13番号はISSNとして表示可能です。</P
+></LI
+><LI
+><P
+>UPC番号はEAN13番号の部分集合です（基本的にはEAN13から先頭の<TT
+CLASS="LITERAL"
+>0</TT
+>桁を取り除いたものです）。</P
+></LI
+><LI
+><P
+>すべてのUPC、ISBN、ISMN、ISSNはEAN13番号として表現可能です。</P
+></LI
+></OL
+><P
+>すべての型は内部的には同一表現（64ビット整数）を使用し、すべて相互交換が可能です。
+複数の型は、表示書式を制御する、および、番号のある特定の型を表さなければならない入力に対する有効性検査をより強く行えるようにするために提供されています。
+  </P
+><P
+><TT
+CLASS="TYPE"
+>ISBN</TT
+>、<TT
+CLASS="TYPE"
+>ISMN</TT
+>、<TT
+CLASS="TYPE"
+>ISSN</TT
+>型では、可能ならば番号の簡略表示形式（ISxN 10）で表示されます。
+簡略形式に合わない番号ではISxN 13書式で表示されます。
+<TT
+CLASS="TYPE"
+>EAN13</TT
+>、<TT
+CLASS="TYPE"
+>ISBN13</TT
+>、<TT
+CLASS="TYPE"
+>ISMN13</TT
+>、<TT
+CLASS="TYPE"
+>ISSN13</TT
+>型では常にISxNの長めの形式（EAN13）で表示されます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134037"
+>F.19.2. キャスト</A
+></H2
+><P
+><TT
+CLASS="FILENAME"
+>isn</TT
+>モジュールは以下の型の組合せに関するキャストを提供します。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+>     ISBN13 &lt;=&gt; EAN13
+    </P
+></LI
+><LI
+><P
+>     ISMN13 &lt;=&gt; EAN13
+    </P
+></LI
+><LI
+><P
+>     ISSN13 &lt;=&gt; EAN13
+    </P
+></LI
+><LI
+><P
+>     ISBN &lt;=&gt; EAN13
+    </P
+></LI
+><LI
+><P
+>     ISMN &lt;=&gt; EAN13
+    </P
+></LI
+><LI
+><P
+>     ISSN &lt;=&gt; EAN13
+    </P
+></LI
+><LI
+><P
+>     UPC  &lt;=&gt; EAN13
+    </P
+></LI
+><LI
+><P
+>     ISBN &lt;=&gt; ISBN13
+    </P
+></LI
+><LI
+><P
+>     ISMN &lt;=&gt; ISMN13
+    </P
+></LI
+><LI
+><P
+>     ISSN &lt;=&gt; ISSN13
+    </P
+></LI
+></UL
+><P
+><TT
+CLASS="TYPE"
+>EAN13</TT
+>から他の型へキャストする時、その値が他の型のドメイン内であるかどうか実行時に検査が行われます。
+ドメイン内になければエラーが発生します。
+他のキャストでは単にラベル付けを再実行するだけですので、常に成功します。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134064"
+>F.19.3. 関数と演算子</A
+></H2
+><P
+><TT
+CLASS="FILENAME"
+>isn</TT
+>モジュールは標準的な比較演算子とこれらデータ型すべてに対するB-treeおよびハッシュインデックスサポートを提供します。
+さらに、<A
+HREF="isn.html#ISN-FUNCTIONS"
+>&#34920;F-11</A
+>で示される複数の特化した関数も存在します。
+以下の表では<TT
+CLASS="TYPE"
+>isn</TT
+>はこのモジュールのデータ型のいずれか1つを意味します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="ISN-FUNCTIONS"
+></A
+><P
+><B
+>&#34920; F-11. <TT
+CLASS="FILENAME"
+>isn</TT
+>関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>isn_weak(boolean)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>弱めの入力モードを設定します。（新しい設定を返します）</TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>isn_weak()</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>強弱モードの現在の状態を返します。</TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>make_valid(isn)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>isn</TT
+></TD
+><TD
+>無効な番号を有効にします（無効フラグを消去します）。</TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>is_valid(isn)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>無効フラグの有無を検査します。</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+><I
+CLASS="FIRSTTERM"
+>強弱</I
+>モードは無効なデータをテーブルに挿入できるようにするために使用されます。
+無効とは間違った検査桁を意味するものであり、番号自体は存在します。
+  </P
+><P
+>この弱めのモードを使いたいと考えるのは何故でしょうか。
+大規模なISBN番号群があり、その内の多くが何らかの理由で間違った検査桁を持つことはあり得ます。
+（印刷された一覧をスキャンしてOCRした結果番号を間違えた場合、手作業で番号を取り出した場合などがあり得ます。）
+とにかく、こうした混乱は整理したいことですが、データベース内に番号をすべて取り込んで、より簡単に情報を検査し有効にすることができるように、外部ツールを使用してデータベース内の無効な番号の位置を特定したいと思うかも知れません。
+例えば、テーブル内の無効な番号をすべて選択したいと思うかも知れません。
+  </P
+><P
+>弱めのモードを使用して無効な番号をテーブルに挿入する時、番号は修正された検査桁付きで挿入されますが、最後にイクスクラメーション印（<TT
+CLASS="LITERAL"
+>!</TT
+>）付きで、例えば<TT
+CLASS="LITERAL"
+>0-11-000322-5!</TT
+>と表示されます。
+この無効印は<CODE
+CLASS="FUNCTION"
+>is_valid</CODE
+>関数を使って検査することができ、また、 <CODE
+CLASS="FUNCTION"
+>make_valid</CODE
+>関数で消去することができます。
+  </P
+><P
+>また、番号の最後に<TT
+CLASS="LITERAL"
+>!</TT
+>文字を付与することで、弱めのモードでなくとも無効な番号を強制的に挿入することもできます。
+  </P
+><P
+>この他の入力における特殊な機能として、検査桁として<TT
+CLASS="LITERAL"
+>?</TT
+>を書くことができます。
+これにより正確な検査桁が自動的に挿入されます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134116"
+>F.19.4. 例</A
+></H2
+><PRE
+CLASS="PROGRAMLISTING"
+>--Using the types directly:
+SELECT isbn('978-0-393-04002-9');
+SELECT isbn13('0901690546');
+SELECT issn('1436-4522');
+
+--Casting types:
+-- note that you can only cast from ean13 to another type when the
+-- number would be valid in the realm of the target type;
+-- thus, the following will NOT work: select isbn(ean13('0220356483481'));
+-- but these will:
+SELECT upc(ean13('0220356483481'));
+SELECT ean13(upc('220356483481'));
+
+--Create a table with a single column to hold ISBN numbers:
+CREATE TABLE test (id isbn);
+INSERT INTO test VALUES('9780393040029');
+
+--Automatically calculate check digits (observe the '?'):
+INSERT INTO test VALUES('220500896?');
+INSERT INTO test VALUES('978055215372?');
+
+SELECT issn('3251231?');
+SELECT ismn('979047213542?');
+
+--Using the weak mode:
+SELECT isn_weak(true);
+INSERT INTO test VALUES('978-0-11-000533-4');
+INSERT INTO test VALUES('9780141219307');
+INSERT INTO test VALUES('2-205-00876-X');
+SELECT isn_weak(false);
+
+SELECT id FROM test WHERE NOT is_valid(id);
+UPDATE test SET id = make_valid(id) WHERE id = '2-205-00876-X!';
+
+SELECT * FROM test;
+
+SELECT isbn13(id) FROM test;</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134119"
+>F.19.5. 参考文献</A
+></H2
+><P
+>本モジュールを実装するための情報は以下を含むいくつかのサイトを通して集められました。
+   <P
+></P
+></P><UL
+><LI
+><P
+><A
+HREF="http://www.isbn-international.org/"
+TARGET="_top"
+>http://www.isbn-international.org/</A
+></P
+></LI
+><LI
+><P
+><A
+HREF="http://www.issn.org/"
+TARGET="_top"
+>http://www.issn.org/</A
+></P
+></LI
+><LI
+><P
+><A
+HREF="http://www.ismn-international.org/"
+TARGET="_top"
+>http://www.ismn-international.org/</A
+></P
+></LI
+><LI
+><P
+><A
+HREF="http://www.wikipedia.org/"
+TARGET="_top"
+>http://www.wikipedia.org/</A
+></P
+></LI
+></UL
+><P>
+
+ハイフン付けに使用した接頭辞も以下から集められました。
+   <P
+></P
+></P><UL
+><LI
+><P
+><A
+HREF="http://www.gs1.org/productssolutions/idkeys/support/prefix_list.html"
+TARGET="_top"
+>http://www.gs1.org/productssolutions/idkeys/support/prefix_list.html</A
+></P
+></LI
+><LI
+><P
+><A
+HREF="http://www.isbn-international.org/en/identifiers.html"
+TARGET="_top"
+>http://www.isbn-international.org/en/identifiers.html</A
+></P
+></LI
+><LI
+><P
+><A
+HREF="http://www.ismn-international.org/ranges.html"
+TARGET="_top"
+>http://www.ismn-international.org/ranges.html</A
+></P
+></LI
+></UL
+><P>
+
+アルゴリズムの作成には注意を払い、公式ISBN、ISMN、ISSNユーザマニュアルで提示されたアルゴリズムに対して念入り過ぎるほど検証されました。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134145"
+>F.19.6. 作者</A
+></H2
+><P
+>   Germ&aacute;n M&eacute;ndez Bravo (Kronuz), 2004 - 2006
+  </P
+><P
+>本モジュールはGarrett A. Wollmanの<TT
+CLASS="FILENAME"
+>isbn_issn</TT
+>コードに触発されたものです。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="intarray.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="lo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>intarray</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>lo</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

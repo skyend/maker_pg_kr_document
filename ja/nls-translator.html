@@ -1,0 +1,592 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>翻訳者へ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="多言語サポート"
+HREF="nls.html"><LINK
+REL="PREVIOUS"
+TITLE="多言語サポート"
+HREF="nls.html"><LINK
+REL="NEXT"
+TITLE="プログラマへ"
+HREF="nls-programmer.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="多言語サポート"
+HREF="nls.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="多言語サポート"
+HREF="nls.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 48&#31456;多言語サポート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="多言語サポート"
+HREF="nls.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="プログラマへ"
+HREF="nls-programmer.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="NLS-TRANSLATOR"
+>48.1. 翻訳者へ</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>プログラムは（サーバ、クライアントともに）メッセージが翻訳されていれば、使い慣れた言語でそのメッセージを出すことができます。
+翻訳メッセージセットの作成と保守は、自分の言語を上手に話し<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の成果に貢献したい人々の協力が必要です。
+この作業にはプログラマである必要はまったくありません。
+本節ではお手伝いの仕方を説明します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN93420"
+>48.1.1. 必要事項</A
+></H2
+><P
+>協力者の言語の熟練度については判断しません。
+本節ではソフトウェアツールについて説明します。
+理論的には、テキストエディタのみが必要です。
+しかし、これは自分で作成した翻訳メッセージを試そうとはしないという、あまりあり得ない場合のみです。
+ソースツリーを構築する際に、<TT
+CLASS="OPTION"
+>--enable-nls</TT
+>オプションを使用していることを確認してください。
+これにより、全てのエンドユーザがとにかく必要とする、<SPAN
+CLASS="APPLICATION"
+>libintl</SPAN
+>ライブラリと<TT
+CLASS="FILENAME"
+>msgfmt</TT
+>プログラムも同時に検査されます。
+作業を試す際には、インストール手順の適切な部分に従ってください。
+   </P
+><P
+>新規に翻訳作業を始めるか、（後述の）メッセージカタログのマージを行いたい場合、GNU版と互換性を持った実装の<TT
+CLASS="FILENAME"
+>xgettext</TT
+>と<TT
+CLASS="FILENAME"
+>msgmerge</TT
+>という2つのプログラムがそれぞれ必要です。
+将来はパッケージ化されたソース配布物を使用する場合に<TT
+CLASS="FILENAME"
+>xgettext</TT
+>を必要としないように変更する予定です
+（Git版で作業をしているのであれば、まだこれが必要です）。
+現在<SPAN
+CLASS="APPLICATION"
+>GNU Gettext 0.10.36</SPAN
+>以上を推奨します。
+   </P
+><P
+>使用するマシンのgettextの実装については、文書が一緒に付いてくると思います。
+以下のいくつかはおそらく重複していますが、追補すべき詳細についてはその文書を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN93432"
+>48.1.2. 概念</A
+></H2
+><P
+>英語による元のメッセージとそれを基に（場合によって）翻訳されたメッセージの組み合わせは<I
+CLASS="FIRSTTERM"
+>メッセージカタログ</I
+>に、（関連するプログラムはメッセージカタログを共有することができますが）各プログラム、対象とする言語に対して一つずつ保持されます。
+メッセージカタログには2つのファイル形式があります。
+1つは<SPAN
+CLASS="QUOTE"
+>"PO"</SPAN
+>ファイル（移植可能オブジェクト-Portable Object-を意味します）で翻訳者が編集する特別な構文を持った平文ファイルです。
+2番目は<SPAN
+CLASS="QUOTE"
+>"MO"</SPAN
+>ファイル（マシンオブジェクト-Machine Object-を意味します)で対応するPOファイルから生成され、国際化プログラムの実行の際に使用されるバイナリファイルです。
+翻訳者は、MOファイルを扱いません。
+実際に扱うことは困難です。
+   </P
+><P
+>メッセージカタログファイルの拡張子は想像していたかもしれませんが<TT
+CLASS="FILENAME"
+>.po</TT
+>もしくは<TT
+CLASS="FILENAME"
+>.mo</TT
+>です。
+基本名（拡張子を除いた部分）は、プログラムが伴っている名前、もしくは翻訳目的とする言語の名前のいずれかで、状況によって変わります。
+少し混乱するかもしれません。
+例えば、<TT
+CLASS="FILENAME"
+>psql.po</TT
+>（psql用のPOファイル）、もしくは<TT
+CLASS="FILENAME"
+>fr.mo</TT
+>（フランス語用のMOファイル）です。
+   </P
+><P
+>    POファイルの書式を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+># comment
+
+msgid "original string"
+msgstr "translated string"
+
+msgid "more original"
+msgstr "another translated"
+"string can be broken up like this"
+
+...</PRE
+><P>
+msgidはプログラムのソースから抽出されます。
+（これは必要はありませんが最も一般的な方法です。）
+msgstr行は初期状態では空であり、翻訳者によって有益な文字列が埋め込まれます。
+この文字列には、C言語形式のエスケープ文字を含めることも、上に示したように複数行にまたがって続けることもできます。
+（継続行は必ず行の先頭から始まらなければなりません。）
+   </P
+><P
+>#文字はコメントの開始を示します。
+#文字の直後に空白文字があった場合、それは翻訳者によって保守されるコメントです。
+#の直後に非空白文字が付く、自動的に付与されるコメントもあります。
+これらは、POファイルに対する操作を行う各種ツールによって保守され、翻訳者の補助を意図しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#. automatic comment
+#: filename.c:1023
+#, flags, flags</PRE
+><P>
+#.スタイルのコメントはそのメッセージが使用されているソースファイルから抽出されます。
+おそらくプログラマが、翻訳者のために追加した、そのようにしてほしいと考える体裁についてなどの情報です。
+#:コメントは、ソース内でそのメッセージが使用される正確な場所を示します。
+翻訳者はプログラムソースを参照する必要はありませんが、翻訳の正確さに疑問がある場合にソースを参照することができます。
+#,コメントは何らかの方法でメッセージを説明するフラグです。
+現在、2つのフラグがあります。
+そのメッセージがプログラムソースの変更によって古いものとなった可能性がある場合、<TT
+CLASS="LITERAL"
+>fuzzy</TT
+>が設定されます。
+翻訳者はこれを検証し、fuzzyフラグを削除できます。
+fuzzyメッセージはエンドユーザからは利用できないことに注意してください。
+もう1つのフラグは<TT
+CLASS="LITERAL"
+>c-format</TT
+>で、そのメッセージが<CODE
+CLASS="FUNCTION"
+>printf</CODE
+>形式の書式テンプレートであることを示します。
+これは、翻訳側もプレースホルダの型と同じ番号を持った書式文字列でなければならないことを意味します。
+これを検証するツールがあり、それらはc-formatフラグを入力として受け取ります。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN93450"
+>48.1.3. メッセージカタログの作成と保守</A
+></H2
+><P
+>さて、<SPAN
+CLASS="QUOTE"
+>"空の"</SPAN
+>メッセージカタログをどうやって作成するのでしょうか。
+まず、翻訳したいメッセージを持つプログラムが存在するディレクトリに移動します。
+<TT
+CLASS="FILENAME"
+>nls.mk</TT
+>ファイルがあればこのプログラムは翻訳の準備が整っています。
+   </P
+><P
+>もし、<TT
+CLASS="FILENAME"
+>.po</TT
+>ファイルが数個既にあれば、誰かがある翻訳作業を行っています。
+そのファイルは<TT
+CLASS="FILENAME"
+><TT
+CLASS="REPLACEABLE"
+><I
+>language</I
+></TT
+>.po</TT
+> と名前が付けられています。
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>language</I
+></TT
+>は<A
+HREF="http://www.loc.gov/standards/iso639-2/php/English_list.php"
+TARGET="_top"
+>ISO 639-1の2文字言語コード（小文字）</A
+>を表します。 
+例えば、<TT
+CLASS="FILENAME"
+>fr.po</TT
+>はフランス語用です。
+1つの言語に複数の翻訳成果が必要である場合そのファイルの名前は<TT
+CLASS="FILENAME"
+><TT
+CLASS="REPLACEABLE"
+><I
+>language</I
+></TT
+>_<TT
+CLASS="REPLACEABLE"
+><I
+>region</I
+></TT
+>.po</TT
+>のようになります。
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>region</I
+></TT
+>は<A
+HREF="http://www.iso.org/iso/english_country_names_and_code_elements"
+TARGET="_top"
+>ISO 3166-1の2文字国コード（大文字）</A
+>を表します。
+例えば、<TT
+CLASS="FILENAME"
+>pt_BR.po</TT
+>はブラジルでのポルトガル語用を示します。
+翻訳対象とする言語用のファイルがあれば、それを基に作業を始めることができます。
+   </P
+><P
+>新規に翻訳を始める必要がある場合、以下のコマンドを最初に実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gmake init-po</PRE
+><P>
+これは、<TT
+CLASS="FILENAME"
+><TT
+CLASS="REPLACEABLE"
+><I
+>progname</I
+></TT
+>.pot</TT
+>ファイルを作成します。
+（<TT
+CLASS="FILENAME"
+>.pot</TT
+>は<SPAN
+CLASS="QUOTE"
+>"実用の"</SPAN
+>POファイルと区別するためのものです。
+<TT
+CLASS="LITERAL"
+>T</TT
+>は<SPAN
+CLASS="QUOTE"
+>"テンプレート"</SPAN
+>を意味します。）
+このファイルを<TT
+CLASS="FILENAME"
+><TT
+CLASS="REPLACEABLE"
+><I
+>language</I
+></TT
+>.po</TT
+>にコピーして編集します。
+新規の言語が利用可能になったことを知らせるために、<TT
+CLASS="FILENAME"
+>nls.mk</TT
+>を編集し、言語（もしくは言語と国）コードを以下のように追加してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>AVAIL_LANGUAGES := de fr</PRE
+><P>
+（もちろん他の言語があるかもしれません。）  
+   </P
+><P
+>対象のプログラムやライブラリの変更に伴い、メッセージはプログラマによって変更、追加されます。
+この場合は始めからやり直す必要はありません。
+その代わりに以下のコマンドを実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gmake update-po</PRE
+><P>
+そうすると新しい空のメッセージカタログファイル（最初に使用したpotファイル）が作成され、既存のPOファイルにマージされます。
+このマージのアルゴリズムが特定のメッセージに関して確実でない場合、それは上で説明した<SPAN
+CLASS="QUOTE"
+>"fuzzy"</SPAN
+>となります。
+新規POファイルは<TT
+CLASS="FILENAME"
+>.po.new</TT
+>という拡張子付きで保存されます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN93484"
+>48.1.4. POファイルの編集</A
+></H2
+><P
+>POファイルは普通のテキストエディタで編集することができます。
+翻訳者はmsgstrディレクティブの後の引用符の間の部分の変更、コメントの追加、fuzzyフラグの変更のみを行えばよいのです。
+Emacsには（予想通り）POモードがあり、非常に使いやすいものです。
+   </P
+><P
+>POファイルを完全に埋めることは必要ありません。
+ソフトウェアは使用できる翻訳がない（もしくは翻訳が空の）場合自動的に元の文字列に戻します。
+他の人が作業を引き継ぐことができますので、ソースツリー内に不完全な翻訳を含めることにも問題はありません。
+しかし、マージの後のfuzzyフラグを削除することを優先に考えることが推奨されています。
+fuzzyエントリはインストールされないことを忘れないでください。 
+これらは何が正しい翻訳になり得るかの参照のためにのみ提供されています。
+   </P
+><P
+>以下に、翻訳の編集を行う際に注意すべき点を示します。
+    <P
+></P
+></P><UL
+><LI
+><P
+>元の文字列の終端が改行の場合、翻訳も同様になっていることを確認してください。
+タブなども同様です。
+      </P
+></LI
+><LI
+><P
+>元が<CODE
+CLASS="FUNCTION"
+>printf</CODE
+>書式文字列の場合、翻訳も同じでなければなりません。
+また、翻訳は同じ書式識別子を同じ順番で持たなければなりません。
+言語固有の規則によっては不可能な場合や扱いづらい場合も起こります。
+このような場合は、以下の書式指定子を使用することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>msgstr "Die Datei %2$s hat %1$u Zeichen."</PRE
+><P>
+そして、リストの最初のプレースホルダが実際にはこのリストの2番目の引数に使用されます。
+<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>digits</I
+></TT
+>$</TT
+>は%の直後に続く必要があり、他の書式の操作の前に使用する必要があります。
+（この機能は<CODE
+CLASS="FUNCTION"
+>printf</CODE
+>系の関数に本当に存在するものです。
+メッセージ国際化以外ではほとんど使用されませんので、聞いたことがないかもしれません。）
+      </P
+></LI
+><LI
+><P
+>元の文字列に言語上の間違いがある場合、それを報告し（もしくはプログラムソースを直して）、普通に翻訳してください。
+修正された文字列は、プログラムのソースが修正された時にマージ可能になります。
+元の文字列が事実と異なる場合、それを報告し（もしくは自ら直して）、翻訳を行わないでください。
+その代わりに、POファイルのその文字列にコメントを付けてください。
+      </P
+></LI
+><LI
+><P
+>元の文字列のスタイルや調子を維持してください。
+特に、（<TT
+CLASS="LITERAL"
+>cannot open file %s</TT
+>など）文章になっていないメッセージは、（翻訳する言語が大文字小文字を区別するのであれば）おそらく最初の文字を大文字にしてはなりませんし、（翻訳する言語が句読点として使用しているのであれば）ピリオドを終わりに付けてはいけません。
+<A
+HREF="error-style-guide.html"
+>&#38917;47.3</A
+>を読むと参考になります。
+      </P
+></LI
+><LI
+><P
+>メッセージの意味がわからない時や、曖昧な場合は、開発者用のメーリングリストに問い合わせてください。
+英語を話すエンドユーザも理解できない、または曖昧であると判断することができる機会となり、メッセージの改良を行う最善のものです。
+      </P
+></LI
+></UL
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nls.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nls-programmer.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>多言語サポート</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="nls.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>プログラマへ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

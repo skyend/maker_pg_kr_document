@@ -1,0 +1,540 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SQLコマンドの実行</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="データベース接続の管理"
+HREF="ecpg-connect.html"><LINK
+REL="NEXT"
+TITLE="ホスト変数の使用"
+HREF="ecpg-variables.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベース接続の管理"
+HREF="ecpg-connect.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ホスト変数の使用"
+HREF="ecpg-variables.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-COMMANDS"
+>33.3. SQLコマンドの実行</A
+></H1
+><P
+>すべてのSQLコマンドは、埋め込みSQLアプリケーション内で実行できます。
+以下に例をいくつか示します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-EXECUTING"
+>33.3.1. SQL文の実行</A
+></H2
+><P
+>テーブルの作成:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL CREATE TABLE foo (number integer, ascii char(16));
+EXEC SQL CREATE UNIQUE INDEX num1 ON foo(number);
+EXEC SQL COMMIT;</PRE
+><P>
+  </P
+><P
+>行の挿入:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL INSERT INTO foo (number, ascii) VALUES (9999, 'doodad');
+EXEC SQL COMMIT;</PRE
+><P>
+  </P
+><P
+>行の削除:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DELETE FROM foo WHERE number = 9999;
+EXEC SQL COMMIT;</PRE
+><P>
+  </P
+><P
+>行の更新:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL UPDATE foo
+    SET ascii = 'foobar'
+    WHERE number = 9999;
+EXEC SQL COMMIT;</PRE
+><P>
+  </P
+><P
+>   単一の行を返す<TT
+CLASS="LITERAL"
+>SELECT</TT
+>文は、同様に <TT
+CLASS="LITERAL"
+>EXEC SQL</TT
+> を用いて直接実行することができます。複数の行を扱うためには、アプリケーションはカーソルを使わなければなりません; <A
+HREF="ecpg-commands.html#ECPG-CURSORS"
+>&#38917;33.3.2</A
+> を参照してください。
+(特殊なケースでは、アプリケーションは複数の行をホスト変数の配列に一度に読み込むことができます; <A
+HREF="ecpg-variables.html#ECPG-VARIABLES-ARRAYS"
+>&#38917;33.4.4.3.1</A
+> を参照してください)
+  </P
+><P
+>   単一行の検索:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL SELECT foo INTO :FooBar FROM table1 WHERE ascii = 'doodad';</PRE
+><P>
+  </P
+><P
+>   同様に、設定パラメータは <TT
+CLASS="LITERAL"
+>SHOW</TT
+> コマンドによって取得することができます:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL SHOW search_path INTO :var;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>something</I
+></TT
+></TT
+>という形のトークンは<I
+CLASS="FIRSTTERM"
+>ホスト変数</I
+>です。
+つまり、Cプログラム内の変数を参照するものです。
+これについては<A
+HREF="ecpg-variables.html"
+>&#38917;33.4</A
+>で説明します。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-CURSORS"
+>33.3.2. カーソルの使用</A
+></H2
+><P
+>複数行の結果セットを受け取るためには、アプリケーションはカーソルを定義し、必要に応じてレコードを一行ずつ取り込む必要があります。カーソルを使った処理は、カーソ
+ルの宣言、カーソルのオープン、カーソルからのFETCH、カーソルのクローズという流れになります。
+  </P
+><P
+>カーソルを用いたSELECT:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DECLARE foo_bar CURSOR FOR
+    SELECT number, ascii FROM foo
+    ORDER BY ascii;
+EXEC SQL OPEN foo_bar;
+EXEC SQL FETCH foo_bar INTO :FooBar, DooDad;
+...
+EXEC SQL CLOSE foo_bar;
+EXEC SQL COMMIT;</PRE
+><P>
+  </P
+><P
+>カーソルの宣言の詳細については <A
+HREF="ecpg-sql-declare.html"
+>DECLARE</A
+> を、<TT
+CLASS="LITERAL"
+>FETCH</TT
+> コマンドの詳細については <A
+HREF="sql-fetch.html"
+>FETCH</A
+> を参照してください。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>     ECPGの <TT
+CLASS="COMMAND"
+>DECLARE</TT
+> コマンド自身は、PostgreSQLバックエンドに送られるSQL文を実行しません。<TT
+CLASS="COMMAND"
+>OPEN</TT
+> コマンドが実行された段階で、バックエンド内部で（<TT
+CLASS="COMMAND"
+>DECLARE</TT
+>コマンドで宣言された）カーソルが開かれます。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-TRANSACTIONS"
+>33.3.3. トランザクションの管理</A
+></H2
+><P
+>デフォルトモードでは、SQL文は<TT
+CLASS="COMMAND"
+>EXEC SQL COMMIT</TT
+>が発行されることによってのみコミットされます。
+埋め込みSQLインタフェースでも、<TT
+CLASS="COMMAND"
+>ecpg</TT
+>コマンド（以下を参照）の<TT
+CLASS="OPTION"
+>-t</TT
+>コマンドラインオプション、あるいは <TT
+CLASS="LITERAL"
+>EXEC SQL SET AUTOCOMMIT TO ON</TT
+>文によって（<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の振舞いに似た）トランザクションの自動コミットをサポートしています。
+自動コミットモードでは、問い合わせが明示的なトランザクションブロックの内部にある場合を除き、すべての問い合わせが自動的にコミットされます。 
+自動コミットモードは、<TT
+CLASS="LITERAL"
+>EXEC SQL SET AUTOCOMMIT TO OFF</TT
+>を使用して明示的に無効にすることができます。
+  </P
+><P
+>以下のトランザクション管理コマンドを使用することができます:
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>EXEC SQL COMMIT</TT
+></DT
+><DD
+><P
+>        実行中のトランザクションのコミット。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>EXEC SQL ROLLBACK</TT
+></DT
+><DD
+><P
+>        実行中のトランザクションのロールバック。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>EXEC SQL SET AUTOCOMMIT TO ON</TT
+></DT
+><DD
+><P
+>        自動コミットモードの有効化。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET AUTOCOMMIT TO OFF</TT
+></DT
+><DD
+><P
+>        自動コミットモードの無効化。デフォルト状態。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-PREPARED"
+>33.3.4. Prepared Statements</A
+></H2
+><P
+>SQL文に渡す値がコンパイル時に決まらない場合、または同じSQL文を何度も実行する場合、プリペアード・ステートメントが便利です。
+   </P
+><P
+>    SQL文は <TT
+CLASS="LITERAL"
+>PREPARE</TT
+> コマンドを使ってプリペアします。
+    まだ決まっていない値については、プレースホルダ <SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>?</TT
+>"</SPAN
+> を使います:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL PREPARE stmt1 FROM "SELECT oid, datname FROM pg_database WHERE oid = ?";</PRE
+><P>
+   </P
+><P
+>SQL文が一行のみの結果を返却する場合には、アプリケーションはSQL文を <TT
+CLASS="LITERAL"
+>PREPARE</TT
+> した後、<TT
+CLASS="LITERAL"
+>USING</TT
+> を用いてプレースホルダに実際の値を与えて <TT
+CLASS="LITERAL"
+>EXECUTE</TT
+> を実行することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL EXECUTE stmt1 INTO :dboid, :dbname USING 1;</PRE
+><P>
+   </P
+><P
+>    SQL文が複数の行を返却する場合には、アプリケーションはプリペアード・ステートメントの宣言に対応したカーソルを利用することができます。
+    入力パラメータを設定するために、カーソルは <TT
+CLASS="LITERAL"
+>USING</TT
+> とともに開かれなければなりません:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL PREPARE stmt1 FROM "SELECT oid,datname FROM pg_database WHERE oid &gt; ?";
+EXEC SQL DECLARE foo_bar CURSOR FOR stmt1;
+
+/* when end of result set reached, break out of while loop */
+EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+EXEC SQL OPEN foo_bar USING 100;
+...
+while (1)
+{
+    EXEC SQL FETCH NEXT FROM foo_bar INTO :dboid, :dbname;
+    ...
+}
+EXEC SQL CLOSE foo_bar;</PRE
+><P>
+   </P
+><P
+>    プリペアード・ステートメントをこれ以上必要としなくなったら、解放処理をしなければなりません:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DEALLOCATE PREPARE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</PRE
+><P>
+   </P
+><P
+>    <TT
+CLASS="LITERAL"
+>PREPARE</TT
+> についての詳細は <A
+HREF="ecpg-sql-prepare.html"
+>PREPARE</A
+> を参照してください。
+    また、プレースホルダと入力パラメータの利用についての詳細は <A
+HREF="ecpg-dynamic.html"
+>&#38917;33.5</A
+> を参照してください。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-connect.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-variables.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データベース接続の管理</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ホスト変数の使用</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

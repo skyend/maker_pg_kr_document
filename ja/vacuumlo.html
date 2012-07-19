@@ -1,0 +1,424 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>vacuumlo</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="uuid-ossp"
+HREF="uuid-ossp.html"><LINK
+REL="NEXT"
+TITLE="xml2"
+HREF="xml2.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="uuid-ossp"
+HREF="uuid-ossp.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="xml2"
+HREF="xml2.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="VACUUMLO"
+>F.46. vacuumlo</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>vacuumlo</SPAN
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースから<SPAN
+CLASS="QUOTE"
+>"孤児になった"</SPAN
+>ラージオブジェクトをすべて削除する、単純なユーティリティです。
+データベース内で<TT
+CLASS="TYPE"
+>oid</TT
+>または<TT
+CLASS="TYPE"
+>lo</TT
+>データ型列内にまったく現れないOIDを持つすべてのラージオブジェクト（LO）を<SPAN
+CLASS="QUOTE"
+>"孤児になった"</SPAN
+>ラージオブジェクトとみなします。
+ </P
+><P
+>これを使用する場合にはまた、<A
+HREF="lo.html"
+>lo</A
+>モジュール内の<CODE
+CLASS="FUNCTION"
+>lo_manage</CODE
+>トリガに興味を持つかもしれません。
+<CODE
+CLASS="FUNCTION"
+>lo_manage</CODE
+>は初期段階で孤児になったLOの生成を防止しようと試みます。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138759"
+>F.46.1. 使用方法</A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+>vacuumlo [options] database [database2 ... databaseN]</PRE
+><P
+>コマンドラインで指名されたすべてのデータベースに対して処理が行われます。
+利用可能なオプションは以下の通りです。
+  </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="OPTION"
+>-v</TT
+></DT
+><DD
+><P
+>多くの進行メッセージを出力します。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-n</TT
+></DT
+><DD
+><P
+>ラージオブジェクトの削除を行わず、単に何が行われるはずかを示します。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-l</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>limit</I
+></TT
+></DT
+><DD
+><P
+>1トランザクションあたりの削除可能なラージオブジェクトの限界数です(デフォルトは1000)。削除されるラージオブジェクト毎に一つのロックを取得するため、
+多数のラージオブジェクトの削除を1トランザクションで行う場合、<A
+HREF="runtime-config-locks.html#GUC-MAX-LOCKS-PER-TRANSACTION"
+>max_locks_per_transaction</A
+>を超える恐れがあります。
+もし1トランザクションで全ての削除を行いたい場合は、limit値を0に指定してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-U</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+></DT
+><DD
+><P
+>接続ユーザ名です。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-w</TT
+><BR><TT
+CLASS="OPTION"
+>--no-password</TT
+></DT
+><DD
+><P
+>パスワード入力のプロンプトを出さなくします。もし、サーバがパスワード認証を必要としており、<TT
+CLASS="FILENAME"
+>.pgpass</TT
+>ファイルを用いる様な、
+プロンプト入力とは別の手段を通してパスワードを利用できない場合は、接続に失敗します。このオプションは、バッチ処理やスクリプト処理の様なパスワードを入力するユーザがいないケースで有効です。
+     </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-W</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>vacuumlo</SPAN
+>は強制的にデータベースに接続する前にパスワード入力を促します。
+     </P
+><P
+>サーバがパスワード認証を要求する場合<SPAN
+CLASS="APPLICATION"
+>vacuumlo</SPAN
+>は自動的にパスワード入力を促しますので、これが重要になることはありません。
+しかし、<SPAN
+CLASS="APPLICATION"
+>vacuumlo</SPAN
+>は、サーバにパスワードが必要かどうかを判断するための接続試行を無駄に行います。
+こうした余計な接続試行を防ぐために<TT
+CLASS="OPTION"
+>-W</TT
+>の入力が有意となる場合もあります。
+     </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-h</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>hostname</I
+></TT
+></DT
+><DD
+><P
+>データベースサーバのホスト名です。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-p</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></DT
+><DD
+><P
+>データベースサーバのポート番号です。</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138817"
+>F.46.2. 手法</A
+></H2
+><P
+>まず、<SPAN
+CLASS="APPLICATION"
+>vacuumlo</SPAN
+>は選択されたデータベース内のラージオブジェクトのOIDをすべて含む一時テーブルを構築します。
+  </P
+><P
+>そしてデータベース内で<TT
+CLASS="TYPE"
+>oid</TT
+>型または<TT
+CLASS="TYPE"
+>lo</TT
+>型を型として持つ全列をスキャンし、一時テーブルから一致する項目を削除します。
+(注意:これらの名前の型のみが対象となります。特に、これらの型を伴ったドメインなどはスキャン対象にはなりませんので注意が必要です。)
+  </P
+><P
+>一時テーブルに残った項目を孤児LOと識別します。これらが削除されます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138825"
+>F.46.3. 作者</A
+></H2
+><P
+>   Peter Mount <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:peter@retep.org.uk"
+>peter@retep.org.uk</A
+>&#62;</CODE
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="uuid-ossp.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="xml2.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>uuid-ossp</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>xml2</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

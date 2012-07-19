@@ -1,0 +1,776 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データベースへのデータ投入</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="性能に関するヒント"
+HREF="performance-tips.html"><LINK
+REL="PREVIOUS"
+TITLE="明示的なJOIN句でプランナを制御する"
+HREF="explicit-joins.html"><LINK
+REL="NEXT"
+TITLE="永続性がない設定"
+HREF="non-durability.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="明示的なJOIN句でプランナを制御する"
+HREF="explicit-joins.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="性能に関するヒント"
+HREF="performance-tips.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 14&#31456;性能に関するヒント</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="性能に関するヒント"
+HREF="performance-tips.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="永続性がない設定"
+HREF="non-durability.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="POPULATE"
+>14.4. データベースへのデータ投入</A
+></H1
+><P
+>データベースにデータを初期投入するために、大量のテーブル挿入操作を行う必要がままあります。
+本節では、この作業を効率良く行うためのちょっとした提言を示します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DISABLE-AUTOCOMMIT"
+>14.4.1. 自動コミットをオフにする</A
+></H2
+><P
+>複数回の<TT
+CLASS="COMMAND"
+>INSERT</TT
+>を実行するのであれば、自動コミットを無効にして最後に1回だけコミットしてください。
+（普通のSQLでは、これは<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>を開始時に、<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>を最後に発行することを意味します。
+クライアント用ライブラリの中にはこれを背後で実行するものもあります。
+その場合は、要望通りにライブラリが行っているかどうかを確認しなければなりません。）
+各挿入操作で個別にコミットすることを許すと、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は行を追加する度に多くの作業をしなければなりません。
+1つのトランザクションですべての挿入を行うことによるもう1つの利点は、1つの行の挿入に失敗した場合、その時点までに挿入されたすべての行がロールバックされることです。
+その結果、一部のみがロードされたデータの対処に困ることはありません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="POPULATE-COPY-FROM"
+>14.4.2. <TT
+CLASS="COMMAND"
+>COPY</TT
+>の使用</A
+></H2
+><P
+>単一コマンドですべての行をロードするために一連の<TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンドではなく、<A
+HREF="sql-copy.html"
+>COPY</A
+>を使用してください。
+<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドは行を大量にロードすることに最適化されています。
+このコマンドは<TT
+CLASS="COMMAND"
+>INSERT</TT
+>に比べ柔軟性に欠けていますが、大量のデータロードにおけるオーバーヘッドを大きく低減します。
+<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドでテーブルにデータを投入する場合、コマンドは1つなので、自動コミットを無効にする必要はありません。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>を使用できない場合、準備された<TT
+CLASS="COMMAND"
+>INSERT</TT
+>文を<A
+HREF="sql-prepare.html"
+>PREPARE</A
+>を使用して作成し、必要数回だけ<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>を実行する方が良いでしょう。
+これにより、繰り返し行われる<TT
+CLASS="COMMAND"
+>INSERT</TT
+>の解析と計画作成分のオーバーヘッドを省くことになります。
+この機能のための方法はインタフェースによって異なります。
+このインタフェースの文書の<SPAN
+CLASS="QUOTE"
+>"準備された文"</SPAN
+>を参照してください。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>を使用した大量の行のロードは、ほとんどすべての場合において、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>を使用するロードよりも高速です。
+たとえ複数の挿入を単一トランザクションにまとめたとしても、またその際に<TT
+CLASS="COMMAND"
+>PREPARE</TT
+>を使用したとしても、これは当てはまります。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>は、前もって行われる<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>または<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>コマンドと同一トランザクションで行った場合に、最速です。
+この場合、エラーが起きた場合に新しくロードされるデータを含むファイルがとにかく削除されますので、WALを書き出す必要がありません。
+しかし、<A
+HREF="runtime-config-wal.html#GUC-WAL-LEVEL"
+>wal_level</A
+>が<TT
+CLASS="LITERAL"
+>minimal</TT
+>に設定されている場合のみにこの方法は当てはまります。
+この他の場合には、すべてのコマンドをWALに書き出さなければならないためです。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="POPULATE-RM-INDEXES"
+>14.4.3. インデックスを削除する</A
+></H2
+><P
+>新規に作成したテーブルをロードする時、最速の方法は、テーブルを作成し、<TT
+CLASS="COMMAND"
+>COPY</TT
+>を使用した一括ロードを行い、そのテーブルに必要なインデックスを作成することです。
+既存のデータに対するインデックスを作成する方が、各行がロードされる度に段階的に更新するよりも高速です。
+   </P
+><P
+>既存のテーブルに大量のデータを追加しているのであれば、インデックスを削除し、テーブルをロード、その後にインデックスを再作成する方がよいかもしれません。
+もちろん、他のユーザから見ると、インデックスが存在しない間データベースの性能は悪化します。
+また、一意性インデックスを削除する前には熟考しなければなりません。
+一意性制約によるエラー検査がその期間行われないからです。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="POPULATE-RM-FKEYS"
+>14.4.4. 外部キー制約の削除</A
+></H2
+><P
+>インデックスの場合と同様、外部キー制約は一行一行検査するよりも効率的に、<SPAN
+CLASS="QUOTE"
+>"まとめて"</SPAN
+>検査することができます。
+従って、外部キー制約を削除し、データをロード、そして、制約を再作成する方法は有用となることがあります。
+繰り返しますが、データロードの速度と、制約が存在しない間のエラー検査がないという点とのトレードオフがあります。
+   </P
+><P
+>外部キー制約をすでに持つテーブルにデータをロードする時、新しい行はそれぞれ(行の外部キー制約を検査するトリガを発行しますので)サーバの待機中トリガイベントのリスト内に項目を要求します。
+数百万の行をロードすると、トリガイベントのキューが利用可能なメモリをオーバーフローさせてしまい、耐えられないほどのスワッピングが発生してしまう、最悪はそのコマンドが完全に失敗してしまう可能性があります。
+したがって単に好ましいだけでなく、大量のデータをロードする時には外部キーを削除し再度適用することが<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必要</I
+></SPAN
+>かもしれません。
+一時的な制約削除が受け入れられない場合に他に取り得る手段は、ロード操作をより小さなトランザクションに分割することだけかもしれません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="POPULATE-WORK-MEM"
+>14.4.5. <TT
+CLASS="VARNAME"
+>maintenance_work_mem</TT
+>を増やす</A
+></H2
+><P
+>大規模なデータをロードする時<A
+HREF="runtime-config-resource.html#GUC-MAINTENANCE-WORK-MEM"
+>maintenance_work_mem</A
+>設定変数を一時的に増やすことで性能を向上させることができます。
+これは、<TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+>コマンドと<TT
+CLASS="COMMAND"
+>ALTER TABLE ADD FOREIGN KEY</TT
+>の速度向上に役立ちます。
+<TT
+CLASS="COMMAND"
+>COPY</TT
+>自体には大して役立ちませんので、この助言は、上述の技法の片方または両方を使用している時にのみ有用です。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="POPULATE-CHECKPOINT-SEGMENTS"
+>14.4.6. <TT
+CLASS="VARNAME"
+>checkpoint_segments</TT
+>を増やす</A
+></H2
+><P
+>大規模なデータをロードする時<A
+HREF="runtime-config-wal.html#GUC-CHECKPOINT-SEGMENTS"
+>checkpoint_segments</A
+>設定変数を一時的に増やすことで高速化することができます。
+大量のデータを<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にロードすることで、通常のチェックポイントの頻度（<TT
+CLASS="VARNAME"
+>checkpoint_timeout</TT
+>設定変数により指定されます）よりも頻繁にチェックポイントが発生するためです。
+チェックポイントが発生すると、すべてのダーティページ（ディスクに未書き込みの変更済みメモリページ）はディスクに吐き出されなければなりません。
+大量のデータロードの際に一時的に<TT
+CLASS="VARNAME"
+>checkpoint_segments</TT
+>を増加させることで、必要なチェックポイント数を減らすことができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="POPULATE-PITR"
+>14.4.7. WALアーカイブ処理とストリーミングレプリケーションの無効化</A
+></H2
+><P
+>大量のデータをWALアーカイブ処理またはストリーミングレプリケーションを使用するインストレーションにロードする時、増加する大量のWALデータを処理するより、ロードが完了した後に新しくベースバックアップを取る方が高速です。
+ロード中のWALログの増加を防ぐためには、<A
+HREF="runtime-config-wal.html#GUC-WAL-LEVEL"
+>wal_level</A
+>を<TT
+CLASS="LITERAL"
+>minimal</TT
+>に、<A
+HREF="runtime-config-wal.html#GUC-ARCHIVE-MODE"
+>archive_mode</A
+>を<TT
+CLASS="LITERAL"
+>off</TT
+>に、<A
+HREF="runtime-config-replication.html#GUC-MAX-WAL-SENDERS"
+>max_wal_senders</A
+>をゼロに設定することにより、アーカイブ処理とストリーミングレプリケーションを無効にしてください。
+しかし、これらの変数を変更するにはサーバの再起動が必要な点に注意してください。
+   </P
+><P
+>こうすると、WALデータを処理する保管処理またはWAL送信処理にかかる時間がかからないことの他に、実際のところ、特定のコマンドをより高速にします。
+<TT
+CLASS="VARNAME"
+>wal_level</TT
+>が<TT
+CLASS="LITERAL"
+>minimal</TT
+>の場合、これらのコマンドではWALへの書き出しは全く予定されないためです。
+（これらは最後に<CODE
+CLASS="FUNCTION"
+>fsync</CODE
+>を実行することで、WALへの書き込みより安価にクラッシュした場合の安全性を保証することができます。）
+これは以下のコマンドで当てはまります。
+    <P
+></P
+></P><UL
+><LI
+><P
+>       <TT
+CLASS="COMMAND"
+>CREATE TABLE AS SELECT</TT
+>
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+> (または<TT
+CLASS="COMMAND"
+>ALTER TABLE ADD PRIMARY KEY</TT
+>などの亜種）
+      </P
+></LI
+><LI
+><P
+>       <TT
+CLASS="COMMAND"
+>ALTER TABLE SET TABLESPACE</TT
+>
+      </P
+></LI
+><LI
+><P
+>       <TT
+CLASS="COMMAND"
+>CLUSTER</TT
+>
+      </P
+></LI
+><LI
+><P
+>同一トランザクションで前もって対象テーブルが作成された、あるいは、消去された場合の<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>
+      </P
+></LI
+></UL
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="POPULATE-ANALYZE"
+>14.4.8. 最後に<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>を実行</A
+></H2
+><P
+>テーブル内のデータ分布を大きく変更した時は毎回、<A
+HREF="sql-analyze.html"
+>ANALYZE</A
+>を実行することを強く勧めます。
+これは、テーブルに大量のデータをまとめてロードする場合も含まれます。
+<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>（または<TT
+CLASS="COMMAND"
+>VACUUM ANALYZE</TT
+>）を実行することで、確実にプランナがテーブルに関する最新の統計情報を持つことができます。
+統計情報が存在しない、または古い場合、プランナは、そのテーブルに対する問い合わせの性能を損なわせる、お粗末な問い合わせ計画を選択する可能性があります。
+自動バキュームデーモンが有効な場合、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>が自動的に実行されます。
+詳細は<A
+HREF="routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+>&#38917;23.1.3</A
+>および<A
+HREF="routine-vacuuming.html#AUTOVACUUM"
+>&#38917;23.1.5</A
+>を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="POPULATE-PG-DUMP"
+>14.4.9. <SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>に関するいくつかの注意</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>で生成されるダンプスクリプトは自動的に上のガイドラインのいくつかを適用します（すべてではありません）。
+<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>ダンプをできる限り高速にリロードするには、手作業で更に数作業が必要です。
+（これらは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>作成</I
+></SPAN
+>時に適用するものではなく、ダンプを<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>復元</I
+></SPAN
+>する時に適用するものです。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を使用してテキスト形式のダンプをロードする時と<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>のアーカイブファイルから<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>を使用してロードする時にも同じことが適用できます。）
+   </P
+><P
+>デフォルトでは、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は<TT
+CLASS="COMMAND"
+>COPY</TT
+>を使用します。
+スキーマとデータのダンプ全体を生成する場合、インデックスと外部キー制約を作成する前にデータをロードすることに注意してください。
+ですので、この場合、ガイドラインのいくつかは自動的に行われます。
+残された作業は以下のとおりです。
+    <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>maintenance_work_mem</TT
+>および<TT
+CLASS="VARNAME"
+>checkpoint_segments</TT
+>を適切な（つまり通常よりも大きな）値に設定します。
+      </P
+></LI
+><LI
+><P
+>WALアーカイブ処理またはストリーミングレプリケーションを使用する場合は、リストア時にこれを無効にすることを検討してください。
+このためにはダンプをロードする前に<TT
+CLASS="VARNAME"
+>archive_mode</TT
+>を<TT
+CLASS="LITERAL"
+>off</TT
+>に、<TT
+CLASS="VARNAME"
+>wal_level</TT
+>を<TT
+CLASS="LITERAL"
+>minimal</TT
+>に、<TT
+CLASS="VARNAME"
+>max_wal_senders</TT
+>をゼロに設定してください。
+その後それらを正しい値に戻し、新規にベースバックアップを取ってください。
+      </P
+></LI
+><LI
+><P
+>ダンプ全体を単一トランザクションとしてリストアすべきかどうか検討してください。
+このためには<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>または<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>に<TT
+CLASS="OPTION"
+>-1</TT
+>または<TT
+CLASS="OPTION"
+>--single-transaction</TT
+>コマンドラインオプションを指定してください。
+このモードを使用する場合、たとえ小さなエラーであっても、エラーがあればリストア全体がロールバックされます。
+データ同士の関連性がどの程度あるかに依存しますが、手作業での整理の際には好まれるかと思います。さもなくばあまり勧めません。
+単一トランザクションで実行し、WALアーカイブを無効にしている場合、<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドは最も高速に行われます。
+      </P
+></LI
+><LI
+><P
+>データベースサーバで複数のCPUが利用できるのであれば、<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>の<TT
+CLASS="OPTION"
+>--jobs</TT
+>オプションの利用を検討してください。
+これによりデータのロードとインデックスの作成を同時に行うことができます。
+      </P
+></LI
+><LI
+><P
+>この後で<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>を実行してください。
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+>データのみのダンプも<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドを使用しますが、インデックスの削除と再作成を行いません。
+また、通常は外部キー制約を変更しません。
+
+     <A
+NAME="AEN23229"
+HREF="#FTN.AEN23229"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+>
+
+したがって、データのみのダンプをロードする時、上の技法を使用したければ自らインデックスと外部キーを削除、再作成しなければなりません。
+データをロードする時に<TT
+CLASS="VARNAME"
+>checkpoint_segments</TT
+>を増やすことも有用です。
+しかし、<TT
+CLASS="VARNAME"
+>maintenance_work_mem</TT
+>を増やすことは考えないでください。
+これは、後でインデックスと外部キーを手作業で再作成する時に行う方がよいでしょう。
+また、実行した後で<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>を行うことを忘れないでください。
+詳細は<A
+HREF="routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+>&#38917;23.1.3</A
+>および<A
+HREF="routine-vacuuming.html#AUTOVACUUM"
+>&#38917;23.1.5</A
+>を参照してください。
+   </P
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>&#27880;&#24847;</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN23229"
+HREF="populate.html#AEN23229"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+><TT
+CLASS="OPTION"
+>--disable-triggers</TT
+>オプションを使用して、外部キーを無効にさせることができます。
+しかし、これは外部キー制約を遅らせるのではなく、除去することに注意してください。
+そのため、これを使用すると不正なデータを挿入することができてしまいます。
+      </P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="explicit-joins.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="non-durability.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>明示的な<TT
+CLASS="LITERAL"
+>JOIN</TT
+>句でプランナを制御する</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="performance-tips.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>永続性がない設定</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

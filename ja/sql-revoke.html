@@ -1,0 +1,760 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>REVOKE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="RESET"
+HREF="sql-reset.html"><LINK
+REL="NEXT"
+TITLE="ROLLBACK"
+HREF="sql-rollback.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="RESET"
+HREF="sql-reset.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="RESET"
+HREF="sql-reset.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ROLLBACK"
+HREF="sql-rollback.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ROLLBACK"
+HREF="sql-rollback.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-REVOKE"
+></A
+>REVOKE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN73764"
+></A
+><H2
+>&#21517;&#21069;</H2
+>REVOKE&nbsp;--&nbsp;アクセス権限を取り消す</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN73769"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>REVOKE [ GRANT OPTION FOR ]
+    { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON { [ TABLE ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [, ...]
+         | ALL TABLES IN SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...] }
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { SELECT | INSERT | UPDATE | REFERENCES } ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] )
+    [, ...] | ALL [ PRIVILEGES ] ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) }
+    ON [ TABLE ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [, ...]
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { USAGE | SELECT | UPDATE }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON { SEQUENCE <TT
+CLASS="REPLACEABLE"
+><I
+>sequence_name</I
+></TT
+> [, ...]
+         | ALL SEQUENCES IN SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...] }
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { CREATE | CONNECT | TEMPORARY | TEMP } [, ...] | ALL [ PRIVILEGES ] }
+    ON DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> [, ...]
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { USAGE | ALL [ PRIVILEGES ] }
+    ON FOREIGN DATA WRAPPER <TT
+CLASS="REPLACEABLE"
+><I
+>fdw_name</I
+></TT
+> [, ...]
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { USAGE | ALL [ PRIVILEGES ] }
+    ON FOREIGN SERVER <TT
+CLASS="REPLACEABLE"
+><I
+>server_name</I
+></TT
+> [, ...]
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { EXECUTE | ALL [ PRIVILEGES ] }
+    ON { FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( [ [ <TT
+CLASS="REPLACEABLE"
+><I
+>argmode</I
+></TT
+> ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>arg_name</I
+></TT
+> ] <TT
+CLASS="REPLACEABLE"
+><I
+>arg_type</I
+></TT
+> [, ...] ] ) [, ...]
+         | ALL FUNCTIONS IN SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...] }
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { USAGE | ALL [ PRIVILEGES ] }
+    ON LANGUAGE <TT
+CLASS="REPLACEABLE"
+><I
+>lang_name</I
+></TT
+> [, ...]
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { SELECT | UPDATE } [, ...] | ALL [ PRIVILEGES ] }
+    ON LARGE OBJECT <TT
+CLASS="REPLACEABLE"
+><I
+>loid</I
+></TT
+> [, ...]
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { { CREATE | USAGE } [, ...] | ALL [ PRIVILEGES ] }
+    ON SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...]
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ GRANT OPTION FOR ]
+    { CREATE | ALL [ PRIVILEGES ] }
+    ON TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace_name</I
+></TT
+> [, ...]
+    FROM { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...]
+    [ CASCADE | RESTRICT ]
+
+REVOKE [ ADMIN OPTION FOR ]
+    <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...] FROM <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...]
+    [ CASCADE | RESTRICT ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-REVOKE-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>REVOKE</TT
+>コマンドは、1つ以上のロールに対して、以前に与えた権限を取り消します。
+<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>キーワードは暗黙的に定義された全ロールからなるグループです。
+  </P
+><P
+>権限の種類の意味については<A
+HREF="sql-grant.html"
+>GRANT</A
+>コマンドの説明を参照してください。
+  </P
+><P
+>全てのロールは、そのロールに直接許可された権限、現在属しているロールに許可された権限、<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>に許可された権限という3つの権限を合わせた権限を持っていることに注意してください。
+したがって、例えば、<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>から<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限を取り消すことは、必ずしも全てのロールがそのオブジェクトに対する<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限を失うことを意味しません。
+権限が直接許可されているロール、あるいは、別ロール経由で許可されているロールは、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限を持ち続けます。
+同様にユーザから<TT
+CLASS="LITERAL"
+>SELECT</TT
+>を取りあげても、<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>またはほかのメンバとして属するロールが<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限を持つ場合、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>の使用を拒否できません。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>GRANT OPTION FOR</TT
+>が指定された場合、権限自体ではなく、その権限のグラントオプションのみが取り消されます。
+指定されていなければ、権限とグラントオプションの両方が取り消されます。
+  </P
+><P
+>グラントオプション付きの権限を保持しているユーザが、その権限を他ユーザに与えていた場合、与えられたユーザが保持する権限は依存権限と呼ばれます。
+権限を与えたユーザ自身の権限やグラントオプションが取り消された時、その権限に依存権限が存在する場合、<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>が指定されていると依存権限も取り消されます。指定されていなければ、権限の取り消しが失敗します。
+この再帰的な権限の取り消しは、ユーザ権限の連鎖を通じて与えられた権限の中でも、<TT
+CLASS="LITERAL"
+>REVOKE</TT
+>を実行されたユーザから追跡可能な範囲にのみ影響します。
+したがって、依存権限を持つユーザが他のユーザからも同じ権限を与えられている場合は、<TT
+CLASS="LITERAL"
+>REVOKE</TT
+>が実行された後もその権限を保持している可能性があります。
+  </P
+><P
+>テーブルの権限を取り消す場合、対応する列の権限（もしあれば）も自動的に、そのテーブルの各列から取り消されます。
+  </P
+><P
+>ロールのメンバ資格を取り消す場合、同様に振舞いますが、<TT
+CLASS="LITERAL"
+>GRANT OPTION</TT
+>ではなく<TT
+CLASS="LITERAL"
+>ADMIN OPTION</TT
+>が呼び出されます。
+また、このコマンド構文では無意味な<TT
+CLASS="LITERAL"
+>GROUP</TT
+>という単語を受け付けないことに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-REVOKE-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+>既存のテーブルや列に付与された権限を表示するためには<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>の<TT
+CLASS="COMMAND"
+>\dp</TT
+>コマンドを使用してください。
+この書式については<A
+HREF="sql-grant.html"
+>GRANT</A
+>を参照してください。
+テーブル以外のオブジェクトについて、その権限を表示することができる他の<TT
+CLASS="COMMAND"
+>\d</TT
+>コマンドが存在します。
+  </P
+><P
+>取り消すことができるのは、ユーザが直接付与した権限のみです。
+例えば、もし、ユーザAがグラントオプションを付けてユーザBに権限を与え、その後、ユーザBがユーザCにその権限を与えたとすると、ユーザAはユーザCの権限を直接取り消すことはできません。
+その代わり、ユーザAがユーザBのグラントオプションを<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>オプション付きで取り消すことで、ユーザCに与えられた権限を取り消すことができます。
+別の状況を考えてみます。AとBの両方が同じ権限をCに与えた場合、AはAの与えた権限を取り消すことはできますが、Bの与えた権限を取り消すことはできません。
+したがって、Cは実質的にその権限を持ち続けることになります。
+  </P
+><P
+>オブジェクトの所有者以外がそのオブジェクト上の権限に対して<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>を実行した場合、ユーザがオブジェクトに対して何の権限も持っていなければ、即座にコマンドが失敗します。
+何らかの権限があればコマンド処理が続行されますが、取り消すことができるのはそのユーザがグラントオプションを持つ権限のみです。
+<TT
+CLASS="COMMAND"
+>REVOKE ALL PRIVILEGES</TT
+>構文をまったく権限を持たない状態で実行すると、警告が出力されます。
+他の構文の場合は、そのコマンドで指名した権限に対するグラントオプションを持たない状態で実行すると、警告が出力されます
+（原理上、上記の説明はオブジェクト所有者にも適用されますが、所有者は常に全てのグラントオプションを保持しているので、こうした問題が発生することはありません）。
+   </P
+><P
+>スーパーユーザが<TT
+CLASS="COMMAND"
+>GRANT</TT
+>や<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>コマンドを発行した場合、そのコマンドは、対象のオブジェクトの所有者によって発行されたものであるかのように動作します。
+根本的には全ての権限はオブジェクトの所有者から渡されるものなので（ただし、グラントオプションの連鎖により間接的に渡される場合もありますが）、スーパーユーザは、全ての権限を取り消すことができます。
+ただし、この場合は上述の<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>を使用する必要があります。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>REVOKE</TT
+>は、影響するオブジェクトの所有者以外のロールによって実行することもできますが、
+オブジェクトを所有するロールのメンバであるか、そのオブジェクトに対し<TT
+CLASS="LITERAL"
+>WITH GRANT OPTION</TT
+>権限を持つロールのメンバでなければなりません。
+この場合、
+そのオブジェクトの実際の所有者ロールまたは<TT
+CLASS="LITERAL"
+>WITH GRANT OPTION</TT
+>権限を持つロールによって発行されたかのように、このコマンドは実行されます。
+例えば、<TT
+CLASS="LITERAL"
+>t1</TT
+>テーブルが<TT
+CLASS="LITERAL"
+>g1</TT
+>ロールによって所有され、<TT
+CLASS="LITERAL"
+>u1</TT
+>が<TT
+CLASS="LITERAL"
+>g1</TT
+>ロールのメンバであるとします。
+この場合、<TT
+CLASS="LITERAL"
+>u1</TT
+>は<TT
+CLASS="LITERAL"
+>g1</TT
+>で付与されたものと記録されている権限を取り上げることができます。
+これには、<TT
+CLASS="LITERAL"
+>u1</TT
+>が付与した権限と<TT
+CLASS="LITERAL"
+>g1</TT
+>ロールの他のメンバによって付与された権限が含まれます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>REVOKE</TT
+>を実行したロールが、ロールの持つ複数メンバ資格の経路を通して間接的に必要な権限を持つ場合、
+どのロールが権限を付与したロールとして記録されるかについては指定されません。
+こうした場合、<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>を使用して、<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>を行わせたい特定のロールになることを推奨します。
+こうしないと、意図しないロールによって権限を取り上げることになったり、取り上げ自体が失敗することになったりします。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-REVOKE-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+>publicに与えた<TT
+CLASS="LITERAL"
+>films</TT
+>テーブルに対する挿入権限を取り消します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>REVOKE INSERT ON films FROM PUBLIC;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>kinds</TT
+>ビューから、<TT
+CLASS="LITERAL"
+>manuel</TT
+>ユーザに与えた全ての権限を取り上げます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>  
+REVOKE ALL PRIVILEGES ON kinds FROM manuel;</PRE
+><P>
+
+これは<SPAN
+CLASS="QUOTE"
+>"自分が与えた全ての権限を取り消す"</SPAN
+>ことを意味します。
+
+  </P
+><P
+>ユーザ<TT
+CLASS="LITERAL"
+>joe</TT
+>からロール<TT
+CLASS="LITERAL"
+>admins</TT
+>内のメンバ資格を取り上げます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>REVOKE admins FROM joe;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-REVOKE-COMPATIBILITY"
+></A
+><H2
+>互換性</H2
+><P
+><A
+HREF="sql-grant.html"
+>GRANT</A
+>コマンドの互換性についての注釈は<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>にも当てはまります。
+標準では、キーワード<TT
+CLASS="LITERAL"
+>RESTRICT</TT
+>か<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>のどちらかが必須です。
+しかし、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではデフォルトで<TT
+CLASS="LITERAL"
+>RESTRICT</TT
+>と仮定されます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73886"
+></A
+><H2
+>関連項目</H2
+><P
+>   <A
+HREF="sql-grant.html"
+>GRANT</A
+>
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-reset.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-rollback.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>RESET</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ROLLBACK</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

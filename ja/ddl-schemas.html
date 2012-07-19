@@ -1,0 +1,759 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>スキーマ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ定義"
+HREF="ddl.html"><LINK
+REL="PREVIOUS"
+TITLE="権限"
+HREF="ddl-priv.html"><LINK
+REL="NEXT"
+TITLE="継承"
+HREF="ddl-inherit.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="権限"
+HREF="ddl-priv.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 5&#31456;データ定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="継承"
+HREF="ddl-inherit.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DDL-SCHEMAS"
+>5.7. スキーマ</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースクラスタには、複数の名前付きデータベースが含まれます。
+ユーザおよびユーザのグループはクラスタ全体で共有されますが、他のデータは複数のデータベース間で共有されません。
+サーバに接続しているクライアントは、単一のデータベース、つまり接続要求で指定したデータベース内のデータにしかアクセスできません。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>クラスタのユーザは、クラスタ内の全てのデータベースへのアクセス権限を持っているとは限りません。
+ユーザ名を共有するということは、例えば<TT
+CLASS="LITERAL"
+>joe</TT
+>という同じユーザ名を持つ異なるユーザが同じクラスタ内の2つのデータベースに存在することはできないということです。
+しかし、<TT
+CLASS="LITERAL"
+>joe</TT
+>が一部のデータベースにのみアクセスできるようにシステムを構成することはできます。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>データベースには、複数の名前付き<I
+CLASS="FIRSTTERM"
+>スキーマ</I
+>が含まれ、スキーマにはテーブルが含まれます。
+スキーマには、データ型、関数および演算子などの他の名前付きオブジェクトも含まれます。
+同じオブジェクト名を異なるスキーマで使用しても矛盾は起こりません。
+例えば、<TT
+CLASS="LITERAL"
+>schema1</TT
+>と<TT
+CLASS="LITERAL"
+>myschema</TT
+>の両方のスキーマに<TT
+CLASS="LITERAL"
+>mytable</TT
+>というテーブルが含まれていても構いません。
+スキーマはデータベースとは異なり厳格に分離されていないので、ユーザは、権限さえ持っていれば接続しているデータベース内のどのスキーマのオブジェクトにでもアクセスすることができます。
+  </P
+><P
+>スキーマの使用が好まれる理由はいくつかあります。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>1つのデータベースを多数のユーザが互いに干渉することなく使用できるようにするため。
+     </P
+></LI
+><LI
+><P
+>管理しやすくなるよう、データベースオブジェクトを論理グループに編成するため。
+     </P
+></LI
+><LI
+><P
+>サードパーティのアプリケーションを別々のスキーマに入れることにより、他のオブジェクトの名前と競合しないようにするため。
+     </P
+></LI
+></UL
+><P>
+
+スキーマは、入れ子にできないという点を除き、オペレーティングシステムのディレクトリと似ています。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-SCHEMAS-CREATE"
+>5.7.1. スキーマの作成</A
+></H2
+><P
+>スキーマを作成するには、<A
+HREF="sql-createschema.html"
+>CREATE SCHEMA</A
+>コマンドを使用します。
+スキーマに自由に名前を付けます。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE SCHEMA myschema;</PRE
+><P>
+   </P
+><P
+>スキーマ内にオブジェクトを作成したりこれにアクセスするには、スキーマ名とテーブル名をドットで区切った<I
+CLASS="FIRSTTERM"
+>修飾名</I
+>を書きます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>schema</I
+></TT
+><TT
+CLASS="LITERAL"
+>.</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+></PRE
+><P>
+この方法は、後の章で説明するテーブル変更コマンドやデータアクセスコマンドなど、テーブル名を必要とする場合すべてに使用できます。
+（簡単に、テーブルについてのみ述べます。しかし型や関数といった名前付きのオブジェクトの全種類について同様の考え方が適用できます。）
+   </P
+><P
+>実際には、より一般的な以下の構文
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+><TT
+CLASS="LITERAL"
+>.</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>schema</I
+></TT
+><TT
+CLASS="LITERAL"
+>.</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+></PRE
+><P>
+を使用することもできますが、現在ではこの構文は<I
+CLASS="FOREIGNPHRASE"
+>形式上</I
+>標準SQLに準拠するためにのみ存在しています。
+記述されるデータベース名は、接続しているデータベースと同じ名前でなければなりません。
+   </P
+><P
+>ですから、新しいスキーマにテーブルを作成するには次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE myschema.mytable (
+ ...
+);</PRE
+><P>
+   </P
+><P
+>空のスキーマ（全てのオブジェクトが削除されたスキーマ）を削除するには次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DROP SCHEMA myschema;</PRE
+><P>
+オブジェクトを含むスキーマを削除する場合には次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DROP SCHEMA myschema CASCADE;</PRE
+><P>
+この背後にある一般的な機構についての詳細は<A
+HREF="ddl-depend.html"
+>&#38917;5.12</A
+>を参照してください。
+   </P
+><P
+>他のユーザが所有するスキーマを作成したい場合があります（これは他のユーザの活動を明確に定義された名前空間内に制限する方法の1つです）。
+そのための構文は次の通りです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schemaname</I
+></TT
+> AUTHORIZATION <TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+>;</PRE
+><P>
+スキーマ名は省略することもでき、その場合スキーマ名はユーザ名と同じになります。
+この構文の便利な使用方法は<A
+HREF="ddl-schemas.html#DDL-SCHEMAS-PATTERNS"
+>&#38917;5.7.6</A
+>に記載されています。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>pg_</TT
+>で始まるスキーマ名は、システム上の使用のため予約されており、ユーザが作成することはできません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-SCHEMAS-PUBLIC"
+>5.7.2. publicスキーマ</A
+></H2
+><P
+>これまでの節ではスキーマ名を指定せずにテーブルを作成してきました。
+デフォルトでは、このようなテーブル（および他のオブジェクト）は自動的に<SPAN
+CLASS="QUOTE"
+>"public"</SPAN
+>という名前のスキーマに入れられます。
+新しいデータベースには全てこのようなスキーマが含まれています。
+そのため、以下の2つの構文は同等です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE products ( ... );</PRE
+><P>
+および
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE public.products ( ... );</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-SCHEMAS-PATH"
+>5.7.3. スキーマ検索パス</A
+></H2
+><P
+>修飾名を書くのは手間がかかりますし、どちらにしても、アプリケーションに特定のスキーマ名を書き込まない方が良いことも多いのです。
+そのため、テーブルは多くの場合、テーブル名しか持たない<I
+CLASS="FIRSTTERM"
+>非修飾名</I
+>として参照されます。
+システムは、検索するスキーマのリストである<I
+CLASS="FIRSTTERM"
+>検索パス</I
+>に従って、どのテーブルを指しているのかを判別します。
+検索パスで最初に一致したテーブルが、該当テーブルだと解釈されます。
+検索パス内に一致するテーブルがないと、データベースの他のスキーマ内に一致するテーブルがある場合でもエラーが報告されます。
+   </P
+><P
+>検索パスの最初に列挙されているスキーマは、「現在のスキーマ」と呼ばれます。
+現在のスキーマは、検索される最初のスキーマであると同時に、スキーマ名を指定せずに<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>コマンドでテーブルを作成した場合に新しいテーブルが作成されるスキーマでもあります。
+   </P
+><P
+>現行の検索パスを示すには次のコマンドを使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SHOW search_path;</PRE
+><P>
+デフォルトの設定では次のように返されます。
+</P><PRE
+CLASS="SCREEN"
+> search_path
+--------------
+ "$user",public</PRE
+><P>
+最初の要素は、現行ユーザと同じ名前のスキーマを検索することを指定しています。
+そのようなスキーマが存在していない場合、この項目は無視されます。
+2番目の要素は、先ほど説明したpublicスキーマを参照しています。
+   </P
+><P
+>検索パス内で最初に存在するスキーマが、新規オブジェクトが作成されるデフォルトの場所になります。
+これが、デフォルトでオブジェクトがpublicスキーマに作成される理由です。
+オブジェクトがスキーマ修飾なしで別の文脈で参照される場合（テーブル変更、データ変更、あるいは問い合わせコマンドなど）、一致するオブジェクトが見つかるまで検索パス内で探索されます。
+そのためデフォルト構成では、非修飾のアクセスはpublicスキーマしか参照できません。
+   </P
+><P
+>新しいスキーマをパスに追加するには次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET search_path TO myschema,public;</PRE
+><P>
+（<TT
+CLASS="LITERAL"
+>$user</TT
+>はまだ必要ないので、ここでは省略しています。）
+そして、次のようにしてスキーマ修飾なしでテーブルにアクセスします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DROP TABLE mytable;</PRE
+><P>
+また、<TT
+CLASS="LITERAL"
+>myschema</TT
+>はパス内の最初の要素なので、新しいオブジェクトはデフォルトでここに作成されます。
+   </P
+><P
+>以下のように書くこともできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET search_path TO myschema;</PRE
+><P>
+このようにすると、今後は修飾名なしでpublicスキーマにアクセスすることができなくなります。
+publicスキーマはデフォルトで存在するということ以外に特別な意味はありません。
+他のスキーマと同様に削除することもできます。
+   </P
+><P
+>スキーマ検索パスに操作する他の方法については<A
+HREF="functions-info.html"
+>&#38917;9.23</A
+>を参照してください。
+   </P
+><P
+>検索パスはデータ型名、関数名、演算子名についても、テーブル名の場合と同じように機能します。
+データ型および関数の名前は、テーブル名とまったく同じように修飾することができます。
+式で修飾演算子名を書く場合には、特別な決まりがあります。
+それは以下の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="LITERAL"
+>OPERATOR(</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>schema</I
+></TT
+><TT
+CLASS="LITERAL"
+>.</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+><TT
+CLASS="LITERAL"
+>)</TT
+></PRE
+><P>
+この規則は構文が曖昧になることを防ぐためのものです。  
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 3 OPERATOR(pg_catalog.+) 4;</PRE
+><P>
+実際の場面ではこのような見づらい構文を書かなくて済むように、演算子についても検索パスが使用されています。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-SCHEMAS-PRIV"
+>5.7.4. スキーマおよび権限</A
+></H2
+><P
+>ユーザは、デフォルトでは所有していないスキーマのオブジェクトをアクセスすることはできません。
+アクセスするためには、そのスキーマの所有者からスキーマの<TT
+CLASS="LITERAL"
+>USAGE</TT
+>権限を付与してもらわなければなりません。
+そのスキーマ内のオブジェクトに対して操作を行うには、そのオブジェクトに応じて、さらに追加の権限が必要となる場合があります。
+   </P
+><P
+>他のユーザのスキーマ内でオブジェクトを作成することも可能です。
+それには、スキーマ上で<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限が付与されていなければなりません。
+デフォルトでは、<TT
+CLASS="LITERAL"
+>public</TT
+> スキーマに関しては全てのユーザが<TT
+CLASS="LITERAL"
+>CREATE</TT
+>と<TT
+CLASS="LITERAL"
+>USAGE</TT
+>権限を持っていることに注意してください。
+つまり、全てのユーザは、そのユーザが接続できる任意のデータベース上の<TT
+CLASS="LITERAL"
+>public</TT
+>スキーマにオブジェクトを作成できるということです。
+これが好ましくない場合は、以下のように権限を取り消すことができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>REVOKE CREATE ON SCHEMA public FROM PUBLIC;</PRE
+><P>
+（最初の<SPAN
+CLASS="QUOTE"
+>"public"</SPAN
+>はスキーマです。2番目の<SPAN
+CLASS="QUOTE"
+>"public"</SPAN
+>は<SPAN
+CLASS="QUOTE"
+>"全てのユーザ"</SPAN
+>を意味します。
+最初のpublicは識別子で、2番目のpublicはキーワードなので、それぞれ小文字、大文字を使用しています。<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS"
+>&#38917;4.1.1</A
+>のガイドラインを思い出してください。）
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-SCHEMAS-CATALOG"
+>5.7.5. システムカタログスキーマ</A
+></H2
+><P
+>各データベースには、<TT
+CLASS="LITERAL"
+>public</TT
+>およびユーザ作成のスキーマの他に<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>スキーマが含まれています。
+このスキーマにはシステムテーブルと全ての組み込みデータ型、関数および演算子が含まれています。
+<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>は常に検索パスに含まれています。
+パスに明示的にリストされていない場合は、パスのスキーマを検索する<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>前</I
+></SPAN
+>に暗黙的に検索されます。
+これにより組み込みの名前が常に検索されることが保証されます。
+しかし、ユーザ定義の名前で組み込みの名前を上書きする場合は、<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>を明示的にパスの最後に置くことができます。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 7.3より前のバージョンでは、<TT
+CLASS="LITERAL"
+>pg_</TT
+>で始まるテーブル名は予約されていました。
+しかし現在では変更され、システムスキーマ以外のスキーマにも<TT
+CLASS="LITERAL"
+>pg_</TT
+>で始まる名前を付けられるようになりました。
+ただし、このような名前は使用しないのが得策と言えます。
+今後のバージョンでユーザのテーブルと同じ名前のシステムカタログが定義され、競合する事態を避けるためです。
+（その結果、デフォルトの検索パスでは、ユーザのテーブル名への非修飾の参照はシステムカタログとして解決されることになります。）
+システムカタログは今後も<TT
+CLASS="LITERAL"
+>pg_</TT
+>で始まる規則に従うので、ユーザが<TT
+CLASS="LITERAL"
+>pg_</TT
+>という接頭辞を使わない限り、非修飾のユーザ定義テーブル名がシステムカタログと競合することはありません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-SCHEMAS-PATTERNS"
+>5.7.6. 使用パターン</A
+></H2
+><P
+>スキーマは様々な方法でデータの編成に使用できます。
+デフォルト構成で簡単にサポートできるお勧めの使用パターンがいくつかあります。
+    <P
+></P
+></P><UL
+><LI
+><P
+>スキーマを作成しない場合は、全てのユーザが暗黙にpublicスキーマにアクセスします。
+これはスキーマがまったく使用できない状況と同じです。
+この構成は主に、データベースで作業するのが1人または2、3人しかいない場合に推奨されます。
+またこの構成では、スキーマを認識しない状況からの移行を容易に行えます。
+      </P
+></LI
+><LI
+><P
+>それぞれのユーザに、ユーザ名と同じ名前のスキーマを作成することができます。
+デフォルトの検索パスが、ユーザ名として解決される<TT
+CLASS="LITERAL"
+>$user</TT
+>で始まることを思い出してください。
+つまり、各ユーザが個別のスキーマを持っていると、デフォルトでそれぞれのスキーマにアクセスすることになります。
+      </P
+><P
+>この設定を使用する場合は、publicスキーマへのアクセス権を取り消して（またはスキーマを削除して）、ユーザが完全に自分のスキーマにしかアクセスできないようにすることもできます。 
+      </P
+></LI
+><LI
+><P
+>共有アプリケーション（共有で使うテーブル、サードパーティ提供の追加関数など）をインストールする際には、それぞれ別のスキーマに入れるようにしてください。
+また他のユーザがこれらにアクセスできるように適切な権限を付与することを忘れないようにしてください。
+それによって他のユーザは、追加のオブジェクトをスキーマ名で修飾することによって参照したり、希望するならば、スキーマをそれぞれの検索パスに追加したりすることができます。
+      </P
+></LI
+></UL
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DDL-SCHEMAS-PORTABILITY"
+>5.7.7. 移植性</A
+></H2
+><P
+>標準SQLでは、1つのスキーマ内の異なるユーザが所有するオブジェクトという概念は存在しません。
+それどころか、実装によっては所有者と異なる名前のスキーマを作成することが許可されていない場合もあります。
+実際、標準で規定されている基本スキーマサポートのみを実装しているデータベースシステムでは、スキーマという概念とユーザという概念はほとんど同じなのです。
+そのため、修飾名とは<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+></TT
+>のことであると思っているユーザはたくさんいます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>においても、ユーザごとに1つのスキーマを作成すると、このようになります。
+   </P
+><P
+>また、標準SQLには、<TT
+CLASS="LITERAL"
+>public</TT
+>スキーマという概念もありません。
+標準に最大限従うためには、<TT
+CLASS="LITERAL"
+>public</TT
+>スキーマは使用すべきではありません（おそらく削除した方が良いかもしれません）。
+   </P
+><P
+>もちろん、スキーマをまったく実装していなかったり、または、データベース間アクセスを（場合によっては制限付きで）許可することによって名前空間の使用をサポートしているSQLデータベースもあります。
+このようなシステムで作業する必要がある場合は、スキーマをまったく使わないようにすることで最大限の移植性を実現できます。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ddl-priv.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ddl-inherit.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>権限</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ddl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>継承</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

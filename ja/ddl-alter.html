@@ -1,0 +1,508 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テーブルの変更</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ定義"
+HREF="ddl.html"><LINK
+REL="PREVIOUS"
+TITLE="システム列"
+HREF="ddl-system-columns.html"><LINK
+REL="NEXT"
+TITLE="権限"
+HREF="ddl-priv.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="システム列"
+HREF="ddl-system-columns.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 5&#31456;データ定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="権限"
+HREF="ddl-priv.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DDL-ALTER"
+>5.5. テーブルの変更</A
+></H1
+><P
+>テーブルの作成後に間違いに気付いたり、あるいはアプリケーションの要件が変わったりした場合には、テーブルをいったん削除して再度作成することができます。
+しかし、テーブルにデータを入力済みの場合、あるいはそのテーブルが他のデータベースオブジェクト（例えば外部キー制約）によって参照されている場合、これは良い方法ではありません。
+そのため、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> では既存のテーブルに変更を加えるための一連のコマンドが用意されています。テーブル内のデータを変更するという概念ではないことに注意してください。
+ここでは、テーブルの定義や構造を変更することに焦点を合わせます。
+  </P
+><P
+>次のことができます。
+   <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+><P
+>列の追加</P
+></LI
+><LI
+><P
+>列の削除</P
+></LI
+><LI
+><P
+>制約の追加</P
+></LI
+><LI
+><P
+>制約の削除</P
+></LI
+><LI
+><P
+>デフォルト値の変更</P
+></LI
+><LI
+><P
+>列のデータ型の変更</P
+></LI
+><LI
+><P
+>列名の変更</P
+></LI
+><LI
+><P
+>テーブル名の変更</P
+></LI
+></UL
+><P>
+
+これらの操作は全て<A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>コマンド（本節の説明範囲を超えますので詳細はこちらを参照してください）を使用して行うことができます。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2706"
+>5.5.1. 列の追加</A
+></H2
+><P
+>列を追加するには、次のようにコマンドを使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products ADD COLUMN description text;</PRE
+><P>
+新しい列にはデフォルト値が初期値として入ります（<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句を指定しない場合はNULL値が入ります）。
+   </P
+><P
+>次の構文を使用すると、列の制約も同時に定義することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products ADD COLUMN description text CHECK (description &lt;&gt; '');</PRE
+><P>
+実際には<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>内の列の記述に使用されている全てのオプションが、ここで使用できます。
+ただしデフォルト値は与えられている制約を満足するものでなくてはならないことに注意してください。満足しない場合は<TT
+CLASS="LITERAL"
+>ADD</TT
+>が失敗します。一方で、新規の列に正しく値を入れた後で制約を追加することができます（後述）。
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>デフォルトを持つ列を追加するためには、（新しい列値を格納するために）テーブルの各行を更新しなければなりません。
+しかし、デフォルトが指定されていない場合は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は物理的な更新を避けることが可能です。
+ですので、ほとんどがデフォルト以外の値を持つ列をテーブルに格納するつもりであれば、デフォルトを指定せずに列を追加し、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>を使用して正しい値を挿入することをお勧めします。
+その後に、後述のようにして設定したいデフォルト値を付与してください。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2722"
+>5.5.2. 列の削除</A
+></H2
+><P
+>列を削除するには、次のようにコマンドを使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products DROP COLUMN description;</PRE
+><P>
+列内にある、どんなデータであれ消去します。
+また列を含むテーブルの制約も消去されます。
+しかし、もし列が他のテーブルの外部キー制約として参照されている場合は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は暗黙のうちに制約を消去しません。
+<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>を追加することにより列に依存する全てを消去することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products DROP COLUMN description CASCADE;</PRE
+><P>
+この背後にある一般的な仕組みに関する説明については<A
+HREF="ddl-depend.html"
+>&#38917;5.12</A
+>を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2733"
+>5.5.3. 制約の追加</A
+></H2
+><P
+>制約を追加するには、テーブル制約の構文が使用されます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products ADD CHECK (name &lt;&gt; '');
+ALTER TABLE products ADD CONSTRAINT some_name UNIQUE (product_no);
+ALTER TABLE products ADD FOREIGN KEY (product_group_id) REFERENCES product_groups;</PRE
+><P>
+テーブル制約として記述できない非NULL制約を追加するには、次の構文を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products ALTER COLUMN product_no SET NOT NULL;</PRE
+><P>
+   </P
+><P
+>制約は即座に検査されますので、制約を追加する前にテーブル内のデータがこれに従っている必要があります。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2742"
+>5.5.4. 制約の削除</A
+></H2
+><P
+>制約を削除するには、その制約名を知る必要があります。
+自分で名前を付けた場合は簡単です。
+しかし、自分で名前を付けていない場合はシステム生成の名前が割り当てられているので、それを探さなくてはなりません。
+それには<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="LITERAL"
+>\d <TT
+CLASS="REPLACEABLE"
+><I
+>tablename</I
+></TT
+></TT
+>コマンドを使用すると便利です。
+他のインタフェースにもテーブルの詳細を調べる方法があるかもしれません。
+コマンドは以下の通りです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products DROP CONSTRAINT some_name;</PRE
+><P>
+（自動生成された<TT
+CLASS="LITERAL"
+>$2</TT
+>といった制約名を扱う場合は、有効な識別子となるように二重引用符で括る必要があることを忘れないでください。）
+   </P
+><P
+>列の削除に関して、何かが依存している制約を削除する場合には<TT
+CLASS="LITERAL"
+>CASCADE</TT
+>を付ける必要があります。例として、参照されている列に付いている一意またはプライマリキー制約に依存している外部キー制約を削除する場合です。
+   </P
+><P
+>これは、非NULL制約以外の全ての制約型に適用できます。 
+非NULL制約を削除するには、次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products ALTER COLUMN product_no DROP NOT NULL;</PRE
+><P>
+（非NULL制約には名前がないことを想起してください。）
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2757"
+>5.5.5. 列のデフォルト値の変更</A
+></H2
+><P
+>列に新しいデフォルトを設定するには、以下のようなコマンドを使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products ALTER COLUMN price SET DEFAULT 7.77;</PRE
+><P>
+これはテーブル内の既存の行には何も影響を与えないことに注意してください。これは将来の<TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンドのために単純にデフォルトを変えるだけです。
+   </P
+><P
+>デフォルト値を削除するには次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products ALTER COLUMN price DROP DEFAULT;</PRE
+><P>
+これは、デフォルトをNULLに設定することと同等です。 
+そのため、定義されていないデフォルト値を削除してもエラーにはなりません。
+なぜなら NULL値が暗黙的にデフォルトとなっているからです。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2767"
+>5.5.6. 列のデータ型の変更</A
+></H2
+><P
+>列を異なるデータ型に変換するには以下のようなコマンドを使用してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products ALTER COLUMN price TYPE numeric(10,2);</PRE
+><P>
+これは、その列の既存の項目が新しい型に暗黙的キャストにより変換できる場合にのみ成功します。
+より複雑な変換が必要な場合、古い値から新しい値をどのように計算するかを指定する<TT
+CLASS="LITERAL"
+>USING</TT
+>句を付けることができます。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、（もしあれば）列のデフォルト値を新しい型に、同時に、その列に関連する全ての制約も新しい型に変換しようとします。
+しかし、こうした変換は失敗するかもしれませんし、予想を超えた結果になってしまうかもしれません。
+型を変更する前にその列に関する制約を全て削除し、後で適切に変更した制約を付け直すことが最善な場合がよくあります。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2777"
+>5.5.7. 列名の変更</A
+></H2
+><P
+>列名を変更するには、次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products RENAME COLUMN product_no TO product_number;</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN2784"
+>5.5.8. テーブル名の変更</A
+></H2
+><P
+>テーブル名を変更するには、次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLE products RENAME TO items;</PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ddl-system-columns.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ddl-priv.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>システム列</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ddl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>権限</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

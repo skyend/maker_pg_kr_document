@@ -1,0 +1,677 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>oid2name</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="ltree"
+HREF="ltree.html"><LINK
+REL="NEXT"
+TITLE="pageinspect"
+HREF="pageinspect.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ltree"
+HREF="ltree.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pageinspect"
+HREF="pageinspect.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="OID2NAME"
+>F.22. oid2name</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>oid2name</SPAN
+>は、管理者がPostgreSQLで使用されるファイル構造を確認することを補助するユーティリティプログラムです。
+使用できるようにするためには、<A
+HREF="storage.html"
+>&#31532;55&#31456;</A
+>で説明されるデータベースファイル構造についての知識が必要です。
+ </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="QUOTE"
+>"oid2name"</SPAN
+>という名前は歴史的なものであり、これを使用する場合のほとんどでは、本当はテーブルのファイルノード番号（これはデータベースディレクトリ内で可視なファイル名）が関係しますので、実際誤解されやすいものです。
+テーブルのOIDとテーブルファイルノードの違いを確実に理解してください。
+  </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134791"
+>F.22.1. 概要</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>oid2name</SPAN
+>は対象データベースに接続し、OID、ファイルノード、テーブル名情報を抽出します。
+また、データベースOIDまたはテーブル空間OIDを示すようにさせることもできます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134795"
+>F.22.2. <SPAN
+CLASS="APPLICATION"
+>oid2name</SPAN
+>のオプション</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>oid2name</SPAN
+>は以下のコマンドライン引数を受け付けます。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="OPTION"
+>-o</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>oid</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>oid</I
+></TT
+>というOIDを持つテーブルの情報を表示します。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-f</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>filenode</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>filenode</I
+></TT
+>というファイルノードを持つテーブルの情報を表示します。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-t</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>tablename_pattern</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>tablename_pattern</I
+></TT
+>に一致するテーブル（複数可）の情報を表示します。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-s</TT
+></DT
+><DD
+><P
+>テーブル空間OIDを表示します。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-S</TT
+></DT
+><DD
+><P
+>システムオブジェクト（<TT
+CLASS="OPTION"
+>information_schema</TT
+>、<TT
+CLASS="OPTION"
+>pg_toast</TT
+>、<TT
+CLASS="OPTION"
+>pg_catalog</TT
+>スキーマ内に存在するもの）を含めます。
+     </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-i</TT
+></DT
+><DD
+><P
+>一覧にインデックスおよびシーケンスを含めます。</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-x</TT
+></DT
+><DD
+><P
+>表示対象の各オブジェクトに関してさらに情報を表示します。テーブル空間名、スキーマ名、OID。
+     </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-q</TT
+></DT
+><DD
+><P
+>ヘッダを省略します。（スクリプト処理に適しています）</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-d</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+></DT
+><DD
+><P
+>接続データベース</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-H</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+></DT
+><DD
+><P
+>データベースサーバのホスト</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-p</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></DT
+><DD
+><P
+>データベースサーバのポート</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-U</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+></DT
+><DD
+><P
+>接続ユーザ名</P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-P</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></DT
+><DD
+><P
+>パスワード(廃止予定。コマンドラインに記述することはセキュリティ的に危険です。)</P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>特定のテーブルを表示するために、<TT
+CLASS="OPTION"
+>-o</TT
+>、<TT
+CLASS="OPTION"
+>-f</TT
+>、<TT
+CLASS="OPTION"
+>-t</TT
+>を使用して表示するテーブルを選択してください。
+<TT
+CLASS="OPTION"
+>-o</TT
+>はOIDを、<TT
+CLASS="OPTION"
+>-f</TT
+>はファイルノードを、<TT
+CLASS="OPTION"
+>-t</TT
+>はテーブル名（実際は<TT
+CLASS="LITERAL"
+>LIKE</TT
+>パターンです。ですので<TT
+CLASS="LITERAL"
+>foo%</TT
+>などが使用できます）を引数として取ります。
+これらのオプションを必要なだけ使用することができます。
+一覧には、オプションのいずれかで一致したオブジェクトがすべて含まれます。
+しかしこれらのオプションでは、<TT
+CLASS="OPTION"
+>-d</TT
+>で指定したデータベース内に存在するオブジェクトしか表示しないことに注意してください。
+  </P
+><P
+><TT
+CLASS="OPTION"
+>-o</TT
+>、<TT
+CLASS="OPTION"
+>-f</TT
+>、<TT
+CLASS="OPTION"
+>-t</TT
+>のいずれも指定せずに<TT
+CLASS="OPTION"
+>-d</TT
+>を指定した場合、<TT
+CLASS="OPTION"
+>-d</TT
+>で指定したデータベース上のすべてのテーブルを列挙します。
+このモードでは、<TT
+CLASS="OPTION"
+>-S</TT
+>および<TT
+CLASS="OPTION"
+>-i</TT
+>スイッチが何を列挙するかを制御します。
+  </P
+><P
+><TT
+CLASS="OPTION"
+>-d</TT
+>も指定しなかった場合、データベースOIDの一覧を示します。
+他にも<TT
+CLASS="OPTION"
+>-s</TT
+>を指定してテーブル空間の一覧を得ることもできます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134901"
+>F.22.3. 例</A
+></H2
+><PRE
+CLASS="SCREEN"
+>$ # what's in this database server, anyway?
+$ oid2name
+All databases:
+    Oid  Database Name  Tablespace
+----------------------------------
+  17228       alvherre  pg_default
+  17255     regression  pg_default
+  17227      template0  pg_default
+      1      template1  pg_default
+
+$ oid2name -s
+All tablespaces:
+     Oid  Tablespace Name
+-------------------------
+    1663       pg_default
+    1664        pg_global
+  155151         fastdisk
+  155152          bigdisk
+
+$ # OK, let's look into database alvherre
+$ cd $PGDATA/base/17228
+
+$ # get top 10 db objects in the default tablespace, ordered by size
+$ ls -lS * | head -10
+-rw-------  1 alvherre alvherre 136536064 sep 14 09:51 155173
+-rw-------  1 alvherre alvherre  17965056 sep 14 09:51 1155291
+-rw-------  1 alvherre alvherre   1204224 sep 14 09:51 16717
+-rw-------  1 alvherre alvherre    581632 sep  6 17:51 1255
+-rw-------  1 alvherre alvherre    237568 sep 14 09:50 16674
+-rw-------  1 alvherre alvherre    212992 sep 14 09:51 1249
+-rw-------  1 alvherre alvherre    204800 sep 14 09:51 16684
+-rw-------  1 alvherre alvherre    196608 sep 14 09:50 16700
+-rw-------  1 alvherre alvherre    163840 sep 14 09:50 16699
+-rw-------  1 alvherre alvherre    122880 sep  6 17:51 16751
+
+$ # I wonder what file 155173 is ...
+$ oid2name -d alvherre -f 155173
+From database "alvherre":
+  Filenode  Table Name
+----------------------
+    155173    accounts
+
+$ # you can ask for more than one object
+$ oid2name -d alvherre -f 155173 -f 1155291
+From database "alvherre":
+  Filenode     Table Name
+-------------------------
+    155173       accounts
+   1155291  accounts_pkey
+
+$ # you can mix the options, and get more details with -x
+$ oid2name -d alvherre -t accounts -f 1155291 -x
+From database "alvherre":
+  Filenode     Table Name      Oid  Schema  Tablespace
+------------------------------------------------------
+    155173       accounts   155173  public  pg_default
+   1155291  accounts_pkey  1155291  public  pg_default
+
+$ # show disk space for every db object
+$ du [0-9]* |
+&#62; while read SIZE FILENODE
+&#62; do
+&#62;   echo "$SIZE       `oid2name -q -d alvherre -i -f $FILENODE`"
+&#62; done
+16            1155287  branches_pkey
+16            1155289  tellers_pkey
+17561            1155291  accounts_pkey
+...
+
+$ # same, but sort by size
+$ du [0-9]* | sort -rn | while read SIZE FN
+&#62; do
+&#62;   echo "$SIZE   `oid2name -q -d alvherre -f $FN`"
+&#62; done
+133466             155173    accounts
+17561            1155291  accounts_pkey
+1177              16717  pg_proc_proname_args_nsp_index
+...
+
+$ # If you want to see what's in tablespaces, use the pg_tblspc directory
+$ cd $PGDATA/pg_tblspc
+$ oid2name -s
+All tablespaces:
+     Oid  Tablespace Name
+-------------------------
+    1663       pg_default
+    1664        pg_global
+  155151         fastdisk
+  155152          bigdisk
+
+$ # what databases have objects in tablespace "fastdisk"?
+$ ls -d 155151/*
+155151/17228/  155151/PG_VERSION
+
+$ # Oh, what was database 17228 again?
+$ oid2name
+All databases:
+    Oid  Database Name  Tablespace
+----------------------------------
+  17228       alvherre  pg_default
+  17255     regression  pg_default
+  17227      template0  pg_default
+      1      template1  pg_default
+
+$ # Let's see what objects does this database have in the tablespace.
+$ cd 155151/17228
+$ ls -l
+total 0
+-rw-------  1 postgres postgres 0 sep 13 23:20 155156
+
+$ # OK, this is a pretty small table ... but which one is it?
+$ oid2name -d alvherre -f 155156
+From database "alvherre":
+  Filenode  Table Name
+----------------------
+    155156         foo</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134904"
+>F.22.4. 制限</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>oid2name</SPAN
+>は破損のないシステムカタログで実行中のデータベースサーバが必要です。
+したがって、破滅的にデータベースが破損したような状況からの復旧での使用には制限されています。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN134908"
+>F.22.5. 作者</A
+></H2
+><P
+>   B. Palmer <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:bpalmer@crimelabs.net"
+>bpalmer@crimelabs.net</A
+>&#62;</CODE
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ltree.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pageinspect.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ltree</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>pageinspect</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

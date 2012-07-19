@@ -1,0 +1,1669 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>カーネルリソースの管理</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの準備と運用"
+HREF="runtime.html"><LINK
+REL="PREVIOUS"
+TITLE="データベースサーバの起動"
+HREF="server-start.html"><LINK
+REL="NEXT"
+TITLE="サーバのシャットダウン"
+HREF="server-shutdown.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベースサーバの起動"
+HREF="server-start.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 17&#31456;サーバの準備と運用</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバのシャットダウン"
+HREF="server-shutdown.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="KERNEL-RESOURCES"
+>17.4. カーネルリソースの管理</A
+></H1
+><P
+>大規模な<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>インストレーションでは、すぐに各種オペレーティングシステムのリソース制限を超えてしまうことがあります。
+（システムによっては、実際に<SPAN
+CLASS="QUOTE"
+>"大規模"</SPAN
+>なインストレーションでなくても、出荷時のデフォルトでは低過ぎるものもあります。）
+この種の問題が発生したら、これらを読んでください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SYSVIPC"
+>17.4.1. 共有メモリとセマフォ</A
+></H2
+><P
+>共有メモリとセマフォはひとまとめに<SPAN
+CLASS="QUOTE"
+>"<SPAN
+CLASS="SYSTEMITEM"
+>System V</SPAN
+> <ACRONYM
+CLASS="ACRONYM"
+>IPC</ACRONYM
+>"</SPAN
+>と呼ばれます
+（メッセージキューも一緒ですが、これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>とは関係ありません）。
+ほとんどすべての最近のオペレーティングシステムはこれらの機能を提供していますが、デフォルトではこれらの多くで有効になっていませんし、また、特に搭載されるRAMやデータベースアプリケーションの需要が大きくなっているにも関わらず、十分なサイズがありません。
+（<SPAN
+CLASS="SYSTEMITEM"
+>Windows</SPAN
+>版では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は独自の代替的な実装でこれらの機能を提供しています。このため本節のほとんどは無視することができます）。
+   </P
+><P
+>これらの機能の完全な欠落は、サーバ起動時の<SPAN
+CLASS="ERRORNAME"
+>Illegal system call</SPAN
+>エラーによって判明します。
+その場合はカーネルを設定し直すしかありません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はこれらの機能なしでは動きません。
+しかし最近のオペレーティングシステムではこうした状況はまれなものです。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が様々な<ACRONYM
+CLASS="ACRONYM"
+>IPC</ACRONYM
+>のハードリミットの1つを超えると、サーバは起動を拒否し、問題および何をすべきかを説明するエラーメッセージを残します。
+（<A
+HREF="server-start.html#SERVER-START-FAILURES"
+>&#38917;17.3.1</A
+> も参照してください。）
+関係するカーネルパラメータは別々のシステム上でも統一して名付けられています。
+<A
+HREF="kernel-resources.html#SYSVIPC-PARAMETERS"
+>&#34920;17-1</A
+>で概略がわかります。
+しかしこれらを設定するための方法は異なります。 
+以下に、いくつかのプラットフォームへの提案を挙げます。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="SYSVIPC-PARAMETERS"
+></A
+><P
+><B
+>&#34920; 17-1. <SPAN
+CLASS="SYSTEMITEM"
+>System V</SPAN
+> <ACRONYM
+CLASS="ACRONYM"
+>IPC</ACRONYM
+>パラメータ</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>説明</TH
+><TH
+>適切な値</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SHMMAX</TT
+></TD
+><TD
+>共有メモリセグメントの最大サイズ（バイト）</TD
+><TD
+>最小でも数メガバイト（本文を参照してください）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SHMMIN</TT
+></TD
+><TD
+>共有メモリセグメントの最小サイズ（バイト）</TD
+><TD
+>1</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SHMALL</TT
+></TD
+><TD
+>使用可能な共有メモリの総量（バイトまたはページ）</TD
+><TD
+>バイト指定の場合<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>と同じです。 ページ指定の場合は<TT
+CLASS="LITERAL"
+>ceil(SHMMAX/PAGE_SIZE)</TT
+>です。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SHMSEG</TT
+></TD
+><TD
+>プロセスごとの共有メモリセグメントの最大数</TD
+><TD
+>必要なのは1セグメントだけですが、デフォルトではもっと多くなっています</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SHMMNI</TT
+></TD
+><TD
+>システム全体の共有メモリセグメントの最大数</TD
+><TD
+><TT
+CLASS="VARNAME"
+>SHMSEG</TT
+>と同様 + 他のアプリケーション用の空間</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SEMMNI</TT
+></TD
+><TD
+>セマフォ識別子の最大数（つまりセット）</TD
+><TD
+>最低 <TT
+CLASS="LITERAL"
+>ceil((max_connections + autovacuum_max_workers + 4) / 16)</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SEMMNS</TT
+></TD
+><TD
+>システム全体のセマフォの最大数</TD
+><TD
+><TT
+CLASS="LITERAL"
+>ceil((max_connections + autovacuum_max_workers + 4) / 16) * 17</TT
+> + 他のアプリケーション用の空間</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SEMMSL</TT
+></TD
+><TD
+>セットごとのセマフォの最大数</TD
+><TD
+>最低17</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SEMMAP</TT
+></TD
+><TD
+>セマフォマップの中の項目の数</TD
+><TD
+>本文を参照</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="VARNAME"
+>SEMVMX</TT
+></TD
+><TD
+>セマフォの最大値</TD
+><TD
+>最低1000（デフォルトはしばしば32767ですが、必要がなければ変更しないでください）</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>&#13;共有メモリに関する一番重要なパラメータは、共有メモリセグメントの最大サイズのバイト数<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>です。
+もし<CODE
+CLASS="FUNCTION"
+>shmget</CODE
+>から<SPAN
+CLASS="QUOTE"
+>"Invalid argument"</SPAN
+>のようなエラーメッセージを受けた場合、おそらくこの上限を超えています。
+必要な共有メモリセグメントのサイズは、<A
+HREF="kernel-resources.html#SHARED-MEMORY-PARAMETERS"
+>&#34920;17-2</A
+>に示す各種の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>設定パラメータによって変わります。
+（エラー時に出力されるメッセージにはすべて、割り当て要求に失敗した正確なサイズが記載されています。）
+エラーをなくすための一時的な策として、これらの設定を低くすることもできます。
+<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>を2メガバイトとして<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を稼動させることができますが、受容できる性能を確保するためにはかなりより多くのサイズが必要です。
+10メガバイト単位から100メガバイトから数ギガバイトの設定を推奨します。
+   </P
+><P
+>また、システムの中には、システムにおける共有メモリの総量（<TT
+CLASS="VARNAME"
+>SHMALL</TT
+>）に対する制限があるものがあります。
+この値を確実に、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>と共有メモリセグメントを使用する他のアプリケーションの合計よりも十分に大きくしてください。
+多くのシステムで<TT
+CLASS="VARNAME"
+>SHMALL</TT
+>はバイト単位ではなくページ単位であることに注意してください。
+   </P
+><P
+>問題が少ないのは共有メモリセグメントの最小サイズ（<TT
+CLASS="VARNAME"
+>SHMMIN</TT
+>）で、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では最大でもおよそ500キロバイトのはずです（通常では1です）。
+システム全体のセグメントの最大数（<TT
+CLASS="VARNAME"
+>SHMMNI</TT
+>）もしくはプロセスごとのセグメントの最大数（<TT
+CLASS="VARNAME"
+>SHMSEG</TT
+>）に関して、使用しているシステムで0に設定されていない限り、問題が起きることはほぼありません。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、許可した接続（<A
+HREF="runtime-config-connection.html#GUC-MAX-CONNECTIONS"
+>max_connections</A
+>）および許可したワーカプロセス（<A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-MAX-WORKERS"
+>autovacuum_max_workers</A
+>）ごとに1つのセマフォを使用し、16個のセマフォを一集合として扱います。
+この集合それぞれは17個目のセマフォを持ち、そのセマフォは他のアプリケーションに使われているセマフォセットとの衝突を検出するための<SPAN
+CLASS="QUOTE"
+>"マジックナンバー"</SPAN
+>を持っています。
+システム内のセマフォの最大数は<TT
+CLASS="VARNAME"
+>SEMMNS</TT
+>によって設定され、その結果としてその値は少なくとも<TT
+CLASS="VARNAME"
+>max_connections</TT
+>＋<TT
+CLASS="VARNAME"
+>autovacuum_max_workers</TT
+>と同じ、ただし、許可された接続とワーカ16個ごとに余分な1個を加えた値以上はなければいけません
+（<A
+HREF="kernel-resources.html#SYSVIPC-PARAMETERS"
+>&#34920;17-1</A
+>の公式を参照してください）。
+<TT
+CLASS="VARNAME"
+>SEMMNI</TT
+>パラメータはシステム上に同時に存在できるセマフォ集合の数の上限を決定します。
+ですからこのパラメータは少なくとも<TT
+CLASS="LITERAL"
+>ceil((max_connections + autovacuum_max_workers + 4) / 16)</TT
+>以上はなくてはいけません。
+一時的な失敗の回避策としては許可される接続の数を下げることができますが、<SPAN
+CLASS="QUOTE"
+>"No space left on device"</SPAN
+>という紛らわしい言葉が<CODE
+CLASS="FUNCTION"
+>semget()</CODE
+>関数から表示されます。
+   </P
+><P
+>場合によっては<TT
+CLASS="VARNAME"
+>SEMMAP</TT
+>を少なくとも<TT
+CLASS="VARNAME"
+>SEMMNS</TT
+>と同程度に増やすことが必要になる場合があるかもしれません。
+このパラメータはセマフォリソースマップのサイズを定義し、その中では有効なセマフォのそれぞれの隣接したブロックの項目が必要です。
+セマフォ集合が解放されると、解放されたブロックに隣接する既に存在する項目に追加されるか、もしくは新しいマップの項目の下に登録されます。
+もしマップが一杯だった場合、解放されたセマフォは（再起動するまで）失われます。
+セマフォ空間の断片化により時間が経つごとに、有効なセマフォがあるべき量よりも少なくなる可能性があります。
+   </P
+><P
+>1つの集合の中にいくつのセマフォがあるかを決める<TT
+CLASS="VARNAME"
+>SEMMSL</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では少なくとも17はなくてはいけません。
+   </P
+><P
+><TT
+CLASS="VARNAME"
+>SEMMNU</TT
+>と<TT
+CLASS="VARNAME"
+>SEMUME</TT
+>のような、その他の様々な<SPAN
+CLASS="QUOTE"
+>"semaphore undo"</SPAN
+>に関する設定は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には影響を与えません。
+   </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>AIX</SPAN
+></DT
+><DD
+><P
+>少なくともバージョン5.1では、すべてのメモリが共有メモリとして使用できるように設定されているようにみえますので、<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>などのパラメータに対して特別な設定は必要ありません。
+これは<SPAN
+CLASS="APPLICATION"
+>DB/2</SPAN
+>などの他のデータベースでも使用される、一般的な設定方法です。</P
+><P
+>しかし、<TT
+CLASS="FILENAME"
+>/etc/security/limits</TT
+>内の大域的な<TT
+CLASS="COMMAND"
+>ulimit</TT
+>情報は変更しなければならないかもしれません。
+デフォルトのファイルサイズ（<TT
+CLASS="VARNAME"
+>fsize</TT
+>）とファイル数（<TT
+CLASS="VARNAME"
+>nofiles</TT
+>）用のハードリミットは低過ぎるかもしれないためです。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>BSD/OS</SPAN
+></DT
+><DD
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>共有メモリ. </B
+>デフォルトでは、4メガバイトの共有メモリしかサポートされていません。
+共有メモリはページングできないことを覚えておいてください。 
+RAMの中にロックされているのです。
+システムでサポートされる共有バッファ数を増加するには、カーネル設定ファイルに以下を追加してください。 
+</P><PRE
+CLASS="PROGRAMLISTING"
+>options "SHMALL=8192"
+options "SHMMAX=\(SHMALL*PAGE_SIZE\)"</PRE
+><P>
+<TT
+CLASS="VARNAME"
+>SHMALL</TT
+>は4キロバイトページ単位ですので、1024という値は、共有メモリが4メガバイトであることを示します。
+したがって、上記では、最大の共有メモリ領域を32メガバイトまで増加しています。
+4.3以降では、おそらく<TT
+CLASS="VARNAME"
+>KERNEL_VIRTUAL_MB</TT
+>をデフォルトの<TT
+CLASS="LITERAL"
+>248</TT
+>より増やさなければなりません。
+すべての変更を行った後、カーネルを再コンパイルし、リブートしてください。
+        </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>セマフォ. </B
+>セマフォの数についても増やしたい場合があるかもしれません。
+デフォルトのシステム合計である60という値では、およそ50個の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>接続しかできません。
+希望する値をカーネル設定ファイルに設定してください。例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>options "SEMMNI=40"
+options "SEMMNS=240"</PRE
+><P>
+        </P
+></DIV
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>FreeBSD</SPAN
+></DT
+><DD
+><P
+>デフォルトの設定は、小規模なインストレーションでのみ適しています（例えば、デフォルトの<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>は32メガバイトです）。
+<TT
+CLASS="COMMAND"
+>sysctl</TT
+>または<TT
+CLASS="COMMAND"
+>loader</TT
+>インタフェースを使用して変更を行うことができます。
+以下では<TT
+CLASS="COMMAND"
+>sysctl</TT
+>を使用してパラメータを変更しています。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>sysctl -w kern.ipc.shmall=32768</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>sysctl -w kern.ipc.shmmax=134217728</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>sysctl -w kern.ipc.semmap=256</KBD
+></PRE
+><P>
+これらの設定をリブートしても永続化するには、<TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>を変更します。
+       </P
+><P
+>残りのセマフォ設定は<TT
+CLASS="COMMAND"
+>sysctl</TT
+>では読み取りのみとみなされていますが、起動前に<TT
+CLASS="COMMAND"
+>loader</TT
+>プロンプトを使用して変更することができます。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>(loader)</SAMP
+> <KBD
+CLASS="USERINPUT"
+>set kern.ipc.semmni=256</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>(loader)</SAMP
+> <KBD
+CLASS="USERINPUT"
+>set kern.ipc.semmns=512</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>(loader)</SAMP
+> <KBD
+CLASS="USERINPUT"
+>set kern.ipc.semmnu=256</KBD
+></PRE
+><P>
+同様に、これらの設定をリブートしても永続化させるには<TT
+CLASS="FILENAME"
+>/boot/loader.conf</TT
+>に保存します。
+       </P
+><P
+>また、共有メモリをRAM上に残し、スワップへのページアウトを行わせないようにさせたいかもしれません。
+これは<TT
+CLASS="COMMAND"
+>sysctl</TT
+>の<TT
+CLASS="LITERAL"
+>kern.ipc.shm_use_phys</TT
+>設定を使用して実現できます。
+       </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>sysctl</SPAN
+>の<TT
+CLASS="LITERAL"
+>security.jail.sysvipc_allowed</TT
+>を有効にしてFreeBSD jailを実行している場合、異なるjailで実行する<SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+>を異なるオペレーティングシステムユーザで実行しなければなりません。
+これは、非特権ユーザが別のjailの共有メモリやセマフォに干渉することを防止できるため、セキュリティが向上します。
+また、これによりPostgreSQLのIPCを整理するコードを適切に動作させることができます。
+（FreeBSD 6.0以降では、IPC整理コードは他のjailにおけるプロセスを適切に検出せず、異なるjailで同一ポートでpostmasterを実行させることができません。）
+       </P
+><P
+><SPAN
+CLASS="SYSTEMITEM"
+>FreeBSD</SPAN
+>バージョン4.0以前では、（後述の）<SPAN
+CLASS="SYSTEMITEM"
+>OpenBSD</SPAN
+>と同様に動作します。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>NetBSD</SPAN
+></DT
+><DD
+><P
+><SPAN
+CLASS="SYSTEMITEM"
+>NetBSD</SPAN
+>以降では、以下の例のようにIPCパラメータを<TT
+CLASS="COMMAND"
+>sysctl</TT
+>を用いて調整することができます。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>sysctl -w kern.ipc.shmmax=16777216</KBD
+></PRE
+><P>
+この設定をリブートしても永続化させるためには<TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>を編集してください。
+       </P
+><P
+>また、共有メモリをRAM上に固定して、スワップのためのページアウトを避けるために、カーネルを設定したいと考えるかもしれません。
+       </P
+><P
+>5.0より前のバージョンの<SPAN
+CLASS="SYSTEMITEM"
+>NetBSD</SPAN
+>では、（後述の）<SPAN
+CLASS="SYSTEMITEM"
+>OpenBSD</SPAN
+>のように動作します。
+ただし、パラメータは<TT
+CLASS="LITERAL"
+>option</TT
+>ではなく<TT
+CLASS="LITERAL"
+>options</TT
+>キーワードを付けて設定しなければなりません。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>OpenBSD</SPAN
+></DT
+><DD
+><P
+><TT
+CLASS="VARNAME"
+>SYSVSHM</TT
+>オプションと<TT
+CLASS="VARNAME"
+>SYSVSEM</TT
+>オプションはカーネルのコンパイル時に有効にする必要があります（デフォルトでは有効になっています）。
+共有メモリの最大サイズは<TT
+CLASS="VARNAME"
+>SHMMAXPGS</TT
+>オプション（ページ数）で決定されます。
+以下に様々なパラメータの設定方法の例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>option        SYSVSHM
+option        SHMMAXPGS=4096
+option        SHMSEG=256
+
+option        SYSVSEM
+option        SEMMNI=256
+option        SEMMNS=512
+option        SEMMNU=256
+option        SEMMAP=256</PRE
+><P>
+       </P
+><P
+>また、共有メモリをRAMの中にロックするようにカーネルを設定することで、スワップにページアウトしないようにもできます。
+<SPAN
+CLASS="APPLICATION"
+>sysctl</SPAN
+>を使用して<TT
+CLASS="LITERAL"
+>kern.ipc.shm_use_phys</TT
+>を設定することができます。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>HP-UX</SPAN
+></DT
+><DD
+><P
+>デフォルトの設定は通常のインストールではほぼ十分です。
+<SPAN
+CLASS="PRODUCTNAME"
+>HP-UX</SPAN
+> 10では<TT
+CLASS="VARNAME"
+>SEMMNS</TT
+>の出荷時のデフォルトは128ですが、これは大規模なデータベースサイトには低過ぎるかもしれません。
+       </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>IPC</ACRONYM
+>パラメータは<SPAN
+CLASS="APPLICATION"
+>システム管理マネージャ</SPAN
+>（<ACRONYM
+CLASS="ACRONYM"
+>SAM</ACRONYM
+>）から<SPAN
+CLASS="GUIMENU"
+>Kernel Configuration</SPAN
+>-&gt;<SPAN
+CLASS="GUIMENUITEM"
+>Configurable Parameters</SPAN
+>の下で、設定することができます。
+終わったら<SPAN
+CLASS="GUIBUTTON"
+>Create A New Kernel</SPAN
+>を選択してください。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>Linux</SPAN
+></DT
+><DD
+><P
+>デフォルトの最大セグメントサイズは32メガバイトで、非常に小規模な<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>インストレーションのみに適しています。
+デフォルトの最大総サイズは2097152ページです。
+<SPAN
+CLASS="QUOTE"
+>"大規模ページ"</SPAN
+>を持つ通常ではないカーネル設定を除き、1ページはほとんど常に4096バイトです。
+(検証には<TT
+CLASS="LITERAL"
+>getconf PAGE_SIZE</TT
+>を使用してください。)
+これによりデフォルトの上限は8ギガバイトになります。
+たいていは十分ですが、常に十分というわけではありません。
+       </P
+><P
+>共有メモリサイズの設定は<TT
+CLASS="COMMAND"
+>sysctl</TT
+>インタフェースを使用して変更可能です。
+例えば16ギガバイトまで許すには以下のようにします。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>sysctl -w kernel.shmmax=17179869184</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>sysctl -w kernel.shmall=4194304</KBD
+></PRE
+><P>
+更にこれらの設定をリブート時に保持できるように<TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>に保存することができます。
+こうすることを大いに勧めます。
+       </P
+><P
+>古めのディストリビューションでは<TT
+CLASS="COMMAND"
+>sysctl</TT
+>プログラムが存在しない可能性があります。
+この場合、<TT
+CLASS="FILENAME"
+>/proc</TT
+>ファイルシステムに対する操作で同等の変更を行うことができます。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>echo 17179869184 &gt;/proc/sys/kernel/shmmax</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>echo 4194304 &gt;/proc/sys/kernel/shmall</KBD
+></PRE
+><P>
+       </P
+><P
+>他のデフォルトはかなり豊富なサイズですので、通常は変更する必要はありません。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>Mac OS X</SPAN
+></DT
+><DD
+><P
+>OS Xにおける共有メモリの推奨設定方法は、以下のような変数代入文からなる<TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>という名称のファイルを作成することです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>kern.sysv.shmmax=4194304
+kern.sysv.shmmin=1
+kern.sysv.shmmni=32
+kern.sysv.shmseg=8
+kern.sysv.shmall=1024</PRE
+><P>
+一部のバージョンのOS Xでは<TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>内に共有メモリパラメータ<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>5つすべて</I
+></SPAN
+>を設定しなければならないという点に注意してください。
+さもなくば値が無視されます。
+
+       </P
+><P
+>最近のリリースのOS Xは、<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>を4096の倍数以外に設定しようとすると無視しますので、注意してください。
+       </P
+><P
+>このプラットフォームでは<TT
+CLASS="VARNAME"
+>SHMALL</TT
+>は4キロバイトページ単位です。
+       </P
+><P
+>古めのバージョンのOS Xでは、共有メモリパラメータの変更を有効にするためにリブートが必要になります。
+10.5から<TT
+CLASS="VARNAME"
+>SHMMNI</TT
+>以外の変更は、<SPAN
+CLASS="APPLICATION"
+>sysctl</SPAN
+>を用いることにより、その場で行うことができます。
+しかしいずれにせよ<TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>経由で望む値に設定することが最善です。
+リブートを行っても値が保持されるからです。
+       </P
+><P
+><TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>はOS X 10.3.9以降でのみ使用されます。
+もしこれより前の10.3.xリリースを使用しているのであれば、<TT
+CLASS="FILENAME"
+>/etc/rc</TT
+>ファイルを編集し、以下のコマンドで値を変更しなければなりません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>sysctl -w kern.sysv.shmmax
+sysctl -w kern.sysv.shmmin
+sysctl -w kern.sysv.shmmni
+sysctl -w kern.sysv.shmseg
+sysctl -w kern.sysv.shmall</PRE
+><P>
+
+通常<TT
+CLASS="FILENAME"
+>/etc/rc</TT
+>はOS Xのアップデートで上書きされることに注意してください。
+ですので、アップデートの度に編集し直す必要があるものと考えなければなりません。
+       </P
+><P
+>OS X 10.2以前では、代わりに<TT
+CLASS="FILENAME"
+>/System/Library/StartupItems/SystemTuning/SystemTuning</TT
+>ファイル内にあるこれらのコマンドを編集してください。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>SCO OpenServer</SPAN
+></DT
+><DD
+><P
+>デフォルトの設定では、セグメント当たり512キロバイトの共有メモリが許されています。
+この設定を増加させるには、まず、<TT
+CLASS="FILENAME"
+>/etc/conf/cf.d</TT
+>ディレクトリに移動します。
+<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>の現在値を表示させるには、以下を実行します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>./configure -y SHMMAX</PRE
+><P>
+<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>に新しい値を設定するには以下を実行します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>./configure SHMMAX=<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+></PRE
+><P>
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>が希望する新しい値（バイト単位）です。
+そして、以下のようにカーネルを再構築し、リブートします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>./link_unix</PRE
+><P>
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>Solaris</SPAN
+> 2.6から2.9 (Solaris 6からSolaris 9)</DT
+><DD
+><P
+>共有メモリセグメントのデフォルトの最大サイズは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には低過ぎる設定になっています。
+必要な設定は<TT
+CLASS="FILENAME"
+>/etc/system</TT
+>で変えることができ、例えば以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>set shmsys:shminfo_shmmax=0x2000000
+set shmsys:shminfo_shmmin=1
+set shmsys:shminfo_shmmni=256
+set shmsys:shminfo_shmseg=256
+
+set semsys:seminfo_semmap=256
+set semsys:seminfo_semmni=512
+set semsys:seminfo_semmns=512
+set semsys:seminfo_semmsl=32</PRE
+><P>
+変更を反映させるには再起動する必要があります。
+古めのバージョンのSolarisにおける共有メモリの情報は<A
+HREF="http://sunsite.uakom.sk/sunworldonline/swol-09-1997/swol-09-insidesolaris.html"
+TARGET="_top"
+>http://sunsite.uakom.sk/sunworldonline/swol-09-1997/swol-09-insidesolaris.html</A
+>を参照してください。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>Solaris</SPAN
+> 2.10 (Solaris
+      10)<BR><SPAN
+CLASS="SYSTEMITEM"
+>OpenSolaris</SPAN
+></DT
+><DD
+><P
+>Solaris 10とOpenSolarisでは、デフォルトの共有メモリとセマフォ設定は大抵の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>アプリケーションで十分あります。
+Solarisのデフォルトの<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>はシステムの<ACRONYM
+CLASS="ACRONYM"
+>RAM</ACRONYM
+>の1/4になりました。
+共有メモリの設定をより大きく設定するためにこの値を増やしたいのであれば、<TT
+CLASS="LITERAL"
+>postgres</TT
+>ユーザに関するプロジェクト設定を使用しなければなりません。
+例えば以下を<TT
+CLASS="LITERAL"
+>root</TT
+>権限で実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>projadd -c "PostgreSQL DB User" -K "project.max-shm-memory=(privileged,8GB,deny)" -U postgres -G postgres user.postgres</PRE
+><P>
+       </P
+><P
+>このコマンドは<TT
+CLASS="LITERAL"
+>user.postgres</TT
+>プロジェクトを追加し、<TT
+CLASS="LITERAL"
+>postgres</TT
+>ユーザの共有メモリの最大サイズを8GBまで上げます。
+この影響は次にこのユーザがログインした時、または<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を再起動した時（再読み込み時ではありません）に有効になります。
+上では<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は<TT
+CLASS="LITERAL"
+>postgres</TT
+>グループに属する<TT
+CLASS="LITERAL"
+>postgres</TT
+>ユーザにより実行されていることを前提としています。
+サーバの再起動は不要です。
+       </P
+><P
+>多くの接続を受け付けるデータベースサーバにおいて推奨するカーネル設定にはこの他に以下があります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>project.max-shm-ids=(priv,32768,deny)
+project.max-sem-ids=(priv,4096,deny)
+project.max-msg-ids=(priv,4096,deny)</PRE
+><P>
+       </P
+><P
+>さらに、ゾーン内で<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を実行している場合、ゾーンのリソース使用上限も上げる必要があるかもしれません。
+<TT
+CLASS="LITERAL"
+>projects</TT
+>と<TT
+CLASS="COMMAND"
+>prctl</TT
+>については<I
+CLASS="CITETITLE"
+>Solaris 10 System Administrator's Guide</I
+>の第2章 プロジェクトとタスクを参照してください。
+       </P
+></DD
+><DT
+><SPAN
+CLASS="SYSTEMITEM"
+>UnixWare</SPAN
+></DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>UnixWare</SPAN
+> 7では、共有メモリセグメントの最大サイズはデフォルト設定で512キロバイトしかありません。
+現在の<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>値を表示するためには下記を実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/etc/conf/bin/idtune -g SHMMAX</PRE
+><P>
+これは現在値、デフォルト値、最小値、および最大値を、バイト単位で表示します。
+<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>の新しい値を設定するためには、以下を実行します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/etc/conf/bin/idtune SHMMAX <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+></PRE
+><P>
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> は、希望する新しい値（バイト）です。
+<TT
+CLASS="VARNAME"
+>SHMMAX</TT
+>の設定が終わったらカーネルを再構築し、リブートします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/etc/conf/bin/idbuild -B</PRE
+><P>
+       </P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="SHARED-MEMORY-PARAMETERS"
+></A
+><P
+><B
+>&#34920; 17-2. <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の共有メモリ使用量</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>使用法</TH
+><TH
+>必要な共有メモリのおおよそのバイト数（8.3時点）</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>接続</TD
+><TD
+>(1800 + 270 * <A
+HREF="runtime-config-locks.html#GUC-MAX-LOCKS-PER-TRANSACTION"
+>max_locks_per_transaction</A
+>) * <A
+HREF="runtime-config-connection.html#GUC-MAX-CONNECTIONS"
+>max_connections</A
+></TD
+></TR
+><TR
+><TD
+>自動バキュームワーカ</TD
+><TD
+>(1800 + 270 * <A
+HREF="runtime-config-locks.html#GUC-MAX-LOCKS-PER-TRANSACTION"
+>max_locks_per_transaction</A
+>) * <A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-MAX-WORKERS"
+>autovacuum_max_workers</A
+></TD
+></TR
+><TR
+><TD
+>プリペアドトランザクション</TD
+><TD
+>(770 + 270 * <A
+HREF="runtime-config-locks.html#GUC-MAX-LOCKS-PER-TRANSACTION"
+>max_locks_per_transaction</A
+>) * <A
+HREF="runtime-config-resource.html#GUC-MAX-PREPARED-TRANSACTIONS"
+>max_prepared_transactions</A
+></TD
+></TR
+><TR
+><TD
+>共有ディスクバッファ</TD
+><TD
+>(<A
+HREF="runtime-config-preset.html#GUC-BLOCK-SIZE"
+>block_size</A
+> + 208) * <A
+HREF="runtime-config-resource.html#GUC-SHARED-BUFFERS"
+>shared_buffers</A
+></TD
+></TR
+><TR
+><TD
+>WALバッファ</TD
+><TD
+>(<A
+HREF="runtime-config-preset.html#GUC-WAL-BLOCK-SIZE"
+>wal_block_size</A
+> + 8) * <A
+HREF="runtime-config-wal.html#GUC-WAL-BUFFERS"
+>wal_buffers</A
+></TD
+></TR
+><TR
+><TD
+>固定の必要な空き容量</TD
+><TD
+>770 kB</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN25653"
+>17.4.2. リソースの制限</A
+></H2
+><P
+>Unixライクなオペレーティングシステムでは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバの操作と関係する可能性のある様々な種類のリソース制限があります。
+特に重要なのは、ユーザごとのプロセス数の制限、プロセスごとのオープンファイルの数、プロセスごとの利用可能なメモリの量です。
+これらのそれぞれが<SPAN
+CLASS="QUOTE"
+>"ハード"</SPAN
+>と<SPAN
+CLASS="QUOTE"
+>"ソフト"</SPAN
+>の2つの制限を持っています。
+ソフト制限が実際に有効な制限ですが、ユーザによってハード制限まで変えることが可能です。
+ハード制限はrootユーザによってのみ変えることができます。
+<CODE
+CLASS="FUNCTION"
+>setrlimit</CODE
+>システムコールがこれらのパラメータの設定を行います。
+シェルの組み込みコマンド<TT
+CLASS="COMMAND"
+>ulimit</TT
+>（Bourne シェル）もしくは<TT
+CLASS="COMMAND"
+>limit</TT
+>（<SPAN
+CLASS="APPLICATION"
+>csh</SPAN
+>）は、コマンドラインからリソース制限を制御するために使われます。
+BSD派生システム上では<TT
+CLASS="FILENAME"
+>/etc/login.conf</TT
+>ファイルが、ログイン時に設定される様々なリソース制限を制御します。
+詳細はオペレーティングシステムの文書を参照してください。
+関連するパラメータは<TT
+CLASS="VARNAME"
+>maxproc</TT
+>、<TT
+CLASS="VARNAME"
+>openfiles</TT
+>、<TT
+CLASS="VARNAME"
+>datasize</TT
+>です。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>default:\
+...
+        :datasize-cur=256M:\
+        :maxproc-cur=256:\
+        :openfiles-cur=256:\
+...</PRE
+><P>
+（<TT
+CLASS="LITERAL"
+>-cur</TT
+>はソフト制限です。
+ハード制限を設定するためには<TT
+CLASS="LITERAL"
+>-max</TT
+>を付けてください。）
+   </P
+><P
+>カーネルはいくつかのリソースに対して、システム全体の制限も持つことができます。
+    <P
+></P
+></P><UL
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Linux</SPAN
+>では、<TT
+CLASS="FILENAME"
+>/proc/sys/fs/file-max</TT
+>が、カーネルがサポートするオープンファイル数の最大を決定します。
+この数を変えるためには、そのファイルに別の数を書き込むか、あるいは<TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>に代入式を追加します。
+プロセスごとのファイルの最大制限はカーネルがコンパイルされた時に固定されます。 
+詳しい情報については<TT
+CLASS="FILENAME"
+>/usr/src/linux/Documentation/proc.txt</TT
+>を参照してください。
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバは接続ごとに1つのプロセスを使うので、少なくとも許可された接続の数だけのプロセスに残りのシステムで必要な分を追加したものが必要になります。
+通常はこれは問題ではありませんが、1つのマシン上でいくつかのサーバを起動している場合は厳しい状況になるかもしれません。
+   </P
+><P
+>オープンファイルの制限の出荷時のデフォルトは、しばしば大多数のユーザはマシン上でシステムリソースの不正使用をしないとい前提に立った<SPAN
+CLASS="QUOTE"
+>"社会的に友好的な"</SPAN
+>値を設定してしまいます。
+もし1つのマシン上で複数のサーバを起動する場合はそれが必要でしょうが、専用サーバではこの制限を上げたいかもしれません。
+   </P
+><P
+>反対に、個々のプロセスが多数のファイルをオープンすることを許可するシステムもあります。 
+そのようなプロセスが数個以上あれば、システム全体の制限は簡単に超えてしまいます。
+この発生を検知し、システム全体の制限の変更を望まない場合は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の<A
+HREF="runtime-config-resource.html#GUC-MAX-FILES-PER-PROCESS"
+>max_files_per_process</A
+>設定パラメータを設定し、オープンファイルの消費を制限することができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LINUX-MEMORY-OVERCOMMIT"
+>17.4.3. Linuxのメモリオーバーコミット</A
+></H2
+><P
+>Linux 2.4以降では、デフォルトの仮想メモリの動作は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には最適ではありません。
+カーネルがメモリオーバーコミットを実装する方法のため、カーネルは、他のプロセスのメモリ要求がシステムの仮想メモリを枯渇させた場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>（マスターサーバプロセス）を終了させる可能性があります。
+   </P
+><P
+>これが発生した場合、以下のようなカーネルメッセージが現れます
+（こうしたメッセージを検索する場所についてはシステム文書と設定を参照してください）。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>Out of Memory: Killed process 12345 (postgres).</PRE
+><P>
+これは、<TT
+CLASS="FILENAME"
+>postgres</TT
+>プロセスがメモリ不足のために終了してしまったことを示します。
+起動中のデータベース接続は正常に動作しますが、新しい接続は受け付けられません。
+復旧するには、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を再起動しなければなりません。
+   </P
+><P
+>この問題を防止する1つの方法として、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を他のプロセスがそのマシンのメモリを枯渇させないことが確実なマシンで起動するというものがあります。
+物理メモリとスワップ領域が消費尽くされた時のみにメモリ不足（OOM）キラーが発生するため、メモリが不足する場合、オペレーティングシステムのスワップ領域を増やすことが問題解決の役にたちます。
+   </P
+><P
+>Linux 2.6以降では、メモリを<SPAN
+CLASS="QUOTE"
+>"オーバーコミット"</SPAN
+>させないようにカーネルの動作を変更することができます。
+この設定は完全に<A
+HREF="http://lwn.net/Articles/104179/"
+TARGET="_top"
+>OOMキラー</A
+>の発生を防ぐことはできませんが、その発生頻度をかなり軽減しますので、システム動作の堅牢性をより高めます。
+これは、以下のように<TT
+CLASS="COMMAND"
+>sysctl</TT
+>を使用して厳密なオーバーコミットモードを選択すること、もしくは、<TT
+CLASS="FILENAME"
+>/etc/sysctl.conf</TT
+>に同等の項目を記述することで実施されます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>sysctl -w vm.overcommit_memory=2</PRE
+><P>
+また、関連する<TT
+CLASS="VARNAME"
+>vm.overcommit_ratio</TT
+>設定を変更した方が良いでしょう。
+詳細は<TT
+CLASS="FILENAME"
+>Documentation/vm/overcommit-accounting</TT
+>カーネル文書を参照してください。
+   </P
+><P
+><TT
+CLASS="VARNAME"
+>vm.overcommit_memory</TT
+>の変更と関係なく使用できる、その他の方法はpostmasterプロセス向けのプロセス固有の<TT
+CLASS="VARNAME"
+>oom_adj</TT
+>値を<TT
+CLASS="LITERAL"
+>-17</TT
+>に設定することです。
+これによりOOMキラーの対象とならないことが保証されます。
+このための最も簡単な方法は以下をpostmasterの起動スクリプト内でpostmasterを実行する直前に実行することです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>echo -17 &#62; /proc/self/oom_adj</PRE
+><P>
+この作業をrootで実行しなければならないことに注意して下さい。
+さもないと効果がありません。
+このためrootが所有する起動スクリプトがこれを行うためには最も簡単な場所です。
+こうした場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の構築時に <TT
+CLASS="LITERAL"
+>-DLINUX_OOM_ADJ=0</TT
+>を<TT
+CLASS="VARNAME"
+>CPPFLAGS</TT
+>に追加したいと考えるでしょう。
+これによりpostmasterの子プロセスは通常のゼロという<TT
+CLASS="VARNAME"
+>oom_adj</TT
+>を持って実行されるようになり、必要に応じてOOMキラーの対象となりえます。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>Linux 2.4カーネルのベンダの中には、2.6のオーバーコミット<TT
+CLASS="COMMAND"
+>sysctl</TT
+>版を持つものがあることが報告されています。
+しかし、関係するコードを持たない2.4カーネルで<TT
+CLASS="LITERAL"
+>vm.overcommit_memory</TT
+>を2に設定することはより状況を悪化させます。
+2.4のインストレーションではこれを試す前に、実際のカーネルソースコードを調査し、その中でサポートしているかどうかを検証することをお勧めします（<TT
+CLASS="FILENAME"
+>mm/mmap.c</TT
+>ファイル内の<CODE
+CLASS="FUNCTION"
+>vm_enough_memory</CODE
+>関数を参照してください）。
+<TT
+CLASS="FILENAME"
+>overcommit-accounting</TT
+>文書ファイルの存在は、この機能が存在するかどうかを証明するものでは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ありません</I
+></SPAN
+>。
+疑わしい場合は、使用中のカーネルベンダのカーネル専門家に相談してください。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="server-start.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="server-shutdown.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データベースサーバの起動</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>サーバのシャットダウン</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

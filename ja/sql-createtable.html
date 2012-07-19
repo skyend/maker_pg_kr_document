@@ -1,0 +1,2687 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE TABLE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE SERVER"
+HREF="sql-createserver.html"><LINK
+REL="NEXT"
+TITLE="CREATE TABLE AS"
+HREF="sql-createtableas.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE SERVER"
+HREF="sql-createserver.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE SERVER"
+HREF="sql-createserver.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE TABLE AS"
+HREF="sql-createtableas.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE TABLE AS"
+HREF="sql-createtableas.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATETABLE"
+></A
+>CREATE TABLE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN67337"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE TABLE&nbsp;--&nbsp;新しいテーブルを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN67342"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> ( [
+  { <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+> [ COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+> ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>column_constraint</I
+></TT
+> [ ... ] ]
+    | <TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint</I
+></TT
+>
+    | LIKE <TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+> [ <TT
+CLASS="REPLACEABLE"
+><I
+>like_option</I
+></TT
+> ... ] }
+    [, ... ]
+] )
+[ INHERITS ( <TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+> [, ... ] ) ]
+[ WITH ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> [= <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+[ TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+> ]
+
+CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE [ IF NOT EXISTS ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+>
+    OF <TT
+CLASS="REPLACEABLE"
+><I
+>type_name</I
+></TT
+> [ (
+  { <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> WITH OPTIONS [ <TT
+CLASS="REPLACEABLE"
+><I
+>column_constraint</I
+></TT
+> [ ... ] ]
+    | <TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint</I
+></TT
+> }
+    [, ... ]
+) ]
+[ WITH ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> [= <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+[ TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+> ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>column_constraint</I
+></TT
+>には、次の構文が入ります。</SPAN
+></SPAN
+>
+
+[ CONSTRAINT <TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+> ]
+{ NOT NULL |
+  NULL |
+  CHECK ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ) |
+  DEFAULT <TT
+CLASS="REPLACEABLE"
+><I
+>default_expr</I
+></TT
+> |
+  UNIQUE <TT
+CLASS="REPLACEABLE"
+><I
+>index_parameters</I
+></TT
+> |
+  PRIMARY KEY <TT
+CLASS="REPLACEABLE"
+><I
+>index_parameters</I
+></TT
+> |
+  REFERENCES <TT
+CLASS="REPLACEABLE"
+><I
+>reftable</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>refcolumn</I
+></TT
+> ) ] [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ]
+    [ ON DELETE <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> ] [ ON UPDATE <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> ] }
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>また、<TT
+CLASS="REPLACEABLE"
+><I
+>table_constraint</I
+></TT
+>には、次の構文が入ります。</SPAN
+></SPAN
+>
+
+[ CONSTRAINT <TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+> ]
+{ CHECK ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ) |
+  UNIQUE ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ... ] ) <TT
+CLASS="REPLACEABLE"
+><I
+>index_parameters</I
+></TT
+> |
+  PRIMARY KEY ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ... ] ) <TT
+CLASS="REPLACEABLE"
+><I
+>index_parameters</I
+></TT
+> |
+  EXCLUDE [ USING <TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+> ] ( <TT
+CLASS="REPLACEABLE"
+><I
+>exclude_element</I
+></TT
+> WITH <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> [, ... ] ) <TT
+CLASS="REPLACEABLE"
+><I
+>index_parameters</I
+></TT
+> [ WHERE ( <TT
+CLASS="REPLACEABLE"
+><I
+>predicate</I
+></TT
+> ) ] |
+  FOREIGN KEY ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ... ] ) REFERENCES <TT
+CLASS="REPLACEABLE"
+><I
+>reftable</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>refcolumn</I
+></TT
+> [, ... ] ) ]
+    [ MATCH FULL | MATCH PARTIAL | MATCH SIMPLE ] [ ON DELETE <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> ] [ ON UPDATE <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> ] }
+[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>and <TT
+CLASS="REPLACEABLE"
+><I
+>like_option</I
+></TT
+> is:</SPAN
+></SPAN
+>
+
+{ INCLUDING | EXCLUDING } { DEFAULTS | CONSTRAINTS | INDEXES | STORAGE | COMMENTS | ALL }
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+><TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>、<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>および<TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>制約内の<TT
+CLASS="REPLACEABLE"
+><I
+>index_parameters</I
+></TT
+>は以下の通りです。</SPAN
+></SPAN
+>
+
+[ WITH ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> [= <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>] [, ... ] ) ]
+[ USING INDEX TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+> ]
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+><TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>制約内の<TT
+CLASS="REPLACEABLE"
+><I
+>exclude_element</I
+></TT
+>は以下の通りです。</SPAN
+></SPAN
+>
+{ <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> | ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ) } [ <TT
+CLASS="REPLACEABLE"
+><I
+>opclass</I
+></TT
+> ] [ ASC | DESC ] [ NULLS { FIRST | LAST } ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATETABLE-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>は、現在のデータベースに新しい空のテーブルを作成します。
+作成したテーブルはこのコマンドを実行したユーザが所有します。
+  </P
+><P
+>スキーマ名が付けられている場合（例えば、<TT
+CLASS="LITERAL"
+>CREATE TABLE myschema.mytable ...</TT
+>）、テーブルは指定されたスキーマで作成されます。
+スキーマ名がなければ、テーブルは現在のスキーマで作成されます。
+また、一時テーブルは特別なスキーマに存在するため、一時テーブルの作成時にスキーマ名を与えることはできません。
+テーブル名は、同じスキーマ内の他のテーブル、シーケンス、インデックス、ビュー、外部テーブルとは異なる名前にする必要があります。
+  </P
+><P
+>さらに、<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>は、作成するテーブルの1行に対応する複合型のデータ型を作成します。
+したがって、テーブルは、同じスキーマ内の既存のデータ型と同じ名前を持つことができません。
+
+  </P
+><P
+>制約句には、挿入、更新操作を行うために、新しい行、または更新する行が満たさなければならない制約（検査項目）を指定します。制約句は省略可能です。
+制約は、テーブル内で様々な有効な値の集合を定義する際、役に立つSQLオブジェクトです。
+  </P
+><P
+>制約の定義にはテーブル制約と列制約という2種類があります。
+列制約は列定義の一部として定義されます。
+テーブル制約定義は、特定の列とは結びつけられておらず、複数の列を含有することができます。
+また、全ての列制約はテーブル制約として記述することができます。
+列制約は、1つの列にのみ影響する制約のための、簡便な記述方法に過ぎません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN67419"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>TEMPORARY</TT
+> or <TT
+CLASS="LITERAL"
+>TEMP</TT
+></DT
+><DD
+><P
+>このパラメータが指定された場合、テーブルは一時テーブルとして作成されます。
+一時テーブルは、そのセッションの終わり、場合によっては、現在のトランザクションの終わり（後述の<TT
+CLASS="LITERAL"
+>ON COMMIT</TT
+>を参照）に自動的に削除されます。
+一時テーブルが存在する場合、同じ名前を持つ既存の永続テーブルは、スキーマ修飾名で参照されていない限り、現在のセッションでは非可視になります。
+一時テーブルで作られるインデックスも、全て自動的に一時的なものとなります。
+     </P
+><P
+><A
+HREF="routine-vacuuming.html#AUTOVACUUM"
+>autovacuum daemon</A
+>は一時テーブルにアクセスできません。
+したがって一時テーブルのバキュームや解析を行うことはできません。
+このためセッションのSQLコマンドを用いて適切なバキュームと解析を実行しなければなりません。
+例えば、一時テーブルが複雑な問い合わせで使用される場合、一時テーブルにデータを投入した後にそれに対し<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>を実行することを勧めます。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>GLOBAL</TT
+>または<TT
+CLASS="LITERAL"
+>LOCAL</TT
+>を<TT
+CLASS="LITERAL"
+>TEMPORARY</TT
+>や<TT
+CLASS="LITERAL"
+>TEMP</TT
+>の前に記述することができます（省略可能）。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、これらを指定しても動作の違いはありません。
+<A
+HREF="sql-createtable.html#SQL-CREATETABLE-COMPATIBILITY"
+><I
+>互換性</I
+></A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>UNLOGGED</TT
+></DT
+><DD
+><P
+>指定された場合、テーブルはログを取らないテーブルとして作成されます。
+ログを取らないテーブルに書き出されたデータは先行書き込みログ（<A
+HREF="wal.html"
+>&#31532;29&#31456;</A
+>参照）には書き出されません。
+このため通常のテーブルより相当高速になります。
+しかしこれらはクラッシュ時に安全ではありません。
+クラッシュまたは異常停止の後、ログを取らないテーブルは自動的に切り詰められます。
+またログを取らないテーブルの内容はスタンバイサーバに複製されません。
+ログを取らないテーブル上に作成されたインデックスはすべて同様に、ログを取らないようになります。
+しかし現在ログをとらない<A
+HREF="gist.html"
+>GiST indexes</A
+>はサポートされませんので、ログを取らないテーブル上に作成することはできません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>IF NOT EXISTS</TT
+></DT
+><DD
+><P
+>同じ名前のリレーションがすでに存在していてもエラーとしません。
+この場合注意が発せられます。
+既存のリレーションが作成しようとしたものと何かしら似たものであることは保証されません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+></DT
+><DD
+><P
+>作成するテーブルの名前です（スキーマ修飾名でも可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OF <TT
+CLASS="REPLACEABLE"
+><I
+>type_name</I
+></TT
+></TT
+></DT
+><DD
+><P
+>指定(スキーマ修飾可能)した複合型から構造を取り出した<I
+CLASS="FIRSTTERM"
+>型付きテーブル</I
+>を作成します。
+型付きテーブルはその型に束縛されます。
+例えば、型が(<TT
+CLASS="LITERAL"
+>DROP TYPE ... CASCADE</TT
+>付きで)削除されるとそのテーブルは削除されます。
+     </P
+><P
+>型付きテーブルが作成されると、その列のデータ型は背後の複合型により決定され、<TT
+CLASS="LITERAL"
+>CREATE TABLE</TT
+>コマンドでは指定されません。
+しかし<TT
+CLASS="LITERAL"
+>CREATE TABLE</TT
+>コマンドではテーブルにデフォルトと制約を追加できます。
+また、格納パラメータの指定も可能です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+></DT
+><DD
+><P
+>新しいテーブルで作成される列の名前です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+></DT
+><DD
+><P
+>列のデータ型です。
+これには、配列指定子を含めることができます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でサポートされるデータ型の情報に関する詳細は<A
+HREF="datatype.html"
+>&#31532;8&#31456;</A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>COLLATE</TT
+>句は列（照合順の設定が可能なデータ型でなければなりません）に照合順を割り当てます。
+指定がなければ、列のデータ型のデフォルトの照合順が使用されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>INHERITS ( <TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+> [, ... ] )</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>INHERITS</TT
+>句でテーブルの一覧を指定すると、新しいテーブルは指定されたテーブルの全ての列を自動的に継承します。この句は省略可能です。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>INHERITS</TT
+>を使用すると、新しい子テーブルとその親テーブル（複数可）との間に永続的な関連が作成されます。
+通常、親へのスキーマ修飾子は同様に子にも伝播します。また、デフォルトでは、親テーブルの走査結果には子テーブルのデータが含まれます。
+     </P
+><P
+>複数の親テーブルに同一名の列が存在する場合、それらのデータ型が一致していなければ、エラーとして報告されます。
+競合がなければ、これらの重複した列は新しいテーブルで1つの列の形に融合されます。
+新しいテーブルの列名の一覧に継承する列の名前が含まれる場合も、そのデータ型は継承する列のデータ型と一致していなければなりません。さらに、その列定義は1つに融合されます。
+新しいテーブルで明示的に列のデフォルト値を指定した場合、継承した列宣言における全てのデフォルト値は上書きされます。
+デフォルト値を指定しなかった場合、親側でデフォルト値が指定されている時は、それらのデフォルト値が全て同じ値でなければなりません。
+値が違う場合はエラーになります。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約は、基本的には列と同様の方法でマージされます。
+複数の親テーブル、新しいテーブル、またはその両方の定義に同じ名前の<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約が存在した場合、これらの制約はすべて同じ検査式を持たなければなりません。
+さもなくば、エラーが報告されます。
+同じ名前と式を持つ制約は１つのコピーにまとめられます。
+一意な名前が常に選択されますので、新しいテーブル内の無名の<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約はマージされないことに注意してください。
+     </P
+><P
+>列の<TT
+CLASS="LITERAL"
+>STORAGE</TT
+>設定もまた親テーブルからコピーされます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>LIKE <TT
+CLASS="REPLACEABLE"
+><I
+>parent_table</I
+></TT
+> [ <TT
+CLASS="REPLACEABLE"
+><I
+>like_option</I
+></TT
+> ... ]</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>LIKE</TT
+>句にテーブルを指定すると、自動的にそのテーブルの全ての列名、そのデータ型、非NULL制約が新しいテーブルにコピーされます。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>INHERITS</TT
+>との違いは、作成した後、新しいテーブルと元のテーブルが完全に分離されることです。
+元のテーブルへの変更は新しいテーブルには適用されません。また、元のテーブルを操作しても新しいテーブルのデータは見つかりません。
+     </P
+><P
+>コピーする列のデフォルト式は、<TT
+CLASS="LITERAL"
+>INCLUDING DEFAULTS</TT
+>が指定された場合にのみコピーされます。
+デフォルトでは、デフォルト式がコピーされないため、新しいテーブルのコピーされた列はデフォルト値としてNULLを持つことになります。
+     </P
+><P
+>非NULL制約は常に新しいテーブルにコピーされます。
+<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約は、<TT
+CLASS="LITERAL"
+>INCLUDING CONSTRAINTS</TT
+>が指定された場合にのみコピーされます。
+他の種類の制約は決してコピーされません。
+また、列制約とテーブル制約とを区別しません。
+制約が要求される場合は、すべての検査制約がコピーされます。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>INCLUDING INDEXES</TT
+>句を指定しない限り、元のテーブル上のインデックスはまったく新しいテーブルには作成されません。
+     </P
+><P
+>複製された列定義に関する<TT
+CLASS="LITERAL"
+>STORAGE</TT
+>設定は、<TT
+CLASS="LITERAL"
+>INCLUDING STORAGE</TT
+>が指定された場合のみコピーされます。
+このデフォルトの動作では、<TT
+CLASS="LITERAL"
+>STORAGE</TT
+>設定は除外され、新しいテーブルにおけるコピーされた列は型固有のデフォルトの設定を持つようになります。
+<TT
+CLASS="LITERAL"
+>STORAGE</TT
+>の詳細については<A
+HREF="storage-toast.html"
+>&#38917;55.2</A
+>を参照してください。
+     </P
+><P
+>コピーされた列、制約、インデックスについてのコメントは<TT
+CLASS="LITERAL"
+>INCLUDING COMMENTS</TT
+>が指定された場合のみコピーされます。
+このデフォルトの動作では、コメントは除外され、新しいテーブルにおけるコピーされた列や制約はコメントを持ちません。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>INCLUDING ALL</TT
+>は<TT
+CLASS="LITERAL"
+>INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES INCLUDING STORAGE INCLUDING COMMENTS</TT
+>の省略形です。
+     </P
+><P
+>また、<TT
+CLASS="LITERAL"
+>INHERITS</TT
+>と異なり、<TT
+CLASS="LITERAL"
+>LIKE</TT
+>によりコピーされた列や制約は類似の名前の列や制約にまとめられません。
+同じ名前が明示的に、あるいは他の<TT
+CLASS="LITERAL"
+>LIKE</TT
+>句で指定された場合、エラーが通知されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CONSTRAINT <TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+></TT
+></DT
+><DD
+><P
+>省略可能な列制約、テーブル制約の名前です。
+もし、この制約に違反すると、制約名がエラーメッセージに含まれるようになります。
+ですので、<TT
+CLASS="LITERAL"
+>col must be positive(正数でなければならない)</TT
+>といった名前の制約名を付与することで、クライアントアプリケーションへ有用な制約情報を渡すことができます。
+（空白を含む制約名を指定する場合、二重引用符が必要です。）
+指定されなければ、システムが名前を生成します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NOT NULL</TT
+></DT
+><DD
+><P
+>その列がNULL値を持てないことを指定します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NULL</TT
+></DT
+><DD
+><P
+>その列がNULL値を持てることを指定します。
+これがデフォルトです。
+     </P
+><P
+>この句は非標準的なSQLデータベースとの互換性のためだけに提供されています。
+新しいアプリケーションでこれを使用するのはお勧めしません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CHECK ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> )</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>CHECK</TT
+>は、論理型の結果を生成する、新しい行または更新される行が挿入または更新処理を成功させるために満足しなければならない式を指定します。
+TRUEまたはUNKNOWNと評価される式は成功します。
+挿入または更新処理の行がFALSEという結果をもたらす場合はエラー例外が発生し、その挿入または更新によるデータベースの変更は行われません。
+列制約として指定された検査制約は列の値のみを参照しなければなりません。
+テーブル制約内の式は複数の列を参照できます。
+     </P
+><P
+>現時点では、<TT
+CLASS="LITERAL"
+>CHECK</TT
+>式には副問い合わせも現在の行の列以外の変数を含めることはできません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DEFAULT
+    <TT
+CLASS="REPLACEABLE"
+><I
+>default_expr</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句を列定義に付けると、その列にデフォルトデータ値が割り当てられます。
+値として指定するのは、任意の無変数式です（副問い合わせと現在のテーブル内の他の列へ交差参照は許可されません）。
+デフォルト式のデータ型はその列のデータ型と一致する必要があります。
+     </P
+><P
+>デフォルト式は、全ての挿入操作において、その列に値が指定されていない場合に使用されます。
+列にデフォルト値がない場合、デフォルト値はNULLになります。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>UNIQUE</TT
+> （列制約）<BR><TT
+CLASS="LITERAL"
+>UNIQUE ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ... ] )</TT
+> （表制約）</DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>制約は、テーブルの1つまたは複数の列からなるグループが、一意な値のみを持つことができることを指定します。
+一意性テーブル制約の動作は一意性列制約と同じですが、さらに複数列にまたがる機能を持ちます。
+     </P
+><P
+>一意性制約では、NULL値は等しいとはみなされなせん。
+     </P
+><P
+>それぞれの一意性テーブル制約には、そのテーブルの他の一意性制約もしくはプライマリキー制約によって名付けられた列の集合とは、異なる名前の列の集合を指定しなければなりません
+（同じ名前を指定すると、同じ制約が2回現れるだけになります）。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+> （列制約）<BR><TT
+CLASS="LITERAL"
+>PRIMARY KEY ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ... ] )</TT
+> （表制約）</DT
+><DD
+><P
+>プライマリキー制約は、テーブルの1列または複数列が一意な（重複がない）、非NULL値のみを持つことを指定します。
+技術的には、<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>は単なる<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>と<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>の組み合わせです。
+しかし、プライマリキーであることは他のテーブルがその列集合を一意な行識別子とみなせることを意味するので、列集合をプライマリキーと特定すると、スキーマ設計に関するメタデータを提供することになります。
+     </P
+><P
+>列制約であるかテーブル制約であるかにかかわらず、1つのテーブルに指定できるプライマリキーは1つだけです。
+     </P
+><P
+>プライマリキー制約には、そのテーブルに定義された他の一意性制約で指名された列の集合とは違う組み合わせの列の集合を指定しなければなりません。
+     </P
+></DD
+><DT
+><A
+NAME="SQL-CREATETABLE-EXCLUDE"
+></A
+><TT
+CLASS="LITERAL"
+>EXCLUDE [ USING <TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+> ] ( <TT
+CLASS="REPLACEABLE"
+><I
+>exclude_element</I
+></TT
+> WITH <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> [, ... ] ) <TT
+CLASS="REPLACEABLE"
+><I
+>index_parameters</I
+></TT
+> [ WHERE ( <TT
+CLASS="REPLACEABLE"
+><I
+>predicate</I
+></TT
+> ) ]</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>句は、任意の2行を指定した列(複数可)または式(複数可)を指定した演算子(複数可)を使用して比較した場合、比較結果のすべてが<TT
+CLASS="LITERAL"
+>TRUE</TT
+>を返さないことを保障する、除外制約を定義します。
+指定した演算子のすべてが等価性を試験するものであれば、これは<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>制約と同じです。
+しかし、通常の一意性制約のほうが高速です。
+しかし、除外制約では単純な等価性よりも一般的な制約を指定することができます。
+例えば、テーブル内の2つの行が重複しない円(<A
+HREF="datatype-geometric.html"
+>&#38917;8.8</A
+>参照)を持たないといった制約を<TT
+CLASS="LITERAL"
+>&amp;&amp;</TT
+>演算子を使用して指定することができます。
+     </P
+><P
+>除外制約はインデックスを使用して実装されています。
+このため指定した演算子はそれぞれ適切な演算子クラス(<A
+HREF="indexes-opclass.html"
+>&#38917;11.9</A
+>参照)で<TT
+CLASS="REPLACEABLE"
+><I
+>index_method</I
+></TT
+>インデックスアクセスメソッドと関連付けされていなければなりません。
+演算子は交換可能でなければなりません。
+省略可能ですが、各<TT
+CLASS="REPLACEABLE"
+><I
+>exclude_element</I
+></TT
+>は演算子クラス、順序付けオプション、またはその両方を指定することができます。
+これらについては<A
+HREF="sql-createindex.html"
+>CREATE INDEX</A
+>で説明します。
+     </P
+><P
+>アクセスメソッドは<TT
+CLASS="LITERAL"
+>amgettuple</TT
+>をサポートしなければなりません(<A
+HREF="indexam.html"
+>&#31532;52&#31456;</A
+>参照)。
+現時点では、これは<ACRONYM
+CLASS="ACRONYM"
+>GIN</ACRONYM
+>を使用できないことを意味します。
+許されることですが、B-treeやHashインデックスを除外制約で使用する場合に少し問題があります。
+これが通常の一意性制約がよりよく行わないことを行うためです。
+このため現実的にはアクセスメソッドは常に<ACRONYM
+CLASS="ACRONYM"
+>GiST</ACRONYM
+>となります。
+     </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>predicate</I
+></TT
+>により、除外制約をテーブルの部分集合に指定することができます。
+内部的には、これは部分インデックスを作成します。
+述語の前後に括弧が必要であることに注意して下さい。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>REFERENCES <TT
+CLASS="REPLACEABLE"
+><I
+>reftable</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>refcolumn</I
+></TT
+> ) ] [ MATCH <TT
+CLASS="REPLACEABLE"
+><I
+>matchtype</I
+></TT
+> ] [ ON DELETE <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> ] [ ON UPDATE <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> ]</TT
+> （列制約）<BR><TT
+CLASS="LITERAL"
+>FOREIGN KEY ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ... ] )
+    REFERENCES <TT
+CLASS="REPLACEABLE"
+><I
+>reftable</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>refcolumn</I
+></TT
+> [, ... ] ) ] 
+    [ MATCH <TT
+CLASS="REPLACEABLE"
+><I
+>matchtype</I
+></TT
+> ]
+    [ ON DELETE <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> ] 
+    [ ON UPDATE <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> ]</TT
+>
+    （表制約）</DT
+><DD
+><P
+>これらの句は、外部キー制約を指定します。
+外部キー制約は、新しいテーブルの1つまたは複数の列の集合が、被参照テーブルの一部の行の被参照列（複数可）に一致する値を持たなければならないことを指定するものです。
+<TT
+CLASS="REPLACEABLE"
+><I
+>refcolumn</I
+></TT
+>が省略された場合、<TT
+CLASS="REPLACEABLE"
+><I
+>reftable</I
+></TT
+>のプライマリキーが使用されます。
+被参照列は、被参照テーブルにおいて遅延不可の一意性制約もしくはプライマリキー制約を持った列でなければなりません。
+一時テーブルと永続テーブルとの間で外部キー制約を定義できないことに注意してください。
+     </P
+><P
+>参照列に挿入された値は、被参照テーブルと被参照列の値に対して、指定した照合型で照会されます。
+照合型には3種類があります。
+<TT
+CLASS="LITERAL"
+>MATCH FULL</TT
+>、<TT
+CLASS="LITERAL"
+>MATCH PARTIAL</TT
+>、デフォルトでもある<TT
+CLASS="LITERAL"
+>MATCH SIMPLE</TT
+>照合型です。
+<TT
+CLASS="LITERAL"
+>MATCH FULL</TT
+>は全ての外部キー列がNULLとなる場合を除き、複数列外部キーのある列がNULLとなることを許可しません。
+<TT
+CLASS="LITERAL"
+>MATCH SIMPLE</TT
+>照合型は、外部キーの他の部分がNULLでない限り、外部キーの一部をNULLとなることを許可します。
+<TT
+CLASS="LITERAL"
+>MATCH PARTIAL</TT
+>はまだ実装されていません。
+     </P
+><P
+>さらに、被参照列のデータが変更された場合、このテーブルの列のデータに何らかの動作が発生します。
+<TT
+CLASS="LITERAL"
+>ON DELETE</TT
+>句は、被参照テーブルの被参照行が削除された場合の動作を指定します。
+同様に<TT
+CLASS="LITERAL"
+>ON UPDATE</TT
+>句は、被参照テーブルの被参照列が新しい値に更新された場合の動作を指定します。
+行の更新があった場合でも、被参照列が実際に変更されない場合は、動作は実行されません。
+制約が遅延可能と宣言されていても、<TT
+CLASS="LITERAL"
+>NO ACTION</TT
+>検査以外の参照動作は遅延させられません。
+各句について、以下の動作を指定可能です。
+      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>NO ACTION</TT
+></DT
+><DD
+><P
+>削除もしくは更新が外部キー制約違反となることを示すエラーを発生します。
+制約が遅延可能な場合、何らかの参照行が存在する限り、このエラーは制約の検査時点で発生します。
+これはデフォルトの動作です。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RESTRICT</TT
+></DT
+><DD
+><P
+>削除もしくは更新が外部キー制約違反となることを示すエラーを発生します。
+検査が遅延できない点を除き、<TT
+CLASS="LITERAL"
+>NO ACTION</TT
+>と同じです。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CASCADE</TT
+></DT
+><DD
+><P
+>削除された行を参照している行は全て削除します。また、参照している列の値を、被参照列の新しい値にします。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET NULL</TT
+></DT
+><DD
+><P
+>参照する列（複数可）をNULLに設定します。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET DEFAULT</TT
+></DT
+><DD
+><P
+>参照する列（複数可）をそのデフォルト値に設定します。
+         </P
+></DD
+></DL
+></DIV
+><P>
+     </P
+><P
+>被参照列が頻繁に更新される場合、外部キー列にインデックスを付け、その外部キー列に関連する参照動作がより効率的に実行できるようにする方が良いでしょう。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DEFERRABLE</TT
+><BR><TT
+CLASS="LITERAL"
+>NOT DEFERRABLE</TT
+></DT
+><DD
+><P
+>制約を遅延させることが可能かどうかを制御します。
+遅延不可の制約は各コマンドの後すぐに検査されます。
+遅延可能な制約の検査は、（<A
+HREF="sql-set-constraints.html"
+>SET CONSTRAINTS</A
+>コマンドを使用して）トランザクションの終了時まで遅延させることができます。
+<TT
+CLASS="LITERAL"
+>NOT DEFERRABLE</TT
+>がデフォルトです。
+現在、<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>、<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>、<TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>、<TT
+CLASS="LITERAL"
+>REFERENCES</TT
+>（外部キー）制約のみがこの句を受け付けることができます。
+<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>および <TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約は遅延させることができません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>INITIALLY IMMEDIATE</TT
+><BR><TT
+CLASS="LITERAL"
+>INITIALLY DEFERRED</TT
+></DT
+><DD
+><P
+>制約が遅延可能な場合、この句は制約検査を行うデフォルトの時期を指定します。
+制約が<TT
+CLASS="LITERAL"
+>INITIALLY IMMEDIATE</TT
+>の場合、各文の実行後に検査されます。
+これがデフォルトです。
+制約が<TT
+CLASS="LITERAL"
+>INITIALLY DEFERRED</TT
+>の場合、トランザクションの終了時にのみ検査されます。
+制約検査の時期は<A
+HREF="sql-set-constraints.html"
+>SET CONSTRAINTS</A
+>コマンドを使用して変更することができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WITH ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> [= <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>] [, ... ] )</TT
+></DT
+><DD
+><P
+>この句は、テーブルまたはインデックスに対して省略可能な格納パラメータを指定します。
+詳細は<A
+HREF="sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS"
+><I
+>格納パラメータ</I
+></A
+>を参照してください。
+テーブル用の<TT
+CLASS="LITERAL"
+>WITH</TT
+>には、<TT
+CLASS="LITERAL"
+>OIDS=TRUE</TT
+>（もしくは単なる<TT
+CLASS="LITERAL"
+>OIDS</TT
+>）を含めて、新しいテーブルの行が行に割り当てられたOID（オブジェクト識別子）を持たなければならないことを指定することもできます。
+また、<TT
+CLASS="LITERAL"
+>OIDS=FALSE</TT
+>を含めて、OIDを持たないことを指定することもできます。
+<TT
+CLASS="LITERAL"
+>OIDS</TT
+>が指定されない場合、デフォルトの設定は<A
+HREF="runtime-config-compatible.html#GUC-DEFAULT-WITH-OIDS"
+>default_with_oids</A
+>設定パラメータに依存します。
+（新しいテーブルがOIDを持つテーブルから継承する場合、コマンドで<TT
+CLASS="LITERAL"
+>OIDS=FALSE</TT
+>と指定しても強制的に<TT
+CLASS="LITERAL"
+>OIDS=TRUE</TT
+> となります。）
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>OIDS=FALSE</TT
+>が明示的または暗黙的に指定されている場合、新しいテーブルはOIDを格納しません。また、挿入される行にはOIDが割り当てられません。
+このような動作は一般的に有益であると考えられます。それは、OIDの使用を抑え、32ビットのOIDカウンタの回転周期を延長できるためです。
+カウンタが一周するとOIDの一意性を保証できなくなるので、その有用性を減少させることになります。
+また、OIDをなくすことで、テーブル1行当たり（ほとんどのマシンで）4バイト分、テーブルをディスクに格納するための容量を軽減するので、多少性能が向上します。
+
+     </P
+><P
+>テーブルの作成後にOIDを削除するには、<A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>を使用してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WITH OIDS</TT
+><BR><TT
+CLASS="LITERAL"
+>WITHOUT OIDS</TT
+></DT
+><DD
+><P
+>これは古い構文で、それぞれ<TT
+CLASS="LITERAL"
+>WITH (OIDS)</TT
+> and <TT
+CLASS="LITERAL"
+>WITH (OIDS=FALSE)</TT
+>と同じです。
+<TT
+CLASS="LITERAL"
+>OIDS</TT
+>の設定と格納パラメータの設定の両方を指定したい場合は、上述の<TT
+CLASS="LITERAL"
+>WITH ( ... )</TT
+>を使用しなければなりません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ON COMMIT</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>ON COMMIT</TT
+>を使用して、トランザクションブロックの終了時点での一時テーブルの動作を制御することができます。
+以下の3つのオプションがあります。
+      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>PRESERVE ROWS</TT
+></DT
+><DD
+><P
+>トランザクションの終了時点で、特別な動作は行われません。
+これがデフォルトの動作です。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DELETE ROWS</TT
+></DT
+><DD
+><P
+>一時テーブル内の全ての行は、各トランザクションブロックの終わりで削除されます。
+基本的には、コミットの度に自動的に<A
+HREF="sql-truncate.html"
+>TRUNCATE</A
+>が実行されます。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DROP</TT
+></DT
+><DD
+><P
+>一時テーブルは、現在のトランザクションブロックの終了時点で削除されます。
+         </P
+></DD
+></DL
+></DIV
+><P></P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+>は、新しいテーブルが作成されるテーブル空間名です。
+指定されていない場合、<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TABLESPACE"
+>default_tablespace</A
+>、もし一時テーブルの場合は<A
+HREF="runtime-config-client.html#GUC-TEMP-TABLESPACES"
+>temp_tablespaces</A
+>が考慮されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>USING INDEX TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+></TT
+></DT
+><DD
+><P
+>この句により、<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>、<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>、または<TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>制約に関連したインデックスを作成するテーブル空間を選択することができます。
+指定されていない場合、<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TABLESPACE"
+>default_tablespace</A
+>、もし一時テーブルであれば<A
+HREF="runtime-config-client.html#GUC-TEMP-TABLESPACES"
+>temp_tablespaces</A
+>が考慮されます。
+     </P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-CREATETABLE-STORAGE-PARAMETERS"
+></A
+><H3
+>格納パラメータ</H3
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>句により、テーブルおよび<TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>、<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>、または<TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>制約と関連づいたインデックスの<I
+CLASS="FIRSTTERM"
+>格納パラメータ</I
+>を指定することができます。
+インデックスの格納パラメータについては<A
+HREF="sql-createindex.html"
+>CREATE INDEX</A
+>で説明します。
+現在テーブルで設定可能な格納パラメータの一覧を以下に示します。
+各パラメータに対して、注記がない限り、さらに<TT
+CLASS="LITERAL"
+>toast</TT
+>という接頭辞のついた、同一の名前のパラメータがあります。
+これはもしあれば、テーブルの補助<ACRONYM
+CLASS="ACRONYM"
+>TOAST</ACRONYM
+>テーブルの動作を制御するために使用することができます。
+(TOASTに関する詳細については<A
+HREF="storage-toast.html"
+>&#38917;55.2</A
+>を参照してください。)
+TOASTテーブルは、<TT
+CLASS="LITERAL"
+>toast.autovacuum_*</TT
+>の設定群がない場合に親テーブルの<TT
+CLASS="LITERAL"
+>autovacuum</TT
+>値を継承することに注意してください。
+   </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>fillfactor</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>テーブルのフィルファクタは10から100までの間の割合（パーセント）です。
+100（完全にすべて使用）がデフォルトです。
+より小さな値を指定すると、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>操作は指定した割合までしかテーブルページを使用しません。
+各ページの残りの部分は、そのページ内の行更新用に予約されます。
+これにより<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>は、元の行と同じページ上に更新済みの行の複製を格納することができるようになります。
+これは別のページに更新済みの行の複製を格納することよりも効率的です。
+項目の更新がまったくないテーブルでは、完全にすべてを使用することが最善の選択です。
+しかし、更新が非常に多いテーブルではより小さめのフィルファクタが適切です。
+TOASTテーブルではこのパラメータを設定できません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_enabled</TT
+>, <TT
+CLASS="LITERAL"
+>toast.autovacuum_enabled</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>特定のテーブルに対する自動バキュームデーモンを有効または無効にします。
+真の場合、自動バキュームデーモンは、更新または削除されたタプル数が<TT
+CLASS="LITERAL"
+>autovacuum_vacuum_threshold</TT
+>＋<TT
+CLASS="LITERAL"
+>autovacuum_vacuum_scale_factor</TT
+>×リレーション内の推定有効タプル数を超えたときに、特定のテーブルに対する<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作を始めます。
+同様に、挿入、更新、削除されたタプル数が<TT
+CLASS="LITERAL"
+>autovacuum_analyze_threshold</TT
+>＋<TT
+CLASS="LITERAL"
+>autovacuum_analyze_scale_factor</TT
+>×リレーション内の推定有効タプル数を超えたときに、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>操作を始めます。
+偽の場合、トランザクション周回問題を回避するため以外で自動バキュームは行われません。
+周回問題の回避については<A
+HREF="routine-vacuuming.html#VACUUM-FOR-WRAPAROUND"
+>&#38917;23.1.4</A
+>を参照してください。
+この変数が<A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM"
+>autovacuum</A
+>からの値を継承していることに気付いてください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_vacuum_threshold</TT
+>, <TT
+CLASS="LITERAL"
+>toast.autovacuum_vacuum_threshold</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>特定のテーブルに対して<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>操作を始める前の、更新または削除されたタプルの最小数です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_vacuum_scale_factor</TT
+>, <TT
+CLASS="LITERAL"
+>toast.autovacuum_vacuum_scale_factor</TT
+> (<TT
+CLASS="TYPE"
+>float4</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>autovacuum_vacuum_threshold</TT
+>に加算する<TT
+CLASS="STRUCTFIELD"
+>reltuples</TT
+>用の乗数です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_analyze_threshold</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>特定のテーブルに対して<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>操作を始める前の、挿入、更新または削除されたタプルの最小数です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_analyze_scale_factor</TT
+> (<TT
+CLASS="TYPE"
+>float4</TT
+>)</DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>autovacuum_analyze_threshold</TT
+>に加算する<TT
+CLASS="STRUCTFIELD"
+>reltuples</TT
+>用の乗数です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_vacuum_cost_delay</TT
+>, <TT
+CLASS="LITERAL"
+>toast.autovacuum_vacuum_cost_delay</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>     <A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-VACUUM-COST-DELAY"
+>autovacuum_vacuum_cost_delay</A
+>独自パラメータです。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_vacuum_cost_limit</TT
+>, <TT
+CLASS="LITERAL"
+>toast.autovacuum_vacuum_cost_limit</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>     <A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-VACUUM-COST-LIMIT"
+>autovacuum_vacuum_cost_limit</A
+>独自パラメータです。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_freeze_min_age</TT
+>, <TT
+CLASS="LITERAL"
+>toast.autovacuum_freeze_min_age</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+><A
+HREF="runtime-config-client.html#GUC-VACUUM-FREEZE-MIN-AGE"
+>vacuum_freeze_min_age</A
+>独自パラメータです。
+テーブル単位の<TT
+CLASS="LITERAL"
+>autovacuum_freeze_min_age</TT
+>をシステム全体の<A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-FREEZE-MAX-AGE"
+>autovacuum_freeze_max_age</A
+>設定の1/2より大きく設定しようとしても、自動バキュームが無視することに注意してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_freeze_max_age</TT
+>, <TT
+CLASS="LITERAL"
+>toast.autovacuum_freeze_max_age</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+><A
+HREF="runtime-config-autovacuum.html#GUC-AUTOVACUUM-FREEZE-MAX-AGE"
+>autovacuum_freeze_max_age</A
+>独自パラメータです。
+テーブル単位の<TT
+CLASS="LITERAL"
+>autovacuum_freeze_max_age</TT
+>をシステム全体のに対する設定より大きく設定しようとしても、自動バキュームが無視することに注意してください。
+（より小さな値しか設定できません。）
+<TT
+CLASS="LITERAL"
+>autovacuum_freeze_max_age</TT
+>を非常に小さく設定する、ゼロに設定することすらできますが、頻繁なバキューム処理が強制されるため通常は勧められません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>autovacuum_freeze_table_age</TT
+>, <TT
+CLASS="LITERAL"
+>toast.autovacuum_freeze_table_age</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>      Custom <A
+HREF="runtime-config-client.html#GUC-VACUUM-FREEZE-TABLE-AGE"
+>vacuum_freeze_table_age</A
+> parameter.
+     </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATETABLE-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+>新規のアプリケーションでOIDを使用するのはお勧めしません。
+できる限り、テーブルのプライマリキーとして<TT
+CLASS="LITERAL"
+>SERIAL</TT
+>や他のシーケンスジェネレータを使用する方が望ましいと考えられます。
+しかし、アプリケーションがテーブルの特定の行を識別するためにOIDを使用する場合は、そのテーブルの<TT
+CLASS="STRUCTFIELD"
+>oid</TT
+>列に一意性制約を作成することを推奨します。 
+これにより、カウンタが一周してしまった場合でも、テーブル内のOIDで一意に行を識別できることが保証されるからです。
+OIDがテーブル全体で一意であると考えるのは止めてください。 
+データベース全体で一意な識別子が必要な場合は、<TT
+CLASS="STRUCTFIELD"
+>tableoid</TT
+>と行のOIDの組み合わせを使用してください。  
+    </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+><TT
+CLASS="LITERAL"
+>OIDS=FALSE</TT
+>の使用は、プライマリキーのないテーブルでは推奨されません。 
+OIDも一意なデータキーも存在しないと、特定行を識別することが難しくなるからです。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は自動的に各一意性制約とプライマリキー制約に対してインデックスを作成し、その一意性を確実なものにします。
+したがって、プライマリキーの列に明示的なインデックスを作成することは必要ありません
+（詳細については<A
+HREF="sql-createindex.html"
+>CREATE INDEX</A
+>を参照してください）。
+    </P
+><P
+>現在の実装では、一意性制約とプライマリキーは継承されません。
+これは、継承と一意性制約を組み合わせると障害が発生するからです。
+    </P
+><P
+>テーブルは1600列以上の列を持つことはできません
+（タプル長の制限により実際の制限はもっと低くなります）。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATETABLE-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="STRUCTNAME"
+>films</TT
+>テーブルと<TT
+CLASS="STRUCTNAME"
+>distributors</TT
+>テーブルを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE films (
+    code        char(5) CONSTRAINT firstkey PRIMARY KEY,
+    title       varchar(40) NOT NULL,
+    did         integer NOT NULL,
+    date_prod   date,
+    kind        varchar(10),
+    len         interval hour to minute
+);
+
+CREATE TABLE distributors (
+     did    integer PRIMARY KEY DEFAULT nextval('serial'),
+     name   varchar(40) NOT NULL CHECK (name &lt;&gt; '')
+);</PRE
+><P>
+  </P
+><P
+>2次元配列を持つテーブルを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE array_int (
+    vector  int[][]
+);</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>films</TT
+>テーブルに 一意性テーブル制約を定義します。
+一意性テーブル制約はテーブルの1つ以上の列に定義することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE films (
+    code        char(5),
+    title       varchar(40),
+    did         integer,
+    date_prod   date,
+    kind        varchar(10),
+    len         interval hour to minute,
+    CONSTRAINT production UNIQUE(date_prod)
+);</PRE
+><P>
+  </P
+><P
+>検査列制約を定義します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE distributors (
+    did     integer CHECK (did &gt; 100),
+    name    varchar(40)
+);</PRE
+><P>
+  </P
+><P
+>検査テーブル制約を定義します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE distributors (
+    did     integer,
+    name    varchar(40)
+    CONSTRAINT con1 CHECK (did &gt; 100 AND name &lt;&gt; '')
+);</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>films</TT
+>テーブルにプライマリキーテーブル制約を定義します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE films (
+    code        char(5),
+    title       varchar(40),
+    did         integer,
+    date_prod   date,
+    kind        varchar(10),
+    len         interval hour to minute,
+    CONSTRAINT code_title PRIMARY KEY(code,title)
+);</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>distributors</TT
+>テーブルにプライマリキー制約を定義します。
+以下の2つの例は同じものです。
+前者はテーブル制約構文を使用し、後者は列制約構文を使用します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE distributors (
+    did     integer,
+    name    varchar(40),
+    PRIMARY KEY(did)
+); 
+
+CREATE TABLE distributors (
+    did     integer PRIMARY KEY,
+    name    varchar(40)
+);</PRE
+><P>
+  </P
+><P
+>以下では、<TT
+CLASS="LITERAL"
+>name</TT
+>列のデフォルト値にリテラル定数を割り当てています。また、<TT
+CLASS="LITERAL"
+>did</TT
+>列のデフォルト値として、シーケンスオブジェクトの次の値が生成されるように調整しています。
+<TT
+CLASS="LITERAL"
+>modtime</TT
+>のデフォルト値は、その行が挿入された時刻となります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE distributors (
+    name      varchar(40) DEFAULT 'Luso Films',
+    did       integer DEFAULT nextval('distributors_serial'),
+    modtime   timestamp DEFAULT current_timestamp
+);</PRE
+><P>
+  </P
+><P
+>2つの<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>列制約を<CODE
+CLASS="CLASSNAME"
+>distributors</CODE
+>テーブルに定義します。
+そのうち1つには明示的な名前を付けています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE distributors (
+    did     integer CONSTRAINT no_null NOT NULL,
+    name    varchar(40) NOT NULL
+);</PRE
+><P>
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>name</TT
+>列に対し、一意性制約を定義します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE distributors (
+    did     integer,
+    name    varchar(40) UNIQUE
+);</PRE
+><P>
+
+上をテーブル制約として指定します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE distributors (
+    did     integer,
+    name    varchar(40),
+    UNIQUE(name)
+);</PRE
+><P>
+  </P
+><P
+>テーブルとその一意性インデックスに70%のfillファクタを指定して、同じテーブルを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE distributors (
+    did     integer,
+    name    varchar(40),
+    UNIQUE(name) WITH (fillfactor=70)
+)
+WITH (fillfactor=70);</PRE
+><P>
+  </P
+><P
+>2つの円の重複を許さない除外制約を持つ<TT
+CLASS="STRUCTNAME"
+>circles</TT
+>テーブルを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE circles (
+    c circle,
+    EXCLUDE USING gist (c WITH &amp;&amp;)
+);</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>diskvol1</TT
+>テーブル空間に<TT
+CLASS="STRUCTNAME"
+>cinemas</TT
+>テーブルを作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE cinemas (
+        id serial,
+        name text,
+        location text
+) TABLESPACE diskvol1;</PRE
+><P>
+  </P
+><P
+>複合型と型付きテーブルを作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE employee_type AS (name text, salary numeric);
+
+CREATE TABLE employees OF employee_type (
+    PRIMARY KEY (name),
+    salary WITH OPTIONS DEFAULT 1000
+);</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATETABLE-COMPATIBILITY"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>は、以下の一覧を除いて、標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>に従います。
+  </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN67958"
+></A
+><H3
+>一時テーブル</H3
+><P
+><TT
+CLASS="LITERAL"
+>CREATE TEMPORARY TABLE</TT
+>は標準SQLに類似していますが、その効果は同じではありません。
+標準では、一時テーブルは一度だけ定義され、それを必要とするセッションごとに自動的に（空の内容で始まる形で）出現します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、これと異なり、各セッションで独自に、使用する一時テーブル用の<TT
+CLASS="LITERAL"
+>CREATE TEMPORARY TABLE</TT
+>コマンドを発行しなければなりません。
+これにより、異なるセッションで同じ名前の一時テーブルを異なる目的で使用することができます。
+一方、標準の方法では、ある一時テーブル名を持つインスタンスが、全て同一のテーブル構造を持つという制限があります。
+   </P
+><P
+>標準におけるこのような一時テーブルの動作定義はたいてい無視されています。
+この点での<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の動作は、他の多くのSQLデータベースと似ています。
+   </P
+><P
+>標準における、グローバル一時テーブルとローカル一時テーブルの区別は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にはありません。
+この区別はモジュールという概念に依存したものですが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にはモジュール概念がないからです。
+互換性を保持するため、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は一時テーブルの宣言において<TT
+CLASS="LITERAL"
+>GLOBAL</TT
+>と<TT
+CLASS="LITERAL"
+>LOCAL</TT
+>キーワードを受け付けますが、これらには何の効果もありません。
+   </P
+><P
+>一時テーブル用の<TT
+CLASS="LITERAL"
+>ON COMMIT</TT
+>句もまた、標準SQLに類似していますが、数点の違いがあります。
+<TT
+CLASS="LITERAL"
+>ON COMMIT</TT
+>句が省略された場合、SQLでは、デフォルトの動作は<TT
+CLASS="LITERAL"
+>ON COMMIT DELETE ROWS</TT
+>であると規定しています。
+しかし、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でのデフォルトの動作は<TT
+CLASS="LITERAL"
+>ON COMMIT PRESERVE ROWS</TT
+>です。
+また、<TT
+CLASS="LITERAL"
+>ON COMMIT DROP</TT
+>はSQLにはありません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN67979"
+></A
+><H3
+>非遅延一意性制約</H3
+><P
+><TT
+CLASS="LITERAL"
+>UNIQUE</TT
+>または<TT
+CLASS="LITERAL"
+>PRIMARY KEY</TT
+>制約が非遅延の場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は行が挿入または変更されると即座に一意性を検査します。
+標準SQLでは一意性は文が完了した時にのみ強制されなければならないと記述しています。
+これにより、たとえば、1つのコマンドが複数のキー値を更新する時に違いが現れます。
+標準互換の動作をさせるためには、非遅延（つまり<TT
+CLASS="LITERAL"
+>INITIALLY IMMEDIATE</TT
+>）ではなく<TT
+CLASS="LITERAL"
+>DEFERRABLE</TT
+>として制約を宣言してください。
+これが即座に行われる一意性検査よりかなり低速になる可能性があることに注意してください。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN67987"
+></A
+><H3
+>列検査制約</H3
+><P
+>標準SQLでは、<TT
+CLASS="LITERAL"
+>CHECK</TT
+>列制約はそれを適用する列のみを参照でき、複数の列を参照できるのは<TT
+CLASS="LITERAL"
+>CHECK</TT
+>テーブル制約のみであるとされています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にはこの制限はありません。
+列検査制約とテーブル検査制約を同様のものとして扱っています。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN67993"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>制約</H3
+><P
+><TT
+CLASS="LITERAL"
+>EXCLUDE</TT
+>という種類の制約は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN67999"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>NULL</TT
+> <SPAN
+CLASS="QUOTE"
+>"制約"</SPAN
+></H3
+><P
+><TT
+CLASS="LITERAL"
+>NULL</TT
+><SPAN
+CLASS="QUOTE"
+>"制約"</SPAN
+>（実際には非制約）は、標準SQLに対する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張で、他のいくつかのデータベースシステムとの互換性のために含まれています（<TT
+CLASS="LITERAL"
+>NOT NULL</TT
+>制約と対称になります）。
+どんな列に対してもデフォルトとなるため、これはノイズに過ぎません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN68008"
+></A
+><H3
+>継承</H3
+><P
+><TT
+CLASS="LITERAL"
+>INHERITS</TT
+>句による複数継承は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の言語拡張です。
+SQL:1999以降では、異なる構文と意味体系による単一継承を定義しています。
+今のところ、SQL:1999方式の継承は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではサポートされていません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN68014"
+></A
+><H3
+>列を持たないテーブル</H3
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、列を持たないテーブルを作成することができます
+（例えば、<TT
+CLASS="LITERAL"
+>CREATE TABLE foo();</TT
+>）。
+これは標準SQLからの拡張です。
+標準SQLでは列を持たないテーブルは許されません。
+列を持たないテーブルそれ自体は役に立ちませんが、これを無効とすると、<TT
+CLASS="COMMAND"
+>ALTER TABLE DROP COLUMN</TT
+>に対して奇妙な特例を生成することになります。
+したがって、この仕様上の制限を無視する方が簡潔であると考えます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN68020"
+></A
+><H3
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>句</H3
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>句は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+格納パラメータもOIDも標準にはありません。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN68026"
+></A
+><H3
+>テーブル空間</H3
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のテーブル空間の概念は標準にはありません。
+したがって、<TT
+CLASS="LITERAL"
+>TABLESPACE</TT
+>と<TT
+CLASS="LITERAL"
+>USING INDEX TABLESPACE</TT
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>における拡張です。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN68033"
+></A
+><H3
+>型付きテーブル</H3
+><P
+>型付きテーブルは標準SQLのサブセットを実装します。
+標準に従うと、型付きテーブルは背後の複合型に対応した列の他に<SPAN
+CLASS="QUOTE"
+>"自己参照列"</SPAN
+>という列も持ちます。
+PostgreSQLはこうした自己参照列を明示的にサポートしません。
+しかし、OID機能を使用して同様の効果を持たせることができます。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68037"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>, <A
+HREF="sql-droptable.html"
+>DROP TABLE</A
+>, <A
+HREF="sql-createtablespace.html"
+>CREATE TABLESPACE</A
+>, <A
+HREF="sql-createtype.html"
+>CREATE TYPE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createserver.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createtableas.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE SERVER</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE TABLE AS</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

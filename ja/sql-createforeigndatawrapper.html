@@ -1,0 +1,490 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE FOREIGN DATA WRAPPER</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE EXTENSION"
+HREF="sql-createextension.html"><LINK
+REL="NEXT"
+TITLE="CREATE FOREIGN TABLE"
+HREF="sql-createforeigntable.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE EXTENSION"
+HREF="sql-createextension.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE EXTENSION"
+HREF="sql-createextension.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE FOREIGN TABLE"
+HREF="sql-createforeigntable.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE FOREIGN TABLE"
+HREF="sql-createforeigntable.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATEFOREIGNDATAWRAPPER"
+></A
+>CREATE FOREIGN DATA WRAPPER</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN65125"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE FOREIGN DATA WRAPPER&nbsp;--&nbsp;新しい外部データラッパを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN65130"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE FOREIGN DATA WRAPPER <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    [ HANDLER <TT
+CLASS="REPLACEABLE"
+><I
+>handler_function</I
+></TT
+> | NO HANDLER ]
+    [ VALIDATOR <TT
+CLASS="REPLACEABLE"
+><I
+>validator_function</I
+></TT
+> | NO VALIDATOR ]
+    [ OPTIONS ( <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> '<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>' [, ... ] ) ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65137"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE FOREIGN DATA WRAPPER</TT
+>は新しい外部データラッパを作成します。
+外部データラッパを定義したユーザがその所有者となります。
+  </P
+><P
+>外部データラッパの名前はデータベース内で一意でなければなりません。
+  </P
+><P
+>スーパーユーザのみが外部データラッパを作成することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65143"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>作成する外部データラッパの名前です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>HANDLER <TT
+CLASS="REPLACEABLE"
+><I
+>handler_function</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>handler_function</I
+></TT
+>は、事前に登録された、外部テーブル向けの関数実行を受け付けるために呼び出される関数の名前です。
+ハンドラ関数は引数を取らず、<TT
+CLASS="TYPE"
+>fdw_handler</TT
+>型を返すものでなければなりません。
+     </P
+><P
+>ハンドラ関数を持たない外部データラッパを作成することもできますが、こうしたラッパを使用する外部テーブルは宣言することができるだけでアクセスできません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>VALIDATOR <TT
+CLASS="REPLACEABLE"
+><I
+>validator_function</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>validator_function</I
+></TT
+>は、外部データラッパへ与える一般的なオプションと、その外部データラッパを使用する外部サーバとユーザマップへ与えるオプションを検査するために呼び出される、前もって登録された関数の名前です。
+検証関数がない、または<TT
+CLASS="LITERAL"
+>NO VALIDATOR</TT
+>が指定された場合、オプションは作成時に検査されません。
+（実装に依存しますが、実行時外部データラッパは無効なオプション指定を無視することも拒絶することもできます。）
+検証関数は2つの引数を取らなければなりません。
+1つは<TT
+CLASS="TYPE"
+>text[]</TT
+>型で、システムカタログ内に格納されたオプションの配列を含みます。
+もう1つは<TT
+CLASS="TYPE"
+>oid</TT
+>型で、オプションを含むシステムカタログのOIDです。
+戻り値の型は無視されます。
+関数は<CODE
+CLASS="FUNCTION"
+>ereport()</CODE
+>関数を使用して無効なオプションを報告しなければなりません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OPTIONS ( <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> '<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>' [, ... ] )</TT
+></DT
+><DD
+><P
+>この句は新しい外部データラッパ用のオプションを指定します。
+許されるオプション名と値は外部データラッパごとに固有であり、外部データラッパの検証関数を使用して検証されます。
+オプション名は一意でなければなりません。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65178"
+></A
+><H2
+>注釈</H2
+><P
+>現在、外部データラッパには基本的な機能しかありません。
+外部テーブルの更新をサポートしません。
+また問い合わせの最適化は原始的です（ほとんどはラッパに任せられています）。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>postgresql_fdw_validator</TT
+>という1つの組込みの外部データラッパの検証関数が提供されています。
+これは<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>接続パラメータに対応したオプションを受け付けます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65184"
+></A
+><H2
+>例</H2
+><P
+>無意味な外部データラッパ<TT
+CLASS="LITERAL"
+>dummy</TT
+>を作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FOREIGN DATA WRAPPER dummy;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>file_fdw_handler</TT
+>ハンドラ関数を持つ外部データラッパ<TT
+CLASS="LITERAL"
+>file</TT
+>を作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FOREIGN DATA WRAPPER file HANDLER file_fdw_handler;</PRE
+><P>
+  </P
+><P
+>いくつかオプションを付けた外部データラッパ<TT
+CLASS="LITERAL"
+>mywrapper</TT
+>を作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FOREIGN DATA WRAPPER mywrapper
+    OPTIONS (debug 'true');</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65196"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE FOREIGN DATA WRAPPER</TT
+>はISO/IEC 9075-9 (SQL/MED)に従います。
+ただし、<TT
+CLASS="LITERAL"
+>HANDLER</TT
+>句と<TT
+CLASS="LITERAL"
+>VALIDATOR</TT
+>句は拡張であり、PostgreSQLでは標準の<TT
+CLASS="LITERAL"
+>LIBRARY</TT
+>句と<TT
+CLASS="LITERAL"
+>LANGUAGE</TT
+>句は実装されていません。
+  </P
+><P
+>しかし、SQL/MED機能は全体としてまだ従っていないことに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65205"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-alterforeigndatawrapper.html"
+>ALTER FOREIGN DATA WRAPPER</A
+>, <A
+HREF="sql-dropforeigndatawrapper.html"
+>DROP FOREIGN DATA WRAPPER</A
+>, <A
+HREF="sql-createserver.html"
+>CREATE SERVER</A
+>, <A
+HREF="sql-createusermapping.html"
+>CREATE USER MAPPING</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createextension.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createforeigntable.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE EXTENSION</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE FOREIGN TABLE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

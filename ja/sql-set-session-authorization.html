@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SET SESSION AUTHORIZATION</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="SET ROLE"
+HREF="sql-set-role.html"><LINK
+REL="NEXT"
+TITLE="SET TRANSACTION"
+HREF="sql-set-transaction.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SET ROLE"
+HREF="sql-set-role.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SET ROLE"
+HREF="sql-set-role.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SET TRANSACTION"
+HREF="sql-set-transaction.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SET TRANSACTION"
+HREF="sql-set-transaction.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-SET-SESSION-AUTHORIZATION"
+></A
+>SET SESSION AUTHORIZATION</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN75663"
+></A
+><H2
+>&#21517;&#21069;</H2
+>SET SESSION AUTHORIZATION&nbsp;--&nbsp;セッションのユーザ識別子、現在のセッションの現在のユーザ識別子を設定する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN75668"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>SET [ SESSION | LOCAL ] SESSION AUTHORIZATION <TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+>
+SET [ SESSION | LOCAL ] SESSION AUTHORIZATION DEFAULT
+RESET SESSION AUTHORIZATION</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75671"
+></A
+><H2
+>説明</H2
+><P
+>このコマンドはセッションのユーザ識別子、ならびに、現在のSQLセッションにおける現在のユーザ識別子を<TT
+CLASS="PARAMETER"
+>user_name</TT
+>に設定します。
+ユーザ名は、識別子だけでなく、文字列リテラルとして記述することもできます。
+このコマンドを使用すると、例えば、一時的に非特権ユーザとなり、その後に特権ユーザに戻るといったことが可能です。
+  </P
+><P
+>セッションのユーザ識別子はクライアントから渡される（おそらく認証済みの）ユーザ名で初期化されます。
+現在のユーザ識別子は通常セッションのユーザ識別子と同一ですが、<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>関数や類似の機能によって一時的に変更される可能性があります。
+<A
+HREF="sql-set-role.html"
+>SET ROLE</A
+>でこれを変更することもできます。
+現在のユーザ識別子は権限の検査に影響を与えます。
+  </P
+><P
+>セッションのユーザ識別子は、最初のセッションユーザ（<I
+CLASS="FIRSTTERM"
+>認証されたユーザ</I
+>）がスーパーユーザ権限を持っている場合にのみ変更できます。
+スーパーユーザ権限を持っていない場合、認証されたユーザ名以外を指定してもこのコマンドは受け入れられません。
+  </P
+><P
+><TT
+CLASS="OPTION"
+>SESSION</TT
+>修飾子および<TT
+CLASS="OPTION"
+>LOCAL</TT
+>修飾子は、通常の<A
+HREF="sql-set.html"
+>SET</A
+>コマンドの場合と同じように機能します。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>構文および<TT
+CLASS="LITERAL"
+>RESET</TT
+>構文は、セッションと現在のユーザ識別子を元の認証ユーザに戻します。
+これらの構文は全てのユーザが実行できます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75687"
+></A
+><H2
+>Notes</H2
+><P
+><TT
+CLASS="COMMAND"
+>SET SESSION AUTHORIZATION</TT
+>を<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>関数で使用することはできません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75692"
+></A
+><H2
+>例</H2
+><PRE
+CLASS="PROGRAMLISTING"
+>SELECT SESSION_USER, CURRENT_USER;
+
+ session_user | current_user 
+--------------+--------------
+ peter        | peter
+
+SET SESSION AUTHORIZATION 'paul';
+
+SELECT SESSION_USER, CURRENT_USER;
+
+ session_user | current_user 
+--------------+--------------
+ paul         | paul</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75695"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLでは、<TT
+CLASS="PARAMETER"
+>user_name</TT
+>リテラルの指定方法としてその他の表現を使用できます。
+しかし、この違いは実用上は重要ではありません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では識別子構文（<TT
+CLASS="LITERAL"
+>"username"</TT
+>）を使用できますが、SQLでは使用できません。
+SQLではこのコマンドをトランザクション中に実行することができませんが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、禁止する理由が見当たらないため、この制限を付けていません。
+<TT
+CLASS="LITERAL"
+>SESSION</TT
+>修飾子および<TT
+CLASS="LITERAL"
+>LOCAL</TT
+>修飾子は<TT
+CLASS="LITERAL"
+>RESET</TT
+>構文同様、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+><P
+>標準SQLでは、このコマンドを実行するために必要な権限は、実装に依存するとされています。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN75707"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-set-role.html"
+>SET ROLE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-set-role.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-set-transaction.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SET ROLE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SET TRANSACTION</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,552 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>C++アプリケーション</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="ラージオブジェクト"
+HREF="ecpg-lo.html"><LINK
+REL="NEXT"
+TITLE="埋め込みSQLコマンド"
+HREF="ecpg-sql-commands.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ラージオブジェクト"
+HREF="ecpg-lo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="埋め込みSQLコマンド"
+HREF="ecpg-sql-commands.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-CPP"
+>33.13. <ACRONYM
+CLASS="ACRONYM"
+>C++</ACRONYM
+>アプリケーション</A
+></H1
+><P
+>ECPGはC++アプリケーションを多少の制限がありますがサポートします。
+本節ではいくつかの注意を説明します。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+>プリプロセッサはC（またはCのようなもの）と埋め込みSQLコマンドで記述された入力ファイルを取り、埋め込みSQLコマンドをC言語の小塊に変換し、最終的に<TT
+CLASS="FILENAME"
+>.c</TT
+>ファイルを作成します。
+<TT
+CLASS="COMMAND"
+>ecpg</TT
+>が生成するC言語の小塊で使用されるライブラリ関数のヘッダファイル定義は、C++で使用される場合<TT
+CLASS="LITERAL"
+>extern "C" { ... }</TT
+>で囲まれます。
+このためC++でも継ぎ目なく動作するはずです。
+  </P
+><P
+>しかし一般的には、<TT
+CLASS="COMMAND"
+>ecpg</TT
+>プリプロセッサはCのみを理解しています。
+C++言語の特殊な構文や予約語を取り扱いません。
+このため、C++に特化した複雑な機能を使用するC++アプリケーションコードの中に記述された埋め込みSQLコードの一部は、正しく前処理することに失敗する、または想定通りに動作しないかもしれません。
+  </P
+><P
+>C++アプリケーションで埋め込みSQLコードを使用する安全な方法は、ECPGの呼び出しをC++アプリケーションコードがデータベースにアクセスするために呼び出し、残りのC++コードとまとめてリンクされる、Cモジュール内に隠蔽することです。
+<A
+HREF="ecpg-cpp.html#ECPG-CPP-AND-C"
+>&#38917;33.13.2</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-CPP-SCOPE"
+>33.13.1. ホスト変数のスコープ</A
+></H2
+><P
+><TT
+CLASS="COMMAND"
+>ecpg</TT
+>プリプロセッサはCにおける変数のスコープを理解しています。
+C言語では、変数のスコープはコードブロックに基づきますので、どちらかといえば単純です。
+しかしC++では
+クラスメンバ変数は宣言場所とは異なるコードブロック内で参照されます。
+このため<TT
+CLASS="COMMAND"
+>ecpg</TT
+>プリプロセッサはクラスメンバ変数のスコープを理解していません。
+   </P
+><P
+>例えば、以下の場合、<TT
+CLASS="COMMAND"
+>ecpg</TT
+>プリプロセッサは<TT
+CLASS="LITERAL"
+>test</TT
+>メソッド内の<TT
+CLASS="LITERAL"
+>dbname</TT
+>変数の定義を見つけることができません。
+このためエラーになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>class TestCpp
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    char dbname[1024];
+    EXEC SQL END DECLARE SECTION;
+
+  public:
+    TestCpp();
+    void test();
+    ~TestCpp();
+};
+
+TestCpp::TestCpp()
+{
+    EXEC SQL CONNECT TO testdb1;
+}
+
+void Test::test()
+{
+    EXEC SQL SELECT current_database() INTO :dbname;
+    printf("current_database = %s\n", dbname);
+}
+
+TestCpp::~TestCpp()
+{
+    EXEC SQL DISCONNECT ALL;
+}</PRE
+><P>
+
+このコードは以下のようなエラーになります。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>ecpg test_cpp.pgc</KBD
+>
+test_cpp.pgc:28: ERROR: variable "dbname" is not declared</PRE
+><P>
+   </P
+><P
+>このスコープ問題を回避するためには、<TT
+CLASS="LITERAL"
+>test</TT
+>メソッドを中間格納領域としてローカル変数を使用するように変更することができます。
+しかしこの手法は悪い回避策でしかありません。コードを醜くしますし性能も劣化させます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>void TestCpp::test()
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    char tmp[1024];
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL SELECT current_database() INTO :tmp;
+    strlcpy(dbname, tmp, sizeof(tmp));
+
+    printf("current_database = %s\n", dbname);
+}</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-CPP-AND-C"
+>33.13.2. 外部のCモジュールを用いたC++アプリケーションの開発</A
+></H2
+><P
+>C++における<TT
+CLASS="COMMAND"
+>ecpg</TT
+>の技術的な制限を理解しているのであれば、ECPG機能を使用するC++アプリケーションを実現するためには、リンク段階でCオブジェクトとC++オブジェクトをリンクする方が、C++コード内で埋め込みSQLコマンドを直接記述することより優れているという結論に至るでしょう。
+本節では、簡単な例を用いて、C++アプリケーションコードから埋め込みSQLコマンドを分離する方法について説明します。
+この例では、アプリケーションはC++で実装し、PostgreSQLサーバに接続するためにCおよびECPGを使用します。
+   </P
+><P
+>Cファイル（<TT
+CLASS="FILENAME"
+>*.pgc</TT
+>）、ヘッダファイル、C++ファイルという３種類のファイルを作成しなければなりません。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="FILENAME"
+>test_mod.pgc</TT
+></DT
+><DD
+><P
+>C内に埋め込まれたサブルーチンモジュールです。
+プリプロセッサにより<TT
+CLASS="FILENAME"
+>test_mod.c</TT
+>に変換されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include "test_mod.h"
+#include &lt;stdio.h&gt;
+
+void
+db_connect()
+{
+    EXEC SQL CONNECT TO testdb1;
+}
+
+void
+db_test()
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    char dbname[1024];
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL SELECT current_database() INTO :dbname;
+    printf("current_database = %s\n", dbname);
+}
+
+void
+db_disconnect()
+{
+    EXEC SQL DISCONNECT ALL;
+}</PRE
+><P>
+       </P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>test_mod.h</TT
+></DT
+><DD
+><P
+>Cモジュール（<TT
+CLASS="FILENAME"
+>test_mod.pgc</TT
+>）内の関数宣言を持つヘッダファイルです。
+<TT
+CLASS="FILENAME"
+>test_cpp.cpp</TT
+>でインクルードされます。
+このファイルは、C++モジュールからリンクされますので、宣言を囲む<TT
+CLASS="LITERAL"
+>extern "C"</TT
+>ブロックを持たなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#ifdef __cplusplus
+extern "C" {
+#endif
+
+void db_connect();
+void db_test();
+void db_disconnect();
+
+#ifdef __cplusplus
+}
+#endif</PRE
+><P>
+       </P
+></DD
+><DT
+><TT
+CLASS="FILENAME"
+>test_cpp.cpp</TT
+></DT
+><DD
+><P
+><CODE
+CLASS="FUNCTION"
+>main</CODE
+>ルーチンとこの例でのC++クラスを含む、アプリケーションの主要コードです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include "test_mod.h"
+
+class TestCpp
+{
+  public:
+    TestCpp();
+    void test();
+    ~TestCpp();
+};
+
+TestCpp::TestCpp()
+{
+    db_connect();
+}
+
+void
+TestCpp::test()
+{
+    db_test();
+}
+
+TestCpp::~TestCpp()
+{
+    db_disconnect();
+}
+
+int
+main(void)
+{
+    TestCpp *t = new TestCpp();
+
+    t-&#62;test();
+    return 0;
+}</PRE
+><P>
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+>アプリケーションを構築するためには、以下の処理を行います。
+<TT
+CLASS="COMMAND"
+>ecpg</TT
+>を実行して<TT
+CLASS="FILENAME"
+>test_mod.pgc</TT
+>を<TT
+CLASS="FILENAME"
+>test_mod.c</TT
+>に変換します。
+そしてCコンパイラを用いて<TT
+CLASS="FILENAME"
+>test_mod.c</TT
+>をコンパイルし<TT
+CLASS="FILENAME"
+>test_mod.o</TT
+>を生成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ecpg -o test_mod.c test_mod.pgc
+cc -c test_mod.c -o test_mod.o</PRE
+><P>
+   </P
+><P
+>次にC++コンパイラを用いて<TT
+CLASS="FILENAME"
+>test_cpp.cpp</TT
+>をコンパイルし<TT
+CLASS="FILENAME"
+>test_cpp.o</TT
+>を生成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>c++ -c test_cpp.cpp -o test_cpp.o</PRE
+><P>
+   </P
+><P
+>最後に、C++コンパイラドライバを用いて<TT
+CLASS="FILENAME"
+>test_cpp.o</TT
+>および<TT
+CLASS="FILENAME"
+>test_mod.o</TT
+>というオブジェクトファイルを実行形式ファイルにリンクします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>c++ test_cpp.o test_mod.o -lecpg -o test_cpp</PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-lo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-sql-commands.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ラージオブジェクト</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>埋め込みSQLコマンド</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

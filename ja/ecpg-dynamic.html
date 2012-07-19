@@ -1,0 +1,365 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>動的SQL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="ホスト変数の使用"
+HREF="ecpg-variables.html"><LINK
+REL="NEXT"
+TITLE="pgtypes ライブラリ"
+HREF="ecpg-pgtypes.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ホスト変数の使用"
+HREF="ecpg-variables.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pgtypes ライブラリ"
+HREF="ecpg-pgtypes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-DYNAMIC"
+>33.5. 動的SQL</A
+></H1
+><P
+>多くの場合、アプリケーションが実行しなければならないSQL文は、アプリケーションを作成する段階で決まります。
+しかし、中には、SQL文が実行時に構成されることや外部ソースで提供されることがあります。
+このような場合、SQL文を直接Cソースコードに埋め込むことはできません。
+しかし、文字列変数として提供される任意のSQL文を呼び出すことができる機能が存在します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-DYNAMIC-WITHOUT-RESULT"
+>33.5.1. 結果セットを伴わないSQL文の実行</A
+></H2
+><P
+>    任意のSQL文を実行するもっとも簡単な方法は、<TT
+CLASS="COMMAND"
+>EXECUTE IMMEDIATE</TT
+> コマンドを使用することです。
+    例を示します:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+const char *stmt = "CREATE TABLE test1 (...);";
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL EXECUTE IMMEDIATE :stmt;</PRE
+><P>
+    <TT
+CLASS="COMMAND"
+>EXECUTE IMMEDIATE</TT
+> は結果セットを返却しないSQL文に使用することができます（e.g., DDL, <TT
+CLASS="COMMAND"
+>INSERT</TT
+>, <TT
+CLASS="COMMAND"
+>UPDATE</TT
+>, <TT
+CLASS="COMMAND"
+>DELETE</TT
+>)。
+    結果を受け取るSQL文（e.g., <TT
+CLASS="COMMAND"
+>SELECT</TT
+>）をこの方法で実行することはできません。
+    次の節で、その実行方法を説明します。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-DYNAMIC-INPUT"
+>33.5.2. 入力パラメータを伴うSQL文の実行</A
+></H2
+><P
+>任意のSQL文を実行するより強力な方法は、一度プリペアをし、その後でプリペアード・ステートメントを実行したいところで実行することです。
+また、SQL文を汎用化した形でプリペアし、パラメータを置き換えることで特定のSQL文を実行させることも可能です。
+SQL文をプリペアする時、後でパラメータとして置き換えたいところには疑問符を記述してください。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+const char *stmt = "INSERT INTO test1 VALUES(?, ?);";
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL PREPARE mystmt FROM :stmt;
+ ...
+EXEC SQL EXECUTE mystmt USING 42, 'foobar';</PRE
+><P>
+   </P
+><P
+>プリペアード・ステートメントが必要なくなった時、割当てを解除しなければなりません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL DEALLOCATE PREPARE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>;</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-DYNAMIC-WITH-RESULT"
+>33.5.3. 結果セットを返却するSQL文の実行</A
+></H2
+><P
+>    単一行を編訳するSQL文を実行するには、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+> を使うことができます。
+    結果を保存するには、<TT
+CLASS="LITERAL"
+>INTO</TT
+> 句を追加します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+const char *stmt = "SELECT a, b, c FROM test1 WHERE a &#62; ?";
+int v1, v2;
+VARCHAR v3[50];
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL PREPARE mystmt FROM :stmt;
+ ...
+EXEC SQL EXECUTE mystmt INTO :v1, :v2, :v3 USING 37;</PRE
+><P>
+<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>コマンドは<TT
+CLASS="LITERAL"
+>INTO</TT
+>句、<TT
+CLASS="LITERAL"
+>USING</TT
+>句、この両方を持つことも、どちらも持たないこともできます。
+   </P
+><P
+>    クエリが2行以上の結果を返すことが想定される場合、以下の例のようにカーソルを使う必要があります。
+    （カーソルの詳細については <A
+HREF="ecpg-commands.html#ECPG-CURSORS"
+>&#38917;33.3.2</A
+> を参照してください）
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+char dbaname[128];
+char datname[128];
+char *stmt = "SELECT u.usename as dbaname, d.datname "
+             "  FROM pg_database d, pg_user u "
+             "  WHERE d.datdba = u.usesysid";
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL CONNECT TO testdb AS con1 USER testuser;
+
+EXEC SQL PREPARE stmt1 FROM :stmt;
+
+EXEC SQL DECLARE cursor1 CURSOR FOR stmt1;
+EXEC SQL OPEN cursor1;
+
+EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+while (1)
+{
+    EXEC SQL FETCH cursor1 INTO :dbaname,:datname;
+    printf("dbaname=%s, datname=%s\n", dbaname, datname);
+}
+
+EXEC SQL CLOSE cursor1;
+
+EXEC SQL COMMIT;
+EXEC SQL DISCONNECT ALL;</PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-variables.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-pgtypes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ホスト変数の使用</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>pgtypes ライブラリ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

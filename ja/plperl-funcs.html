@@ -1,0 +1,597 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/Perl関数と引数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"><LINK
+REL="NEXT"
+TITLE="PL/Perlにおけるデータ値"
+HREF="plperl-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 41&#31456;PL/Perl - Perl手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Perlにおけるデータ値"
+HREF="plperl-data.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPERL-FUNCS"
+>41.1. PL/Perl関数と引数</A
+></H1
+><P
+>PL/Perl言語で関数を作成するには、以下の標準的な<A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>構文を使用してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>funcname</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>argument-types</I
+></TT
+>) RETURNS <TT
+CLASS="REPLACEABLE"
+><I
+>return-type</I
+></TT
+> AS $$
+    # PL/Perl関数本体
+$$ LANGUAGE plperl;</PRE
+><P>
+関数本体は通常のPerlのコードです。
+実際、PL/Perlの糊付けコードは、これをPerlのサブルーチンの内部に格納します。
+PL/Perl関数はスカラコンテキストとして呼び出されます。このためリストを返すことはできません。
+後述の通り、参照を返すことによりスカラ以外の値（配列、レコード、集合）を返すことができます。
+  </P
+><P
+>またPL/Perlは<A
+HREF="sql-do.html"
+>DO</A
+>文で呼び出される匿名コードブロックをサポートします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DO $$
+    # PL/Perl code
+$$ LANGUAGE plperl;</PRE
+><P>
+
+匿名コードブロックは引数を取りません。
+また何らかの値を返したとしても破棄されます。
+その他は関数と同様に動作します。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>Perl、特にその閉ざされたスコープで局所変数を参照するような場合では、名前付きの入れ子状サブルーチンの使用は危険です。
+PL/Perl関数はサブルーチン内に格納されますので、内部に記述した名前付きのサブルーチンはすべて入れ子にされます。
+一般的に、コード参照を介して呼び出す匿名サブルーチンを作成する方がかなり安全です。
+詳細は<SPAN
+CLASS="CITEREFENTRY"
+><SPAN
+CLASS="REFENTRYTITLE"
+>perldiag</SPAN
+></SPAN
+>マニュアルページ内の<TT
+CLASS="LITERAL"
+>Variable "%s" will not stay shared</TT
+>および<TT
+CLASS="LITERAL"
+>Variable "%s" is not available</TT
+>を参照してください。
+またはインターネットで<SPAN
+CLASS="QUOTE"
+>"perl nested named subroutine"</SPAN
+>を検索してください。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドの構文では、関数本体は文字列定数として記述されることを必須としています。
+通常、文字列定数にはドル引用符付け（<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING"
+>&#38917;4.1.2.4</A
+>を参照）を使用することが最も便利です。
+エスケープ文字列構文<TT
+CLASS="LITERAL"
+>E''</TT
+>を使用することを選択した場合、関数本体で使用される単一引用符（<TT
+CLASS="LITERAL"
+>'</TT
+>）とバックスラッシュ（<TT
+CLASS="LITERAL"
+>\</TT
+>）をすべて二重にしなければなりません（<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-STRINGS"
+>&#38917;4.1.2.1</A
+>を参照）。
+   </P
+><P
+>引数と結果は他のPerlサブルーチンと同様に扱われます。
+引数は<TT
+CLASS="VARNAME"
+>@_</TT
+>の中に渡され、結果値は<TT
+CLASS="LITERAL"
+>return</TT
+>、または、その関数で最後に評価された式として返されます。
+  </P
+><P
+>例えば、2つの整数のうち大きな方を返す関数は以下のように定義できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION perl_max (integer, integer) RETURNS integer AS $$
+    if ($_[0] &gt; $_[1]) { return $_[0]; }
+    return $_[1];
+$$ LANGUAGE plperl;</PRE
+><P>
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>PL/Perl内部での使用のため、引数はデータベースの符号化方式からUTF-8に変換され、返されるときにUTF-8からデータベースの符号化方式に戻されます。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>SQLのNULL値が関数に渡された場合、その引数値はPerlにおける<SPAN
+CLASS="QUOTE"
+>"未定義"</SPAN
+>として現れます。
+
+上の関数定義では、NULL値が入力された場合うまく動作しないでしょう（実際はそれがゼロであるかのように動作するでしょう）。
+<TT
+CLASS="LITERAL"
+>STRICT</TT
+>を関数定義に加えることで、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の動作をより合理的にすることができます。
+NULL値が渡された場合、関数はまったく呼び出されず、単にNULLという結果が自動的に返されます。
+他の方法として、関数本体で未定義な入力を検査することもできます。
+例えば、<CODE
+CLASS="FUNCTION"
+>perl_max</CODE
+>の引数の片方がNULL、もう片方が非NULLの場合に、NULL値ではなく非NULLの引数を返すようにするとします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION perl_max (integer, integer) RETURNS integer AS $$
+    my ($x, $y) = @_;
+    if (not defined $x) {
+        return undef if not defined $y;
+        return $y;
+    }
+    return $x if not defined $y;
+    return $x if $x &gt; $y;
+    return $y;
+$$ LANGUAGE plperl;</PRE
+><P>
+
+上で示した通り、PL/Perl関数からSQLのNULL値を返すためには、未定義値を返すようにしてください。
+これは、関数が厳密かどうかに関係なく、実行することができます。
+  </P
+><P
+>関数引数の内で参照ではないものは、対応するデータ型向けの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の標準的な外部テキスト表現で表された文字列です。
+通常の数値やテキスト型では、Perlは正確に処理を行いますので、通常プログラマは心配することはありません。
+しかし、この他の場合では、引数をPerlでより使用しやすいように変換する必要があります。
+例えば、<CODE
+CLASS="FUNCTION"
+>decode_bytea</CODE
+>関数は<TT
+CLASS="TYPE"
+>bytea</TT
+>型の引数をエスケープしないバイナリに変換するために使用することができます。
+  </P
+><P
+>同様に、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に戻される値を外部テキスト表現書式で表さなければなりません。
+例えば、<TT
+CLASS="TYPE"
+>bytea</TT
+>型の戻り値をバイナリデータにエスケープするために<CODE
+CLASS="FUNCTION"
+>encode_bytea</CODE
+>を使用することができます。
+  </P
+><P
+>Perlは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の配列をPerl配列への参照として返すことができます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE function returns_array()
+RETURNS text[][] AS $$
+    return [['a&quot;b','c,d'],['e\\f','g']];
+$$ LANGUAGE plperl;
+
+select returns_array();</PRE
+><P>
+  </P
+><P
+>Perlは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の配列をblessされたPostgreSQL::InServer::ARRAYオブジェクトとして渡します。
+9.1より過去の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で作成されたPerlコードを実行させるための後方互換性のため、このオブジェクトは配列への参照または文字列として扱うことができます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION concat_array_elements(text[]) RETURNS TEXT AS $$
+    my $arg = shift;
+    my $result = "";
+    return undef if (!defined $arg);
+
+    # 配列への参照として
+    for (@$arg) {
+        $result .= $_;
+    }
+
+    # 文字列としても働く
+    $result .= $arg;
+
+    return $result;
+$$ LANGUAGE plperl;
+
+SELECT concat_array_elements(ARRAY['PL','/','Perl']);</PRE
+><P>
+
+  </P><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>Perlプログラマの常識のように、多次元配列は低次元配列の参照への参照として表現されます。
+   </P
+></BLOCKQUOTE
+></DIV
+><P>
+  </P
+><P
+>複合型の引数はハッシュへの参照として関数に渡されます。
+ハッシュのキーは複合型の属性名です。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE employee (
+    name text,
+    basesalary integer,
+    bonus integer
+);
+
+CREATE FUNCTION empcomp(employee) RETURNS integer AS $$
+    my ($emp) = @_;
+    return $emp-&gt;{basesalary} + $emp-&gt;{bonus};
+$$ LANGUAGE plperl;
+
+SELECT name, empcomp(employee.*) FROM employee;</PRE
+><P>
+  </P
+><P
+>必要な属性を持つハッシュの参照を返すという同じ方法で、PL/Perl関数は複合型の結果を返すことができます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE testrowperl AS (f1 integer, f2 text, f3 text);
+
+CREATE OR REPLACE FUNCTION perl_row() RETURNS testrowperl AS $$
+    return {f2 =&gt; 'hello', f1 =&gt; 1, f3 =&gt; 'world'};
+$$ LANGUAGE plperl;
+
+SELECT * FROM perl_row();</PRE
+><P>
+
+宣言された結果データ型の任意の列の内、ハッシュ内に存在しないものはNULL値として返されます。
+  </P
+><P
+>また、PL/Perl関数はスカラ型の配列や複合型の配列を返すこともできます。
+通常ならば、起動処理の高速化とメモリ内の結果セット全体を待ち行列に保持できることから、1度に1行を返す方がよいでしょう。
+以下に示す<CODE
+CLASS="FUNCTION"
+>return_next</CODE
+>を使用して、これを行うことができます。
+最後の<CODE
+CLASS="FUNCTION"
+>return_next</CODE
+>の後で、<TT
+CLASS="LITERAL"
+>return</TT
+>または<TT
+CLASS="LITERAL"
+>return undef</TT
+>（推奨）を記述しなければならないことに注意してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION perl_set_int(int)
+RETURNS SETOF INTEGER AS $$
+    foreach (0..$_[0]) {
+        return_next($_);
+    }
+    return undef;
+$$ LANGUAGE plperl;
+
+SELECT * FROM perl_set_int(5);
+
+CREATE OR REPLACE FUNCTION perl_set()
+RETURNS SETOF testrowperl AS $$
+    return_next({ f1 =&gt; 1, f2 =&gt; 'Hello', f3 =&gt; 'World' });
+    return_next({ f1 =&gt; 2, f2 =&gt; 'Hello', f3 =&gt; 'PostgreSQL' });
+    return_next({ f1 =&gt; 3, f2 =&gt; 'Hello', f3 =&gt; 'PL/Perl' });
+    return undef;
+$$ LANGUAGE plperl;</PRE
+><P>
+
+小規模な結果セットでは、それぞれ単純な型、配列型、複合型に対応する、スカラ、配列への参照、ハッシュへの参照を含む配列への参照を返すことができます。
+以下に、配列への参照として結果セット全体を返す単純な例をいくつか示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION perl_set_int(int) RETURNS SETOF INTEGER AS $$
+    return [0..$_[0]];
+$$ LANGUAGE plperl;
+
+SELECT * FROM perl_set_int(5);
+
+CREATE OR REPLACE FUNCTION perl_set() RETURNS SETOF testrowperl AS $$
+    return [
+        { f1 =&gt; 1, f2 =&gt; 'Hello', f3 =&gt; 'World' },
+        { f1 =&gt; 2, f2 =&gt; 'Hello', f3 =&gt; 'PostgreSQL' },
+        { f1 =&gt; 3, f2 =&gt; 'Hello', f3 =&gt; 'PL/Perl' }
+    ];
+$$ LANGUAGE plperl;
+
+SELECT * FROM perl_set();</PRE
+><P>
+
+  </P
+><P
+>コード内で<TT
+CLASS="LITERAL"
+>strict</TT
+>プラグマを使用したいのであればいくつか選択肢があります。
+一時的に大域的に使用するために、<TT
+CLASS="COMMAND"
+>SET</TT
+> <TT
+CLASS="LITERAL"
+>plperl.use_strict</TT
+>を真にすることができます。
+このパラメータは、その後の<SPAN
+CLASS="APPLICATION"
+>PL/Perl</SPAN
+>関数のコンパイルに影響しますが、現在のセッションでコンパイル済みの関数には影響しません。
+永続的に大域的に使用するためには、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル内で<TT
+CLASS="LITERAL"
+>plperl.use_strict</TT
+>を真に設定します。
+  </P
+><P
+>特定の関数で永続的に使用するためには単純に以下を関数本体の先頭に記載してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>use strict;</PRE
+><P>
+  </P
+><P
+>また、Perlのバージョンが5.10.0以上であれば<CODE
+CLASS="FUNCTION"
+>use</CODE
+>で<TT
+CLASS="LITERAL"
+>feature</TT
+>プラグマが利用可能です。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plperl.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plperl-data.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PL/Perl - Perl手続き言語</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plperl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PL/Perlにおけるデータ値</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

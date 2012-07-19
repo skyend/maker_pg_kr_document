@@ -1,0 +1,503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>手続き言語ハンドラの作成</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="内部情報"
+HREF="internals.html"><LINK
+REL="PREVIOUS"
+TITLE="プログラマへ"
+HREF="nls-programmer.html"><LINK
+REL="NEXT"
+TITLE="外部データラッパの作成"
+HREF="fdwhandler.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="プログラマへ"
+HREF="nls-programmer.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="多言語サポート"
+HREF="nls.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="外部データラッパの作成"
+HREF="fdwhandler.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="外部データラッパの作成"
+HREF="fdwhandler.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PLHANDLER"
+></A
+>&#31532; 49&#31456;手続き言語ハンドラの作成</H1
+><P
+>現在のコンパイル言語用<SPAN
+CLASS="QUOTE"
+>"Version-1"</SPAN
+>インタフェース以外のある言語で作成された関数の呼び出しはすべて、特定の言語用の<I
+CLASS="FIRSTTERM"
+>呼び出しハンドラ</I
+>を経由します
+（これには、ユーザ定義手続き言語で作成された関数、SQLで作成された関数、コンパイル言語用Version-0インタフェースを使用した関数が含まれます）。
+提供されたソーステキストを解釈するなどによって、関数の実行を意味のある方法で行うことは、呼び出しハンドラの責任です。
+本章では、どのように新しい手続き言語の呼び出しハンドラを作成できるかについて概要を示します。
+   </P
+><P
+>手続き言語用の呼び出しハンドラは<SPAN
+CLASS="QUOTE"
+>"通常"</SPAN
+>の関数で、Cなどのコンパイル言語で作成し、Version-1インタフェースを使用し、引数を取らずに<TT
+CLASS="TYPE"
+>language_handler</TT
+>を返すものとして<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に登録しなければなりません。
+この特殊な仮想型は、その関数を呼び出しハンドラとして識別し、SQLコマンド内で直接その関数が呼び出されることを防止します。
+C言語の呼び出し規約と動的ロードについては<A
+HREF="xfunc-c.html"
+>&#38917;35.9</A
+>を参照してください。
+   </P
+><P
+>呼び出しハンドラは、他の関数と同じ方法で呼び出されます。
+引数値と呼び出された関数についての情報を含む<TT
+CLASS="STRUCTNAME"
+>FunctionCallInfoData</TT
+> <TT
+CLASS="TYPE"
+>struct</TT
+>のポインタを受け取り、<TT
+CLASS="TYPE"
+>Datum</TT
+>型の結果を返すもの（そして、SQLのNULLという結果を返そうとする場合に、<TT
+CLASS="STRUCTNAME"
+>FunctionCallInfoData</TT
+>構造体の<TT
+CLASS="STRUCTFIELD"
+>isnull</TT
+>フィールドを設定するかもしれないもの）と想定されています。
+呼び出しハンドラと通常の呼び出される関数との違いは、<TT
+CLASS="STRUCTNAME"
+>FunctionCallInfoData</TT
+>構造体の<TT
+CLASS="STRUCTFIELD"
+>flinfo-&gt;fn_oid</TT
+>に、呼び出しハンドラ自身ではなく、実際に呼び出される関数のOIDが含まれるという点です。
+呼び出しハンドラはこのフィールドを使用して、どの関数を呼び出すのかを決定しなければなりません。
+また、渡された引数リストは、呼び出しハンドラの宣言ではなく、目的とする関数の宣言に従うよう設定されています。
+   </P
+><P
+><CODE
+CLASS="CLASSNAME"
+>pg_proc</CODE
+>システムカタログから関数のエントリを取り出し、呼び出される関数の引数と戻り値の型を解析するまでを呼び出しハンドラが行います。
+関数の<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドの<TT
+CLASS="LITERAL"
+>AS</TT
+>句は、<CODE
+CLASS="CLASSNAME"
+>pg_proc</CODE
+>の行の<TT
+CLASS="LITERAL"
+>prosrc</TT
+>列にあります。
+これは通常、手続き言語自体で作成されたソーステキストですが、理論上はファイルへのパス名や、何らかの呼び出しハンドラに詳細に何をすべきかを通知するものとすることもできます。
+   </P
+><P
+>1つのSQL文で同じ関数が何回も呼び出されることがよくあります。
+呼び出しハンドラは、<TT
+CLASS="STRUCTFIELD"
+>flinfo-&gt;fn_extra</TT
+>フィールドを使用して、呼び出す関数に関する情報を繰り返し検索することを防ぐことができます。
+これは初期状態では<TT
+CLASS="SYMBOL"
+>NULL</TT
+>ですが、呼び出しハンドラによって呼び出す関数の情報を指すように設定することもできます。
+その後の呼び出しでは、<TT
+CLASS="STRUCTFIELD"
+>flinfo-&gt;fn_extra</TT
+>が非<TT
+CLASS="SYMBOL"
+>NULL</TT
+>であれば、それを使用して、情報検索の段階を省略することができます。
+呼び出しハンドラは<TT
+CLASS="STRUCTFIELD"
+>flinfo-&gt;fn_extra</TT
+>が少なくとも現在の問い合わせの終了まで有効なメモリを指しているかどうかを確認しなければなりません。
+<TT
+CLASS="STRUCTNAME"
+>FmgrInfo</TT
+>データ構造体は長く保持される可能性があるからです。
+この方法の1つとして、<TT
+CLASS="STRUCTFIELD"
+>flinfo-&gt;fn_mcxt</TT
+>で指定されたメモリコンテキスト内に余分なデータを割り当てることです。
+このデータは通常<TT
+CLASS="STRUCTNAME"
+>FmgrInfo</TT
+>自身と同期間有効です。
+しかし、ハンドラはまた、長時間メモリコンテキストにあるものを使用するかどうかを選ぶこともできます。
+これにより関数定義情報を、問い合わせをまたいでキャッシュすることができます。
+   </P
+><P
+>手続き言語関数がトリガとして呼び出された場合、引数は通常の方法では渡されず、<TT
+CLASS="STRUCTNAME"
+>FunctionCallInfoData</TT
+>の<TT
+CLASS="STRUCTFIELD"
+>context</TT
+>フィールドが、普通の関数呼び出しのように<TT
+CLASS="SYMBOL"
+>NULL</TT
+>にはならずに、<TT
+CLASS="STRUCTNAME"
+>TriggerData</TT
+>構造体を指しています。
+呼び出しハンドラは、手続き言語に対しトリガ情報を取り出す機構を提供しなければなりません。
+   </P
+><P
+>以下は、Cで作成した手続き言語ハンドラの雛型です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include "postgres.h"
+#include "executor/spi.h"
+#include "commands/trigger.h"
+#include "fmgr.h"
+#include "access/heapam.h"
+#include "utils/syscache.h"
+#include "catalog/pg_proc.h"
+#include "catalog/pg_type.h"
+
+#ifdef PG_MODULE_MAGIC
+PG_MODULE_MAGIC;
+#endif
+
+PG_FUNCTION_INFO_V1(plsample_call_handler);
+
+Datum
+plsample_call_handler(PG_FUNCTION_ARGS)
+{
+    Datum          retval;
+
+    if (CALLED_AS_TRIGGER(fcinfo))
+    {
+        /*
+         * トリガ関数として呼び出された
+         */
+        TriggerData    *trigdata = (TriggerData *) fcinfo-&gt;context;
+
+        retval = ...
+    }
+    else
+    {
+        /*
+         * 関数として呼び出された
+         */
+
+        retval = ...
+    }
+
+    return retval;
+}</PRE
+><P>
+数千行のコードを上のドットの代わりに追加するだけで、呼び出しハンドラを完成することができます。
+   </P
+><P
+>ハンドラ関数を動的ロード可能なモジュールにコンパイル（<A
+HREF="xfunc-c.html#DFUNC"
+>&#38917;35.9.6</A
+>を参照してください）した後、以下のコマンドでサンプルの手続き言語を登録することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION plsample_call_handler() RETURNS language_handler
+    AS '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>'
+    LANGUAGE C;
+CREATE LANGUAGE plsample
+    HANDLER plsample_call_handler;</PRE
+><P>
+   </P
+><P
+>最低限の手続き言語を作成する場合には呼び出しハンドラを提供するだけで十分ですが、他にも省略可能ですが、その言語の利用をより簡便にするために提供できる2つの関数があります。
+これらは<I
+CLASS="FIRSTTERM"
+>有効性検証関数</I
+>と<I
+CLASS="FIRSTTERM"
+>インラインハンドラ</I
+>です。
+有効性検証関数を提供して、<A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>時に言語固有の検査を行うことができます。
+インラインハンドラを提供して、言語に<A
+HREF="sql-do.html"
+>DO</A
+>コマンド経由の匿名コードブロック実行をサポートさせることができます。
+   </P
+><P
+>有効性検証関数が手続き言語により提供される場合、<TT
+CLASS="TYPE"
+>oid</TT
+>型の単一パラメータを取る関数として宣言しなければなりません。
+有効性検証関数の結果は無視されます。
+そのためよく<TT
+CLASS="TYPE"
+>void</TT
+>を返すものと宣言されます。
+有効性検証関数はその手続き言語で関数を作成または置換する<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>の最後に呼び出されます。
+渡されるOIDは関数の<CODE
+CLASS="CLASSNAME"
+>pg_proc</CODE
+>行のOIDです。
+有効性検証関数は通常の方法でこの行を取り出さなければならず、そして適切な検査を実行します。
+典型的な検査として、関数引数および結果の型がその言語でサポートされているかや関数本体がその言語において文法的に正しいかどうかを検証することが挙げられます。
+有効性検証関数がその関数に問題がないことを判定したら、単に戻ります。
+エラーがあることを判定したら、通常の<CODE
+CLASS="FUNCTION"
+>ereport()</CODE
+>エラー報告機構を使用して報告しなければなりません。
+エラーを返すことで、強制的にトランザクションはロールバックされ、不正な関数定義がコミットされることを防ぎます。
+   </P
+><P
+>有効性検証関数は通常<A
+HREF="runtime-config-client.html#GUC-CHECK-FUNCTION-BODIES"
+>check_function_bodies</A
+>パラメータを遵守しなければなりません。
+これが無効な場合、高価または文脈次第の検査を飛ばさなければなりません。
+具体的にはこのパラメータは、関数本体が他のデータベースオブジェクトに依存している可能性を考慮することなく手続き言語関数をロードできるように、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>により無効にされます。
+(この仕様のため呼び出しハンドラは有効性検証関数が完全にその関数を検査したことを前提としてはいけません。
+有効性検証関数を持つ目的は、呼び出しハンドラが検査を省略できることではなく、明確なエラーが<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンド内に存在する場合、それを即座にユーザに通知することです。)
+
+   </P
+><P
+>インラインハンドラが手続き言語により提供される場合、その関数は<TT
+CLASS="TYPE"
+>internal</TT
+>型の単一パラメータを取るものとして宣言されなければなりません。
+インラインハンドラの結果は無視されます。
+そのためよく<TT
+CLASS="TYPE"
+>void</TT
+>を返すものと宣言されます。
+インラインハンドラは特定の手続き言語で<TT
+CLASS="COMMAND"
+>DO</TT
+>文が実行された時に呼び出されます。
+実際に渡されるパラメータは<TT
+CLASS="STRUCTNAME"
+>InlineCodeBlock</TT
+>構造体のポインタです。
+ここには<TT
+CLASS="COMMAND"
+>DO</TT
+>文のパラメータ、具体的には実行される匿名コードブロックのテキスト、に関する情報が含まれています。
+インラインハンドラはこのコードを実行し、戻らなければなりません。
+   </P
+><P
+>簡単な<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>コマンドで言語をインストールすることが十分にできるように、これらの関数宣言と<TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>コマンド自身を<I
+CLASS="FIRSTTERM"
+>拡張</I
+>としてまとめることを勧めます。
+拡張の作成方法については<A
+HREF="extend-extensions.html"
+>&#38917;35.15</A
+>を参照してください。
+   </P
+><P
+>独自の言語ハンドラを作成する際、標準配布物に含まれる手続き言語は優れたリファレンスです。
+ソースツリーの<TT
+CLASS="FILENAME"
+>src/pl</TT
+>サブディレクトリを調べてください。
+<A
+HREF="sql-createlanguage.html"
+>CREATE LANGUAGE</A
+>マニュアルページもまた有用な情報を含みます。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="nls-programmer.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="fdwhandler.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>プログラマへ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="internals.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>外部データラッパの作成</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

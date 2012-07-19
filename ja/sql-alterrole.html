@@ -1,0 +1,776 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER ROLE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER OPERATOR FAMILY"
+HREF="sql-alteropfamily.html"><LINK
+REL="NEXT"
+TITLE="ALTER SCHEMA"
+HREF="sql-alterschema.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER OPERATOR FAMILY"
+HREF="sql-alteropfamily.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER OPERATOR FAMILY"
+HREF="sql-alteropfamily.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER SCHEMA"
+HREF="sql-alterschema.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER SCHEMA"
+HREF="sql-alterschema.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERROLE"
+></A
+>ALTER ROLE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN61268"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER ROLE&nbsp;--&nbsp;データベースロールを変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN61273"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ [ WITH ] <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> [ ... ] ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>は以下の通りです。</SPAN
+></SPAN
+>
+    
+      SUPERUSER | NOSUPERUSER
+    | CREATEDB | NOCREATEDB
+    | CREATEROLE | NOCREATEROLE
+    | CREATEUSER | NOCREATEUSER
+    | INHERIT | NOINHERIT
+    | LOGIN | NOLOGIN
+    | REPLICATION | NOREPLICATION
+    | CONNECTION LIMIT <TT
+CLASS="REPLACEABLE"
+><I
+>connlimit</I
+></TT
+>
+    | [ ENCRYPTED | UNENCRYPTED ] PASSWORD '<TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+>'
+    | VALID UNTIL '<TT
+CLASS="REPLACEABLE"
+><I
+>timestamp</I
+></TT
+>'
+
+ALTER ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>
+
+ALTER ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ IN DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> ] SET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+> { TO | = } { <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> | DEFAULT }
+ALTER ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ IN DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> ] SET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+> FROM CURRENT
+ALTER ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ IN DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> ] RESET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+>
+ALTER ROLE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ IN DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> ] RESET ALL</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61296"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER ROLE</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ロールの属性を変更します。
+  </P
+><P
+>このコマンドの最初の構文では、<A
+HREF="sql-createrole.html"
+>CREATE ROLE</A
+>で指定可能な多くのロール属性を変更することができます。
+（指定し得るすべての属性に対応していますが、メンバ資格の追加および削除用のオプションはありません。
+追加および削除には<A
+HREF="sql-grant.html"
+>GRANT</A
+>と<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>を使用してください。）
+このコマンドで指定しなかった属性は以前の設定のまま残ります。
+データベーススーパーユーザはすべてのロールのすべての属性を変更することができます。
+<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つロールは、スーパーユーザおよびレプリケーション以外のロールに対してすべての属性を変更することができます。
+通常のロールは自身のパスワードのみを変更することができます。
+  </P
+><P
+>2番目の構文ではロールの名前を変更することができます。
+データベーススーパーユーザはすべてのロールの名前を変更できます。
+<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つロールはスーパーユーザ以外のロールに対してその名前を変更できます。
+現在のセッションユーザの名前を変更することはできません。
+（必要ならば別のユーザで接続してください）。
+<TT
+CLASS="LITERAL"
+>MD5</TT
+>暗号化パスワードではロール名を暗号用のソルトとして使用しますので、パスワードが<TT
+CLASS="LITERAL"
+>MD5</TT
+>で暗号化されている場合、ロール名を変更するとパスワードは空になります。
+  </P
+><P
+>残りの構文では、全データベース用、または<TT
+CLASS="LITERAL"
+>IN DATABASE</TT
+>句が指定された場合はそのデータベース用のセッションに対するロールの設定変数についてのセッションデフォルトを変更します。
+その後、ロールが新しいセッションを始めると常に、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>内の設定や<TT
+CLASS="COMMAND"
+>postgres</TT
+>コマンドラインより受け取った設定は上書きされ、指定された値がセッションのデフォルトとなります。
+これはログイン時のみに発生します。
+<A
+HREF="sql-set-role.html"
+>SET ROLE</A
+>または<A
+HREF="sql-set-session-authorization.html"
+>SET SESSION AUTHORIZATION</A
+>を実行しても新しい設定値は設定されません。
+全データベースに対する設定群は、ロールに割り当てたデータベース固有の設定により上書きされます。
+スーパーユーザはすべてのユーザのセッションのデフォルトを変更することができます。
+<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つロールはスーパーユーザ以外のロールのデフォルトを変更することができます。
+通常のロールは自身のデフォルトのみを設定することができます。
+設定変数の中にはこの方法で変更できないものがあります。
+また、スーパーユーザがこのコマンドを発行した時にのみ変更できるものもあります。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61317"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>属性を変更するロールの名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SUPERUSER</TT
+><BR><TT
+CLASS="LITERAL"
+>NOSUPERUSER</TT
+><BR><TT
+CLASS="LITERAL"
+>CREATEDB</TT
+><BR><TT
+CLASS="LITERAL"
+>NOCREATEDB</TT
+><BR><TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+><BR><TT
+CLASS="LITERAL"
+>NOCREATEROLE</TT
+><BR><TT
+CLASS="LITERAL"
+>CREATEUSER</TT
+><BR><TT
+CLASS="LITERAL"
+>NOCREATEUSER</TT
+><BR><TT
+CLASS="LITERAL"
+>INHERIT</TT
+><BR><TT
+CLASS="LITERAL"
+>NOINHERIT</TT
+><BR><TT
+CLASS="LITERAL"
+>LOGIN</TT
+><BR><TT
+CLASS="LITERAL"
+>NOLOGIN</TT
+><BR><TT
+CLASS="LITERAL"
+>REPLICATION</TT
+><BR><TT
+CLASS="LITERAL"
+>NOREPLICATION</TT
+><BR><TT
+CLASS="LITERAL"
+>CONNECTION LIMIT</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>connlimit</I
+></TT
+><BR><TT
+CLASS="LITERAL"
+>PASSWORD</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+><BR><TT
+CLASS="LITERAL"
+>ENCRYPTED</TT
+><BR><TT
+CLASS="LITERAL"
+>UNENCRYPTED</TT
+><BR><TT
+CLASS="LITERAL"
+>VALID UNTIL</TT
+> '<TT
+CLASS="REPLACEABLE"
+><I
+>timestamp</I
+></TT
+>'</DT
+><DD
+><P
+>これらの句は、元々<A
+HREF="sql-createrole.html"
+>CREATE ROLE</A
+>で設定された属性を変更します。
+詳細は<TT
+CLASS="COMMAND"
+>CREATE ROLE</TT
+>のマニュアルページを参照してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>ロールの新しい名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+></DT
+><DD
+><P
+>設定変数を設定する対象のデータベースの名前です。
+         </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+><BR><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+></DT
+><DD
+><P
+>指定した設定パラメータに対して、ロールのセッションデフォルトを指定した値に設定します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>が<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>、または<TT
+CLASS="LITERAL"
+>RESET</TT
+>が使用されていた場合、ロール固有の変数設定は削除され、新しいセッションではロールはシステム全体のデフォルト設定を継承します。
+すべてのロール固有の設定を削除するには<TT
+CLASS="LITERAL"
+>RESET ALL</TT
+>を使用してください。
+<TT
+CLASS="LITERAL"
+>SET FROM CURRENT</TT
+>はセッションのパラメータ値をロール固有の値として保管します。
+<TT
+CLASS="LITERAL"
+>IN DATABASE</TT
+>が指定された場合、設定パラメータは指定されたロールとデータベースのみで設定または削除されます。
+       </P
+><P
+>ロール固有の変数設定はログイン時のみに影響を与えます。
+<A
+HREF="sql-set-role.html"
+>SET ROLE</A
+>および<A
+HREF="sql-set-session-authorization.html"
+>SET SESSION AUTHORIZATION</A
+>はロール固有の変数設定を処理しません。
+       </P
+><P
+>取り得るパラメータ名とその値に関する詳細は<A
+HREF="sql-set.html"
+>SET</A
+>および<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61400"
+></A
+><H2
+>注釈</H2
+><P
+>新規にロールを追加するには<A
+HREF="sql-createrole.html"
+>CREATE ROLE</A
+>を使用してください。
+また、ロールを削除するには<A
+HREF="sql-droprole.html"
+>DROP ROLE</A
+>を使用してください。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER ROLE</TT
+>ではロールのメンバ資格を変更できません。
+メンバ資格の変更には<A
+HREF="sql-grant.html"
+>GRANT</A
+>および<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>を使用してください。
+  </P
+><P
+>このコマンドで暗号化しないパスワードを指定するときには注意しなければなりません。
+パスワードはサーバに平文で送信されます。
+クライアントのコマンド履歴やサーバのログにこれが残ってしまうかもしれません。
+<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>には<TT
+CLASS="COMMAND"
+>\password</TT
+>コマンドがあります。
+これを使用してロールのパスワードを平文のパスワードをさらすことなく変更することができます。
+  </P
+><P
+>ロールではなくデータベースにセッションのデフォルトを結びつけることもできます。
+<A
+HREF="sql-alterdatabase.html"
+>ALTER DATABASE</A
+>を参照してください。
+競合する場合、データベースとロールの組み合わせに固有な設定はロール固有の設定を上書きし、ロール固有の設定はデータベース固有の設定を上書きします。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61414"
+></A
+><H2
+>例</H2
+><P
+>ロールのパスワードを変更します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER ROLE davide WITH PASSWORD 'hu8jmn3';</PRE
+><P>
+  </P
+><P
+>ロールのパスワードを削除します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER ROLE davide WITH PASSWORD NULL;</PRE
+><P>
+  </P
+><P
+>パスワードの有効期限を変更します。
+以下では、2015年5月4日正午（UTCから1時間進んだタイムゾーン付き）にパスワードが無効となるように変更しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER ROLE chris VALID UNTIL 'May 4 12:00:00 2015 +1';</PRE
+><P>
+  </P
+><P
+>パスワードの有効期限を無効にします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER ROLE fred VALID UNTIL 'infinity';</PRE
+><P>
+  </P
+><P
+>ロールに他のロールの作成権限と新しいデータベースの作成権限を与えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER ROLE miriam CREATEROLE CREATEDB;</PRE
+><P>
+  </P
+><P
+>ロールに<A
+HREF="runtime-config-resource.html#GUC-MAINTENANCE-WORK-MEM"
+>maintenance_work_mem</A
+>パラメータ用のデフォルトとは異なる設定を与えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER ROLE worker_bee SET maintenance_work_mem = 100000;</PRE
+><P>
+  </P
+><P
+>ロールにデータベース固有の<A
+HREF="runtime-config-logging.html#GUC-CLIENT-MIN-MESSAGES"
+>client_min_messages</A
+>パラメータ用のデフォルトとは異なる設定を与えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER ROLE fred IN DATABASE devel SET client_min_messages = DEBUG;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61432"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER ROLE</TT
+>文は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61437"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createrole.html"
+>CREATE ROLE</A
+>, <A
+HREF="sql-droprole.html"
+>DROP ROLE</A
+>, <A
+HREF="sql-set.html"
+>SET</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alteropfamily.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alterschema.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER OPERATOR FAMILY</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER SCHEMA</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

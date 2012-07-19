@@ -1,0 +1,1710 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>集約関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="配列関数と演算子"
+HREF="functions-array.html"><LINK
+REL="NEXT"
+TITLE="ウィンドウ関数"
+HREF="functions-window.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="配列関数と演算子"
+HREF="functions-array.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ウィンドウ関数"
+HREF="functions-window.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-AGGREGATE"
+>9.18. 集約関数</A
+></H1
+><P
+>  
+   <I
+CLASS="FIRSTTERM"
+>集約関数</I
+>は複数の入力値から単一の結果を計算します。
+<A
+HREF="functions-aggregate.html#FUNCTIONS-AGGREGATE-TABLE"
+>&#34920;9-42</A
+>および<A
+HREF="functions-aggregate.html#FUNCTIONS-AGGREGATE-STATISTICS-TABLE"
+>&#34920;9-43</A
+>に組み込み集約関数を示します。
+集約関数の特殊な構文に関する考察は<A
+HREF="sql-expressions.html#SYNTAX-AGGREGATES"
+>&#38917;4.2.7</A
+>で説明されています。また、初歩的な情報については<A
+HREF="tutorial-agg.html"
+>&#38917;2.7</A
+>を参照して下さい。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-AGGREGATE-TABLE"
+></A
+><P
+><B
+>&#34920; 9-42. 汎用集約関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>引数のデータ型</TH
+><TH
+>戻り値型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>array_agg(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       any
+      </TD
+><TD
+>      
+       引数型の配列
+      </TD
+><TD
+>配列に連結されたNULLを含む入力値</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>avg(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>smallint</TT
+>, <TT
+CLASS="TYPE"
+>int</TT
+>,
+       <TT
+CLASS="TYPE"
+>bigint</TT
+>, <TT
+CLASS="TYPE"
+>real</TT
+>, <TT
+CLASS="TYPE"
+>double
+       precision</TT
+>, <TT
+CLASS="TYPE"
+>numeric</TT
+>, or <TT
+CLASS="TYPE"
+>interval</TT
+>
+      </TD
+><TD
+>      
+       整数型の引数であれば全て<TT
+CLASS="TYPE"
+>numeric</TT
+>、浮動小数点の引数であれば<TT
+CLASS="TYPE"
+>double precision</TT
+>、それ以外は引数のデータ型と同じ
+      </TD
+><TD
+>全ての入力値の平均値（算術平均）</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>bit_and(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>smallint</TT
+>, <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="TYPE"
+>bigint</TT
+>, or
+       <TT
+CLASS="TYPE"
+>bit</TT
+>
+      </TD
+><TD
+>      
+	引数のデータ型と同じ
+      </TD
+><TD
+>全ての非NULLの入力値のビット積、非NULLの入力値がなければNULL</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>bit_or(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>、<TT
+CLASS="TYPE"
+>int</TT
+>、<TT
+CLASS="TYPE"
+>bigint</TT
+>、または
+       <TT
+CLASS="TYPE"
+>bit</TT
+>
+      </TD
+><TD
+>      
+	引数のデータ型と同じ
+      </TD
+><TD
+>全ての非NULLの入力値のビット和、非NULLの入力値がなければNULL</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>bool_and(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bool</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bool</TT
+>
+      </TD
+><TD
+>全ての入力が真ならば真、そうでなければ偽</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>bool_or(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bool</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bool</TT
+>
+      </TD
+><TD
+>少なくとも1つの入力値が真ならば真。そうでなければ偽</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>count(*)</CODE
+>
+      </TD
+><TD
+>&nbsp;</TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>入力行の数</TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>count(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+></TD
+><TD
+>全て</TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>      
+       <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>が非NULL値を持つ入力行の個数
+      </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>every(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bool</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bool</TT
+>
+      </TD
+><TD
+><CODE
+CLASS="FUNCTION"
+>bool_and</CODE
+>と等価</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>max(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>全ての配列、数値、文字列、または日付時刻型</TD
+><TD
+>引数の型と同じ</TD
+><TD
+>      
+      全ての入力値にわたり<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>の最大値
+      </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>min(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>全ての配列、数値、文字列、または日付時刻型</TD
+><TD
+>引数の型と同じ</TD
+><TD
+>       全ての入力値にわたり<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>の最小値
+      </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>         string_agg(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>,
+                    <TT
+CLASS="REPLACEABLE"
+><I
+>delimiter</I
+></TT
+>)
+       </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>text</TT
+>, <TT
+CLASS="TYPE"
+>text</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>text</TT
+>
+      </TD
+><TD
+>入力された値が指定したデリミタで区切られた一つの文字列に連結されます。</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>sum(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>、<TT
+CLASS="TYPE"
+>int</TT
+>、<TT
+CLASS="TYPE"
+>bigint</TT
+>、<TT
+CLASS="TYPE"
+>real</TT
+>、<TT
+CLASS="TYPE"
+>double precision</TT
+>、<TT
+CLASS="TYPE"
+>numeric</TT
+>、または<TT
+CLASS="TYPE"
+>interval</TT
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>または<TT
+CLASS="TYPE"
+>int</TT
+>型の引数であれば<TT
+CLASS="TYPE"
+>bigint</TT
+>、<TT
+CLASS="TYPE"
+>bigint</TT
+>型の引数であれば<TT
+CLASS="TYPE"
+>numeric</TT
+>、浮動小数点の引数であれば<TT
+CLASS="TYPE"
+>double precision</TT
+>、それ以外は引数のデータ型と同じ
+      </TD
+><TD
+>全ての入力値に渡り<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>の和</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>xmlagg(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>xml</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>xml</TT
+>
+      </TD
+><TD
+>XML値の連結（ <A
+HREF="functions-xml.html#FUNCTIONS-XML-XMLAGG"
+>&#38917;9.14.1.7</A
+>も参照）</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>  
+   上記の関数は、<CODE
+CLASS="FUNCTION"
+>count</CODE
+>関数を除き、1行も選択されなかった場合NULL値を返すことに注意してください。特に、行の選択がない<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>関数は、予想されるであろうゼロではなくNULLを返し、そして<CODE
+CLASS="FUNCTION"
+>array_agg</CODE
+>は、入力行が存在しない場合に、空配列ではなくNULLを返します。必要であれば、NULLをゼロまたは空配列と交換する目的で<CODE
+CLASS="FUNCTION"
+>coalesce</CODE
+>関数を使うことができます。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+      <CODE
+CLASS="FUNCTION"
+>bool_and</CODE
+>、<CODE
+CLASS="FUNCTION"
+>bool_or</CODE
+>論理集約関数は標準SQLの集約関数<CODE
+CLASS="FUNCTION"
+>every</CODE
+>、<CODE
+CLASS="FUNCTION"
+>any</CODE
+>または<CODE
+CLASS="FUNCTION"
+>some</CODE
+>に対応します。<CODE
+CLASS="FUNCTION"
+>any</CODE
+>と<CODE
+CLASS="FUNCTION"
+>some</CODE
+>についてですが、標準の構文には曖昧さがあるようです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT b1 = ANY((SELECT b2 FROM t2 ...)) FROM t1 ...;</PRE
+><P>
+      ここで、副問い合わせが論理値での１行を返す場合、<CODE
+CLASS="FUNCTION"
+>ANY</CODE
+>は副問い合わせを導入するもの、もしくは集約関数であるものいずれかとみなすことができます。
+      従って、これらの集約関数に標準の名前を付けることはできません。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>   
+    他のSQLデータベース管理システムでの作業に親しんだユーザは、<CODE
+CLASS="FUNCTION"
+>count</CODE
+>集約関数がテーブル全体に適用される場合の性能に失望するかも知れません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT count(*) FROM sometable;</PRE
+><P>
+のような問い合わせはテーブル全体を逐次スキャンを用いて<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>により実行されます。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>  
+   集約関数<CODE
+CLASS="FUNCTION"
+>array_agg</CODE
+>と<CODE
+CLASS="FUNCTION"
+>string_agg</CODE
+>、および<CODE
+CLASS="FUNCTION"
+>xmlagg</CODE
+>、そして類似のユーザ定義の集約関数は、入力値の順序に依存した意味のある別の結果値を生成します。この並び順はデフォルトでは指定されませんが、<A
+HREF="sql-expressions.html#SYNTAX-AGGREGATES"
+>&#38917;4.2.7</A
+>に記述されているように、集計呼び出し中に<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句を書くことで制御可能となります。別の方法として、並び替えられた副問い合わせから入力値を供給することでも上手くいきます。例をあげます。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT xmlagg(x) FROM (SELECT x FROM test ORDER BY y DESC) AS tab;</PRE
+><P>
+
+   しかしこの構文はSQL標準では許されておらず、他のデータベースシステムに移植性はありません。
+  </P
+><P
+>  
+   統計解析処理によく使用される集約関数を<A
+HREF="functions-aggregate.html#FUNCTIONS-AGGREGATE-STATISTICS-TABLE"
+>&#34920;9-43</A
+>に示します。
+（これらは、より一般的に使用される集約関数との混乱を防ぐために別出ししました。）
+説明の部分における<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>は、すべての入力式が非NULLの入力行の個数を表します。
+すべての場合にて、例えば<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>が0の時など計算が無意味である場合にはNULLが返されます。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-AGGREGATE-STATISTICS-TABLE"
+></A
+><P
+><B
+>&#34920; 9-43. 統計処理用の集約関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>引数の型</TH
+><TH
+>戻り値の型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>corr(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>相関係数</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>covar_pop(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>母共分散</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>covar_samp(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>標本共分散</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>regr_avgx(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>独立変数の平均値
+      (<TT
+CLASS="LITERAL"
+>sum(<TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)/<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+></TT
+>)</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>regr_avgy(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>依存変数の平均値
+      (<TT
+CLASS="LITERAL"
+>sum(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>)/<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+></TT
+>)</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>regr_count(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bigint</TT
+>
+      </TD
+><TD
+>両式が非NULLとなる入力行の個数</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>regr_intercept(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>)の組み合わせで決まる、線型方程式に対する最小二乗法のY切片</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>regr_r2(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>相関係数自乗値</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>regr_slope(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+><TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>)の組み合わせで決まる、最小自乗法に合う線型方程式の傾き</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>regr_sxx(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>sum(<TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>^2) - sum(<TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)^2/<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+></TT
+>
+     （依存変数の<SPAN
+CLASS="QUOTE"
+>"二乗和"</SPAN
+>）
+     </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>regr_sxy(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>sum(<TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>*<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>) - sum(<TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>) * sum(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>)/<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+></TT
+> 
+     （依存変数×独立変数の<SPAN
+CLASS="QUOTE"
+>"和"</SPAN
+>）
+      </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>regr_syy(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>X</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+><TT
+CLASS="LITERAL"
+>sum(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>^2) - sum(<TT
+CLASS="REPLACEABLE"
+><I
+>Y</I
+></TT
+>)^2/<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+></TT
+>
+     （独立変数の<SPAN
+CLASS="QUOTE"
+>"自乗和"</SPAN
+>）</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>stddev(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>、<TT
+CLASS="TYPE"
+>int</TT
+>、
+       <TT
+CLASS="TYPE"
+>bigint</TT
+>、<TT
+CLASS="TYPE"
+>real</TT
+>、<TT
+CLASS="TYPE"
+>double
+       precision</TT
+>、または<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>      
+       浮動小数点型の引数では<TT
+CLASS="TYPE"
+>double precision</TT
+>。それ以外では<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+><CODE
+CLASS="FUNCTION"
+>stddev_samp</CODE
+>の歴史的な別名</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>stddev_pop(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>、<TT
+CLASS="TYPE"
+>int</TT
+>、
+       <TT
+CLASS="TYPE"
+>bigint</TT
+>、<TT
+CLASS="TYPE"
+>real</TT
+>、<TT
+CLASS="TYPE"
+>double
+       precision</TT
+>、または<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>      
+       浮動小数点型の引数では<TT
+CLASS="TYPE"
+>double precision</TT
+>。それ以外では<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>入力値に対する母標準偏差</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>stddev_samp(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>、<TT
+CLASS="TYPE"
+>int</TT
+>、
+       <TT
+CLASS="TYPE"
+>bigint</TT
+>、<TT
+CLASS="TYPE"
+>real</TT
+>、<TT
+CLASS="TYPE"
+>double
+       precision</TT
+>、または<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>      
+       浮動小数点型の引数では<TT
+CLASS="TYPE"
+>double precision</TT
+>。それ以外では<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>入力値に対する標本標準偏差</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>variance</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>、<TT
+CLASS="TYPE"
+>int</TT
+>、
+       <TT
+CLASS="TYPE"
+>bigint</TT
+>、<TT
+CLASS="TYPE"
+>real</TT
+>、<TT
+CLASS="TYPE"
+>double
+       precision</TT
+>、または<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>      
+       浮動小数点型の引数では<TT
+CLASS="TYPE"
+>double precision</TT
+>。それ以外では<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+><CODE
+CLASS="FUNCTION"
+>var_samp</CODE
+>の歴史的な別名</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>var_pop</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>、<TT
+CLASS="TYPE"
+>int</TT
+>、
+       <TT
+CLASS="TYPE"
+>bigint</TT
+>、<TT
+CLASS="TYPE"
+>real</TT
+>、<TT
+CLASS="TYPE"
+>double
+       precision</TT
+>、または<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>      
+       浮動小数点型の引数では<TT
+CLASS="TYPE"
+>double precision</TT
+>。それ以外では<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>入力値に対する母分散（母標準偏差の自乗）</TD
+></TR
+><TR
+><TD
+>       
+       
+       <CODE
+CLASS="FUNCTION"
+>var_samp</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+>smallint</TT
+>、<TT
+CLASS="TYPE"
+>int</TT
+>、
+       <TT
+CLASS="TYPE"
+>bigint</TT
+>、<TT
+CLASS="TYPE"
+>real</TT
+>、<TT
+CLASS="TYPE"
+>double
+       precision</TT
+>、または<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>      
+       浮動小数点型の引数では<TT
+CLASS="TYPE"
+>double precision</TT
+>。それ以外では<TT
+CLASS="TYPE"
+>numeric</TT
+>
+      </TD
+><TD
+>入力値に対する標本分散（標本標準偏差の二乗）</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-array.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-window.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>配列関数と演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ウィンドウ関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

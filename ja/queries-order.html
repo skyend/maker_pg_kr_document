@@ -1,0 +1,430 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>行の並び替え</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="問い合わせ"
+HREF="queries.html"><LINK
+REL="PREVIOUS"
+TITLE="問い合わせの結合"
+HREF="queries-union.html"><LINK
+REL="NEXT"
+TITLE="LIMITとOFFSET"
+HREF="queries-limit.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="問い合わせの結合"
+HREF="queries-union.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="問い合わせ"
+HREF="queries.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 7&#31456;問い合わせ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="問い合わせ"
+HREF="queries.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="LIMITとOFFSET"
+HREF="queries-limit.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="QUERIES-ORDER"
+>7.5. 行の並び替え</A
+></H1
+><P
+>ある問い合わせが1つの出力テーブルを生成した後（選択リストの処理が完了した後）、並べ替えることができます。
+並べ替えが選ばれなかった場合、行は無規則な順序で返されます。
+そのような場合、実際の順序は、スキャンや結合計画の種類や、ディスク上に格納されている順序に依存します。
+しかし、当てにはなりません。
+特定の順序で出力することは、明白に並べ替える処理を選択することでのみ保証されます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句は並べ替えの順番を指定します。
+</P><PRE
+CLASS="SYNOPSIS"
+>SELECT <TT
+CLASS="REPLACEABLE"
+><I
+>select_list</I
+></TT
+>
+    FROM <TT
+CLASS="REPLACEABLE"
+><I
+>table_expression</I
+></TT
+>
+    ORDER BY <TT
+CLASS="REPLACEABLE"
+><I
+>sort_expression1</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>ASC | DESC</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>NULLS { FIRST | LAST }</SPAN
+>]
+             [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>sort_expression2</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>ASC | DESC</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>NULLS { FIRST | LAST }</SPAN
+>] ...</SPAN
+>]</PRE
+><P>
+並び替え式は問い合わせの選択リスト内で有効な任意の式を取ることができます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a, b FROM table1 ORDER BY a + b, c;</PRE
+><P>
+複数の式が指定された場合、前の値と同じ値を持つ行を並び替えする際に後の値が使用されます。
+列指定の後に省略可能な<TT
+CLASS="LITERAL"
+>ASC</TT
+>もしくは<TT
+CLASS="LITERAL"
+>DESC</TT
+>を付与することで、並び替えの方向を昇順、降順にするかを設定することができます。
+<TT
+CLASS="LITERAL"
+>ASC</TT
+>順がデフォルトです。
+昇順では、小さな値を先に出力します。
+ここでの<SPAN
+CLASS="QUOTE"
+>"小さい"</SPAN
+>とは、<TT
+CLASS="LITERAL"
+>&lt;</TT
+>演算子によって決定されます。
+同様に降順では<TT
+CLASS="LITERAL"
+>&gt;</TT
+>演算子で決定されます。
+    <A
+NAME="AEN4107"
+HREF="#FTN.AEN4107"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>NULLS FIRST</TT
+>および<TT
+CLASS="LITERAL"
+>NULLS LAST</TT
+>オプションを使用して、その並び替え順においてNULL値を非NULL値の前にするか後にするかを決定することができます。
+デフォルトでは、NULL値はあたかもすべての非NULL値よりも大きいとみなして並び替えます。
+と言うことは、<TT
+CLASS="LITERAL"
+>NULLS FIRST</TT
+>は<TT
+CLASS="LITERAL"
+>DESC</TT
+>順序付けのデフォルトで、そうでなければ<TT
+CLASS="LITERAL"
+>NULLS LAST</TT
+>です。
+  </P
+><P
+>この順序づけオプションは、並び替えされる列を個別に指定したとみなされることに注意してください。
+例えば、<TT
+CLASS="LITERAL"
+>ORDER BY x, y DESC</TT
+>は、<TT
+CLASS="LITERAL"
+>ORDER BY x DESC, y DESC</TT
+>と同じではなく、<TT
+CLASS="LITERAL"
+>ORDER BY x ASC, y DESC</TT
+>を意味します。
+  </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>sort_expression</I
+></TT
+>は以下のように列ラベルもしくは出力列の番号で指定することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a + b AS sum, c FROM table1 ORDER BY sum;
+SELECT a, max(b) FROM table1 GROUP BY a ORDER BY 1;</PRE
+><P>
+両方とも最初の出力列で並び替えされます。
+出力列名は単体でなければなりません。つまり式としては使用できないことに注意してください。
+例えば以下は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>間違い</I
+></SPAN
+>です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT a + b AS sum, c FROM table1 ORDER BY sum + c;          -- 間違い</PRE
+><P>
+これは多義性を減らすための制限です。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>項目が単純な名前であっても、出力列名とテーブル式による列と同じ名前となる場合、多義性はまだ存在します。
+この場合、出力列名が使用されます。
+<TT
+CLASS="LITERAL"
+>AS</TT
+>を使用して他のテーブル列の名前と同じ名前に出力列を変名した場合にのみ混乱が発生します。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を、<TT
+CLASS="LITERAL"
+>UNION</TT
+>、<TT
+CLASS="LITERAL"
+>INTERSECT</TT
+>、<TT
+CLASS="LITERAL"
+>EXCEPT</TT
+>組み合わせの結果に適用することができます。
+しかしこの場合、出力列の名前または番号でのみ並び替えすることができ、式では並び替えすることができません。
+  </P
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>&#27880;&#24847;</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN4107"
+HREF="queries-order.html#AEN4107"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>実際、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、<TT
+CLASS="LITERAL"
+>ASC</TT
+>と<TT
+CLASS="LITERAL"
+>DESC</TT
+>の並び替え順を決定するために、式のデータ型用の<I
+CLASS="FIRSTTERM"
+>デフォルトのB-tree演算子クラス</I
+>を使用します。
+慣習的に、データ型は<TT
+CLASS="LITERAL"
+>&lt;</TT
+>と<TT
+CLASS="LITERAL"
+>&gt;</TT
+>演算子をこの並び替え順になるように設定されます。
+しかし、ユーザ定義データ型の設計者は異なるものを選択することができます。
+     </P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="queries-union.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="queries-limit.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>問い合わせの結合</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="queries.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>と<TT
+CLASS="LITERAL"
+>OFFSET</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

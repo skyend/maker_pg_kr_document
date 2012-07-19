@@ -1,0 +1,567 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.3.12</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.3.13"
+HREF="release-8-3-13.html"><LINK
+REL="NEXT"
+TITLE="リリース8.3.11"
+HREF="release-8-3-11.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.3.13"
+HREF="release-8-3-13.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.3.11"
+HREF="release-8-3-11.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-3-12"
+>E.35. リリース8.3.12</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2010-10-04</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.3.11に対し、各種の不具合を修正したものです。
+8.3メジャーリリースにおける新機能については<A
+HREF="release-8-3.html"
+>&#38917;E.47</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115050"
+>E.35.1. バージョン8.3.12への移行</A
+></H2
+><P
+>8.3.Xからの移行ではダンプ/リストアは不要です。
+しかし8.3.8以前のバージョンからアップデートする場合は8.3.8のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115053"
+>E.35.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>PL/PerlおよびPL/Tclにおいて、呼び出し元のSQLユーザIDごとに別のインタプリタを使用します。(Tom Lane)
+     </P
+><P
+>この変更は、同じセッション内でその後に異なるSQLユーザIDにより実行されるPerlまたはTclコード（例えば<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>の内部）を破壊することで発生する可能性があるというセキュリティ問題を防止するものです。
+ほとんどのスクリプト用言語は、対象とする関数で呼び出される標準関数や演算子の再定義など、これを行うことができる多くの方法を提供します。
+この変更がないと、PerlまたはTcl言語の使用権限を持つ任意のSQLユーザは基本的に、対象の関数の所有者が持つSQL権限でできることを何でもできるようになります。
+     </P
+><P
+>この変更の欠点はPerlおよびTcl関数間の内部通信がより難しくなるという点です。
+逃げ道を提供するために、PL/PerlUおよびPL/TclU関数ではまだセッション当たり1つのインタプリタのみを使用します。
+これらのすべての関数は従来よりデータベーススーパーユーザの信頼レベルで実行されますので、これはセキュリティ問題とはみなされません。
+     </P
+><P
+>信頼された実行を提供することを主張するサードパーティ製の手続き言語は似たようなセキュリティ問題を持つ可能性が大きくあります。
+セキュリティが非常に重要な目的のために依存している手続き言語があれば、その作者に連絡を取ることを勧めます。
+     </P
+><P
+>この問題を指摘いただいたTim Bunceに感謝します(CVE-2010-3433)。
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_get_expr()</CODE
+>の用途として意図されたシステムカタログ列の一つではない引数で呼び出されることを拒絶することで<CODE
+CLASS="FUNCTION"
+>pg_get_expr()</CODE
+>内のクラッシュする可能性を防止します。(Heikki Linnakangas, Tom Lane)
+     </P
+></LI
+><LI
+><P
+>Windowsにおいて終了コード128（<TT
+CLASS="LITERAL"
+>ERROR_WAIT_NO_CHILDREN</TT
+>）を致命的でないものと扱います。(Magnus Hagander)
+     </P
+><P
+>高負荷状況下で、Windowsプロセスはこのエラーコードで起動に失敗することが時々あります。
+以前はpostmasterはパニック状態としてこれを扱い、データベース全体を再起動しました。
+しかしこれは過度は反応のように思われます。
+     </P
+></LI
+><LI
+><P
+>追加のインデックススキャンにおける厳密ではないOR結合句の不正な使用を修正しました。(Tom Lane)
+     </P
+><P
+>これは8.3系列にはなかった8.4の修正を過去にパッチ適用したものです。
+これは8.3.8で持ち込まれた、内側のリレーションが継承ツリーまたは<TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>副問い合わせの場合に不正な外部結合結果となるというエラーを修正するものです。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UNION ALL</TT
+>のメンバーリレーションの二重スキャンの可能性を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="QUOTE"
+>"cannot handle unplanned sub-select"</SPAN
+>エラーを修正しました。(Tom Lane)
+     </P
+><P
+>これは、副選択が他の副選択を含む式に展開される結合の別名参照を含む場合に発生しました。
+     </P
+></LI
+><LI
+><P
+>キャッシュされた計画を一時的なものと印付けする失敗を修正しました。(Tom Lane)
+     </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE INDEX CONCURRENTLY</TT
+>が参照されるテーブルの1つに対して進行している時に計画が準備された場合、インデックスの使用準備ができた後に再度計画を作成するものと仮定されています。
+これが確実に起こりませんでした。
+     </P
+></LI
+><LI
+><P
+>まれに報告されたB-tree失敗状況の一部をPANICからERRORを減らしました。
+また出力されるエラーメッセージに追加の詳細を加えました。(Tom Lane)
+     </P
+><P
+>これにより、破損したインデックスに対するシステムの堅牢性が向上したはずです。
+     </P
+></LI
+><LI
+><P
+>自動バキューム処理中のクラッシュからshow_session_authorization()を防止します。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>返される行のすべてが実際に同一の行型でない、レコードの集合を返す関数を防御します。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>参照渡し関数の結果をハッシュ化する時に失敗する可能性を修正しました。(Tao Ma, Tom Lane)
+     </P
+></LI
+><LI
+><P
+>マージ結合における、結合列内のNULLの処理を改良しました。(Tom Lane)
+     </P
+><P
+>NULLがソートで先になるようなソート順の場合、最初のNULLに達した時にマージ結合が完全に停止することができるようになりました。
+     </P
+></LI
+><LI
+><P
+>ロックファイル（<TT
+CLASS="FILENAME"
+>postmaster.pid</TT
+>およびソケット用のロックファイル）を書き出す時に、注意してその内容のfsyncします。(Tom Lane)
+     </P
+><P
+>これがないと、postmasterの起動後しばらくしてマシンがクラッシュした場合に、ロックファイルの内容が破損することがあり得ました。
+これが起きると、このロックファイルを手作業で削除するまで、その後のpostmasterの起動試行が成功できなくなります。
+     </P
+></LI
+><LI
+><P
+>過度に入れ子になった副トランザクションに対してXIDを割り当てる際の再帰を防止します。(Andres Freund, Robert Haas)
+     </P
+><P
+>元々のコードでは、制限されたスタック領域であった場合にクラッシュすることがあり得ました。
+     </P
+></LI
+><LI
+><P
+>walwriterプロセス内で古いWALセグメントを開いたまま保持しないようにしました。(Magnus Hagander, Heikki Linnakangas)
+     </P
+><P
+>これまでのコードでは、不要となったセグメントの削除を防止しました。
+     </P
+></LI
+><LI
+><P
+>バックエンド起動の初期にゴミを生成することがあった<TT
+CLASS="VARNAME"
+>log_line_prefix</TT
+>の<TT
+CLASS="LITERAL"
+>%i</TT
+>エスケープを修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>アーカイブ処理が有効な場合、<TT
+CLASS="COMMAND"
+>ALTER TABLE ... SET TABLESPACE</TT
+>におけるデータ破損の可能性を修正しました。(Jeff Davis)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>と<TT
+CLASS="COMMAND"
+>ALTER DATABASE ... SET TABLESPACE</TT
+>を問い合わせキャンセルにより中断させることができます。(Guillaume Lelarge)
+     </P
+></LI
+><LI
+><P
+>演算子クラスと演算子族を扱う<TT
+CLASS="COMMAND"
+>REASSIGN OWNED</TT
+>を修正しました。(Asko Tiidumaa)
+     </P
+></LI
+><LI
+><P
+>２つの空の<TT
+CLASS="TYPE"
+>tsquery</TT
+>値を比較する際にコアダンプする可能性を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>%</TT
+>に続く<TT
+CLASS="LITERAL"
+>_</TT
+>を持つパターンに対する<TT
+CLASS="LITERAL"
+>LIKE</TT
+>の処理を修正しました。(Tom Lane)
+     </P
+><P
+>以前にもこれを修正しましたが、正しく処理されない場所が一部残っていました。
+     </P
+></LI
+><LI
+><P
+>PL/Pythonにおいて、<CODE
+CLASS="FUNCTION"
+>PyCObject_AsVoidPtr</CODE
+>および<CODE
+CLASS="FUNCTION"
+>PyCObject_FromVoidPtr</CODE
+>からのヌルポインタ結果を防止します。(Peter Eisentraut)
+     </P
+></LI
+><LI
+><P
+>自動コミットモードが無効な場合、<TT
+CLASS="COMMAND"
+>DISCARD ALL</TT
+>をトランザクションブロック内に包むべきものではないコマンドとしてpsqlが認識するようにしました。(Itagaki Takahiro)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句からのデータを正しく処理するように<SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>を修正しました。(Michael Meskes)
+     </P
+></LI
+><LI
+><P
+>削除された列を含むテーブルに対する<TT
+CLASS="FILENAME"
+>contrib/dblink</TT
+>の処理を改良しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/dblink</TT
+>において<SPAN
+CLASS="QUOTE"
+>"duplicate connection name"</SPAN
+>エラー後の接続リークを修正しました。(Itagaki Takahiro)
+     </P
+></LI
+><LI
+><P
+>62バイトより長い接続名に関する<TT
+CLASS="FILENAME"
+>contrib/dblink</TT
+>の処理を正しく修正しました。(Itagaki Takahiro)
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>hstore(text, text)</CODE
+>関数を<TT
+CLASS="FILENAME"
+>contrib/hstore</TT
+>に追加しました。(Robert Haas)
+     </P
+><P
+>この関数は、廃止予定となった<TT
+CLASS="LITERAL"
+>=&gt;</TT
+>演算子に対する推奨の代替です。
+将来を見据えたコードが古めのバージョンのサーバでも使用できるようにするために過去にもパッチが適用されました。
+このパッチは、<TT
+CLASS="FILENAME"
+>contrib/hstore</TT
+>のインストール後もしくは特定のデータベースに再インストールされた後にのみ効果を持つことに注意してください。
+代わりに手作業で<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドを実行することを選ぶユーザがいるかもしれません。
+     </P
+></LI
+><LI
+><P
+>構築手順や文書を更新して、ソースコードリポジトリがCVSからGitに変更されたことを反映しました。(Magnus Hagander他)
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+> release 2010lに更新しました。
+エジプト、パレスチナにおける夏時間規則の変更、フィンランドの歴史的な修正が含まれています。
+     </P
+><P
+>またこの変更では、2つのミクロネシアの時間帯を追加しています。
+Pacific/ChuukはPacific/Trukより好まれるようになり（好まれる省略形はTRUTではなくCHUT）、Pacific/PohnpeiはPacific/Ponapeより好まれるようになります。
+     </P
+></LI
+><LI
+><P
+>Windowsの<SPAN
+CLASS="QUOTE"
+>"N. Central Asia Standard Time"</SPAN
+>時間帯をAsia/AlmatyではなくAsia/Novosibirskに対応付けるようにしました。
+     </P
+><P
+>MicrosoftはKB976098の時間帯更新からこの時間帯の夏時間の振舞いを変更しました。
+Asia/Novosibirskはこの新しい振舞いにより合致しています。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-3-13.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-3-11.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.3.13</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.3.11</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

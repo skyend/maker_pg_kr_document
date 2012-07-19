@@ -1,0 +1,332 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.2.21</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.2.22"
+HREF="release-8-2-22.html"><LINK
+REL="NEXT"
+TITLE="リリース8.2.20"
+HREF="release-8-2-20.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.2.22"
+HREF="release-8-2-22.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.2.20"
+HREF="release-8-2-20.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-2-21"
+>E.50. リリース8.2.21</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2011-04-18</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.2.20に対し、各種の不具合を修正したものです。
+8.2メジャーリリースにおける新機能については<A
+HREF="release-8-2.html"
+>&#38917;E.71</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN117695"
+>E.50.1. バージョン8.2.21への移行</A
+></H2
+><P
+>8.2.Xからの移行ではダンプ/リストアは不要です。
+しかし8.2.14以前のバージョンからアップデートする場合は8.2.14のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN117698"
+>E.50.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>カタログキャッシュの初期化中のデッドロックの可能性を取り除きました。(Nikhil Sontakke)
+     </P
+><P
+>一部のキャッシュを読み取るコードが、インデックスのカタログをロックする前にシステムインデックスに対して共有ロックを獲得する場合がありました。
+これは他でより標準的な順序で排他ロックを獲得しようとする処理とデッドロックする可能性がありました。
+     </P
+></LI
+><LI
+><P
+>対象タプルに対する同時更新があった時の<TT
+CLASS="LITERAL"
+>BEFORE ROW UPDATE</TT
+>トリガ処理における、不正な領域を指し示すポインタ問題を修正しました。(Tom Lane)
+     </P
+><P
+>この不具合は、<TT
+CLASS="LITERAL"
+>UPDATE RETURNING ctid</TT
+>を実行しようとした時に、断続的に<SPAN
+CLASS="QUOTE"
+>"cannot extract system attribute from virtual tuple"</SPAN
+>で失敗するという結果で気付きました。
+更新したタプルに対して不正なインデックス項目が生成されてしまうなど、より深刻なエラーとなる可能性がごくわずかながら存在します。
+     </P
+></LI
+><LI
+><P
+>遅延トリガイベントを待たせているテーブルに対する<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>を許可しません。(Tom Lane)
+     </P
+><P
+>以前は<TT
+CLASS="COMMAND"
+>DROP</TT
+>が進み、トリガが最終的に発行された時に<SPAN
+CLASS="QUOTE"
+>"could not open relation with OID nnn"</SPAN
+>エラーをもたらしました。
+     </P
+></LI
+><LI
+><P
+>PL/Pythonの部分配列化に関するメモリリークを修正しました。(Daniel Popowich)
+     </P
+></LI
+><LI
+><P
+>TOCファイル内の（1KB以上の）長い行に対処するように<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>を修正しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>コンパイラの過度に積極的な最適化によるゼロ除算が原因のクラッシュに対して、より多くの対策を取りました。(Aurelien Jarno)
+     </P
+></LI
+><LI
+><P
+>MIPS上のFreeBSDとOpenBSDでdlopen()の使用をサポートしました。(Tom Lane)
+     </P
+><P
+>これらのシステムではこのシステム関数はMIPSハードウェアで利用できないという仮定を直接書き込んだコードがありました。
+より最近のバージョンでは利用できますので、コンパイル時の試験を使用するように変更しました。
+     </P
+></LI
+><LI
+><P
+>HP-UXにおけるコンパイル失敗を修正しました。(Heikki Linnakangas)
+     </P
+></LI
+><LI
+><P
+>Cygwinにおいて<SPAN
+CLASS="APPLICATION"
+>pg_regress</SPAN
+>で使用されるパス区切り文字を修正しました。(Andrew Dunstan)
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+> release 2011fに更新しました。
+チリ、キューバ、フォークランド諸島、モロッコ、サモア、トルコにおける夏時間規則の変更、南オーストラリア、アラスカ、ハワイの歴史的な修正が含まれています。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-2-22.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-2-20.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.2.22</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.2.20</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

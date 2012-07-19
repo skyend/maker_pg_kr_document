@@ -1,0 +1,782 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>INSERT</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="GRANT"
+HREF="sql-grant.html"><LINK
+REL="NEXT"
+TITLE="LISTEN"
+HREF="sql-listen.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="GRANT"
+HREF="sql-grant.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="GRANT"
+HREF="sql-grant.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="LISTEN"
+HREF="sql-listen.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="LISTEN"
+HREF="sql-listen.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-INSERT"
+></A
+>INSERT</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN72731"
+></A
+><H2
+>&#21517;&#21069;</H2
+>INSERT&nbsp;--&nbsp;テーブルに新しい行を作成する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN72736"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>[ WITH [ RECURSIVE ] <TT
+CLASS="REPLACEABLE"
+><I
+>with_query</I
+></TT
+> [, ...] ]
+INSERT INTO <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) ]
+    { DEFAULT VALUES | VALUES ( { <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> | DEFAULT } [, ...] ) [, ...] | <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> }
+    [ RETURNING * | <TT
+CLASS="REPLACEABLE"
+><I
+>output_expression</I
+></TT
+> [ [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>output_name</I
+></TT
+> ] [, ...] ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72745"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>はテーブルに新しい行を挿入します。
+値式を使用して行（複数可）を挿入するだけでなく、問い合わせの結果を使って0行以上の行を挿入することもできます。
+  </P
+><P
+>対象の列名はどのような順番でも指定できます。
+列名リストが指定されなかった場合は、宣言時の順番に並べたテーブル内の全ての列がデフォルトとなります。
+また、<TT
+CLASS="LITERAL"
+>VALUES</TT
+>句や<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>で<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>列のみが指定された場合は、先頭の<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>列の名前がデフォルトとなります。
+<TT
+CLASS="LITERAL"
+>VALUES</TT
+>句や<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>で提供される値は、明示的または暗黙的な列リストと左から右への順で関連付けられます
+  </P
+><P
+>明示的または暗黙的な列リストにない各列にはデフォルト値（デフォルト値が宣言されていればその値、未宣言ならばNULL）が挿入されます。
+  </P
+><P
+>各列の式が正しいデータ型でない場合は、自動的に型の変換が行われます。
+  </P
+><P
+>省略可能な<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句により、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>は実際に挿入された各行に基づいて計算された値を返すようになります。
+これは、通番のシーケンス番号など、デフォルトで与えられた値を取り出す時にかなり便利です。
+しかし、そのテーブルの列を使用した式を指定することができます。
+<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>リストの構文は<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の出力リストと同一です。
+  </P
+><P
+>テーブルに行を追加するには、そのテーブルに対して<TT
+CLASS="LITERAL"
+>INSERT</TT
+>権限を持っている必要があります。 
+列リストが指定された場合は、列挙された列に対する<TT
+CLASS="LITERAL"
+>INSERT</TT
+>権限のみが必要です。
+<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を使用するには、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>で使用するすべての列に対する<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限が必要です。
+<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>を使用して問い合わせ結果を元に行を挿入する場合は当然ながら、その問い合わせ内で使われる全てのテーブルまたは列に対して<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限を持っている必要があります。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72771"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>with_query</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>句により、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>問い合わせ内で名前により参照することができる１つ以上の副問い合わせを指定することができます。
+<A
+HREF="queries-with.html"
+>&#38917;7.8</A
+>と<A
+HREF="sql-select.html"
+>SELECT</A
+>を参照してください。
+     </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>（<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文）ではまた、<TT
+CLASS="LITERAL"
+>WITH</TT
+>句を含めることができます。
+こうした場合、<TT
+CLASS="REPLACEABLE"
+><I
+>with_query</I
+></TT
+>の集合との両方を<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>内で参照することができます。
+しかしより綿密に入れ子にされますので、第二の問い合わせは述語を取ります。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+></DT
+><DD
+><P
+>既存のテーブルの名前です（スキーマ修飾名も可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>内の列名です。
+列名を副フィールドの名前や配列の添え字で修飾することができます。
+（複合型の列の一部のフィールドのみを挿入しても他のフィールドはNULLのままです。）
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DEFAULT VALUES</TT
+></DT
+><DD
+><P
+>全ての列に、それぞれのデフォルト値が設定されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+></DT
+><DD
+><P
+>対応する<TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+>に代入する有効な式または値を指定します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DEFAULT</TT
+></DT
+><DD
+><P
+>対応する<TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+>に、デフォルト値を設定します。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+></DT
+><DD
+><P
+>挿入する行を提供する問い合わせ（<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文）を指定します。
+構文の説明については<A
+HREF="sql-select.html"
+>SELECT</A
+>文を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>output_expression</I
+></TT
+></DT
+><DD
+><P
+>各行が挿入された後、計算され<TT
+CLASS="COMMAND"
+>INSERT</TT
+>により返される式です。
+この式には<TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>の任意の列名を使用することができます。
+挿入された行のすべての列を返す場合は<TT
+CLASS="LITERAL"
+>*</TT
+>と記載してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>output_name</I
+></TT
+></DT
+><DD
+><P
+>返される列で使用される名前です。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72837"
+></A
+><H2
+>出力</H2
+><P
+>正常に終了すると、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>は以下のようなコマンドタグを返します。
+</P><PRE
+CLASS="SCREEN"
+>INSERT <TT
+CLASS="REPLACEABLE"
+><I
+>oid</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>は挿入された行数です。
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>が正確に1であり、対象のテーブルがOIDを持つ場合、<TT
+CLASS="REPLACEABLE"
+><I
+>oid</I
+></TT
+>は挿入された行に割り当てられた<ACRONYM
+CLASS="ACRONYM"
+>OID</ACRONYM
+>です。
+その他の場合、<TT
+CLASS="REPLACEABLE"
+><I
+>oid</I
+></TT
+>は0となります。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンドが<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を持つ場合、その結果は、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>リストで定義した列と値を持ち、そのコマンドで挿入された行全体に対して計算を行う<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の結果と似たものになるでしょう。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72854"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>films</TT
+>テーブルに1行を挿入します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO films VALUES
+    ('UA502', 'Bananas', 105, '1971-07-13', 'Comedy', '82 minutes');</PRE
+><P>
+  </P
+><P
+>この例では、<TT
+CLASS="LITERAL"
+>len</TT
+>列を省略しています。 
+したがって、ここにはデフォルト値NULLが入ります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO films (code, title, did, date_prod, kind)
+    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');</PRE
+><P>
+  </P
+><P
+>3つ目の例では、日付列に対して値ではなく<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>を使用します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO films VALUES
+    ('UA502', 'Bananas', 105, DEFAULT, 'Comedy', '82 minutes');
+INSERT INTO films (code, title, did, date_prod, kind)
+    VALUES ('T_601', 'Yojimbo', 106, DEFAULT, 'Drama');</PRE
+><P>
+  </P
+><P
+>全てデフォルト値からなる行を挿入します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO films DEFAULT VALUES;</PRE
+><P>
+  </P
+><P
+>複数行の<TT
+CLASS="COMMAND"
+>VALUES</TT
+>構文を使用して複数行を挿入します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO films (code, title, did, date_prod, kind) VALUES
+    ('B6717', 'Tampopo', 110, '1985-02-10', 'Comedy'),
+    ('HG120', 'The Dinner Game', 140, DEFAULT, 'Comedy');</PRE
+><P>
+  </P
+><P
+>この例では、<TT
+CLASS="LITERAL"
+>films</TT
+>テーブルと同じ列レイアウトを持つ<TT
+CLASS="LITERAL"
+>tmp_films</TT
+>テーブルから<TT
+CLASS="LITERAL"
+>films</TT
+>テーブルへいくつか行を挿入します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO films SELECT * FROM tmp_films WHERE date_prod &lt; '2004-05-07';</PRE
+><P>
+  </P
+><P
+>この例では、配列型の列に挿入しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>-- 三目並べ用の3×3マスのゲーム盤を作成します。
+INSERT INTO tictactoe (game, board[1:3][1:3])
+    VALUES (1, '{{" "," "," "},{" "," "," "},{" "," "," "}}');
+--上の例の添え字は本当は必要ありません。
+INSERT INTO tictactoe (game, board)
+    VALUES (2, '{{X," "," "},{" ",O," "},{" ",X," "}}');</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>distributors</TT
+>テーブルに単一行を挿入し、その<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句により生成されたシーケンス番号を返します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO distributors (did, dname) VALUES (DEFAULT, 'XYZ Widgets')
+   RETURNING did;</PRE
+><P>
+  </P
+><P
+>Acme社の顧客を担当する営業担当者の売り上げ数を増やし、ログテーブルに更新行全体と更新時刻を記録します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>WITH upd AS (
+  UPDATE employees SET sales_count = sales_count + 1 WHERE id =
+    (SELECT sales_person FROM accounts WHERE name = 'Acme Corporation')
+    RETURNING *
+)
+INSERT INTO employees_log SELECT *, current_timestamp FROM upd;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72883"
+></A
+><H2
+>互換性
+  </H2
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>は標準SQLに準拠します。
+ただし、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句と<TT
+CLASS="COMMAND"
+>INSERT</TT
+>で<TT
+CLASS="LITERAL"
+>WITH</TT
+>が可能であることは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+また、標準SQLでは、列名リストが省略された時に、<TT
+CLASS="LITERAL"
+>VALUES</TT
+>句または<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>で一部の列のみを指定することはできません。
+  </P
+><P
+>制限される可能性がある<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>句の機能については、<A
+HREF="sql-select.html"
+>SELECT</A
+>にて記述されています。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-grant.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-listen.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GRANT</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>LISTEN</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

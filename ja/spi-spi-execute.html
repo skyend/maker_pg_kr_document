@@ -1,0 +1,760 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SPI_execute</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インタフェース関数"
+HREF="spi-interface.html"><LINK
+REL="PREVIOUS"
+TITLE="SPI_pop"
+HREF="spi-spi-pop.html"><LINK
+REL="NEXT"
+TITLE="SPI_exec"
+HREF="spi-spi-exec.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SPI_pop"
+HREF="spi-spi-pop.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SPI_pop"
+HREF="spi-spi-pop.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SPI_exec"
+HREF="spi-spi-exec.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SPI_exec"
+HREF="spi-spi-exec.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SPI-SPI-EXECUTE"
+></A
+>SPI_execute</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN57209"
+></A
+><H2
+>&#21517;&#21069;</H2
+>SPI_execute&nbsp;--&nbsp;コマンドを実行する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN57214"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>int SPI_execute(const char * <TT
+CLASS="PARAMETER"
+>command</TT
+>, bool <TT
+CLASS="PARAMETER"
+>read_only</TT
+>, long <TT
+CLASS="PARAMETER"
+>count</TT
+>)</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN57219"
+></A
+><H2
+>説明</H2
+><P
+><CODE
+CLASS="FUNCTION"
+>SPI_execute</CODE
+>は指定したSQLコマンドを、<TT
+CLASS="PARAMETER"
+>count</TT
+>行分実行します。
+<TT
+CLASS="PARAMETER"
+>read_only</TT
+>が<TT
+CLASS="LITERAL"
+>true</TT
+>の場合、そのコマンドは読み取りのみでなければなりませんが、多少のオーバーヘッドが削減されます。
+  </P
+><P
+>この関数は接続済みのプロシージャからのみ呼び出し可能です。
+  </P
+><P
+><TT
+CLASS="PARAMETER"
+>count</TT
+>が0の場合、そのコマンドを、適用される全ての行に対して実行します。
+<TT
+CLASS="PARAMETER"
+>count</TT
+>が0より多ければ、そのコマンドが実行される行数は制限されます
+（ほぼ<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>と似ています）。
+例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SPI_execute("INSERT INTO foo SELECT * FROM bar", false, 5);</PRE
+><P>
+は、テーブルに挿入できる行は多くても5行のみです。
+  </P
+><P
+>複数のコマンドを1つの文字列として渡すことができます。
+しかし実行する前に文字列全体が解析され、実行計画が作成されるため、後のコマンドはこの文字列内の先のオブジェクトの生成に依存することはできません。
+<CODE
+CLASS="FUNCTION"
+>SPI_execute</CODE
+>は最後に実行したコマンドの結果を返します。
+<TT
+CLASS="PARAMETER"
+>count</TT
+>制限はそれぞれのコマンドに独立に適用されますが、ルールによって生成される隠れたコマンドには適用されません。
+  </P
+><P
+><TT
+CLASS="PARAMETER"
+>read_only</TT
+>が<TT
+CLASS="LITERAL"
+>false</TT
+>の場合、文字列内の各コマンドを実行する前に<CODE
+CLASS="FUNCTION"
+>SPI_execute</CODE
+>はコマンドカウンタを増分し、新しい<I
+CLASS="FIRSTTERM"
+>スナップショット</I
+>を作成します。
+このスナップショットは、現在のトランザクション隔離レベルが<TT
+CLASS="LITERAL"
+>SERIALIZABLE</TT
+>または<TT
+CLASS="LITERAL"
+>REPEATABLE READ</TT
+>の場合は変更されません。
+しかし、<TT
+CLASS="LITERAL"
+>READ COMMITTED</TT
+>モードでは、このスナップショットは更新され、他のセッションで新しくコミットされたトランザクションの結果を各コマンドから参照できます。
+これは、そのコマンドがデータベースを変更する場合、一貫性の維持に重要です。
+  </P
+><P
+><TT
+CLASS="PARAMETER"
+>read_only</TT
+>が<TT
+CLASS="LITERAL"
+>true</TT
+>の場合は、<CODE
+CLASS="FUNCTION"
+>SPI_execute</CODE
+>はスナップショットもコマンドカウンタも更新しません。
+さらに、普通の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドのみをコマンド文字列内に記述することができます。
+このコマンドは、その前後の問い合わせによって事前に確立済みのスナップショットを使用して実行されます。
+この実行モードは読み書きモードよりもコマンドごとのオーバーヘッドが省略される分多少高速です。
+また、これにより本当に<I
+CLASS="FIRSTTERM"
+>安定（stable）</I
+>な関数を構築することができます。
+つまり、連続した実行は全て同じスナップショットを使用しますので、結果は変わることがないということです。
+  </P
+><P
+>一般的に、SPIを使用する1つの関数内で読み取りのみコマンドと読み書きコマンドを混在させることは勧めません。
+読み取りのみの問い合わせでは、読み書き問い合わせでなされたデータベースの更新結果を参照しないいため、非常に混乱した動作に陥ることがあります。
+  </P
+><P
+>（最後の）コマンドが実行した実際の行数は、<TT
+CLASS="VARNAME"
+>SPI_processed</TT
+>グローバル変数に返されます。
+関数の戻り値が<TT
+CLASS="SYMBOL"
+>SPI_OK_SELECT</TT
+>、<TT
+CLASS="SYMBOL"
+>SPI_OK_INSERT_RETURNING</TT
+>、<TT
+CLASS="SYMBOL"
+>SPI_OK_DELETE_RETURNING</TT
+>、または<TT
+CLASS="SYMBOL"
+>SPI_OK_UPDATE_RETURNING</TT
+>の場合、<TT
+CLASS="LITERAL"
+>SPITupleTable *SPI_tuptable</TT
+>グローバルポインタを使用して、結果の行にアクセスすることができます。
+また、一部のユーティリティコマンド（<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>など）は行セットを返しますが、この場合も<TT
+CLASS="LITERAL"
+>SPI_tuptable</TT
+>にはその結果が含まれます。
+  </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>SPITupleTable</TT
+>構造体は以下のように定義されています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct
+{
+    MemoryContext tuptabcxt;    /* 結果テーブルのメモリコンテキスト */
+    uint32      alloced;        /* 割り当て済みのvalsの数 */
+    uint32      free;           /* 解放されたvalsの数 */
+    TupleDesc   tupdesc;        /* 行記述子 */
+    HeapTuple  *vals;           /* 行 */
+} SPITupleTable;</PRE
+><P><TT
+CLASS="STRUCTFIELD"
+>vals</TT
+>が行へのポインタの配列です
+（有効な項目数は<TT
+CLASS="VARNAME"
+>SPI_processed</TT
+>で判明します）。
+<TT
+CLASS="STRUCTFIELD"
+>tupdesc</TT
+>は行を扱うSPI関数に渡すことができる行記述子です。
+<TT
+CLASS="STRUCTFIELD"
+>tuptabcxt</TT
+>、<TT
+CLASS="STRUCTFIELD"
+>alloced</TT
+>、<TT
+CLASS="STRUCTFIELD"
+>free</TT
+>はSPI呼び出し元での使用を意図していない内部的なフィールドです。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>SPI_finish</CODE
+>は、現在のプロシージャで割り当てられた<TT
+CLASS="STRUCTNAME"
+>SPITupleTable</TT
+>をすべて解放します。
+<CODE
+CLASS="FUNCTION"
+>SPI_freetuptable</CODE
+>を呼び出して解放する場合、特定の結果テーブルを早めに解放することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN57272"
+></A
+><H2
+>引数</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>const char * <TT
+CLASS="PARAMETER"
+>command</TT
+></TT
+></DT
+><DD
+><P
+>実行するコマンドを含む文字列。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>bool <TT
+CLASS="PARAMETER"
+>read_only</TT
+></TT
+></DT
+><DD
+><P
+>読み取りのみの実行の場合<TT
+CLASS="LITERAL"
+>true</TT
+>。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>long <TT
+CLASS="PARAMETER"
+>count</TT
+></TT
+></DT
+><DD
+><P
+>処理される、あるいは返される行の最大数。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN57294"
+></A
+><H2
+>戻り値</H2
+><P
+>コマンドの実行に成功した場合、以下のいずれかの（非負の）値が返されます。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_SELECT</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>（<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>を除く）が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_SELINTO</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_INSERT</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+>が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_DELETE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>DELETE</TT
+>が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_UPDATE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>UPDATE</TT
+>が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_INSERT_RETURNING</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>INSERT RETURNING</TT
+>が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_DELETE_RETURNING</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>DELETE RETURNING</TT
+>が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_UPDATE_RETURNING</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>UPDATE RETURNING</TT
+>が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_UTILITY</TT
+></DT
+><DD
+><P
+>ユーティリティコマンド（<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>など）が実行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_OK_REWRITTEN</TT
+></DT
+><DD
+><P
+><A
+HREF="rules.html"
+>ルール</A
+>によって（例えば、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>が<TT
+CLASS="COMMAND"
+>INSERT</TT
+>になったような）あるコマンドが他の種類のコマンドに書き換えられた場合です。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>エラーの場合、以下のいずれかの負の値が返されます。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_ERROR_ARGUMENT</TT
+></DT
+><DD
+><P
+><TT
+CLASS="PARAMETER"
+>command</TT
+>が<TT
+CLASS="SYMBOL"
+>NULL</TT
+>、あるいは<TT
+CLASS="PARAMETER"
+>count</TT
+>が0未満の場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_ERROR_COPY</TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>COPY TO stdout</TT
+>あるいは<TT
+CLASS="COMMAND"
+>COPY FROM stdin</TT
+>が試行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_ERROR_TRANSACTION</TT
+></DT
+><DD
+><P
+>トランザクション操作を行うコマンド（<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>、<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>、<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>、<TT
+CLASS="COMMAND"
+>SAVEPOINT</TT
+>、<TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>、<TT
+CLASS="COMMAND"
+>COMMIT PREPARED</TT
+>、<TT
+CLASS="COMMAND"
+>ROLLBACK PREPARED</TT
+>、およびこれらの亜種）が試行された場合。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_ERROR_OPUNKNOWN</TT
+></DT
+><DD
+><P
+>コマンド種類が不明な場合（起きてはなりません）。
+      </P
+></DD
+><DT
+><TT
+CLASS="SYMBOL"
+>SPI_ERROR_UNCONNECTED</TT
+></DT
+><DD
+><P
+>未接続なプロシージャから呼び出された場合。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN57400"
+></A
+><H2
+>注意</H2
+><P
+>関数<CODE
+CLASS="FUNCTION"
+>SPI_execute</CODE
+>、<CODE
+CLASS="FUNCTION"
+>SPI_exec</CODE
+>、<CODE
+CLASS="FUNCTION"
+>SPI_execute_plan</CODE
+>、<CODE
+CLASS="FUNCTION"
+>SPI_execp</CODE
+>は<TT
+CLASS="VARNAME"
+>SPI_processed</TT
+>と<TT
+CLASS="VARNAME"
+>SPI_tuptable</TT
+>の両方を変更します（ポインタのみで、構造体の内容は変更しません）。
+<CODE
+CLASS="FUNCTION"
+>SPI_exec</CODE
+>やその関連する関数の結果テーブルを後の呼び出しでまたがってアクセスしたいのであれば、これら2つのグローバル変数を局所的なプロシージャ変数に保存してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="spi-spi-pop.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="spi-spi-exec.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SPI_pop</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="spi-interface.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>SPI_exec</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

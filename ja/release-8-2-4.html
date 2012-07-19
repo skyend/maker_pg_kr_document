@@ -1,0 +1,367 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.2.4</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.2.5"
+HREF="release-8-2-5.html"><LINK
+REL="NEXT"
+TITLE="リリース8.2.3"
+HREF="release-8-2-3.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.2.5"
+HREF="release-8-2-5.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.2.3"
+HREF="release-8-2-3.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-2-4"
+>E.67. リリース8.2.4</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2007-04-23</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.2.3の各種不具合を修正したもので、セキュリティ問題の修正を1つ含みます。
+8.2メジャーリリースにおける新機能については<A
+HREF="release-8-2.html"
+>&#38917;E.71</A
+>を参照してください。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN119073"
+>E.67.1. バージョン8.2.4への移行</A
+></H2
+><P
+>8.2.Xからの移行ではダンプ/リストアは不要です。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN119076"
+>E.67.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>search_path</TT
+>における一時テーブルスキーマの明示的な指定をサポートしました。
+また、関数や演算子ではその検索を無効にしました(Tom)。
+     </P
+><P
+>これは、SECURITY DEFINER関数が<TT
+CLASS="VARNAME"
+>search_path</TT
+>の値を本当に安全に設定するために必要です。
+こうしないと、一時オブジェクトを使用して権限のないSQLユーザがSECURITY DEFINER関数の権限でコードを実行することができてしまうためです（CVE-2007-2138）。
+詳細は<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>を参照してください。
+     </P
+></LI
+><LI
+><P
+>Windowsにおいて、各バックエンドで再ロードを強制的に行うことで<TT
+CLASS="VARNAME"
+>shared_preload_libraries</TT
+>を修正しました（Korry Douglas）。
+     </P
+></LI
+><LI
+><P
+>翻訳された日や月名を適切に大文字、小文字に変換できるように、<CODE
+CLASS="FUNCTION"
+>to_char()</CODE
+>を修正しました。
+
+     </P
+></LI
+><LI
+><P
+>      <TT
+CLASS="FILENAME"
+>/contrib/tsearch2</TT
+>のクラッシュを修正しました(Teodor)。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>COMMIT PREPARED</TT
+>は、そのトランザクションを準備したデータベースと同じデータベースで実行する必要があります。(Heikki)
+     </P
+></LI
+><LI
+><P
+>Windowsにおいて、2ギガバイトを越えるバイナリバックアップを<TT
+CLASS="COMMAND"
+>pg_dump</TT
+>が行えるようになりました(Magnus)。
+     </P
+></LI
+><LI
+><P
+>伝統的中国（台湾）語の<ACRONYM
+CLASS="ACRONYM"
+>FAQ</ACRONYM
+>を更新しました(Zhou Daojing)。
+     </P
+></LI
+><LI
+><P
+>統計情報コレクタがあまりに頻繁にディスクに書き込まないようにしました(Tom)。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>の<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>連鎖方法において潜在したデータ破損不具合を修正しました(Tom, Pavan Deolasee)。
+     </P
+></LI
+><LI
+><P
+>配列型を使用するドメインにおける不具合を修正しました(Tom)。
+     </P
+></LI
+><LI
+><P
+>元となるテーブルのダンプを行わない場合でも、<TT
+CLASS="OPTION"
+>-t</TT
+>を使用して連番型の列のシーケンスをダンプできるよう<TT
+CLASS="COMMAND"
+>pg_dump</TT
+>を修正しました。
+      (Tom)
+     </P
+></LI
+><LI
+><P
+>外部結合の向上やビットマップスキャンの選択ロジックなど、プランナを修正しました(Tom)。
+     </P
+></LI
+><LI
+><P
+>PL/pgSQL関数が<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>ブロック内で<TT
+CLASS="LITERAL"
+>RETURN</TT
+>を試行する場合に潜在する誤作動やクラッシュの可能性を修正しました。
+      (Tom)
+     </P
+></LI
+><LI
+><P
+>ハッシュインデックスの拡張時のパニックを修正しました(Tom)。
+     </P
+></LI
+><LI
+><P
+>POSIX書式の時間帯指定が新しいUSA DST規則に従うよう修正しました(Tom)。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-2-5.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-2-3.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.2.5</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.2.3</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

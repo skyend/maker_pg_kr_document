@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PostgreSQLの型システム</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLの拡張"
+HREF="extend.html"><LINK
+REL="PREVIOUS"
+TITLE="拡張の作用法"
+HREF="extend-how.html"><LINK
+REL="NEXT"
+TITLE="ユーザ定義関数"
+HREF="xfunc.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="拡張の作用法"
+HREF="extend-how.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 35&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の拡張</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ユーザ定義関数"
+HREF="xfunc.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="EXTEND-TYPE-SYSTEM"
+>35.2. <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の型システム</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のデータ型は、基本型、複合型、ドメイン、疑似型に分類されます。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN49551"
+>35.2.1. 基本型</A
+></H2
+><P
+>基本型は<TT
+CLASS="TYPE"
+>int4</TT
+>のように、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語レベル以下で実装されたものです
+（通常はCのような低レベル言語で作成されます）。
+一般的にこれらは抽象データ型とも呼ばれるものに対応します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、ユーザによって提供された関数を通して、こうした型に対する操作のみが可能です。
+そして、こうした型の動作のみをユーザが記述する範囲まで理解することができます。
+さらに基本型は、スカラと配列型に分類されます。
+各スカラ型に対応する配列型は自動的に作成され、そこにはそのスカラ型の可変長の配列を保持できます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN49557"
+>35.2.2. 複合型</A
+></H2
+><P
+>ユーザがテーブルを作成すると、複合型、もしくは行型が作成されます。
+関連するテーブルを持たない<SPAN
+CLASS="QUOTE"
+>"スタンドアロン"</SPAN
+>の複合型を<A
+HREF="sql-createtype.html"
+>CREATE TYPE</A
+>を使用して定義することもできます。
+複合型は関連したフィールド名を持つ基本型の単なるリストです。
+複合型の値は行もしくはフィールド値のレコードです。
+ユーザは<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>問い合わせによってその構成フィールドにアクセスすることができます。
+複合型のより詳細については<A
+HREF="rowtypes.html"
+>&#38917;8.15</A
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN49564"
+>35.2.3. ドメイン</A
+></H2
+><P
+>ドメインは、特定の基本型に基づいたもので、多くの目的では、その基本型と交換可能です。
+しかし、ドメインは背後にある基本型で許可される範囲内で値の有効範囲を制限する制約を持つことができます。
+    </P
+><P
+>ドメインは<A
+HREF="sql-createdomain.html"
+>CREATE DOMAIN</A
+> <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドを使用して作成可能です。
+ドメインの作成と使用については本章では説明しません。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN49570"
+>35.2.4. 疑似型</A
+></H2
+><P
+>特殊な目的用に数個の<SPAN
+CLASS="QUOTE"
+>"疑似型"</SPAN
+>があります。
+疑似型はテーブルの列や複合型の属性として現れることはありません。
+しかし、関数の引数や結果型を宣言する際に使用することができます。
+これは、型システム内で特殊な関数クラスを識別するための機構を提供します。
+<A
+HREF="datatype-pseudo.html#DATATYPE-PSEUDOTYPES-TABLE"
+>&#34920;8-24</A
+>に既存の疑似型を列挙します。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="EXTEND-TYPES-POLYMORPHIC"
+>35.2.5. 多様型</A
+></H2
+><P
+>特殊な用途を持つ疑似型には、<TT
+CLASS="TYPE"
+>anyelement</TT
+>と<TT
+CLASS="TYPE"
+>anyarray</TT
+>、<TT
+CLASS="TYPE"
+>anynonarray</TT
+>、および<TT
+CLASS="TYPE"
+>anyenum</TT
+>の4つがあります。
+これらはまとめて<I
+CLASS="FIRSTTERM"
+>多様型</I
+>と呼ばれます。
+これらの型を使用すると宣言された関数は全て、<I
+CLASS="FIRSTTERM"
+>多様関数</I
+>と呼ばれます。
+多様関数は多くの異なるデータ型を操作することができます。
+データ型の指定は、特定の呼び出しに実際に渡されるデータ型によって決定されます。
+    </P
+><P
+>多様引数と結果は互いに結び付いており、多様関数を呼び出す問い合わせが解析される時に特定のデータ型が決定されます。
+<TT
+CLASS="TYPE"
+>anyelement</TT
+>として宣言された位置（引数もしくは戻り値）にはそれぞれ、任意の実データ型を指定することができますが、1つの呼び出しでは、これらはすべて<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>同一の</I
+></SPAN
+>実データ型でなければなりません。
+<TT
+CLASS="TYPE"
+>anyarray</TT
+>として宣言された位置には、任意の配列データ型を持つことができます。
+しかし、同様にこれらはすべて同じデータ型でなければなりません。
+<TT
+CLASS="TYPE"
+>anyarray</TT
+>と宣言された位置と<TT
+CLASS="TYPE"
+>anyelement</TT
+>と宣言された位置の両方がある場合、<TT
+CLASS="TYPE"
+>anyarray</TT
+>の位置の実際の配列型は、その要素の型が<TT
+CLASS="TYPE"
+>anyelement</TT
+>位置に現れる型と同じでなければなりません。
+<TT
+CLASS="TYPE"
+>anynonarray</TT
+>は、実際の型が配列型であってはならないという制限が加わっている点を除き、<TT
+CLASS="TYPE"
+>anyelement</TT
+>とまったく同様に扱われます。
+<TT
+CLASS="TYPE"
+>anyenum</TT
+>は、実際の型が列挙型でなければならないという制約が加わっている点を除き、<TT
+CLASS="TYPE"
+>anyelement</TT
+>とまったく同様に扱われます。
+    </P
+><P
+>このように、2つ以上の引数位置が多様型と宣言されると、全体の効果として、実引数型の特定の組み合わせのみが許されるようになります。
+例えば、<TT
+CLASS="LITERAL"
+>equal(anyelement, anyelement)</TT
+>と宣言された関数は、2つの引数が同じデータ型である限り、任意の入力値を2つ取ることになります。
+    </P
+><P
+>関数の戻り値を多様型として宣言する時、少なくとも1つの引数位置も多様でなければなりません。
+そして引数として与えられる実データ型がその呼び出しの実結果型を決定します。
+例えば、配列添字機構がなかったとすると、<TT
+CLASS="LITERAL"
+>subscript(anyarray, integer) returns anyelement</TT
+>として添字機構を実装する関数を定義できます。
+この宣言には、最初の実引数は配列型になり、パーサはこの最初の実引数の型より正しい結果型を推論することができます。
+他にも例えば、<TT
+CLASS="LITERAL"
+>f(anyarray) returns anyenum</TT
+>と宣言された関数は列挙型の配列のみを受け付けます。
+    </P
+><P
+><TT
+CLASS="TYPE"
+>anynonarray</TT
+>型と<TT
+CLASS="TYPE"
+>anyenum</TT
+>型が、別個の型変数を表していないことに注意してください。
+これは<TT
+CLASS="TYPE"
+>anyelement</TT
+>と同じ型で、追加の制約が付いているだけです。
+例えば、<TT
+CLASS="LITERAL"
+>f(anyelement, anyenum)</TT
+>として関数を宣言することは、<TT
+CLASS="LITERAL"
+>f(anyenum, anyenum)</TT
+>と宣言することと同一です。
+両方の実引数は同じ列挙型でなければなりません。
+    </P
+><P
+>可変長引数の関数（<A
+HREF="xfunc-sql.html#XFUNC-SQL-VARIADIC-FUNCTIONS"
+>&#38917;35.4.5</A
+>で説明する可変個の引数を取る関数）を多様とすることができます。
+最後のパラメータを<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+> <TT
+CLASS="TYPE"
+>anyarray</TT
+>と宣言することで実現されます。
+引数を一致させ、実際の結果型を決めるために、こうした関数は<TT
+CLASS="TYPE"
+>anynonarray</TT
+>パラメータを適切な個数記述した場合と同様に動作します
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="extend-how.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="xfunc.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>拡張の作用法</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="extend.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ユーザ定義関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

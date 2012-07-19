@@ -1,0 +1,4853 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース9.0</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース9.0.1"
+HREF="release-9-0-1.html"><LINK
+REL="NEXT"
+TITLE="リリース8.4.12"
+HREF="release-8-4-12.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース9.0.1"
+HREF="release-9-0-1.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.4.12"
+HREF="release-8-4-12.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-9-0"
+>E.14. リリース9.0</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2010-09-20</P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN109694"
+>E.14.1. 概要</A
+></H2
+><P
+>このリリースの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で数年に渡り要望があった、簡単に利用できるレプリケーション、一括権限管理機能、匿名ブロックといった機能を追加しました。
+これまでのメジャーリリースではその範囲は保守的なものでしたが、このリリースでは、これまで<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を使用してきたユーザや新しく使い始めるユーザが喜ぶ機能を提供できることに大胆かつ新しい期待を持っています。
+これはすべて非互換性がほぼないようになされました。
+主な改良点を以下に示します。
+   </P
+><P
+></P
+><UL
+><LI
+><P
+>組込みのログシッピングによるレプリケーション。
+この進歩は次の2つの機能から構成されます。
+ストリーミングレプリケーションにより、継続的なアーカイブ(<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>)ファイルをスタンバイサーバに対してネットワーク上にストリーミングさせることができます。
+ホットスタンバイにより、継続的アーカイブを行うスタンバイデータベースサーバは読み取り専用の問い合わせを受け付けることができます。
+これらを合わせた結果、シングルマスタと複数の読み取り専用のスレーブサーバをサポートします。
+     </P
+></LI
+><LI
+><P
+>より簡単なデータベースオブジェクトの権限管理。
+<A
+HREF="sql-grant.html"
+><TT
+CLASS="COMMAND"
+>GRANT</TT
+>/<TT
+CLASS="COMMAND"
+>REVOKE IN SCHEMA</TT
+></A
+>は既存のオブジェクトに対するは一括権限変更をサポートし、そして、<A
+HREF="sql-alterdefaultprivileges.html"
+><TT
+CLASS="COMMAND"
+>ALTER DEFAULT PRIVILEGES</TT
+></A
+>は将来作成されるオブジェクトの権限を制御します。
+ラージオブジェクト（BLOB）も同様に権限管理をサポートするようになりました。
+     </P
+></LI
+><LI
+><P
+>ストアドプロシージャサポートの大きな改良。
+<A
+HREF="sql-do.html"
+><TT
+CLASS="COMMAND"
+>DO</TT
+></A
+>文により、その場限り、または、<SPAN
+CLASS="QUOTE"
+>"匿名"</SPAN
+>のコードブロックをサポートします。
+関数は名前付きパラメータを使用して呼び出すことができるようになりました。
+<A
+HREF="plpgsql.html"
+>PL/pgSQL</A
+>はデフォルトでインストールされるようになり、また、<A
+HREF="plperl.html"
+>PL/Perl</A
+>および<A
+HREF="plpython.html"
+>PL/Python</A
+>は、Python3のサポートを含む多くの点で改良されました。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="install-windows.html"
+>64ビット<SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+></A
+>を完全にサポートします。
+     </P
+></LI
+><LI
+><P
+>追加されたウィンドウ処理オプション（<TT
+CLASS="LITERAL"
+>PRECEDING</TT
+> and <TT
+CLASS="LITERAL"
+>FOLLOWING</TT
+>）と集約関数に渡される値の順序を制御する機能による、より先端的な報告問い合わせ。
+     </P
+></LI
+><LI
+><P
+>SQL互換の<A
+HREF="sql-createtrigger.html"
+>列単位のトリガ</A
+>と条件付きのトリガ実行など、新しいトリガ機能。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="sql-createtable.html#SQL-CREATETABLE-COMPATIBILITY"
+>遅延可能な一意性制約</A
+>。工夫することなく一意キーの大量更新ができるようになります。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION"
+>排他制約</A
+>。
+これらは、複雑な条件を強制させることができる、汎用的な一意性制約を提供します。
+     </P
+></LI
+><LI
+><P
+>新しく高度なセキュリティ機能。
+RADIUS認証、LDAP認証の改良、パスワード強度を検査する新しい<A
+HREF="passwordcheck.html"
+><TT
+CLASS="FILENAME"
+>passwordcheck</TT
+></A
+>オプションモジュールなどがあります。
+     </P
+></LI
+><LI
+><P
+>新しい高性能な<A
+HREF="sql-listen.html"
+><TT
+CLASS="COMMAND"
+>LISTEN</TT
+></A
+>/<A
+HREF="sql-notify.html"
+><TT
+CLASS="COMMAND"
+>NOTIFY</TT
+></A
+>機能の実装。
+待ち状態のイベントがテーブルではなく、メモリベースのキューに格納されるようになりました。
+また、以前のようにイベント名だけを送信するのではなく、<SPAN
+CLASS="QUOTE"
+>"ペイロード"</SPAN
+>文字列を各イベントといっしょに送信できるようになりました。
+     </P
+></LI
+><LI
+><P
+>新しい<A
+HREF="sql-vacuum.html"
+><TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+></A
+>の実装。
+このコマンドは、容量を抑えるために行を一行一行移動するのではなく、テーブルおよびインデックス全体を書き換えるようになりました。
+ほとんどの状況でかなり高速になり、また、インデックスが膨張することがなくなりました。
+     </P
+></LI
+><LI
+><P
+>8.3または8.4から9.0へのその場での更新をサポートする<A
+HREF="pgupgrade.html"
+><TT
+CLASS="FILENAME"
+>pg_upgrade</TT
+></A
+>を追加しました。
+     </P
+></LI
+><LI
+><P
+>不要な結合を除去するなど、特定の種類の問い合わせに対する複数の性能向上。
+オブジェクト/リレーションマッパ(ORM)で生成されるなどの自動生成される問い合わせの一部を最適化する際に役に立ちます。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="sql-explain.html"
+><TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+></A
+>の改良。
+この出力がJSON、XML、YAML形式で利用可能になりました。
+これまでは利用できなかったバッファ使用状況などその他のデータが含まれるようになりました。
+     </P
+></LI
+><LI
+><P
+>新しい関数やより多くのデータ能力など、<A
+HREF="hstore.html"
+><TT
+CLASS="FILENAME"
+>hstore</TT
+></A
+>の改良。
+     </P
+></LI
+></UL
+><P
+>上述の項目については、以下でより詳しく説明します。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN109765"
+>E.14.2. バージョン9.0への移行</A
+></H2
+><P
+>全ての以前のリリースからデータの移行を行うためには、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>を使用したダンプ/リストア、または、<SPAN
+CLASS="APPLICATION"
+>pg_upgrade</SPAN
+>の使用が必要です。
+  </P
+><P
+>バージョン9.0には、新機能のサポートおよびコード品質の向上のために、後方互換性を一部壊してしまう多くの変更が含まれます。
+具体的にはPL/pgSQL、ポイントインタイムリカバリ（PITR）およびウォームスタンバイを多く使用しているユーザは、これらにユーザに影響する変更が多くありますので、自身のアプリケーションを試験しなければなりません。
+以下の非互換性に注意してください。
+  </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN109771"
+>E.14.2.1. サーバの設定</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>add_missing_from</TT
+>サーバパラメータがなくなりました。
+これは長い間デフォルトで無効でした。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="VARNAME"
+>regex_flavor</TT
+>サーバパラメータがなくなりました。
+これは長い間デフォルトで<A
+HREF="functions-matching.html#POSIX-SYNTAX-DETAILS"
+><TT
+CLASS="LITERAL"
+>advanced</TT
+></A
+>でした。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><A
+HREF="runtime-config-wal.html#GUC-ARCHIVE-MODE"
+><TT
+CLASS="VARNAME"
+>archive_mode</TT
+></A
+>は<A
+HREF="runtime-config-wal.html#GUC-ARCHIVE-COMMAND"
+><TT
+CLASS="VARNAME"
+>archive_command</TT
+></A
+>のみに影響するようになりました。
+新しい<A
+HREF="runtime-config-wal.html#GUC-WAL-LEVEL"
+><TT
+CLASS="VARNAME"
+>wal_level</TT
+></A
+>設定は先行書き込みログの内容に影響を与えます。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="runtime-config-logging.html#GUC-LOG-TEMP-FILES"
+><TT
+CLASS="VARNAME"
+>log_temp_files</TT
+></A
+>がデフォルトのファイルサイズの単位としてキロバイトを使用するようになりました。(Robert Haas)
+     </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN109794"
+>E.14.2.2. 問い合わせ</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="ddl-inherit.html"
+>親テーブル</A
+>を問い合わせる場合、問い合わせの一部としてスキャンされる子テーブルに対する異なる権限検査がまったく行われません。(Peter Eisentraut)
+    </P
+><P
+>標準SQLではこの挙動を規定しています。
+また、実際の所、親と同様に子それぞれに権限を検査するという以前の振舞いよりも非常に便利です。
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN109801"
+>E.14.2.3. データ型</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="datatype-binary.html"
+><TT
+CLASS="TYPE"
+>bytea</TT
+></A
+>の出力はデフォルトで16進数書式になりました。(Peter Eisentraut)
+     </P
+><P
+>互換性が必要ならば<A
+HREF="runtime-config-client.html#GUC-BYTEA-OUTPUT"
+><TT
+CLASS="VARNAME"
+>bytea_output</TT
+></A
+>サーバパラメータを使用して伝統的な出力書式を選択することができます。
+     </P
+></LI
+><LI
+><P
+>配列入力において通常のASCII空白文字のみを無視可能なものとみなすようになりました。
+一部のロケールに従うと空白文字になるものであっても、ASCII文字以外を無視することはありません。
+     </P
+><P
+>これは、配列の値がサーバのロケール設定に依存して異なった解釈をされる場合の一部の境界問題を防止します。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP"
+><TT
+CLASS="LITERAL"
+>SIMILAR TO</TT
+></A
+>パターンとSQL形式の<CODE
+CLASS="FUNCTION"
+>substring()</CODE
+>パターンの標準互換性を高めました。(Tom Lane)
+    </P
+><P
+>これには、パターンのメタ文字としての<TT
+CLASS="LITERAL"
+>?</TT
+>および<TT
+CLASS="LITERAL"
+>{...}</TT
+>の扱いが含まれます。
+これらの文字は以前は単なるリテラル文字でしたが、SQL:2008で追加された新しい機能に対応しました。
+また<TT
+CLASS="LITERAL"
+>^</TT
+>および<TT
+CLASS="LITERAL"
+>$</TT
+>は単なるリテラル文字として扱われるようになりました。
+これまでは、パターンがSQL規則ではなくPOSIXに従うかのようにメタ文字として扱われていました。
+また、標準SQLの<CODE
+CLASS="FUNCTION"
+>substring()</CODE
+>では入れ子のための括弧が部分文字列の取得に影響を与えることがなくなりました。
+同時に大括弧式(文字クラス)の処理の標準に対する互換性が高まりました。
+    </P
+></LI
+><LI
+><P
+>標準SQLに従い、<A
+HREF="functions-string.html#FUNCTIONS-STRING-SQL"
+><CODE
+CLASS="FUNCTION"
+>substring()</CODE
+></A
+>の第3パラメータでは負の長さ値を拒絶します。(Tom Lane)
+    </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>date_trunc</CODE
+>を秒の端数に対する精度を減らす時に四捨五入するのではなく切り捨てるようにしました。(Tom Lane)
+    </P
+><P
+>整数を基にした日付時刻では常にこのようにこのコードは動作していました。
+浮動小数点を基にした日付時刻も同様に動作するようになりました。
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN109833"
+>E.14.2.4. オブジェクトの改名</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>子テーブルが複数の関連がない親から同じ列を継承する場合、<TT
+CLASS="COMMAND"
+>RENAME</TT
+>中の列名の一貫性をより厳しく強制します。(KaiGai Kohei)
+     </P
+></LI
+><LI
+><P
+>背後にあるテーブル列が改名された場合にインデックス名とインデックス列名は自動的に改名されなくなりました。(Tom Lane)
+     </P
+><P
+>管理者はまだこうしたインデックスや列を手作業で改名することができます。
+この変更は、改名後も一意性インデックスが正しく認識されるように、JDBCドライバとおそらく他のドライバの更新を要求します。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>で宣言された関数パラメータの名前を変更できなくなりました。(Pavel Stehule)
+     </P
+><P
+> 
+名前付きパラメータ呼び出しにおけるあいまい性を防ぐために、既存関数の宣言における入力変数に対する別名を変更できないようになりました。
+（しかし過去に名前を付けていないパラメータには名前を割り当てることができます。）
+これを行うためには関数を<TT
+CLASS="COMMAND"
+>DROP</TT
+>し再作成しなければなりません。
+     </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN109847"
+>E.14.2.5. PL/pgSQL</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>変数名が問い合わせで使用される列名と競合する場合にPL/pgSQLはエラーを発生するようになりました。(Tom Lane)
+     </P
+><P
+>これまでの動作は問い合わせの列名より優先してあいまいな名前をPL/pgSQL変数にバインドすることでした。
+これはよく驚くほどの誤動作をもたらしていました。
+エラーを発生させることにより、曖昧な状況を簡単に検知できるようになります。
+こうしたエラーを発生させる関数を修正し、競合を解消させることを推奨しますが、<A
+HREF="plpgsql-implementation.html#PLPGSQL-VAR-SUBST"
+><TT
+CLASS="VARNAME"
+>plpgsql.variable_conflict</TT
+></A
+>サーバ変数または関数毎の<TT
+CLASS="LITERAL"
+>#variable_conflict</TT
+>オプションにより従来の動作に戻すことができます。
+     </P
+></LI
+><LI
+><P
+>PL/pgSQLは特定のSQL予約語と一致する変数名を許さなくなりました。(Tom Lane)
+     </P
+><P
+>これはPL/pgSQLのパーサをよりコアのSQLパーサに近づけるように調整した結果です。
+必要ならば、変数名を二重引用符でくくることでこの制限を回避することができます。
+     </P
+></LI
+><LI
+><P
+>PL/pgSQLは、基本型と同様に想定する型修飾子と一致する複合型結果の列を必要とするようになりました。(Pavel Stehule, Tom Lane)
+     </P
+><P
+>例えば、結果の列の型が<TT
+CLASS="LITERAL"
+>NUMERIC(30,2)</TT
+>と宣言されていた場合、その列に多少異なる精度の<TT
+CLASS="LITERAL"
+>NUMERIC</TT
+>を返すことを受け付けなくなりました。
+これまでのバージョンでは修飾子の検査は省略され、その結果、実際には宣言された制限に従わない結果行が許されていました。
+     </P
+></LI
+><LI
+><P
+>PL/pgSQLが複合型のフィールドへの選択をより一貫性を持って扱うようになりました。(Tom Lane)
+     </P
+><P
+>これまでは、<TT
+CLASS="LITERAL"
+>SELECT ... INTO <TT
+CLASS="REPLACEABLE"
+><I
+>rec</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>fld</I
+></TT
+> FROM ...</TT
+>のような文は<TT
+CLASS="REPLACEABLE"
+><I
+>fld</I
+></TT
+>レコードフィールドが複合型であったとしてもスカラの代入として扱われました。
+これが、<TT
+CLASS="LITERAL"
+>INTO</TT
+>の対象が通常の複合型の変数であった場合と同様に、レコードの代入として扱われるようになりました。
+このため、このフィールドのサブフィールドに代入される値は、これまでのバージョンにおける<TT
+CLASS="LITERAL"
+>ROW(...)</TT
+>式ではなく、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>リストの別々の列として記述されなければなりません。
+     </P
+><P
+>9.0と過去のリリースの両方で動作する方法で行う必要があれば、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>rec</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>fld</I
+></TT
+> := ROW(...) FROM ...</TT
+>のように記述することができます。
+     </P
+></LI
+><LI
+><P
+>PL/pgSQLの<TT
+CLASS="LITERAL"
+>RENAME</TT
+>宣言を削除しました。(Tom Lane)
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>RENAME</TT
+>の代わりに<A
+HREF="plpgsql-declarations.html#PLPGSQL-DECLARATION-ALIAS"
+><TT
+CLASS="LITERAL"
+>ALIAS</TT
+></A
+>を使用してください。
+これは、以前のような（例えば<TT
+CLASS="LITERAL"
+>$1</TT
+>のような）ドル記号付きの変数だけではなく任意の変数に別名を作成することができるようになります。
+     </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN109886"
+>E.14.2.6. その他の非互換性</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>演算子名としての<TT
+CLASS="LITERAL"
+>=&gt;</TT
+>を使用を廃止する予定です。(Robert Haas)
+     </P
+><P
+>名前付きパラメータに関する標準SQL記法をサポートするために、将来のバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではおそらくこの演算子名を完全に拒絶します。
+現時点ではまだ許されますが、このような演算子が定義された場合に警告が現れます。
+     </P
+></LI
+><LI
+><P
+>64ビット整数データ型が動作しないプラットフォームのサポートを取りやめました。(Tom Lane)
+     </P
+><P
+>まだサポートされているプラットフォームはすべて64ビット整数データ型が動作するはずです。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN109897"
+>E.14.3. 変更点</A
+></H2
+><P
+>バージョン9.0には予期しないほど多くの主要機能が追加され、また、増強、改良、新しいコマンド、新しい関数、その他の変更が200以上あります。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN109900"
+>E.14.3.1. サーバ</A
+></H3
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN109902"
+>E.14.3.1.1. 継続的アーカイブ処理とストリーミングレプリケーション</A
+></H4
+><P
+>PostgreSQLに存在するスタンバイサーバ機能は、スタンバイサーバにおいて読み取り専用の問い合わせをサポートすること、および、マスタサーバとスタンバイサーバとの間の遅延を大きく削減することができるように拡張されました。
+多くのユーザにとって、これは有用かつ、高可用性、スケールアウト性を目的としたレプリケーションを構成する管理作業を低減します。
+    </P
+><P
+></P
+><UL
+><LI
+><P
+>スタンバイサーバで読み取り専用の問い合わせを受け付けることができます。(Simon Riggs, Heikki Linnakangas)
+      </P
+><P
+>この機能はホットスタンバイと呼ばれます。
+この機能を制御するための新しい設定が<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>と<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>にあります。
+さらに広大な<A
+HREF="hot-standby.html"
+>文書</A
+>も存在します。
+      </P
+></LI
+><LI
+><P
+>先行書き込みログ(<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>)データをスタンバイサーバに流し込むことができます。(Fujii Masao, Heikki Linnakangas)
+      </P
+><P
+>これはストリーミングレプリケーションと呼ばれます。
+これまで<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>データは<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>ファイル全体（通常それぞれ16メガバイト）を単位としてのみスタンバイサーバに送付することができました。
+ストリーミングレプリケーションはこの非効率性を減らし、マスタの変更をほとんど遅延なくスタンバイサーバに伝播できるようになります。
+この機能を制御するための新しい設定が<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>と<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>にあります。
+さらに広範囲の<A
+HREF="warm-standby.html#STREAMING-REPLICATION"
+>文書</A
+>も存在します。
+      </P
+></LI
+><LI
+><P
+>スタンバイサーバの<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>状況の監視に使用することができる、<A
+HREF="functions-admin.html#FUNCTIONS-RECOVERY-INFO-TABLE"
+><CODE
+CLASS="FUNCTION"
+>pg_last_xlog_receive_location()</CODE
+></A
+>および<CODE
+CLASS="FUNCTION"
+>pg_last_xlog_replay_location()</CODE
+>を追加しました。(Simon Riggs, Fujii Masao, Heikki Linnakangas)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN109927"
+>E.14.3.1.2. 性能</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="sql-altertablespace.html"
+><TT
+CLASS="COMMAND"
+>ALTER TABLESPACE ... SET/RESET</TT
+></A
+>を使用して、テーブル空間単位の値をシーケンシャルおよびランダムページコスト推定（<TT
+CLASS="VARNAME"
+>seq_page_cost</TT
+>/<TT
+CLASS="VARNAME"
+>random_page_cost</TT
+>）に設定できます。(Robert Haas)
+      </P
+></LI
+><LI
+><P
+>結合問い合わせにおけるEvalPlanQual再検査の性能と信頼性を改善しました。(Tom Lane)
+      </P
+><P
+>最近更新された行に対する、結合を含む<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>および<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE/SHARE</TT
+>問い合わせが非常によく動作するようになりました。
+      </P
+></LI
+><LI
+><P
+>同じトランザクションにおいてテーブル生成またはテーブルデータの消去が以前に行われていた場合の、<A
+HREF="sql-truncate.html"
+><TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+></A
+>の性能を改良しました。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+>継承された子テーブルの検索性能を改良しました。(Tom Lane)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN109948"
+>E.14.3.1.3. オプティマイザ</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>不要な<A
+HREF="queries-table-expressions.html#QUERIES-JOIN"
+>外部結合</A
+>を除きました。(Robert Haas)
+      </P
+><P
+>内側が一意かつ結合の上位で参照されない場合の外部結合は不要ですので、削除されるようになりました。
+これは、オブジェクト/リレーションマッパ（ORM）で作成される問い合わせなど、多くの自動生成される問い合わせを高速化します。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>IS NOT NULL</TT
+>制限でインデックスを使用できます。(Tom Lane)
+      </P
+><P
+>これは特に、インデックス内に多くのNULL値を含む場合の<CODE
+CLASS="FUNCTION"
+>MAX()</CODE
+>/<CODE
+CLASS="FUNCTION"
+>MIN()</CODE
+>値の検索に有用です。
+      </P
+></LI
+><LI
+><P
+>いつマテリアライズされたノードを使用するか、および、<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>についてソート処理を使用するかハッシュ処理を使用するか、に関するオプティマイザの選択を改良しました。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>boolean</TT
+> <TT
+CLASS="LITERAL"
+>&lt;&gt;</TT
+>演算子を含む式におけるオプティマイザの等価検知を改良しました。(Tom Lane)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN109968"
+>E.14.3.1.4. <A
+HREF="geqo.html"
+>GEQO</A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>GEQOが問い合わせ計画を作成する時毎回、同じランダムシードを使用します。(Andres Freund)
+      </P
+><P
+>遺伝的問い合わせオプティマイザ(GEQO)は無作為な計画を選択し続けますが、同一の問い合わせに対して同じ無作為な計画を選択するようになりました。
+これによりより一貫した性能が得られます。
+他の計画を試すために<A
+HREF="runtime-config-query.html#GUC-GEQO-SEED"
+><TT
+CLASS="VARNAME"
+>geqo_seed</TT
+></A
+>を変更することができます。
+      </P
+></LI
+><LI
+><P
+>GEQOの計画選択を改良しました。(Tom Lane)
+      </P
+><P
+>まれに発生する<SPAN
+CLASS="QUOTE"
+>"failed to make a valid plan"</SPAN
+>エラーを防止します。
+また計画作成速度も改良されたはずです。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN109981"
+>E.14.3.1.5. オプティマイザの統計情報</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>継承ツリー統計情報をサポートする<A
+HREF="sql-analyze.html"
+><TT
+CLASS="COMMAND"
+>ANALYZE</TT
+></A
+>を改良しました。(Tom Lane)
+      </P
+><P
+>具体的にはこれはパーティション分けされたテーブルで有用です。
+しかし子テーブルが変更された時に、自動バキュームはまだ自動的に親テーブルを再解析しません。
+      </P
+></LI
+><LI
+><P
+>再解析が必要か否かに関する<A
+HREF="routine-vacuuming.html"
+>autovacuum</A
+>の判定を改良しました。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+>より大きい/より小さいの比較についてオプティマイザの推定を改良しました。(Tom Lane)
+      </P
+><P
+>より大きい/より小さいの比較についての統計情報を検索する時、比較用の値がヒストグラムバケットの先頭または末尾にあれば、現在の列の最小と最大を得るために（利用可能であれば）インデックスを使用します。
+これは
+データ範囲の終端に近い比較値に対する推定精度を、特に新しいデータの追加によりデータ範囲が定常的に変更する場合に、大きく改善します。
+      </P
+></LI
+><LI
+><P
+><A
+HREF="sql-altertable.html"
+><TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+></A
+>を使用することで、個別値の個数に関する統計情報の設定が可能です。(Robert Haas)
+      </P
+><P
+>これにより、列の個別値の数もしくは割合をユーザが上書きすることができます。
+この統計情報は通常<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>で計算されますが、特に非常に多くの行があるテーブルでは推定値が悪化することがあり得ます。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110001"
+>E.14.3.1.6. 認証</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="auth-methods.html#AUTH-RADIUS"
+><ACRONYM
+CLASS="ACRONYM"
+>RADIUS</ACRONYM
+></A
+> (リモート認証ダイヤルインユーザサービス)認証サポートを追加しました。(Magnus Hagander)
+      </P
+></LI
+><LI
+><P
+><A
+HREF="auth-methods.html#AUTH-LDAP"
+><ACRONYM
+CLASS="ACRONYM"
+>LDAP</ACRONYM
+></A
+>(軽量ディレクトリアクセスプロトコル)認証において<SPAN
+CLASS="QUOTE"
+>"search/bind"</SPAN
+>モードで操作できます。(Robert Fleming, Magnus Hagander)
+      </P
+><P
+>これにより、まずユーザを検索し、その後にそのユーザ用に返される<ACRONYM
+CLASS="ACRONYM"
+>DN</ACRONYM
+>(識別名)をシステムが使用することができるようになります。
+      </P
+></LI
+><LI
+><P
+><A
+HREF="auth-pg-hba-conf.html"
+><TT
+CLASS="LITERAL"
+>samehost</TT
+></A
+>および<TT
+CLASS="LITERAL"
+>samenet</TT
+>指定を<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>に追加しました。(Stef Walter)
+      </P
+><P
+>これらはそれぞれサーバの<ACRONYM
+CLASS="ACRONYM"
+>IP</ACRONYM
+>およびサブネットアドレスに一致します。
+      </P
+></LI
+><LI
+><P
+>クライアントが適切なクライアント証明書を返すことができるように、クライアントに信頼できるSSLルート証明書の名前を渡します。(Craig Ringer)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110025"
+>E.14.3.1.7. 監視</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>クライアントが<TT
+CLASS="STRUCTNAME"
+>pg_stat_activity</TT
+>で表示される、<A
+HREF="libpq-connect.html#LIBPQ-CONNECT-APPLICATION-NAME"
+>アプリケーション名</A
+>を設定できる機能を追加しました。(Dave Page)
+      </P
+><P
+>これにより管理者は元となるアプリケーションによってデータベースの流量を特徴付けし、また、問題への対応を行うことができます。
+      </P
+></LI
+><LI
+><P
+><A
+HREF="runtime-config-logging.html#GUC-LOG-LINE-PREFIX"
+><TT
+CLASS="VARNAME"
+>log_line_prefix</TT
+></A
+>にSQLSTATEオプション(<TT
+CLASS="LITERAL"
+>%e</TT
+>)を追加しました。(Guillaume Smet)
+      </P
+><P
+>これによりユーザはエラーコード番号によりエラーとメッセージに関する統計情報を収集することができます。
+      </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>UTF16</ACRONYM
+>符号化方式でWindowsのイベントログに書き出します。(Itagaki Takahiro)
+      </P
+><P
+>これでWindowsのPostgreSQLのログメッセージに対する多言語サポートが実現しました。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110043"
+>E.14.3.1.8. 統計情報カウンタ</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>クラスタ全体で共有するバックグラウンドライタの統計情報をリセットするための<A
+HREF="monitoring-stats.html#MONITORING-STATS-FUNCS-TABLE"
+><CODE
+CLASS="FUNCTION"
+>pg_stat_reset_shared('bgwriter')</CODE
+></A
+>を追加しました。(Greg Smith)
+      </P
+></LI
+><LI
+><P
+>個々のテーブルおよび関数用の統計情報カウンタのリセットを可能とする<A
+HREF="monitoring-stats.html#MONITORING-STATS-FUNCS-TABLE"
+><CODE
+CLASS="FUNCTION"
+>pg_stat_reset_single_table_counters()</CODE
+></A
+>および<CODE
+CLASS="FUNCTION"
+>pg_stat_reset_single_function_counters()</CODE
+>を追加しました。(Magnus Hagander)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110055"
+>E.14.3.1.9. サーバ設定</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="sql-alterrole.html"
+>データベースまたはロールの組み合わせ</A
+>に基づく設定パラメータを設定することができます。(Alvaro Herrera)
+      </P
+><P
+>これまではデータベース単位およびロール単位の設定のみが可能で、組み合わせることができませんでした。
+すべてのロールおよびデータベースの設定が新しい<TT
+CLASS="STRUCTNAME"
+>pg_db_role_setting</TT
+>システムカタログに格納されるようになりました。
+新しい<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="LITERAL"
+>\drds</TT
+>コマンドはこれらの設定を表示します。
+古い<TT
+CLASS="STRUCTNAME"
+>pg_roles</TT
+>、<TT
+CLASS="STRUCTNAME"
+>pg_shadow</TT
+>および<TT
+CLASS="STRUCTNAME"
+>pg_user</TT
+>システムビューでは組み合わせた情報を表示しません。
+このためこれらはユーザまたはデータベース用の設定を完全に表さなくなりました。
+      </P
+></LI
+><LI
+><P
+><A
+HREF="runtime-config-connection.html#GUC-BONJOUR"
+><TT
+CLASS="VARNAME"
+>bonjour</TT
+></A
+>サーバパラメータを追加しました。
+これはBonjourが有効なサーバが自身を<SPAN
+CLASS="PRODUCTNAME"
+>Bonjour</SPAN
+>経由で広告するかどうかを制御します。(Tom Lane)
+      </P
+><P
+>デフォルトは無効で、広告を行わないことを意味します。
+これによりパッケージ作成者は個々のユーザがこの機能を欲しないかどうか気にすることなく、Bonjourを有効として構築したものを配布することができます。
+      </P
+></LI
+><LI
+><P
+>オプティマイザ内でノードマテリアライゼーションの使用を制御する、<A
+HREF="runtime-config-query.html#GUC-ENABLE-MATERIAL"
+><TT
+CLASS="VARNAME"
+>enable_material</TT
+></A
+>サーバパラメータを追加しました。(Robert Haas)
+      </P
+><P
+>デフォルトは有効です。
+無効の場合、オプティマイザは純粋に性能上の理由のためにマテリアライズされたノードを追加しません。
+ですが正確性のために必要な場合は使用されます。
+      </P
+></LI
+><LI
+><P
+>デフォルトのファイルサイズの単位としてキロバイトを使用するように<A
+HREF="runtime-config-logging.html#GUC-LOG-TEMP-FILES"
+><TT
+CLASS="VARNAME"
+>log_temp_files</TT
+></A
+>サーバパラメータを変更しました。(Robert Haas)
+      </P
+><P
+>これまでは単位指定がない場合、この設定はバイト単位として解釈されました。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>が再読み込みされた場合、パラメータ値の変更記録が残ります。(Peter Eisentraut)
+      </P
+><P
+>これにより管理者およびセキュリティ担当者はデータベースが変更された時点を監査することができるようになります。
+また<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>の変更が反映されたかどうか検査することもでき、非常に便利です。
+      </P
+></LI
+><LI
+><P
+>独自のサーバパラメータに対して、適切にスーパーユーザ権限を強制します。(Tom Lane)
+      </P
+><P
+>スーパーユーザ以外のユーザが、その時にサーバが認識していないパラメータに対する<TT
+CLASS="COMMAND"
+>ALTER ROLE</TT
+>/<TT
+CLASS="COMMAND"
+>DATABASE SET</TT
+>を発行することができなくなりました。
+これによりサーバは、スーパーユーザのみのパラメータがスーパーユーザのみにより設定されることを正しく検査することができます。
+これまではセッション開始時に<TT
+CLASS="LITERAL"
+>SET</TT
+>は受け付けられますが、無視されていました。
+このためスーパーユーザのみの独自パラメータが本来の有用性を持っていませんでした。
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110095"
+>E.14.3.2. 問い合わせ</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>返される行数を常に予測できるように、<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>の適用後に<A
+HREF="sql-select.html#SQL-FOR-UPDATE-SHARE"
+><TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>/<TT
+CLASS="LITERAL"
+>SHARE</TT
+></A
+>処理を行います。(Tom Lane)
+     </P
+><P
+>これまでは、同時実行のトランザクションによりなされた変更により、<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>がその<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>で指定した行より少ない行が返ってしまうことが発生しました。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を付けた<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>は今でも予想外の結果を生成することがあり得ますが、これは副問い合わせで<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>を使用することで正しくすることができます。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="sql-select.html#SQL-LIMIT"
+><TT
+CLASS="LITERAL"
+>LIMIT</TT
+>/<TT
+CLASS="LITERAL"
+>OFFSET</TT
+></A
+>構文に関して、伝統的な方法と標準SQLの方法を混在できるようにしました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+><A
+HREF="sql-select.html#SQL-WINDOW"
+>ウィンドウ関数</A
+>でサポートされるフレームオプションを拡張しました。(Hitoshi Harada)
+     </P
+><P
+>フレームは<TT
+CLASS="LITERAL"
+>CURRENT ROW</TT
+>から始められるようになり、また、<TT
+CLASS="LITERAL"
+>ROWS n PRECEDING</TT
+>/<TT
+CLASS="LITERAL"
+>FOLLOWING</TT
+>オプションがサポートされるようになりました。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>および<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>はそのコマンドタグ内でクライアントに行数を返します。(Boszormenyi Zoltan)
+     </P
+><P
+>これにより、追加の<TT
+CLASS="COMMAND"
+>COUNT</TT
+>問い合わせを行うことなく結果数やページ数を計算することができますので、クライアントとの往復作業を完全になくすことができます。
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110128"
+>E.14.3.2.1. Unicode文字列</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>Unicodeサロゲートペア(二重の16ビット表現)を<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-UESCAPE"
+><TT
+CLASS="LITERAL"
+>U&amp;</TT
+></A
+>文字列および識別子でサポートします。(Peter Eisentraut)
+      </P
+></LI
+><LI
+><P
+><A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE"
+><TT
+CLASS="LITERAL"
+>E'...'</TT
+></A
+>文字列内のUnicodeエスケープをサポートします。(Marko Kreen)
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110139"
+>E.14.3.3. オブジェクトの操作</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>ディスクへの吐き出しを遅延させることにより<A
+HREF="sql-createdatabase.html"
+><TT
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+></A
+>を高速化しました。(Andres Freund, Greg Stark)
+     </P
+></LI
+><LI
+><P
+>テーブル、ビュー、複合型の列に対してのみに<A
+HREF="sql-comment.html"
+>コメント</A
+>を許します。
+インデックスや<ACRONYM
+CLASS="ACRONYM"
+>TOAST</ACRONYM
+>テーブルのような他の種類のリレーションでは許されません。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>値を持たない<A
+HREF="sql-createtype.html#SQL-CREATETYPE-ENUM"
+>列挙型</A
+>の作成が可能です。(Bruce Momjian)
+     </P
+></LI
+><LI
+><P
+>行をページに合わせることができない場合を除き、<TT
+CLASS="LITERAL"
+>MAIN</TT
+>格納型を持つ列の値を主ヒープページに保持させます。(Kevin Grittner)
+     </P
+><P
+>これまでは、<TT
+CLASS="LITERAL"
+>MAIN</TT
+>値は行の容量がページ容量の1/4になるまで、強制的に<ACRONYM
+CLASS="ACRONYM"
+>TOAST</ACRONYM
+>テーブルとなりました。
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110159"
+>E.14.3.3.1. <TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>DROP COLUMN</TT
+>および<TT
+CLASS="LITERAL"
+>DROP CONSTRAINT </TT
+>に<TT
+CLASS="LITERAL"
+>IF EXISTS</TT
+>を実装しました。(Andres Freund)
+      </P
+></LI
+><LI
+><P
+>テーブルを書き換える<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>コマンドで<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>ロギングを飛ばすことができます。(Itagaki Takahiro)
+      </P
+><P
+>こうした操作は新しいテーブルのコピーが作成されるかロールバックされるかのいずれかです。
+このため継続的アーカイブモードで実行している場合を除き、<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>アーカイブ処理を飛ばすことができます。
+これによりI/Oオーバーヘッドが減少し、性能が向上します。
+      </P
+></LI
+><LI
+><P
+>テーブル所有者以外により実行された時の<TT
+CLASS="LITERAL"
+>ALTER TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> ADD COLUMN <TT
+CLASS="REPLACEABLE"
+><I
+>col</I
+></TT
+> serial</TT
+>の失敗を修正しました。(Tom Lane)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110179"
+>E.14.3.3.2. <A
+HREF="sql-createtable.html"
+><TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE ... LIKE</TT
+>コマンドにおいて、<TT
+CLASS="LITERAL"
+>COMMENTS</TT
+>および<TT
+CLASS="LITERAL"
+>STORAGE</TT
+>設定の複製サポートを追加しました。(Itagaki Takahiro)
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE ... LIKE</TT
+>コマンドに全属性コピーの省略形を追加しました。(Itagaki Takahiro)
+      </P
+></LI
+><LI
+><P
+>標準SQLの<TT
+CLASS="LITERAL"
+>CREATE TABLE ... OF type</TT
+>コマンドを追加しました。(Peter Eisentraut)
+      </P
+><P
+>これにより、既存の複合型に一致するテーブルを作成することができます。
+コマンド内で制約やデフォルトを追加で指定することができます。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110196"
+>E.14.3.3.3. 制約</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="sql-createtable.html#SQL-CREATETABLE-COMPATIBILITY"
+>遅延可能な一意性制約</A
+>を追加しました。(Dean Rasheed)
+      </P
+><P
+>これにより、列が一意性インデックスを持つ場合でもプライマリキーと印付けされている場合でも<TT
+CLASS="LITERAL"
+>UPDATE tab SET col = col + 1</TT
+>などの大量更新が確実に動作できるようになります。
+制約が<TT
+CLASS="LITERAL"
+>DEFERRABLE</TT
+>であると指定されている場合、各行が更新された後ではなく、文の最後で検査されるようになります。
+また制約検査を現在のトランザクションの最後まで遅延させ、複数のSQLコマンドをまたがって更新を行うこともできます。
+      </P
+></LI
+><LI
+><P
+><A
+HREF="ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION"
+>排他制約</A
+>を追加しました。(Jeff Davis)
+      </P
+><P
+>排他制約は等価だけではなく任意の比較演算を許すことにより、一意性制約を汎用化します。
+これは<A
+HREF="sql-createtable.html#SQL-CREATETABLE-EXCLUDE"
+><TT
+CLASS="COMMAND"
+>CREATE TABLE CONSTRAINT ... EXCLUDE</TT
+></A
+>句により作成されます。
+排他制約のもっともよくある使用方法は、単に一致しないではなく、重複を許さない列項目を指定することです。
+時間間隔やその他配列などの範囲に対して有用です。
+この機能は、多くの予定帳、時間管理、科学アプリケーションにおけるデータ整合性検査を改良します。
+      </P
+></LI
+><LI
+><P
+>失敗の原因となる値を報告する、一意性制約違反エラーメッセージを改良しました。(Itagaki Takahiro)
+      </P
+><P
+>例えば、一意性制約違反では<TT
+CLASS="LITERAL"
+>Key (x)=(2) already exists</TT
+>(キー(x)=(2)はすでに存在します)のように報告されます。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110215"
+>E.14.3.3.4. オブジェクトの権限</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>新しい<A
+HREF="sql-grant.html"
+><TT
+CLASS="COMMAND"
+>GRANT</TT
+>/<TT
+CLASS="COMMAND"
+>REVOKE IN SCHEMA</TT
+></A
+>句を使用してスキーマ全体にまたがった大量な権限変更を行う機能を追加しました。(Petr Jelinek)
+      </P
+><P
+>オブジェクト権限管理を簡略化すると共に、アプリケーションのデータセキュリティのためにデータベースロールを使用することをより簡単にします。
+      </P
+></LI
+><LI
+><P
+>今後作成されるオブジェクトの権限を制御するための<A
+HREF="sql-alterdefaultprivileges.html"
+><TT
+CLASS="COMMAND"
+>ALTER DEFAULT PRIVILEGES</TT
+></A
+>を追加しました。(Petr Jelinek)
+      </P
+><P
+>これは複雑なデータベースアプリケーションにおけるオブジェクト権限の割り当てを大きく簡略化します。
+テーブル、ビュー、シーケンス、関数に対してデフォルトの権限を設定することができます。
+デフォルトはスキーマ単位またはデータベース全体に対して割り当てることができます。
+
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>GRANT</TT
+>/<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>によりラージオブジェクト（BLOB）の権限を制御する機能を追加しました。(KaiGai Kohei)
+      </P
+><P
+>これまでは、すべてのデータベースユーザは任意のラージオブジェクトを読み取り、変更することができました。
+読み取り権限、書き込み権限をラージオブジェクト毎に付与したり取り上げたりできるようになりました。
+また、ラージオブジェクトの所有権も追跡されます。
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110234"
+>E.14.3.4. ユーティリティ操作</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="sql-listen.html"
+><TT
+CLASS="COMMAND"
+>LISTEN</TT
+></A
+>/<A
+HREF="sql-notify.html"
+><TT
+CLASS="COMMAND"
+>NOTIFY</TT
+></A
+>をシステムテーブルではなく、メモリキュー内に待ちイベントを格納するようにしました。(Joachim Wieland)
+     </P
+><P
+>既存のトランザクションのサポートと配送保証機能を保ちつつ、これは性能を大きく改良しました。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="sql-notify.html"
+><TT
+CLASS="COMMAND"
+>NOTIFY</TT
+></A
+>はリスナに省略可能な<SPAN
+CLASS="QUOTE"
+>"ペイロード"</SPAN
+>文字列を渡すことができます。(Joachim Wieland)
+     </P
+><P
+>これにより汎用目的のイベントキューシステムとしての<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>/<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>の有用性を大きく改良します。
+     </P
+></LI
+><LI
+><P
+>すべてのデータベース単位のシステムカタログに<A
+HREF="sql-cluster.html"
+><TT
+CLASS="COMMAND"
+>CLUSTER</TT
+></A
+>を行うことができます。(Tom Lane)
+     </P
+><P
+>共有カタログはまだクラスタ化できません。
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110257"
+>E.14.3.4.1. <A
+HREF="sql-copy.html"
+><TT
+CLASS="COMMAND"
+>COPY</TT
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>COPY ... CSV FORCE QUOTE *</TT
+>を受け付けます。(Itagaki Takahiro)
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>FORCE QUOTE</TT
+>句において<TT
+CLASS="LITERAL"
+>*</TT
+>が<SPAN
+CLASS="QUOTE"
+>"すべての列"</SPAN
+>を表す省略形として使用できるようになりました。
+      </P
+></LI
+><LI
+><P
+>オプションを括弧内で指定する新しい<TT
+CLASS="COMMAND"
+>COPY</TT
+>構文を追加しました。(Robert Haas, Emmanuel Cecchet)
+      </P
+><P
+>これにより今後の<TT
+CLASS="COMMAND"
+>COPY</TT
+>オプションの柔軟性が改良されます。
+過去に存在したオプションのためだけに、古い構文もまだサポートされます。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110274"
+>E.14.3.4.2. <A
+HREF="sql-explain.html"
+><TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>が<ACRONYM
+CLASS="ACRONYM"
+>XML</ACRONYM
+>、<ACRONYM
+CLASS="ACRONYM"
+>JSON</ACRONYM
+>、<ACRONYM
+CLASS="ACRONYM"
+>YAML</ACRONYM
+>形式で出力することができます。(Robert Haas, Greg Sabino Mullane)
+      </P
+><P
+>新しい出力形式はマシンによる可読性が簡単になり、<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>出力の解析用の新しいツールの開発を補助します。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>EXPLAIN ANALYZE</TT
+>時に問い合わせバッファの活動を報告する、新しい<TT
+CLASS="LITERAL"
+>BUFFERS</TT
+>オプションを追加しました。(Itagaki Takahiro)
+      </P
+><P
+>これにより個々の問い合わせに対してより良い問い合わせプロファイリングを行うことができます。
+<A
+HREF="runtime-config-statistics.html#RUNTIME-CONFIG-STATISTICS-MONITOR"
+>log_statement_stats</A
+>と関連する設定の出力では、バッファ使用量は報告されなくなりました。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>の出力にハッシュ使用状況に関する情報を追加しました。(Robert Haas)
+      </P
+></LI
+><LI
+><P
+>括弧内でオプションの指定を行うことができる、新しい<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>構文を追加しました。(Robert Haas)
+      </P
+><P
+>これにより将来の<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>オプションに対する柔軟性が大きく高まりました。
+過去に存在したオプションのためだけに、古い構文もまだサポートされます。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110301"
+>E.14.3.4.3. <A
+HREF="sql-vacuum.html"
+><TT
+CLASS="COMMAND"
+>VACUUM</TT
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>容量を抑えるために行を一行一行移動するのではなく、テーブル全体を書き換え、インデックスを再構築するように<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>を変更しました。(Itagaki Takahiro, Tom Lane)
+      </P
+><P
+>これまでの方式では通常低速であり、インデックスの膨張を引き起こしました。
+新しい方式では<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>実行時に一時的により多くのディスク領域を使用することに注意してください。
+通常テーブルとインデックスにより占められる領域の２倍程度使用する可能性があります。
+      </P
+></LI
+><LI
+><P
+>オプションを括弧内に指定することができる、新しい<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>構文を追加しました。(Itagaki Takahiro)
+      </P
+><P
+>これにより将来の<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>オプションに対する柔軟性が大きく高まりました。
+過去に存在したオプションのためだけに、古い構文もまだサポートされます。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110316"
+>E.14.3.4.4. インデックス</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="sql-createindex.html"
+><TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+></A
+>においてインデックス名を省略した場合、インデックス名が自動的に付与できるようにしました。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+>デフォルトで、複数列に対するインデックスが対象列すべてにちなんだ名前が付けられるようになり、また、式インデックス列はその式にちなんだ名前が付けられるようになりました。
+      </P
+></LI
+><LI
+><P
+>共有システムカタログのインデックス再作成が完全にトランザクションを守るようになり、かつ、クラッシュに対して安全になりました。(Tom Lane)
+      </P
+><P
+>これまでは共有インデックスに対するインデックス再作成はスタンドアローンモードでのみ許されていました。
+またこの操作中のクラッシュによりインデックスは操作前よりも悪化した状態になり得ました。
+      </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GiST</ACRONYM
+>に<TT
+CLASS="LITERAL"
+>point_ops</TT
+>演算子クラスを追加しました。(Teodor Sigaev)
+      </P
+><P
+>この機能により<TT
+CLASS="TYPE"
+>point</TT
+>列に対する<ACRONYM
+CLASS="ACRONYM"
+>GiST</ACRONYM
+>インデックス付けが可能です。
+このインデックスは<TT
+CLASS="REPLACEABLE"
+><I
+>point</I
+></TT
+> <TT
+CLASS="LITERAL"
+>&lt;@</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>polygon</I
+></TT
+>（多角形内の点）などのいろいろな種類の問い合わせに使用することができます。
+これにより多くの<SPAN
+CLASS="PRODUCTNAME"
+>PostGIS</SPAN
+>問い合わせが高速になるはずです。
+      </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GIN</ACRONYM
+>インデックス生成において赤黒バイナリツリーを使用します。 (Teodor Sigaev)
+      </P
+><P
+>赤黒ツリーは自身でバランスを保ちます。
+これは入力順序がランダムではない場合に起こる低速化を防ぎます。
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110343"
+>E.14.3.5. データ型</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="datatype-binary.html"
+><TT
+CLASS="TYPE"
+>bytea</TT
+></A
+>値を16進数記法で記述できます。(Peter Eisentraut)
+     </P
+><P
+><A
+HREF="runtime-config-client.html#GUC-BYTEA-OUTPUT"
+><TT
+CLASS="VARNAME"
+>bytea_output</TT
+></A
+>サーバパラメータは<TT
+CLASS="TYPE"
+>bytea</TT
+>出力において16進数か伝統的な書式のどちらを使用するかを制御します。
+libpqの<CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn()</CODE
+>関数は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.0以降のサーバに接続する場合、自動的に16進数書式を使用します。
+しかし9.0より前のバージョンのlibpqは新しいサーバからの16進数書式を正しく処理しません。
+     </P
+><P
+>新しい16進数書式は、バイナリデータを使用するより多くのアプリケーションと直接的な互換性を持つことになり、余計な変換を行うことなく格納、抽出を行うことができるようになります。
+また伝統的な書式よりもかなり高速に読み書きすることができます。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="runtime-config-client.html#GUC-EXTRA-FLOAT-DIGITS"
+>extra_float_digits</A
+>サーバパラメータを<TT
+CLASS="LITERAL"
+>3</TT
+>に増やすことができます。(Tom Lane)
+     </P
+><P
+>これまでの最大の<TT
+CLASS="VARNAME"
+>extra_float_digits</TT
+>は<TT
+CLASS="LITERAL"
+>2</TT
+>でした。
+<TT
+CLASS="TYPE"
+>float4</TT
+>値を正確にダンプ/リストアするために3桁が必要な場合があります。
+<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は、3桁を許すサーバからのダンプを行う時に3という設定を使用するようになります。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>int2vector</TT
+>入力に対する入力検査を厳しくしました。(Caleb Welton)
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110369"
+>E.14.3.5.1. <A
+HREF="textsearch.html"
+>全文検索</A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>synonym</TT
+>辞書において接頭辞サポートを追加しました。(Teodor Sigaev)
+      </P
+></LI
+><LI
+><P
+><I
+CLASS="FIRSTTERM"
+>フィルタ処理</I
+>辞書を追加しました。(Teodor Sigaev)
+      </P
+><P
+>フィルタ処理用辞書により、トークンを変更した後に後続の辞書に渡すことができます。
+      </P
+></LI
+><LI
+><P
+>メールアドレストークンにおいてアンダースコアを認めます。(Teodor Sigaev)
+      </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>URL</ACRONYM
+>トークンの解析処理においてより標準互換の規則を使用します。(Tom Lane)
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110385"
+>E.14.3.6. 関数</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>関数呼び出しにおいて、パラメータ名を提供し、それらを関数定義における名前付きパラメータに一致させることができます。(Pavel Stehule)
+     </P
+><P
+>例えば、関数が<TT
+CLASS="LITERAL"
+>a</TT
+>および<TT
+CLASS="LITERAL"
+>b</TT
+>というパラメータを取るものと定義されている場合、その関数を<TT
+CLASS="LITERAL"
+>func(a := 7, b := 12)</TT
+>や<TT
+CLASS="LITERAL"
+>func(b := 12, a := 7)</TT
+>のように呼び出すことができます。
+     </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>UTF-8</ACRONYM
+>サーバ符号化方式で処理する、ロケール固有<A
+HREF="functions-matching.html#FUNCTIONS-POSIX-REGEXP"
+>正規表現</A
+>をサポートしました。(Tom Lane)
+     </P
+><P
+>ロケール固有の正規表現機能には、大文字小文字を区別しない一致およびロケール固有の文字クラスが含まれます。
+これまでは、これらの機能は（LATIN1など）シングルバイトサーバ符号化方式を使用している場合、<ACRONYM
+CLASS="ACRONYM"
+>ASCII</ACRONYM
+>以外の文字でのみ正しく動作していました。
+これらはまだ他の<ACRONYM
+CLASS="ACRONYM"
+>UTF-8</ACRONYM
+>以外のマルチバイト符号化方式では適切ではありません。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="functions-formatting.html"
+><CODE
+CLASS="FUNCTION"
+>to_char()</CODE
+></A
+>において科学技術表記法をサポートしました。
+（(<A
+HREF="functions-formatting.html#FUNCTIONS-FORMATTING-NUMERIC-TABLE"
+><TT
+CLASS="LITERAL"
+>'EEEE'</TT
+>規定</A
+>）(Pavel Stehule, Brendan Jurd)
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>to_char()</CODE
+>が<TT
+CLASS="LITERAL"
+>Y</TT
+>、<TT
+CLASS="LITERAL"
+>YY</TT
+>および<TT
+CLASS="LITERAL"
+>YYY</TT
+>指定において<A
+HREF="functions-formatting.html#FUNCTIONS-FORMATTING-DATETIMEMOD-TABLE"
+><TT
+CLASS="LITERAL"
+>FM</TT
+></A
+>(字詰めモード)を尊重するようにしました。(Bruce Momjian, Tom Lane)
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>YYYY</TT
+>ではすでに尊重されていました。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>において翻訳された数値および貨幣文字を正しい符号化方式で出力するように<CODE
+CLASS="FUNCTION"
+>to_char()</CODE
+>を修正しました。(Hiroshi Inoue, Itagaki Takahir, Bruce Momjian)
+     </P
+></LI
+><LI
+><P
+>多角形をまたがる<A
+HREF="functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE"
+><SPAN
+CLASS="QUOTE"
+>"重複"</SPAN
+></A
+>および<SPAN
+CLASS="QUOTE"
+>"含有"</SPAN
+>演算の計算を正しくしました。(Teodor Sigaev)
+     </P
+><P
+>多角形の<TT
+CLASS="LITERAL"
+>&amp;&amp;</TT
+>（重複）演算子はこれまで、２つの多角形を囲む矩形が重複するかどうかのみを検査していました。
+これがより正しく検査するようになりました。
+多角形の<TT
+CLASS="LITERAL"
+>@&gt;</TT
+>および<TT
+CLASS="LITERAL"
+>&lt;@</TT
+>（含有する/含有される）演算子はこれまで、多角形の頂点がすべてもう片方に含まれているかどうかを検査していました。
+これは一部の非凸多角形で間違って<SPAN
+CLASS="QUOTE"
+>"真"</SPAN
+>を返す可能性がありました。
+多角形のすべての線分がもう片方に含まれているかどうかを検査するようになりました。
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110432"
+>E.14.3.6.1. 集約</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>集約関数で<A
+HREF="sql-expressions.html#SYNTAX-AGGREGATES"
+><TT
+CLASS="LITERAL"
+>ORDER BY</TT
+></A
+>を使用することができます。(Andrew Gierth)
+      </P
+><P
+>例えば<TT
+CLASS="LITERAL"
+>array_agg(a ORDER BY b)</TT
+>がサポートされるようになりました。
+これは入力値の順序が重要な集約で有用であり、順序を決定するための非標準的な副問い合わせを使用する必要がなくなります。
+      </P
+></LI
+><LI
+><P
+>複数引数を持つ集約関数が<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>を使用できるようになりました。(Andrew Gierth)
+      </P
+></LI
+><LI
+><P
+>値を単一の文字列にまとめる<A
+HREF="functions-aggregate.html#FUNCTIONS-AGGREGATE-TABLE"
+><CODE
+CLASS="FUNCTION"
+>string_agg()</CODE
+></A
+>集約関数を追加しました。(Pavel Stehule)
+      </P
+></LI
+><LI
+><P
+>集約遷移関数が<TT
+CLASS="LITERAL"
+>STRICT</TT
+>と印付けされていない場合、<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>付きで呼び出される集約関数がNULL値を渡すようになりました。(Andrew Gierth)
+      </P
+><P
+>例えば<TT
+CLASS="LITERAL"
+>agg(DISTINCT x)</TT
+>はNULLという<TT
+CLASS="LITERAL"
+>x</TT
+>値を<CODE
+CLASS="FUNCTION"
+>agg()</CODE
+>に渡す可能性があります。
+これは<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>指定がない場合の動作との一貫性を高めます。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110457"
+>E.14.3.6.2. ビット列</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="TYPE"
+>bit</TT
+>列に対する<A
+HREF="functions-binarystring.html#FUNCTIONS-BINARYSTRING-OTHER"
+><CODE
+CLASS="FUNCTION"
+>get_bit()</CODE
+></A
+>および<CODE
+CLASS="FUNCTION"
+>set_bit()</CODE
+>を追加しました。
+これらは<TT
+CLASS="TYPE"
+>bytea</TT
+>に対するものを射影したものです。(Leonardo F)
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>bit</TT
+>列および<TT
+CLASS="TYPE"
+>bytea</TT
+>に対する<A
+HREF="functions-string.html#FUNCTIONS-STRING-SQL"
+><CODE
+CLASS="FUNCTION"
+>OVERLAY()</CODE
+></A
+>を実装(置き換え)しました。(Leonardo F)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110473"
+>E.14.3.6.3. オブジェクト情報関数</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_relation_size()</CODE
+>関数よりもよりユーザ向けのインタフェースを提供する<A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-DBSIZE"
+><CODE
+CLASS="FUNCTION"
+>pg_table_size()</CODE
+></A
+>および<CODE
+CLASS="FUNCTION"
+>pg_indexes_size()</CODE
+>を追加しました。(Bernd Helmle)
+      </P
+></LI
+><LI
+><P
+>シーケンスの権限検査のための<A
+HREF="functions-info.html#FUNCTIONS-INFO-ACCESS-TABLE"
+><CODE
+CLASS="FUNCTION"
+>has_sequence_privilege()</CODE
+></A
+>を追加しました。(Abhijit Menon-Sen)
+      </P
+></LI
+><LI
+><P
+><A
+HREF="information-schema.html"
+>information_schema</A
+>ビューをSQL:2008に従うように更新しました。(Peter Eisentraut)
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>information_schema</TT
+>ビューが<TT
+CLASS="TYPE"
+>char</TT
+>および<TT
+CLASS="TYPE"
+>varchar</TT
+>列の最大オクテット長を適切に表示するようにしました。(peter Eisentraut)
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>information_schema</TT
+>の権限ビューを高速化しました。(Joachim Wieland)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110497"
+>E.14.3.6.4. 関数およびトリガの作成</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="sql-do.html"
+><TT
+CLASS="COMMAND"
+>DO</TT
+></A
+>文を使用した匿名コードブロックの実行をサポートしました。(Petr Jelinek, Joshua Tolley, Hannu Valtonen)
+      </P
+><P
+>これにより一時的な関数の作成と削除を行う必要なく、サーバサイドのコードを実行できるようになりました。
+ユーザが関数を定義する権限を持つ、任意の言語でコードを実行することができます。
+      </P
+></LI
+><LI
+><P
+>標準SQL互換の<A
+HREF="sql-createtrigger.html"
+>列単位のトリガ</A
+>を実装しました。(Itagaki Takahiro)
+      </P
+><P
+>例えば<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>の<TT
+CLASS="LITERAL"
+>SET</TT
+>リスト内にあるなど、問い合わせにより指定された列が影響を受けた時にのみ、こうしたトリガは発行されます。
+情報スキーマにもこうした情報が表示されるようになりました。
+      </P
+></LI
+><LI
+><P
+>トリガの発行を行うか否かを制御できるように、<A
+HREF="sql-createtrigger.html"
+><TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+></A
+>に<TT
+CLASS="LITERAL"
+>WHEN</TT
+>句を追加しました。(Itagaki Takahiro)
+      </P
+><P
+>トリガの中で同様の検査を常に行うことができますが、外部の<TT
+CLASS="LITERAL"
+>WHEN</TT
+>句で検査を行う方が性能が上がります。
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110518"
+>E.14.3.7. サーバサイド言語</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="sql-createlanguage.html"
+><TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+></A
+>に<TT
+CLASS="LITERAL"
+>OR REPLACE</TT
+>句を追加しました。(Tom Lane)
+     </P
+><P
+>これはまだ存在しない省略可能な言語をインストールする際に役に立ちます。
+また、PL/pgSQLがデフォルトでインストールされるようになったことに部分的に役に立ちます。
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110527"
+>E.14.3.7.1. <A
+HREF="plpgsql.html"
+>PL/pgSQL</A
+>サーバサイド言語</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>デフォルトでPL/pgSQLをインストールします。(Bruce Momjian)
+      </P
+><P
+>この言語を利用可能とすることに関して、セキュリティや性能を問題とする管理者は、この言語を特定のデータベースから削除することができます。
+      </P
+></LI
+><LI
+><P
+>関数内の問い合わせにおいて識別子と競合するPL/pgSQL変数名が使用される状況の取り扱いを改良しました。(Tom Lane)
+      </P
+><P
+>デフォルトでは予想外の動作を防ぐために競合があるとエラーになるようになりました。
+これは<A
+HREF="plpgsql-implementation.html#PLPGSQL-VAR-SUBST"
+><TT
+CLASS="VARNAME"
+>plpgsql.variable_conflict</TT
+></A
+>設定パラメータや関数単位の<TT
+CLASS="LITERAL"
+>#variable_conflict</TT
+>オプションを使用して、変数か問い合わせが提供する列を使用させるように、変更することができます。
+どちらの場合でもPL/pgSQLは文法的に有効でないところで変数置換を行わないようになりました。
+      </P
+></LI
+><LI
+><P
+>PL/pgSQLが独自版ではなく主レクサを使用するようにしました。(Tom Lane)
+      </P
+><P
+>これにより確実に文字列のエスケープ処理など主システムの詳細な振舞いを正確に追従します。
+PL/pgSQL内で予約されたとみなされるキーワード群など、ユーザから見える詳細も当然変更されました。
+      </P
+></LI
+><LI
+><P
+>無効なレコード参照に対する不要なエラーを発生させないようにしました。(Tom Lane)
+      </P
+><P
+>周りの式に達する度ではなく、参照が実際に取り出された時のみにエラーが発生するようになりました。
+例えば、多くの方がトリガで以下を行おうとしています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>if TG_OP = 'INSERT' and NEW.col1 = ... then</PRE
+><P>
+これは想定通りに動作しなくなりました。
+      </P
+></LI
+><LI
+><P
+>削除された列を持つ行型を扱うPL/pgSQLの機能を改良しました。(Pavel Stehule)
+      </P
+></LI
+><LI
+><P
+>PL/pgSQL関数において入力パラメータを変数に代入することができます。(Steve Prentice)
+      </P
+><P
+>これまでは、入力パラメータは<TT
+CLASS="LITERAL"
+>CONST</TT
+>と宣言されたものと扱われていました。
+このため関数のコードではこれらを変更することができませんでした。
+同じ制限を持たせない他のDBMSからの関数移植を容易にするために、この制限は削除されました。
+入力パラメータは渡された値で初期化された局所変数のように動作するようになりました。
+      </P
+></LI
+><LI
+><P
+>PL/pgSQLにおいてエラー発生箇所の報告を改良しました。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+>PL/pgSQLの<TT
+CLASS="COMMAND"
+>MOVE FORWARD</TT
+>/<TT
+CLASS="LITERAL"
+>BACKWARD</TT
+>に<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>および<TT
+CLASS="LITERAL"
+>ALL</TT
+>オプションを追加しました。(Pavel Stehule)
+      </P
+></LI
+><LI
+><P
+>PL/pgSQLの<TT
+CLASS="LITERAL"
+>WHERE CURRENT OF</TT
+>でカーソル変数を使用することができます。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+>PL/pgSQLの<TT
+CLASS="COMMAND"
+>OPEN cursor FOR EXECUTE</TT
+>はパラメータの使用できます。(Pavel Stehule, Itagaki Takahiro)
+      </P
+><P
+>これは新しい<TT
+CLASS="LITERAL"
+>USING</TT
+>句を用いて実現しました。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110569"
+>E.14.3.7.2. <A
+HREF="plperl.html"
+>PL/Perl</A
+>サーバサイド言語</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>次のPL/Perl関数を新規に追加しました。
+<A
+HREF="plperl-builtins.html#PLPERL-UTILITY-FUNCTIONS"
+><CODE
+CLASS="FUNCTION"
+>quote_literal()</CODE
+></A
+>、<CODE
+CLASS="FUNCTION"
+>quote_nullable()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>quote_ident()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>encode_bytea()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>decode_bytea()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>looks_like_number()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>encode_array_literal()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>encode_array_constructor()</CODE
+> (Tim Bunce)
+      </P
+></LI
+><LI
+><P
+>PL/Perlの初期化関数を指定する、<A
+HREF="plperl-under-the-hood.html#GUC-PLPERL-ON-INIT"
+><TT
+CLASS="VARNAME"
+>plperl.on_init</TT
+></A
+>サーバパラメータを追加しました。(Tim Bunce)
+      </P
+><P
+>また<A
+HREF="plperl-under-the-hood.html#GUC-PLPERL-ON-PLPERL-INIT"
+><TT
+CLASS="VARNAME"
+>plperl.on_plperl_init</TT
+></A
+>および<A
+HREF="plperl-under-the-hood.html#GUC-PLPERL-ON-PLPERL-INIT"
+><TT
+CLASS="VARNAME"
+>plperl.on_plperlu_init</TT
+></A
+>を使用して、それぞれ信頼できる/信頼できない場合に特化した初期化を行うことができます。
+      </P
+></LI
+><LI
+><P
+>PL/Perlにおいて<TT
+CLASS="COMMAND"
+>END</TT
+>ブロックをサポートします。(Tim Bunce)
+      </P
+><P
+>現在<TT
+CLASS="COMMAND"
+>END</TT
+>ブロックではデータベースにアクセスすることはできません。
+      </P
+></LI
+><LI
+><P
+>PL/Perlにおいて<TT
+CLASS="COMMAND"
+>use strict</TT
+>を使用できます。(Tim Bunce)
+      </P
+><P
+>またPerlの<TT
+CLASS="LITERAL"
+>strict</TT
+>検査は新しい<A
+HREF="plperl-under-the-hood.html#GUC-PLPERL-USE-STRICT"
+><TT
+CLASS="VARNAME"
+>plperl.use_strict</TT
+></A
+>サーバパラメータで大域的に有効にすることができます。
+      </P
+></LI
+><LI
+><P
+>PL/Perlにおいて<TT
+CLASS="COMMAND"
+>require</TT
+>を使用できます。(Tim Bunce)
+      </P
+><P
+>これは基本的に、そのモジュールがロードされているかどうか確認することを試験します。
+ロードされなければエラーとなります。
+管理者が初期化パラメータを通して前もってロードしていないモジュールをロードすることはできません。
+      </P
+></LI
+><LI
+><P
+>Perlバージョン5.10以降が使用されている場合、PL/Perlにおいて<TT
+CLASS="COMMAND"
+>use feature</TT
+>を使用できます。(Tim Bunce)
+      </P
+></LI
+><LI
+><P
+>PL/Perlの戻り値がサーバ符号化方式において有効かどうかを検証します。(Andrew Dunstan)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110614"
+>E.14.3.7.3. <A
+HREF="plpython.html"
+>PL/Python</A
+>サーバサイド言語</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>PL/PythonにUnicodeサポートを追加しました。(Peter Eisentraut)
+      </P
+><P
+>文字列は必要に応じて、サーバ符号化方式から、サーバ符号化方式へ自動的に変換されます。
+      </P
+></LI
+><LI
+><P
+>PL/Pythonの<TT
+CLASS="TYPE"
+>bytea</TT
+>サポートを改良しました。(Caleb Welton)
+      </P
+><P
+>PL/Pythonに渡される<TT
+CLASS="TYPE"
+>Bytea</TT
+>値は、PostgreSQLの<TT
+CLASS="TYPE"
+>bytea</TT
+>テキスト書式ではなく、バイナリとして表現されるようになりました。
+またPL/Pythonからヌルバイトを含む<TT
+CLASS="TYPE"
+>Bytea</TT
+>値が適切に出力されるようになりました。
+PL/Pythonに渡す論理値、整数値、浮動小数点値も改良されました。
+      </P
+></LI
+><LI
+><P
+>PL/Pythonにおいてパラメータおよび戻り値として<A
+HREF="plpython-data.html#PLPYTHON-ARRAYS"
+>配列</A
+>がサポートされるようになりました。(Peter Eisentraut)
+      </P
+></LI
+><LI
+><P
+>SQLドメインとPythonの型との対応付けを改良しました。(Peter Eisentraut)
+      </P
+></LI
+><LI
+><P
+>PL/Pythonに<SPAN
+CLASS="APPLICATION"
+>Python</SPAN
+> 3のサポートを追加しました。(Peter Eisentraut)
+      </P
+><P
+>この新しいサーバサイド言語は<A
+HREF="plpython-python23.html"
+><TT
+CLASS="LITERAL"
+>plpython3u</TT
+></A
+>と呼ばれます。
+これは同じセッションで<SPAN
+CLASS="APPLICATION"
+>Python</SPAN
+> 2サーバサイド言語と一緒に使用することはできません。
+      </P
+></LI
+><LI
+><P
+>PL/Pythonにおけるエラー発生箇所および例外の報告を改良しました。(Peter Eisentraut)
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110642"
+>E.14.3.8. クライアントアプリケーション</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="app-vacuumdb.html"
+><TT
+CLASS="COMMAND"
+>vacuumdb</TT
+></A
+>にバキュームを行わずに解析を行う<TT
+CLASS="OPTION"
+>--analyze-only</TT
+>オプションを追加しました。(Bruce Momjian)
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110650"
+>E.14.3.8.1. <A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>SQL文字列や識別子と同様に<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<A
+HREF="app-psql.html#APP-PSQL-VARIABLES"
+>変数</A
+>の値の引用符付け処理とエスケープ処理のサポートを追加しました。(Pavel Stehule, Robert Haas)
+      </P
+><P
+>例えば、<TT
+CLASS="LITERAL"
+>:'var'</TT
+>は<TT
+CLASS="LITERAL"
+>var</TT
+>の値を引用符付けしリテラル文字列としてエスケープされます。
+一方、<TT
+CLASS="LITERAL"
+>:"var"</TT
+>はその値を引用符付けしSQL識別子としてエスケープされます。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>によって読み取られるスクリプトファイル内の先頭のUTF-8で符号化されたUnicodeバイトオーダ印を無視します。(Itagaki Takahiro)
+      </P
+><P
+>これはクライアント符号化方式が<ACRONYM
+CLASS="ACRONYM"
+>UTF-8</ACRONYM
+>の場合に有効です。
+これは、大抵はWindowsですが、こうした印の挿入を要求する特定のエディタの互換性を改良します。
+      </P
+></LI
+><LI
+><P
+><A
+HREF="app-psql.html#R1-APP-PSQL-3"
+><TT
+CLASS="OPTION"
+>--single-transaction</TT
+></A
+>を適切に尊重するように<TT
+CLASS="COMMAND"
+>psql --file -</TT
+>を修正しました。(Bruce Momjian)
+      </P
+></LI
+><LI
+><P
+>2つの<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のセッションが同時に実行している場合に<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のコマンドライン履歴の上書きを防止します。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のタブ補完サポートを改良しました。(Itagaki Takahiro)
+      </P
+></LI
+><LI
+><P
+>有効な場合、<SPAN
+CLASS="QUOTE"
+>"quiet"</SPAN
+>モードか否かに関係なく<TT
+CLASS="LITERAL"
+>\timing</TT
+>出力を表示します。(Peter Eisentraut)
+      </P
+></LI
+></UL
+><DIV
+CLASS="SECT5"
+><H5
+CLASS="SECT5"
+><A
+NAME="AEN110684"
+>E.14.3.8.1.1. <SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>表示</A
+></H5
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>における改行を含む列の表示を改良しました。(Roger Leigh)
+       </P
+><P
+>この動作がデフォルトになりました。
+<TT
+CLASS="COMMAND"
+>\pset linestyle old-ascii</TT
+>を使用することで、これまでの書式を利用することができます。
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>で<TT
+CLASS="COMMAND"
+>\pset linestyle unicode</TT
+>を使用してUnicodeの装飾描画文字を使用できます。(Roger Leigh)
+       </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT5"
+><H5
+CLASS="SECT5"
+><A
+NAME="AEN110697"
+>E.14.3.8.1.2. <SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+> <A
+HREF="app-psql.html#APP-PSQL-META-COMMANDS"
+><TT
+CLASS="COMMAND"
+>\d</TT
+></A
+>コマンド</A
+></H5
+><P
+></P
+><UL
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>\d</TT
+>が指定された親テーブルから継承された子テーブルを表示するようにしました。(Damien Clochard)
+       </P
+><P
+><TT
+CLASS="COMMAND"
+>\d</TT
+>では子テーブルの個数のみを表示し、<TT
+CLASS="COMMAND"
+>\d+</TT
+>はすべての子テーブルの名前を表示します。
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>\d index_name</TT
+>でインデックス列の定義を表示します。(Khee Chin)
+       </P
+><P
+>この定義は式インデックスで有用です。
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>において、<TT
+CLASS="COMMAND"
+>\d</TT
+>ではなく<TT
+CLASS="COMMAND"
+>\d+</TT
+>のみでビューを定義した問い合わせを表示します。(Peter Eisentraut)
+       </P
+><P
+>常に問い合わせを含めることはあまりにも冗長であると思われました。
+       </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110719"
+>E.14.3.8.2. <A
+HREF="app-pgdump.html"
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>/<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+> <A
+HREF="app-pgdump.html#PG-DUMP-OPTIONS"
+><TT
+CLASS="OPTION"
+>--clean</TT
+></A
+>が同時にラージオブジェクトを削除するようにしました。(Itagaki Takahiro)
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>standard_conforming_strings</TT
+>が有効な場合に適切にラージオブジェクトをダンプするように<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>を修正しました。(Tom Lane)
+      </P
+><P
+>これまでのコードでは、アーカイブファイルにダンプし<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>からスクリプト出力を生成する時に失敗しました。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>がスクリプト出力を生成する時に16進書式でラージオブジェクトを出力するようになりました。
+      </P
+><P
+>スクリプトがその後9.0より前のサーバにロードされる場合に互換性に関する問題を引き起こすかもしれません。
+これを回避するには代わりにサーバに直接リストアしてください。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は複合型の列に割り当てられたコメントをダンプすることができます。(Taro Minowa (Higepon))
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+> <A
+HREF="app-pgdump.html#PG-DUMP-OPTIONS"
+><TT
+CLASS="OPTION"
+>--verbose</TT
+></A
+>がテキスト出力モードにおいて<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>とサーバのバージョンを出力するようにしました。(Jim Cox, Tom Lane)
+      </P
+><P
+>これらはカスタム出力モードではすでに提供されていました。
+      </P
+></LI
+><LI
+><P
+>スイッチと省略可能なファイル名の後にコマンドライン引数が残っていた場合に、<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>が注意するようになりました。(Tom Lane)
+      </P
+><P
+>これまではこうした引数すべては警告なく無視されました。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110754"
+>E.14.3.8.3. <A
+HREF="app-pg-ctl.html"
+><SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>ブート時に<SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+>を起動するために<SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+>を安全に使用することができます。(Tom Lane)
+      </P
+><P
+>これまでは、無効な<SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+>ロックファイルに基づき、<SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+>親プロセスが間違って<SPAN
+CLASS="APPLICATION"
+>postmaster</SPAN
+>が起動中であると認識することがありました。
+その結果データベースを起動させる際に一時的な失敗が起こりました。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_ctl</SPAN
+>に(<SPAN
+CLASS="APPLICATION"
+>initdb</SPAN
+>を呼び出す)データベースの初期化機能を付与しました。(Zdenek Kotala)
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110771"
+>E.14.3.9. <SPAN
+CLASS="APPLICATION"
+>開発ツール</SPAN
+></A
+></H3
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110774"
+>E.14.3.9.1. <A
+HREF="libpq.html"
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>新しい<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>関数、<A
+HREF="libpq-connect.html"
+><CODE
+CLASS="FUNCTION"
+>PQconnectdbParams()</CODE
+></A
+>および<CODE
+CLASS="FUNCTION"
+>PQconnectStartParams()</CODE
+>を追加しました。(Guillaume Lelarge)
+      </P
+><P
+>これらの関数は<CODE
+CLASS="FUNCTION"
+>PQconnectdb()</CODE
+>と<CODE
+CLASS="FUNCTION"
+>PQconnectStart()</CODE
+>と似たものですが、1つの文字列として必要とするすべてのオプションを提供するのではなく、接続オプションのヌル終端の配列を受け付けます。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>関数、<A
+HREF="libpq-exec.html#LIBPQ-EXEC-ESCAPE-STRING"
+><CODE
+CLASS="FUNCTION"
+>PQescapeLiteral()</CODE
+></A
+>および<CODE
+CLASS="FUNCTION"
+>PQescapeIdentifier()</CODE
+>を追加しました。(Robert Haas)
+      </P
+><P
+>これらの関数は適切に引用符付け、およびエスケープされたSQLリテラル文字列および識別子を返します。
+<CODE
+CLASS="FUNCTION"
+>PQescapeStringConn()</CODE
+>では必要でしたが、呼び出し元で前もって文字列結果を割り当てておく必要はありません。
+      </P
+></LI
+><LI
+><P
+>ユーザ単位のサービスファイル(<A
+HREF="libpq-pgservice.html"
+><TT
+CLASS="FILENAME"
+>.pg_service.conf</TT
+></A
+>)のサポートを追加しました。
+これはサイト全体のサービスファイルの前に検査されます。(Peter Eisentraut)
+      </P
+></LI
+><LI
+><P
+>指定された<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>サービスが見つからない場合に適切にエラーを報告します。(Peter Eisentraut)
+      </P
+></LI
+><LI
+><P
+>libpqに<A
+HREF="libpq-connect.html#LIBPQ-KEEPALIVES"
+>TCPキープアライブに関する設定</A
+>を追加しました。(Tollef Fog Heen, Fujii Masao, Robert Haas)
+      </P
+><P
+>キープアライブに関する設定はTCP接続のサーバ側ではすでにサポートされていました。
+      </P
+></LI
+><LI
+><P
+>代替方法があるプラットフォームでは、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>における<TT
+CLASS="LITERAL"
+>SIGPIPE</TT
+>をブロックおよびブロック解除するための余計なシステムコールを防止します。(Jeremy Kerr)
+      </P
+></LI
+><LI
+><P
+><A
+HREF="libpq-pgpass.html"
+><TT
+CLASS="FILENAME"
+>.pgpass</TT
+></A
+>が提供するパスワードが失敗した場合、エラーメッセージにそのパスワードの源を記載します。(Bruce Momjian)
+      </P
+></LI
+><LI
+><P
+>クライアント証明書ファイル内で与えられるすべてのSSL証明書をロードします。(Tom Lane)
+      </P
+><P
+>これは間接的に署名されたSSLクライアント証明書のサポートを改良します。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110818"
+>E.14.3.9.2. <A
+HREF="ecpg.html"
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+></A
+></A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>に<A
+HREF="ecpg-descriptors.html"
+><ACRONYM
+CLASS="ACRONYM"
+>SQLDA</ACRONYM
+></A
+>(SQL記述子領域)サポートを追加しました。(Boszormenyi Zoltan)
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>に<A
+HREF="ecpg-descriptors.html"
+><TT
+CLASS="COMMAND"
+>DESCRIBE</TT
+> [<TT
+CLASS="LITERAL"
+>OUTPUT</TT
+> ]</A
+>文を追加しました。(Boszormenyi Zoltan)
+      </P
+></LI
+><LI
+><P
+>現在のトランザクション状態を返す<A
+HREF="ecpg-library.html"
+>ECPGtransactionStatus</A
+>を追加しました。(Bernd Helmle)
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>のinformix互換モードに<TT
+CLASS="LITERAL"
+>string</TT
+>データ型を追加しました。(Boszormenyi Zoltan)
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>で<TT
+CLASS="LITERAL"
+>new</TT
+>および<TT
+CLASS="LITERAL"
+>old</TT
+>変数名を制限なく使用できます。(Michael Meskes)
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>において<CODE
+CLASS="FUNCTION"
+>free()</CODE
+>内の変数を使用することができます。(Michael Meskes)
+      </P
+></LI
+><LI
+><P
+>SQL3以外のデータ型に対して<CODE
+CLASS="FUNCTION"
+>ecpg_dynamic_type()</CODE
+>がゼロを返すようにしました。(Michael Meskes)
+      </P
+><P
+>これまではOIDデータ型の否定を返しました。
+しかしこれは有効なOID型と混乱を招くことがありました。
+      </P
+></LI
+><LI
+><P
+>64ビットの<TT
+CLASS="TYPE"
+>long</TT
+>型をすでに持っていたプラットフォームにおいて<TT
+CLASS="TYPE"
+>long long</TT
+>型をサポートします。(Michael Meskes)
+      </P
+></LI
+></UL
+><DIV
+CLASS="SECT5"
+><H5
+CLASS="SECT5"
+><A
+NAME="AEN110858"
+>E.14.3.9.2.1. <SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>のカーソル</A
+></H5
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>本来のモードにてスコープ外のカーソルサポートを追加しました。(Boszormenyi Zoltan)
+       </P
+><P
+>これにより<TT
+CLASS="COMMAND"
+>DECLARE</TT
+>で<TT
+CLASS="COMMAND"
+>OPEN</TT
+>を呼び出した時にスコープ範囲外にある変数を使用することができます。
+この機能はすでに<SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>のInformix互換モードに存在していました。
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>において動的なカーソル名が可能です。(Boszormenyi Zoltan)
+       </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>は <TT
+CLASS="COMMAND"
+>FETCH</TT
+>および<TT
+CLASS="COMMAND"
+>MOVE</TT
+>でノイズの単語<TT
+CLASS="LITERAL"
+>FROM</TT
+>と<TT
+CLASS="LITERAL"
+>IN</TT
+>を使用することができます。(Boszormenyi Zoltan)
+       </P
+></LI
+></UL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110879"
+>E.14.3.10. 構築オプション</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>デフォルトでクライアントスレッドセーフを有効にします。(Bruce Momjian)
+     </P
+><P
+>スレッドセーフに関するオプションは<A
+HREF="install-procedure.html#CONFIGURE"
+><TT
+CLASS="LITERAL"
+>configure</TT
+></A
+>の<TT
+CLASS="OPTION"
+>--disable-thread-safety</TT
+>により無効にすることができます。
+     </P
+></LI
+><LI
+><P
+>Linuxのout-of-memory killerの制御のサポートを追加しました。(Alex Hunsaker, Tom Lane)
+     </P
+><P
+><TT
+CLASS="FILENAME"
+>/proc/self/oom_adj</TT
+>により<SPAN
+CLASS="PRODUCTNAME"
+>Linux</SPAN
+>のout-of-memory（<ACRONYM
+CLASS="ACRONYM"
+>OOM</ACRONYM
+>）killerを無効にすることができますが、
+これはpostmasterに対するOOMによる停止を無効にする際に推奨されるものです。
+postmasterの子プロセスに対するOOMによる停止を再度有効にすることが望まれることがあります。
+新しい<A
+HREF="kernel-resources.html#LINUX-MEMORY-OVERCOMMIT"
+><TT
+CLASS="LITERAL"
+>LINUX_OOM_ADJ</TT
+></A
+>コンパイルオプションにより子プロセスに対するkillerを再度有効にすることができます。
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110896"
+>E.14.3.10.1. Makefile</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="install-procedure.html#BUILD"
+><TT
+CLASS="LITERAL"
+>world</TT
+></A
+>、<TT
+CLASS="LITERAL"
+>install-world</TT
+>および<TT
+CLASS="LITERAL"
+>installcheck-world</TT
+>という<TT
+CLASS="FILENAME"
+>Makefile</TT
+>のターゲットを追加しました。(Andrew Dunstan)
+      </P
+><P
+>これらは既存の<TT
+CLASS="LITERAL"
+>all</TT
+>、<TT
+CLASS="LITERAL"
+>install</TT
+>、<TT
+CLASS="LITERAL"
+>installcheck</TT
+>と似ていますが、<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>文書の構築、<TT
+CLASS="FILENAME"
+>contrib</TT
+>の構築及び試験、サーバサイド言語と<SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>の試験も行います。
+      </P
+></LI
+><LI
+><P
+>データおよび文書のインストール場所の制御を<ACRONYM
+CLASS="ACRONYM"
+>PGXS</ACRONYM
+> Makefileに追加しました。(Mark Cave-Ayland)
+      </P
+></LI
+><LI
+><P
+>1つの<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>ファイルもしくは1つのテキストファイルとして<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>文書を構築するMakefileのルールを追加しました。(Peter Eisentraut, Bruce Momjian)
+     </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN110920"
+>E.14.3.10.2. Windows</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="install-windows.html"
+>64ビット<SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+></A
+>でのコンパイルと64ビットモードでの実行サポートを追加しました。(Tsutomu Yamada, Magnus Hagander)
+      </P
+><P
+>これにより<SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>上で大容量の共有メモリをとることができます。
+      </P
+></LI
+><LI
+><P
+><A
+HREF="install-windows-full.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>Visual Studio 2008</SPAN
+></A
+>を使用してサーバを構築することをサポートします。(Magnus Hagander)
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN110933"
+>E.14.3.11. ソースコード</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+>配布用のtarballに含まれるtarアーカイブファイルとしてではなく、前もって構築された文書をサブディレクトリツリーに配備します。(Peter Eisentraut)
+     </P
+><P
+>例えば、前もって構築された<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>文書は<TT
+CLASS="FILENAME"
+>doc/src/sgml/html</TT
+>に配備されます。
+マニュアルページも同様にまとめられます。
+     </P
+></LI
+><LI
+><P
+>サーバのレクサを再入可能にしました。(Tom Lane)
+     </P
+><P
+>PL/pgSQLによるレクサの使用において必要でした。
+     </P
+></LI
+><LI
+><P
+>メモリ割り当て速度を改良しました。(Tom Lane, Greg Stark)
+     </P
+></LI
+><LI
+><P
+>ユーザ定義の制約トリガが<TT
+CLASS="STRUCTNAME"
+>pg_trigger</TT
+>同様に<TT
+CLASS="STRUCTNAME"
+>pg_constraint</TT
+>内に項目を持つようになりました。(Tom Lane)
+     </P
+><P
+>この変更のため、<TT
+CLASS="STRUCTNAME"
+>pg_constraint</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>pgconstrname</TT
+>が冗長になりましたので、削除されました。
+     </P
+></LI
+><LI
+><P
+>制約の強制用のインデックスの使用をより良く提供するために<TT
+CLASS="STRUCTNAME"
+>pg_constraint</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>conindid</TT
+>および<TT
+CLASS="STRUCTNAME"
+>pg_trigger</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>tgconstrindid</TT
+>システムカタログ列を追加しました。(Tom Lane)
+     </P
+></LI
+><LI
+><P
+>一つのオペレーティングシステムのシグナルを使用して、複数条件でバックエンドと通信できるようにしました。(Fujii Masao)
+     </P
+><P
+>多くのシグナル条件にあるプラットフォーム固有の制約を持たずに、新しい機能を追加できるようになります。
+     </P
+></LI
+><LI
+><P
+>ソースコード試験の適用範囲を改良し、<TT
+CLASS="FILENAME"
+>contrib</TT
+>、PL/Python、PL/Perlを含むようになりました。(Peter Eisentraut, Andrew Dunstan)
+     </P
+></LI
+><LI
+><P
+>システムテーブルの起動処理用のフラットファイルの使用を削除しました。(Tom Lane, Alvaro Herrera)
+     </P
+><P
+>これは多くのロールとデータベースを使用する場合の性能を改良し、一部の失敗条件を取り除きます。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="QUOTE"
+>"bootstrapped"</SPAN
+>カタログ用の<TT
+CLASS="STRUCTNAME"
+>pg_attribute</TT
+>の初期内容を自動的に生成します。(John Naylor)
+     </P
+><P
+>これはこれらのカタログの変更を大きく簡略化します。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>execMain.c</TT
+>の外部に<TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>操作処理を分けました。(Marko Tiikkaja)
+     </P
+><P
+>更新が別のModifyTableノードで実行されるようになりました。
+この変更は今後の改良のための基盤として必要とされます。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のSQLヘルプテキストの翻訳機能を簡易化しました。(Peter Eisentraut)
+     </P
+></LI
+><LI
+><P
+>配布用tarball内のすべてファイルパスが100文字未満になるように一部のファイル名を短くしました。(Tom Lane)
+     </P
+><P
+>一部の伸長プログラムで長いファイル名に関する問題があります。
+     </P
+></LI
+><LI
+><P
+>新しい<A
+HREF="errcodes-appendix.html#ERRCODES-TABLE"
+><TT
+CLASS="LITERAL"
+>ERRCODE_INVALID_PASSWORD</TT
+></A
+> <TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>エラーコードを追加しました。(Bruce Momjian)
+     </P
+></LI
+><LI
+><P
+>作者の許可を得て、わずかに残っていた個人的なソースコード内の著作権注記を適切に削除しました。(Bruce Momjian)
+     </P
+><P
+>個人的な著作権注記は無意味になりましたが、コミュニティはそれに対する問い合わせに時折回答しなければなりませんでした。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を永続性を持たせないモードで実行させる場合の性能向上に関する<A
+HREF="non-durability.html"
+>節</A
+>を文書に追加しました。(Bruce Momjian)
+     </P
+></LI
+><LI
+><P
+>依存性検査を正しく動作させ、不要な再構築を防ぐように、<ACRONYM
+CLASS="ACRONYM"
+>HTML</ACRONYM
+>文書構築用の<TT
+CLASS="FILENAME"
+>Makefile</TT
+>ルールを再構成しました。(Peter Eisentraut)
+     </P
+></LI
+><LI
+><P
+>マニュアルページを作成する際に<SPAN
+CLASS="PRODUCTNAME"
+>Docbook2X</SPAN
+>ではなく<SPAN
+CLASS="PRODUCTNAME"
+>DocBook</SPAN
+> <ACRONYM
+CLASS="ACRONYM"
+>XSL</ACRONYM
+>を使用します。(Peter Eisentraut)
+     </P
+><P
+>これはマニュアルページの構築に必要となるツール群を変更します。
+     </P
+></LI
+><LI
+><P
+>PL/Perlのコード構成を改良しました。(Tim Bunce)
+     </P
+></LI
+><LI
+><P
+>PL/Perlにおけるエラー文脈報告を改良しました。(Alexey Klyukin)
+     </P
+></LI
+></UL
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN111012"
+>E.14.3.11.1. 構築に関する新しい要求</A
+></H4
+><P
+>これらの要求が配布用のtarballから構築する場合には適用されないことに注意してください。
+構築するために以下のプログラムが使用されたファイルがtarballには含まれているためです。
+     </P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>configure</SPAN
+>を構築する場合に<SPAN
+CLASS="APPLICATION"
+>Autoconf</SPAN
+> 2.63が必要です。(Peter Eisentraut)
+      </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>CVS</ACRONYM
+>から取り出したソースから構築する場合に<SPAN
+CLASS="APPLICATION"
+>Flex</SPAN
+> 2.5.31以降が必要です。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>CVS</ACRONYM
+>から取り出したソースから構築するためには<SPAN
+CLASS="APPLICATION"
+>Perl</SPAN
+>バージョン5.8以降が必要です。(John Naylor, Andrew Dunstan)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN111028"
+>E.14.3.11.2. 移植性</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>Bonjour</SPAN
+>に関してより近代的な<ACRONYM
+CLASS="ACRONYM"
+>API</ACRONYM
+>を使用します。(Tom Lane)
+      </P
+><P
+>Bonjourのサポートは<SPAN
+CLASS="PRODUCTNAME"
+>OS X</SPAN
+> 10.3以降を必要とするようになりました。
+より古いAPIはAppleにより廃止されました。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>SuperH</SPAN
+>アーキテクチャ用のスピンロックサポートが追加されました。(Nobuhiro Iwamatsu)
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>GCC</SPAN
+>以外のコンパイラがインライン関数をサポートする場合にそれを使用できるようにしました。(Kurt Harriman)
+      </P
+></LI
+><LI
+><P
+>64ビット整数のデータ型が動作しないプラットフォームのサポートを削除しました。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+>プラットフォームを跨る一貫性を高めるために<TT
+CLASS="LITERAL"
+>LDFLAGS</TT
+>の使用を再構成しました。(Tom Lane)
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>LDFLAGS</TT
+>は実行形式ファイルと共有ライブラリの2つをリンクする場合に使用されるようになりました。
+実行形式ファイルをリンクする場合の<TT
+CLASS="LITERAL"
+>LDFLAGS_EX</TT
+>と共有ライブラリをリンクする場合の<TT
+CLASS="LITERAL"
+>LDFLAGS_SL</TT
+>を追加しました。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN111052"
+>E.14.3.11.3. サーバのプログラミング</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>バックエンドヘッダファイルを安全に<SPAN
+CLASS="PRODUCTNAME"
+>C++</SPAN
+>でインクルードできるようにしました。(Kurt Harriman, Peter Eisentraut)
+      </P
+><P
+>これらの変更はバックエンドのコードにおいてこれまで<SPAN
+CLASS="PRODUCTNAME"
+>C++</SPAN
+>の使用を困難にしていたキーワードの競合を除去しました。
+しかしまだバックエンド関数で<SPAN
+CLASS="PRODUCTNAME"
+>C++</SPAN
+>を使用する場合には多少複雑さが残っています。
+適切なところで<TT
+CLASS="LITERAL"
+>extern "C" { }</TT
+>がまだ必要です。
+またメモリ管理とエラー処理はまだ解決が困難です。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>C</SPAN
+>関数を集約として呼び出されるかどうかの確認に使用される<A
+HREF="xaggr.html"
+><CODE
+CLASS="FUNCTION"
+>AggCheckCallContext()</CODE
+></A
+>を追加しました。(Hitoshi Harada)
+      </P
+></LI
+><LI
+><P
+>キャッシュキーの最大数をコードに直接書き込むことを防ぐために<CODE
+CLASS="FUNCTION"
+>SearchSysCache()</CODE
+>と関連する関数の呼び出し規約を変更しました。(Robert Haas)
+      </P
+><P
+>現時点では既存の呼び出しもまだ動作しますが、新しい形式に変更しなければ9.1以降で動作しなくなることが想定されます。
+      </P
+></LI
+><LI
+><P
+>第4引数で非NULLを提供するためには<CODE
+CLASS="FUNCTION"
+>fastgetattr()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>heap_getattr()</CODE
+>バックエンドマクロの呼び出しが必要です。(Robert Haas)
+      </P
+></LI
+><LI
+><P
+>独自の型解析関数は、渡されるデータの型を決定するために<TT
+CLASS="STRUCTNAME"
+>VacAttrStats</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>attr</TT
+>に依存してはいけません。
+      </P
+><P
+>これは、背後にある列のデータ型と異なる格納方式のインデックス列上の統計情報を収集できるように変更されました。
+解析すべき実際のデータ型を通知する新しいフィールドが存在します。
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN111080"
+>E.14.3.11.4. サーバフック</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>ColumnRefノードとParamRefノードを処理するためのパーサフックを追加しました。(Tom Lane)
+      </P
+></LI
+><LI
+><P
+>ロード可能なモジュールがユーティリティコマンドを制御できるようにProcessUtilityフックを追加しました。(Itagaki Takahiro)
+      </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN111087"
+>E.14.3.11.5. バイナリ更新のサポート</A
+></H4
+><P
+></P
+><UL
+><LI
+><P
+>その場での更新をサポートする<A
+HREF="pgupgrade.html"
+><TT
+CLASS="FILENAME"
+>contrib/pg_upgrade</TT
+></A
+>を追加しました。(Bruce Momjian)
+     </P
+><P
+>これによりPostgreSQLの新しいメジャーリリースに更新する時にデータベースのダンプ/リストア処理の必要性がなくなり、停止時間が桁違いに少なくなります。
+これはPostgreSQL 8.3および8.4から9.0への更新をサポートします。
+     </P
+></LI
+><LI
+><P
+>バイナリ更新中に<A
+HREF="catalog-pg-class.html"
+><TT
+CLASS="STRUCTNAME"
+>relfilenodes</TT
+></A
+>リレーションの値の保護サポートを追加しました。(Bruce Momjian)
+      </P
+></LI
+><LI
+><P
+>バイナリ更新中に<TT
+CLASS="STRUCTNAME"
+>pg_type</TT
+>と<TT
+CLASS="STRUCTNAME"
+>pg_enum</TT
+>のOIDの保護サポートを追加しました。(Bruce Momjian)
+      </P
+></LI
+><LI
+><P
+>テーブル空間内のデータファイルをその<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>バージョンに特化したサブディレクトリに移します。(Bruce Momjian)
+      </P
+><P
+>これはバイナリ更新を簡単にします。
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN111107"
+>E.14.3.12. Contrib</A
+></H3
+><P
+></P
+><UL
+><LI
+><P
+><A
+HREF="pgbench.html"
+><TT
+CLASS="FILENAME"
+>contrib/pgbench</TT
+></A
+>にマルチスレッドオプション(<TT
+CLASS="OPTION"
+>-j</TT
+>)を追加しました。(Itagaki Takahiro)
+     </P
+><P
+>これにより複数の<ACRONYM
+CLASS="ACRONYM"
+>CPU</ACRONYM
+>を使用したpgbench試験ができ、pgbench自体が試験のボトルネックとなる危険が軽減します。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="pgbench.html"
+><TT
+CLASS="FILENAME"
+>contrib/pgbench</TT
+></A
+>に<TT
+CLASS="COMMAND"
+>\shell</TT
+>および<TT
+CLASS="COMMAND"
+>\setshell</TT
+>メタコマンドを追加しました。(Michael Paquier)
+     </P
+></LI
+><LI
+><P
+><A
+HREF="dict-xsyn.html"
+><TT
+CLASS="FILENAME"
+>contrib/dict_xsyn</TT
+></A
+>に機能を追加しました。(Sergey Karpov)
+     </P
+><P
+>新しいオプションは<TT
+CLASS="LITERAL"
+>matchorig</TT
+>、<TT
+CLASS="LITERAL"
+>matchsynonyms</TT
+>、<TT
+CLASS="LITERAL"
+>keepsynonyms</TT
+>です。
+     </P
+></LI
+><LI
+><P
+>全文検索辞書<A
+HREF="unaccent.html"
+><TT
+CLASS="FILENAME"
+>contrib/unaccent</TT
+></A
+>を追加しました。(Teodor Sigaev)
+     </P
+><P
+>このフィルタ処理辞書は文字から発音記号を取り除きます。
+複数言語に対する全文検索がより簡単になります。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/dblink</TT
+>に<A
+HREF="contrib-dblink-get-notify.html"
+><CODE
+CLASS="FUNCTION"
+>dblink_get_notify()</CODE
+></A
+>を追加しました。(Marcus Kempe)
+     </P
+><P
+>これにより<SPAN
+CLASS="PRODUCTNAME"
+>dblink</SPAN
+>において非同期通知を行うことができます。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/dblink</TT
+>の削除された列の取り扱いを改良しました。(Tom Lane)
+     </P
+><P
+>これは<A
+HREF="contrib-dblink-build-sql-insert.html"
+><CODE
+CLASS="FUNCTION"
+>dblink_build_sql_insert()</CODE
+></A
+>と関連する関数に影響します。
+これらの関数は物理的な列番号ではなく論理的な列番号に従って列を番号付けするようになりました。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="hstore.html"
+><TT
+CLASS="FILENAME"
+>contrib/hstore</TT
+></A
+>のデータ長に関する制限を大きく増加しました。
+また、<TT
+CLASS="TYPE"
+>hstore</TT
+>列に対する<TT
+CLASS="LITERAL"
+>GROUP BY</TT
+>および<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>操作ができるようにB-treeおよびハッシュ機能を追加しました。(Andrew Gierth)
+     </P
+><P
+>新しい関数や演算子も追加されました。
+これらの改良により<TT
+CLASS="TYPE"
+>hstore</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に組み込まれた、すべての機能を持つキー/バリューストアになりました。
+     </P
+></LI
+><LI
+><P
+>パスワード強度に関するサイト固有のポリシーをサポートする<A
+HREF="passwordcheck.html"
+><TT
+CLASS="FILENAME"
+>contrib/passwordcheck</TT
+></A
+>を追加しました。(Laurenz Albe)
+     </P
+><P
+>このモジュールのソースコードはサイト独自のパスワードポリシーに合わせるように変更しなければなりません。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="pgarchivecleanup.html"
+><TT
+CLASS="FILENAME"
+>contrib/pg_archivecleanup</TT
+></A
+>ツールを追加しました。(Simon Riggs)
+     </P
+><P
+>これは、不要になったアーカイブファイルを削除するための<TT
+CLASS="LITERAL"
+>archive_cleanup_command</TT
+>サーバパラメータで使用されるために設計されました。
+     </P
+></LI
+><LI
+><P
+><A
+HREF="auto-explain.html"
+><TT
+CLASS="FILENAME"
+>contrib/auto_explain</TT
+></A
+>の出力に問い合わせテキストを追加しました。(Andrew Dunstan)
+     </P
+></LI
+><LI
+><P
+><A
+HREF="pgstatstatements.html"
+><TT
+CLASS="FILENAME"
+>contrib/pg_stat_statements</TT
+></A
+>にバッファアクセスカウンタを追加しました。(Itagaki Takahiro)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>/proc/self/oom_adj</TT
+>を使用して<A
+HREF="kernel-resources.html#LINUX-MEMORY-OVERCOMMIT"
+><SPAN
+CLASS="PRODUCTNAME"
+>Linux</SPAN
+> out-of-memory</A
+>(<ACRONYM
+CLASS="ACRONYM"
+>OOM</ACRONYM
+>) killerを無効にできるように<A
+HREF="server-start.html"
+><TT
+CLASS="FILENAME"
+>contrib/start-scripts/linux</TT
+></A
+>を更新しました。(Alex Hunsaker, Tom Lane)
+     </P
+></LI
+></UL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-9-0-1.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-4-12.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース9.0.1</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.4.12</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

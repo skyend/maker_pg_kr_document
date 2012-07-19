@@ -1,0 +1,357 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>列挙型サポート関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="日付/時刻関数と演算子"
+HREF="functions-datetime.html"><LINK
+REL="NEXT"
+TITLE="幾何関数と演算子"
+HREF="functions-geometry.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="日付/時刻関数と演算子"
+HREF="functions-datetime.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="幾何関数と演算子"
+HREF="functions-geometry.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-ENUM"
+>9.10. 列挙型サポート関数</A
+></H1
+><P
+>  
+   列挙型（<A
+HREF="datatype-enum.html"
+>&#38917;8.7</A
+>で解説）に対し、特に列挙型の値をハードコーディングせず簡潔なプログラミングを可能にするいくつかの関数があります。それらの関数は<A
+HREF="functions-enum.html#FUNCTIONS-ENUM-TABLE"
+>&#34920;9-29</A
+>で一覧されています。例は以下のようにして列挙型が作成されていることを想定しています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE rainbow AS ENUM ('red', 'orange', 'yellow', 'green', 'blue', 'purple');</PRE
+><P>
+
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-ENUM-TABLE"
+></A
+><P
+><B
+>&#34920; 9-29. 列挙型サポート関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+><TH
+>例の結果</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+>enum_first(anyenum)</TT
+>
+       </TD
+><TD
+>最初の入力列挙型の値を返す</TD
+><TD
+><TT
+CLASS="LITERAL"
+>enum_first(null::rainbow)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>red</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+>enum_last(anyenum)</TT
+>
+       </TD
+><TD
+>最後の入力列挙型の値を返す</TD
+><TD
+><TT
+CLASS="LITERAL"
+>enum_last(null::rainbow)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>purple</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+>enum_range(anyenum)</TT
+>
+       </TD
+><TD
+>ある順序付けられた配列にもとづいて入力列挙型の全ての値を返す</TD
+><TD
+><TT
+CLASS="LITERAL"
+>enum_range(null::rainbow)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>{red,orange,yellow,green,blue,purple}</TT
+></TD
+></TR
+><TR
+><TD
+ROWSPAN="3"
+><TT
+CLASS="LITERAL"
+>enum_range(anyenum, anyenum)</TT
+></TD
+><TD
+ROWSPAN="3"
+>       
+	与えられた２つの列挙型値の範囲を、ある順序付けられた配列として返す。値は同一の列挙型に拠らなければならない。始めのパラメータがNULLの場合、結果は列挙型の最初の値から始まる。２番目のパラメータがNULLの場合、結果は列挙型の最後の値で終端する。
+       </TD
+><TD
+><TT
+CLASS="LITERAL"
+>enum_range('orange'::rainbow, 'green'::rainbow)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>{orange,yellow,green}</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>enum_range(NULL, 'green'::rainbow)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>{red,orange,yellow,green}</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>enum_range('orange'::rainbow, NULL)</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>{orange,yellow,green,blue,purple}</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>enum_range</CODE
+>の２引数形式を除いて、関数に渡された特定の値はそれら関数が無視することに注意してください。関数は宣言されたデータ型のみ配慮します。NULLまたはその型の特定値のみが渡され、同一の結果をもたらします。例が示唆しているように、組み込まれている型名に対してではなく、テーブル列もしくは関数引数にこれらの関数を適用することがより一般的です。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-datetime.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-geometry.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>日付/時刻関数と演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>幾何関数と演算子</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

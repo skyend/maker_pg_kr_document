@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>RESET</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="RELEASE SAVEPOINT"
+HREF="sql-release-savepoint.html"><LINK
+REL="NEXT"
+TITLE="REVOKE"
+HREF="sql-revoke.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="RELEASE SAVEPOINT"
+HREF="sql-release-savepoint.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="RELEASE SAVEPOINT"
+HREF="sql-release-savepoint.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="REVOKE"
+HREF="sql-revoke.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="REVOKE"
+HREF="sql-revoke.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-RESET"
+></A
+>RESET</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN73704"
+></A
+><H2
+>&#21517;&#21069;</H2
+>RESET&nbsp;--&nbsp;実行時パラメータの値をデフォルト値に戻す</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN73709"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>RESET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+>
+RESET ALL</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73712"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>RESET</TT
+>は実行時パラメータをデフォルト値に戻します。
+<TT
+CLASS="COMMAND"
+>RESET</TT
+>は下記のように記述することもできます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>SET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+> TO DEFAULT</PRE
+><P>
+詳細は<A
+HREF="sql-set.html"
+>SET</A
+>を参照してください。
+  </P
+><P
+>デフォルト値とは、現行セッション内で<TT
+CLASS="COMMAND"
+>SET</TT
+>コマンドが発行されなかった場合に変数が保持していた値として定義されます。
+デフォルト値は、コンパイル時に指定したデフォルト、設定ファイル、コマンドラインオプション、データベースごと、ユーザごとのデフォルト設定のいずれかを元にしています。
+これは、もし設定ファイルを元にした値である場合、現在の設定ファイルによって指定される値に再設定されるため、<SPAN
+CLASS="QUOTE"
+>"セッション起動時にそのパラメータが取る値"</SPAN
+>という定義と若干異なります。
+詳細は<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>RESET</TT
+>のトランザクションでの振舞いの<TT
+CLASS="COMMAND"
+>SET</TT
+>と同じです。
+この効果は、トランザクションのロールバックによって取り消されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73727"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+></DT
+><DD
+><P
+>設定可能な実行時パラメータの名前です。
+利用できるパラメータについては<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>で説明します。
+また、<A
+HREF="sql-set.html"
+>SET</A
+>マニュアルページを参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ALL</TT
+></DT
+><DD
+><P
+>設定可能な全ての実行時パラメータをデフォルト値に戻します。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73742"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="VARNAME"
+>timezone</TT
+>設定変数をデフォルト値に設定します。
+</P><PRE
+CLASS="SCREEN"
+>RESET timezone;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73747"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>RESET</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73752"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-set.html"
+>SET</A
+>, <A
+HREF="sql-show.html"
+>SHOW</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-release-savepoint.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-revoke.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>RELEASE SAVEPOINT</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>REVOKE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

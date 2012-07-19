@@ -1,0 +1,713 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ストリーミングレプリケーションプロトコル</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="フロントエンド/バックエンドプロトコル"
+HREF="protocol.html"><LINK
+REL="PREVIOUS"
+TITLE="メッセージの流れ"
+HREF="protocol-flow.html"><LINK
+REL="NEXT"
+TITLE="メッセージのデータ型"
+HREF="protocol-message-types.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="メッセージの流れ"
+HREF="protocol-flow.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="フロントエンド/バックエンドプロトコル"
+HREF="protocol.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 46&#31456;フロントエンド/バックエンドプロトコル</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="フロントエンド/バックエンドプロトコル"
+HREF="protocol.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="メッセージのデータ型"
+HREF="protocol-message-types.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PROTOCOL-REPLICATION"
+>46.3. ストリーミングレプリケーションプロトコル</A
+></H1
+><P
+>ストリーミングレプリケーションを初期化するために、フロントエンドは開始メッセージにて<TT
+CLASS="LITERAL"
+>replication</TT
+>パラメータを送信します。
+これはバックエンドに対して、SQL文ではなく小規模なレプリケーションコマンド群を発行できるようになる、walsenderモードに入るように伝えます。
+walsenderモードでは簡易問い合わせプロトコルのみを使用することができます。
+
+walsenderモードで受け付けられるコマンドは以下の通りです。
+
+<P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>IDENTIFY_SYSTEM</DT
+><DD
+><P
+>サーバに自身を識別することを要求します。
+サーバは以下の３つのフィールドを持つ単一行の結果セットをもって応答します。
+     </P
+><P
+>      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>systemid</DT
+><DD
+><P
+>クラスタを識別する一意なシステム識別子です。
+これを使用してスタンバイを初期化するために使用するベースバックアップが同じクラスタに由来していることを検査することができます。
+      </P
+></DD
+><DT
+>timeline</DT
+><DD
+><P
+>現在のTimelineIDです。
+同様にスタンバイがマスタと一貫性を持つことを検査するために使用されます。
+      </P
+></DD
+><DT
+>xlogpos</DT
+><DD
+><P
+>現在のxlogの書き出し位置です。
+ストリーミングを開始できるトランザクションログの既知の位置を得る際に有用です。
+      </P
+></DD
+></DL
+></DIV
+><P>
+     </P
+></DD
+><DT
+>START_REPLICATION <TT
+CLASS="REPLACEABLE"
+><I
+>XXX</I
+></TT
+>/<TT
+CLASS="REPLACEABLE"
+><I
+>XXX</I
+></TT
+></DT
+><DD
+><P
+>サーバに対して、WALのストリーミングを<TT
+CLASS="REPLACEABLE"
+><I
+>XXX</I
+></TT
+>/<TT
+CLASS="REPLACEABLE"
+><I
+>XXX</I
+></TT
+> WAL時点から開始するよう指示します。
+サーバが、例えば、要求されたWALの断片がすでに回収されているなど、エラーを返すことがありえます。
+成功時サーバはCopyBothResponseメッセージで応答し、フロントエンドに対するWALのストリーミングを開始します。
+WALのストリーミングは接続が壊れるまで継続され、他に受け付けられるコマンドはありません。
+     </P
+><P
+>WALデータはCopyDataメッセージ群として送信されます。
+（これにより他の情報を混在させることができます。
+具体的にはサーバはストリーム開始後に失敗が起きた場合にErrorResponseメッセージを送信することができます。）
+CopyDataメッセージのペイロードは以下の書式に従います。
+     </P
+><P
+>      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>XLogData (B)</DT
+><DD
+><P
+>      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Byte1('w')</DT
+><DD
+><P
+>メッセージをWALデータとして識別します。
+      </P
+></DD
+><DT
+>Byte8</DT
+><DD
+><P
+>このメッセージ内のWALの開始点。
+書式はXLogRecPtrです。
+      </P
+></DD
+><DT
+>Byte8</DT
+><DD
+><P
+>サーバ上の現在のWAL終了点。
+書式はXLogRecPtrです。
+      </P
+></DD
+><DT
+>Byte8</DT
+><DD
+><P
+>トランザクションの時点でのサーバのシステム時刻。
+書式はTimestampTzです。
+      </P
+></DD
+><DT
+>Byte<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+></DT
+><DD
+><P
+>WALデータストリームの断片。
+      </P
+></DD
+></DL
+></DIV
+><P>
+      </P
+></DD
+></DL
+></DIV
+><P>
+     </P
+><P
+>単一のWALレコードが2つのCopyDataメッセージに分かれることはありません。
+しかしWALレコードがWALページ境界を跨る場合、継続レコードを用いてすでに分割されていますので、ページ境界で分割することができます。
+言い換えると、先頭の主WALレコードとその継続レコードは、別のCopyDataメッセージとして分かれることがありえます。
+     </P
+><P
+>WALデータ内のすべてのフィールドと上記ヘッダが送信元サーバ用の書式であることに注意してください。
+エンディアンやタイムスタンプの書式は受信側が送信元のシステム識別子が自身の<TT
+CLASS="FILENAME"
+>pg_control</TT
+>の内容と一致するかどうかを検証しない限り予測できません。
+     </P
+><P
+>WAL送信プロセスが（postmasterの停止中に）正常に終了する場合、終了前にCommandCompleteメッセージを送信します。
+当然ながら異常終了の場合にはこれは送信されないかもしれません。
+     </P
+><P
+>受信側のプロセスはいつでも送信側に、以下のメッセージ書式のいずれかを使用して、応答を返送することができます。
+     </P
+><P
+>      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>スタンバイ状態の更新(F)</DT
+><DD
+><P
+>      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Byte1('r')</DT
+><DD
+><P
+>メッセージを受信側の状態更新として識別します。
+      </P
+></DD
+><DT
+>Byte8</DT
+><DD
+><P
+>スタンバイにおいて受信しディスクに書き込まれた最終WALバイト+1のXLogRecPtr書式の場所。
+      </P
+></DD
+><DT
+>Byte8</DT
+><DD
+><P
+>スタンバイにおいてディスクに吐き出された最終WALバイト+1のXLogRecPtr書式の場所。
+      </P
+></DD
+><DT
+>Byte8</DT
+><DD
+><P
+>スタンバイにおいて適用された最終WALバイト+1のXLogRecPtr書式の場所。
+      </P
+></DD
+><DT
+>Byte8</DT
+><DD
+><P
+>送信時のサーバのシステムクロック（TimestampTz書式）です。
+      </P
+></DD
+></DL
+></DIV
+><P>
+      </P
+></DD
+></DL
+></DIV
+><P>
+     </P
+><P
+>      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>ホットスタンバイフィードバックメッセージ(F)</DT
+><DD
+><P
+>      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Byte1('h')</DT
+><DD
+><P
+>メッセージをホットスタンバイのフィードバックメッセージとして識別します。
+      </P
+></DD
+><DT
+>Byte8</DT
+><DD
+><P
+>送信時のサーバのシステムクロック（TimestampTz書式）です。
+      </P
+></DD
+><DT
+>Byte4</DT
+><DD
+><P
+>スタンバイの現在のxminです。
+      </P
+></DD
+><DT
+>Byte4</DT
+><DD
+><P
+>スタンバイの現在のエポックです。
+      </P
+></DD
+></DL
+></DIV
+><P>
+      </P
+></DD
+></DL
+></DIV
+><P>
+     </P
+></DD
+><DT
+>BASE_BACKUP [<TT
+CLASS="LITERAL"
+>LABEL</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>'label'</I
+></TT
+>] [<TT
+CLASS="LITERAL"
+>PROGRESS</TT
+>] [<TT
+CLASS="LITERAL"
+>FAST</TT
+>] [<TT
+CLASS="LITERAL"
+>WAL</TT
+>] [<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>]</DT
+><DD
+><P
+>サーバにベースバックアップのストリーミングを始めるよう指示します。
+システムはバックアップが開始される前に自動的にバックアップモードになり、バックアップが完了した時に取り出されます。
+以下のオプションを受け付けることができます。
+      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>LABEL</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>'label'</I
+></TT
+></DT
+><DD
+><P
+>バックアップのラベルを設定します。
+指定がない場合、<TT
+CLASS="LITERAL"
+>base backup</TT
+>というバックアップラベルが使用されます。
+ラベルについての引用符付け規則は、<A
+HREF="runtime-config-compatible.html#GUC-STANDARD-CONFORMING-STRINGS"
+>standard_conforming_strings</A
+>を有効にした場合の標準SQLの文字列の規則と同じです。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>PROGRESS</TT
+></DT
+><DD
+><P
+>進行状況の報告を生成するために必要な情報を要求します。
+これは、ストリームが完了するまでにどのくらいかかるかを計算するために使用することができる、各テーブル空間のヘッダ内の概算容量を返送します。
+これは、転送を始める前のすべてのファイルサイズを１度数え上げることで計算されます。
+これ自体が性能に与える悪影響があるかもしれません。
+特に最初のデータがストリームされるまでにより多くの時間がかかる可能性があります。
+データベースファイルはバックアップの間変更される可能性がありますので、容量は概算に過ぎず、概算時と実ファイルを送信するまでの間に増減される可能性があります。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FAST</TT
+></DT
+><DD
+><P
+>高速チェックポイントを要求します。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WAL</TT
+></DT
+><DD
+><P
+>バックアップ内に必要なWALセグメントを含めます。
+ベースディレクトリtarファイルの<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>ディレクトリにある、バックアップの開始から終了までのすべてのファイルが含まれます。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NOWAIT</TT
+></DT
+><DD
+><P
+>デフォルトでは、バックアップは必要な最終xlogセグメントがアーカイブされるまで待機します。
+ログアーカイブが有効でない場合は警告が発せられます。
+<TT
+CLASS="LITERAL"
+>NOWAIT</TT
+>により、必要なログが利用できるようになったことを確認することをクライアント側の責任として、この待機や警告が無効になります。
+         </P
+></DD
+></DL
+></DIV
+><P>
+     </P
+><P
+>バックアップを開始する時、サーバはまず２つの通常の結果セットを送信し、続けて１つ以上のCopyResponse結果を送信します。
+     </P
+><P
+>最初の通常の結果セットには、単一行の単一列という形でXLogRecPtr書式のバックアップの開始位置が含まれます。
+     </P
+><P
+>２番目の通常の結果セットには各テーブル空間に付き１行を持ちます。
+この行のフィールドは以下の通りです。
+      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>spcoid</DT
+><DD
+><P
+>テーブル空間のoidです。
+ベースディレクトリの場合は<TT
+CLASS="LITERAL"
+>NULL</TT
+>です。
+         </P
+></DD
+><DT
+>spclocation</DT
+><DD
+><P
+>テーブル空間ディレクトリのフルパスです。
+ベースディレクトリの場合は<TT
+CLASS="LITERAL"
+>NULL</TT
+>です。
+         </P
+></DD
+><DT
+>size</DT
+><DD
+><P
+>進行状況報告が要求された場合は、テーブル空間の概算容量です。
+要求されていない場合は<TT
+CLASS="LITERAL"
+>NULL</TT
+>です。
+         </P
+></DD
+></DL
+></DIV
+><P>
+     </P
+><P
+>２番目の通常の結果セットの後、１つ以上のCopyResponse結果が送信されます。
+１つはPGDATA用、<TT
+CLASS="LITERAL"
+>pg_default</TT
+>、<TT
+CLASS="LITERAL"
+>pg_global</TT
+>以外の追加のテーブル空間ごとに1つ送信されます。
+CopyResponse結果内のデータは、テーブル空間の内容のtar形式ダンプ（ustar00拡張を使用）です。
+このtarデータが終わった後、最終の通常結果セットが送信されます。
+     </P
+><P
+>データディレクトリと各テーブル空間のtarアーカイブには、そのディレクトリ内のファイルが<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ファイルかそのディレクトリに追加された他のファイルかに関係なく、すべて含まれます。
+以下に除かれるファイルを示します。
+      <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>         <TT
+CLASS="FILENAME"
+>postmaster.pid</TT
+>
+        </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>         <TT
+CLASS="FILENAME"
+>postmaster.opts</TT
+>
+        </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>サブディレクトリを含む<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>。
+バックアップがwalファイルを含めて実行される場合、合成された版のpg_xlogが含まれます。
+これにはバックアップが動作するために必要なファイルのみが含まれ、残りの内容は含まれません。
+        </P
+></LI
+></UL
+><P>
+サーバ上の基盤となるファイルシステムがサポートする場合、所有者、グループ、ファイルのモードが設定されます。
+     </P
+><P
+>すべてのテーブル空間が送信された後、最終の通常の結果セットが送信されます。
+この結果セットには、単一行の単一列という形でXLogRecPtr書式のバックアップの終了位置が含まれます。
+     </P
+></DD
+></DL
+></DIV
+><P>&#13;</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="protocol-flow.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="protocol-message-types.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>メッセージの流れ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="protocol.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>メッセージのデータ型</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

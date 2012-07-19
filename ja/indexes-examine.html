@@ -1,0 +1,318 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>インデックス使用状況の検証</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックス"
+HREF="indexes.html"><LINK
+REL="PREVIOUS"
+TITLE="インデックスと照合順序"
+HREF="indexes-collations.html"><LINK
+REL="NEXT"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックスと照合順序"
+HREF="indexes-collations.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 11&#31456;インデックス</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックス"
+HREF="indexes.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEXES-EXAMINE"
+>11.11. インデックス使用状況の検証</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、インデックスのメンテナンスまたはチューニングは必要ありませんが、どのインデックスが実際の問い合わせで使われているかを確認することは、やはり重要です。
+個々のコマンドでのインデックスの使用状況は、<A
+HREF="sql-explain.html"
+>EXPLAIN</A
+>コマンドで検証できます。
+この目的のための用例を<A
+HREF="using-explain.html"
+>&#38917;14.1</A
+>に示します。
+また、<A
+HREF="monitoring-stats.html"
+>&#38917;27.2</A
+>に示す通り、稼働中のサーバにおけるインデックス使用状況の全体的な統計情報を取り出すこともできます。
+  </P
+><P
+>どのインデックスを作成すべきかを判断するための一般的な手順を定めることは困難です。
+これまでの節では、例として典型的なケースをいくつか記述してきました。
+十分な検証がしばしば必要です。
+本節の残りで、検証のためのヒントをいくつか説明しておきます。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+>まず、必ず<A
+HREF="sql-analyze.html"
+>ANALYZE</A
+>コマンドを実行してください。
+このコマンドにより、テーブル内の値の分布に関する統計情報を収集します。
+この情報は、問い合わせにより返される行数を推測する際に必要となります。
+推測された行数は、利用できる各問い合わせ計画に実際のコストを割り当てるために、プランナで必要となります。
+実際の統計情報が少しでも欠如している場合、何らかのデフォルト値が仮定されます。
+このデフォルト値は、ほぼ間違いなく不正確です。
+したがって、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>コマンドを実行せずに、アプリケーションのインデックス使用状況を検証しても、あまり意味がありません。
+より詳細な情報は<A
+HREF="routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+>&#38917;23.1.3</A
+>と<A
+HREF="routine-vacuuming.html#AUTOVACUUM"
+>&#38917;23.1.5</A
+>を参照してください。
+    </P
+></LI
+><LI
+><P
+>検証には、実際に使用するデータを使ってください。
+テストデータを使ってインデックスを作成した場合、テストデータに必要なインデックスはわかりますが、それ以上はわかりません。
+    </P
+><P
+>非常に小さなテストデータを使用することも、結果に特に致命的な影響を与えます。
+100,000行から1,000行を選択する場合は、インデックスが使用される可能性がありますが、100行から1行を選択する場合はインデックスはまず使用されません。
+なぜなら、100行はおそらく1つのディスクページに収まるため、1ページを逐次読み取るよりも高速な計画は存在しないからです。
+    </P
+><P
+>また、アプリケーションがまだ実動していない場合、テストデータを作成しなければならないことがよくありますが、その際にも注意が必要です。
+非常に類似した値や、完全にランダムな値、またはソートされた順序で値が挿入されている場合は、その統計情報は、実際のデータの分布とかけ離れたものになってしまいます。
+    </P
+></LI
+><LI
+><P
+>インデックスが使用されていない場合、テストのためにインデックスを強制的に使用するようにすると便利です。
+各種の計画型を無効にするかを設定できる実行時パラメータがあります
+（<A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-ENABLE"
+>&#38917;18.7.1</A
+>を参照してください）。
+例えば、最も基本的な計画であるシーケンシャルスキャン（<TT
+CLASS="VARNAME"
+>enable_seqscan</TT
+>）および入れ子状ループ結合（<TT
+CLASS="VARNAME"
+>enable_nestloop</TT
+>）を無効に設定すると、システムは別の計画を使用するように強制されます。
+そのような設定を行っても、システムがシーケンシャルスキャンや入れ子状ループ結合を選択する場合は、インデックスを使用しない理由としておそらくもっと根本的な理由があるということになります。
+例えば、問い合わせの条件がインデックスに一致しない、などが考えられます。
+（どのような問い合わせで、どのようなインデックスを使用できるかは、前節で説明済みです。）
+    </P
+></LI
+><LI
+><P
+>強制的にインデックスを使うように設定し、インデックスを使用している場合は、次の2つの状況が考えられます。
+システムの判断が正しく、インデックスの使用が実際には適切ではないという状況と、問い合わせ計画のコスト推定が実情を反映していない状況です。
+したがって、インデックスを使った問い合わせの実行時間と、使わない場合の実行時間を計測する必要があります。
+この場合、<TT
+CLASS="COMMAND"
+>EXPLAIN ANALYZE</TT
+>コマンドが便利です。
+    </P
+></LI
+><LI
+><P
+>コスト推定が間違っていると判明した場合、やはり2つの状況が考えられます。
+総コストは、各計画ノードの行単位のコストに、計画ノードの推定選択度を掛けることで算出されます。
+計画ノードのコスト推定は、実行時パラメータによって設定することができます
+（<A
+HREF="runtime-config-query.html#RUNTIME-CONFIG-QUERY-CONSTANTS"
+>&#38917;18.7.2</A
+>を参照してください）。
+推定選択度が不正確であるのは、統計情報が不十分であるのが原因です。
+統計情報収集用のパラメータを調節することによって、この状況を改善することができます
+（<A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>を参照してください）。
+    </P
+><P
+>コストを適切に調節できない場合は、明示的にインデックスを使用する必要が考えられます。
+あるいは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>開発者に問題の調査を依頼することになるかもしれません。
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="indexes-collations.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インデックスと照合順序</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>全文検索</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

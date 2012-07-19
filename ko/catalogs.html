@@ -1,0 +1,777 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>시스템 카탈로그 </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \" 내부 정보\"\n
+HREF="internals.html"><LINK
+REL="PREVIOUS"
+TITLE = \" 집행자 \"\n
+HREF="executor.html"><LINK
+REL="NEXT"
+TITLE = \" 설명 \"\n
+HREF="catalogs-overview.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" 집행자 \"\n
+HREF="executor.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \"PostgreSQL 내부 개요 \"\n
+HREF="overview.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 프런트 엔드 / 백 엔드 프로토콜 \"\n
+HREF="protocol.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 설명 \"\n
+HREF="catalogs-overview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="CATALOGS"
+></A
+>&#31532; 45 장 システムカタログ</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>45.1. <A
+HREF="catalogs-overview.html"
+>개요 </A
+></DT
+><DT
+>45.2. <A
+HREF="catalog-pg-aggregate.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_aggregate</TT
+></A
+></DT
+><DT
+>45.3. <A
+HREF="catalog-pg-am.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+></A
+></DT
+><DT
+>45.4. <A
+HREF="catalog-pg-amop.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_amop</TT
+></A
+></DT
+><DT
+>45.5. <A
+HREF="catalog-pg-amproc.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_amproc</TT
+></A
+></DT
+><DT
+>45.6. <A
+HREF="catalog-pg-attrdef.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_attrdef</TT
+></A
+></DT
+><DT
+>45.7. <A
+HREF="catalog-pg-attribute.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_attribute</TT
+></A
+></DT
+><DT
+>45.8. <A
+HREF="catalog-pg-authid.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_authid</TT
+></A
+></DT
+><DT
+>45.9. <A
+HREF="catalog-pg-auth-members.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_auth_members</TT
+></A
+></DT
+><DT
+>45.10. <A
+HREF="catalog-pg-cast.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_cast</TT
+></A
+></DT
+><DT
+>45.11. <A
+HREF="catalog-pg-class.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+></A
+></DT
+><DT
+>45.12. <A
+HREF="catalog-pg-constraint.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_constraint</TT
+></A
+></DT
+><DT
+>45.13. <A
+HREF="catalog-pg-collation.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_collation</TT
+></A
+></DT
+><DT
+>45.14. <A
+HREF="catalog-pg-conversion.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_conversion</TT
+></A
+></DT
+><DT
+>45.15. <A
+HREF="catalog-pg-database.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_database</TT
+></A
+></DT
+><DT
+>45.16. <A
+HREF="catalog-pg-db-role-setting.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_db_role_setting</TT
+></A
+></DT
+><DT
+>45.17. <A
+HREF="catalog-pg-default-acl.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_default_acl</TT
+></A
+></DT
+><DT
+>45.18. <A
+HREF="catalog-pg-depend.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_depend</TT
+></A
+></DT
+><DT
+>45.19. <A
+HREF="catalog-pg-description.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_description</TT
+></A
+></DT
+><DT
+>45.20. <A
+HREF="catalog-pg-enum.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_enum</TT
+></A
+></DT
+><DT
+>45.21. <A
+HREF="catalog-pg-extension.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_extension</TT
+></A
+></DT
+><DT
+>45.22. <A
+HREF="catalog-pg-foreign-data-wrapper.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_foreign_data_wrapper</TT
+></A
+></DT
+><DT
+>45.23. <A
+HREF="catalog-pg-foreign-server.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_foreign_server</TT
+></A
+></DT
+><DT
+>45.24. <A
+HREF="catalog-pg-foreign-table.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_foreign_table</TT
+></A
+></DT
+><DT
+>45.25. <A
+HREF="catalog-pg-index.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_index</TT
+></A
+></DT
+><DT
+>45.26. <A
+HREF="catalog-pg-inherits.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_inherits</TT
+></A
+></DT
+><DT
+>45.27. <A
+HREF="catalog-pg-language.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_language</TT
+></A
+></DT
+><DT
+>45.28. <A
+HREF="catalog-pg-largeobject.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_largeobject</TT
+></A
+></DT
+><DT
+>45.29. <A
+HREF="catalog-pg-largeobject-metadata.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_largeobject_metadata</TT
+></A
+></DT
+><DT
+>45.30. <A
+HREF="catalog-pg-namespace.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_namespace</TT
+></A
+></DT
+><DT
+>45.31. <A
+HREF="catalog-pg-opclass.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_opclass</TT
+></A
+></DT
+><DT
+>45.32. <A
+HREF="catalog-pg-operator.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_operator</TT
+></A
+></DT
+><DT
+>45.33. <A
+HREF="catalog-pg-opfamily.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_opfamily</TT
+></A
+></DT
+><DT
+>45.34. <A
+HREF="catalog-pg-pltemplate.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+></A
+></DT
+><DT
+>45.35. <A
+HREF="catalog-pg-proc.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_proc</TT
+></A
+></DT
+><DT
+>45.36. <A
+HREF="catalog-pg-rewrite.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_rewrite</TT
+></A
+></DT
+><DT
+>45.37. <A
+HREF="catalog-pg-seclabel.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_seclabel</TT
+></A
+></DT
+><DT
+>45.38. <A
+HREF="catalog-pg-shdepend.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_shdepend</TT
+></A
+></DT
+><DT
+>45.39. <A
+HREF="catalog-pg-shdescription.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_shdescription</TT
+></A
+></DT
+><DT
+>45.40. <A
+HREF="catalog-pg-statistic.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+></A
+></DT
+><DT
+>45.41. <A
+HREF="catalog-pg-tablespace.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_tablespace</TT
+></A
+></DT
+><DT
+>45.42. <A
+HREF="catalog-pg-trigger.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_trigger</TT
+></A
+></DT
+><DT
+>45.43. <A
+HREF="catalog-pg-ts-config.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_ts_config</TT
+></A
+></DT
+><DT
+>45.44. <A
+HREF="catalog-pg-ts-config-map.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_ts_config_map</TT
+></A
+></DT
+><DT
+>45.45. <A
+HREF="catalog-pg-ts-dict.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_ts_dict</TT
+></A
+></DT
+><DT
+>45.46. <A
+HREF="catalog-pg-ts-parser.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_ts_parser</TT
+></A
+></DT
+><DT
+>45.47. <A
+HREF="catalog-pg-ts-template.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_ts_template</TT
+></A
+></DT
+><DT
+>45.48. <A
+HREF="catalog-pg-type.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_type</TT
+></A
+></DT
+><DT
+>45.49. <A
+HREF="catalog-pg-user-mapping.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_user_mapping</TT
+></A
+></DT
+><DT
+>45.50. <A
+HREF="views-overview.html"
+>시스템 보기 </A
+></DT
+><DT
+>45.51. <A
+HREF="view-pg-available-extensions.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_available_extensions</TT
+></A
+></DT
+><DT
+>45.52. <A
+HREF="view-pg-available-extension-versions.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_available_extension_versions</TT
+></A
+></DT
+><DT
+>45.53. <A
+HREF="view-pg-cursors.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_cursors</TT
+></A
+></DT
+><DT
+>45.54. <A
+HREF="view-pg-group.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_group</TT
+></A
+></DT
+><DT
+>45.55. <A
+HREF="view-pg-indexes.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_indexes</TT
+></A
+></DT
+><DT
+>45.56. <A
+HREF="view-pg-locks.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_locks</TT
+></A
+></DT
+><DT
+>45.57. <A
+HREF="view-pg-prepared-statements.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_prepared_statements</TT
+></A
+></DT
+><DT
+>45.58. <A
+HREF="view-pg-prepared-xacts.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_prepared_xacts</TT
+></A
+></DT
+><DT
+>45.59. <A
+HREF="view-pg-roles.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_roles</TT
+></A
+></DT
+><DT
+>45.60. <A
+HREF="view-pg-rules.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_rules</TT
+></A
+></DT
+><DT
+>45.61. <A
+HREF="view-pg-seclabels.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_seclabels</TT
+></A
+></DT
+><DT
+>45.62. <A
+HREF="view-pg-settings.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_settings</TT
+></A
+></DT
+><DT
+>45.63. <A
+HREF="view-pg-shadow.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_shadow</TT
+></A
+></DT
+><DT
+>45.64. <A
+HREF="view-pg-stats.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_stats</TT
+></A
+></DT
+><DT
+>45.65. <A
+HREF="view-pg-tables.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_tables</TT
+></A
+></DT
+><DT
+>45.66. <A
+HREF="view-pg-timezone-abbrevs.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_timezone_abbrevs</TT
+></A
+></DT
+><DT
+>45.67. <A
+HREF="view-pg-timezone-names.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_timezone_names</TT
+></A
+></DT
+><DT
+>45.68. <A
+HREF="view-pg-user.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_user</TT
+></A
+></DT
+><DT
+>45.69. <A
+HREF="view-pg-user-mappings.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_user_mappings</TT
+></A
+></DT
+><DT
+>45.70. <A
+HREF="view-pg-views.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_views</TT
+></A
+></DT
+></DL
+></DIV
+><P
+>시스템 카탈로그는 관계형 데이터베이스 관리 시스템 테이블과 열에 대한 정보를 비롯하여 스키마 메타 데이터와 내부 정보를 저장하는 장소입니다.
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>시스템 카탈로그는 일반 테이블입니다.
+테이블을 삭제 하거나 다시 만들거나 열 추가하고 값을 삽입 하거나 업데이 트 하는 것은 가능하지만 이러한 작업을 데이터베이스 시스템을 파멸 해 버릴 가능성도 있습니다.
+일반적으로 수동으로 시스템 카탈로그를 변경 하지 마십시오 .
+그 대신 SQL 명령을 사용 합니다\n
+( 예를 들어   TT\n
+CLASS="COMMAND"
+>CREATE DATABASE</TT
+>는   TT\n
+CLASS="STRUCTNAME"
+>pg_database</TT
+>카탈로그 1 행 삽입 하여 디스크 에 데이터베이스 를 실제로 작성 합니다.)
+그러나 인덱스 액세스 메소드 를 추가하는 것과 특히 난이도가 높은 작업 시 등 예외가 있습니다.
+
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="executor.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="catalogs-overview.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>집행자 </TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="internals.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>개요 </TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

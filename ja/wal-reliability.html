@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>信頼性</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"><LINK
+REL="PREVIOUS"
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"><LINK
+REL="NEXT"
+TITLE="ログ先行書き込み(WAL)"
+HREF="wal-intro.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 29&#31456;信頼性とログ先行書き込み</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ログ先行書き込み(WAL)"
+HREF="wal-intro.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WAL-RELIABILITY"
+>29.1. 信頼性</A
+></H1
+><P
+>信頼性は、すべての深刻なデータベースシステムで重要な特性です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は信頼できる操作を保証することができます。
+信頼できる操作とは、コミットされたトランザクションにより記録されたデータはすべて不揮発性の領域に格納され、電源断、オペレーティングシステムの障害、ハードウェアの障害（当然ですが、不揮発性の領域自体の障害は除きます。）があっても安全であるという点です。
+通常、コンピュータの永続的格納領域（ディスク装置など）へのデータ書き込みの成功がこの条件を満たします。
+実際、コンピュータに致命的な障害が発生したとしても、もしディスク装置が無事ならば、類似のハードウェアを持つ別のコンピュータに移すことができ、コミットされたトランザクションを元通りに復元できます。
+  </P
+><P
+>データを周期的にディスクプラッタに書き出すことは簡単な操作に思われるかもしれませんが、そうではありません。
+ディスク装置は主メモリ、CPU、コンピュータの主メモリとディスクプラッタの間にある各種のキャッシュ層と比べ非常に低速であるからです。
+まず、オペレーティングシステムのバッファキャッシュが存在します。
+これは頻繁にアクセス要求があるディスクブロックをキャッシュし、ディスクへの書き込みをまとめます。
+好運にもすべてのオペレーティングシステムがバッファキャッシュをディスクに強制書き込みさせる方法をアプリケーションに提供しています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はこの機能を使用します。
+（これを調整する方法については<A
+HREF="runtime-config-wal.html#GUC-WAL-SYNC-METHOD"
+>wal_sync_method</A
+>パラメータを参照してください。）
+  </P
+><P
+>次に、ディスク装置のコントローラキャッシュが存在する可能性があります。
+特に、<ACRONYM
+CLASS="ACRONYM"
+>RAID</ACRONYM
+>コントローラカードでは、これは一般的です。
+これらは<I
+CLASS="FIRSTTERM"
+>write-through</I
+>キャッシュ、つまり、データが届いた時に即座に書き込みがディスク装置に対して行なわれる、の場合があります。
+また、<I
+CLASS="FIRSTTERM"
+>write-back</I
+>キャッシュ、つまり、多少遅れて書き込みがディスク装置に対して行なわれる、の場合もあります。
+こうしたキャッシュではディスクコントローラキャッシュが揮発性、つまり、電源障害の際にその内容が失われてしまいますので、信頼性に関する障害が発生する可能性があります。
+より優れたコントローラカードでは<I
+CLASS="FIRSTTERM"
+>バッテリバックアップ付き装置</I
+>(<ACRONYM
+CLASS="ACRONYM"
+>BBU</ACRONYM
+>s) を持ちます。
+つまり、システムの電源が落ちている状態でもキャッシュに電源を供給します。
+後で電源が復旧した後に、データがディスク装置に書き出されます。
+  </P
+><P
+>最後に、ほとんどのディスク装置がキャッシュを持っています。一部はwrite-throughであり、一部はwrite-backです。
+ディスクコントローラキャッシュの場合と同様にwrite-backのディスク装置キャッシュの場合にはデータが損失する恐れがあります。
+一般消費者向けのIDEおよびSATA装置では特に、よくwrite-backキャッシュを使用しています。これは電源障害時にデータが残りません。
+多くのソリッドステートドライブ(SSD)も同様に揮発性のwrite-backキャッシュを持っています。
+  </P
+><P
+>これらのキャッシュは、大抵は無効にできます。しかしながらオペレーティングシステムやドライブの種類によってその方法は異なります。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Linux</SPAN
+>上で<TT
+CLASS="COMMAND"
+>hdparm -I</TT
+>を使用することでIDEドライブのキャッシュについて調べることができます。
+<TT
+CLASS="LITERAL"
+>Write cache</TT
+>の次に <TT
+CLASS="LITERAL"
+>*</TT
+>があれば書き込みキャッシュが有効になっています。
+<TT
+CLASS="COMMAND"
+>hdparm -W</TT
+>により書き込みキャッシュを無効にできます。
+SCSIドライブであれば<A
+HREF="http://sg.danny.cz/sg/sdparm.html"
+TARGET="_top"
+><SPAN
+CLASS="APPLICATION"
+>sdparm</SPAN
+></A
+>を使うことで調査が可能です。
+<TT
+CLASS="COMMAND"
+>sdparm --get=WCE</TT
+>によりキャッシュが有効かどうかの確認ができ、<TT
+CLASS="COMMAND"
+>sdparm --clear=WCE</TT
+>により無効にすることができます。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>FreeBSD</SPAN
+>では、IDEドライブに対して<TT
+CLASS="COMMAND"
+>atacontrol</TT
+>により確認ができ、そして書き込みキャッシュを無効にするには<TT
+CLASS="FILENAME"
+>/boot/loader.conf</TT
+>の<TT
+CLASS="LITERAL"
+>hw.ata.wc=0</TT
+>を利用します。SCSIドライブに対しては<TT
+CLASS="COMMAND"
+>camcontrol identify</TT
+>を確認に使用することができ、<TT
+CLASS="COMMAND"
+>sdparm</TT
+>を使用できる場合にはそれを用いて書き込みキャッシュの確認と変更が可能です。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Solaris</SPAN
+>では、ディスクの書き込みキャッシュは<A
+HREF="http://www.sun.com/bigadmin/content/submitted/format_utility.jsp"
+TARGET="_top"
+><TT
+CLASS="LITERAL"
+>format -e</TT
+></A
+>で制御できます。
+(Solarisの<ACRONYM
+CLASS="ACRONYM"
+>ZFS</ACRONYM
+>ファイルシステムは、独自のディスクキャッシュ書き出しコマンドを発行しているため、ディスクの書き込みキャッシュを有効にしても安全です。)
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>では、もし<TT
+CLASS="VARNAME"
+>wal_sync_method</TT
+>が<TT
+CLASS="LITERAL"
+>open_datasync</TT
+>(デフォルト)の場合、
+<TT
+CLASS="LITERAL"
+>My Computer\Open\<TT
+CLASS="REPLACEABLE"
+><I
+>disk drive</I
+></TT
+>\Properties\Hardware\Properties\Policies\Enable write caching on the disk</TT
+>のチェックを外すことで、書き込みキャッシュを無効にできます。
+もう一つの方法としては、<TT
+CLASS="VARNAME"
+>wal_sync_method</TT
+>を<TT
+CLASS="LITERAL"
+>fsync</TT
+>か<TT
+CLASS="LITERAL"
+>fsync_writethrough</TT
+>に設定し、書き込みキャッシュを使用しないようにします。
+      </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Mac OS X</SPAN
+>では、<TT
+CLASS="VARNAME"
+>wal_sync_method</TT
+>を<TT
+CLASS="LITERAL"
+>fsync_writethrough</TT
+>に設定することで書き込みキャッシュを使用しないようにします。
+      </P
+></LI
+></UL
+><P
+>最近のSATAドライブ(<ACRONYM
+CLASS="ACRONYM"
+>ATAPI-6</ACRONYM
+>以降)はドライブキャッシュの書き出しコマンド(<TT
+CLASS="COMMAND"
+>FLUSH CACHE EXT</TT
+>)を提供しており、
+一方SCSIドライブでは従来から類似の<TT
+CLASS="COMMAND"
+>SYNCHRONIZE CACHE</TT
+>コマンドをサポートしていました。
+これらのコマンドは、直接PostgreSQLに発行されませんが、いくつかのファイルシステム(例えば<ACRONYM
+CLASS="ACRONYM"
+>ZFS</ACRONYM
+>や<ACRONYM
+CLASS="ACRONYM"
+>ext4</ACRONYM
+>)では、
+それらをwrite-backが有効なドライブへデータを書き出すために使います。
+不幸なことに、このようなwriteバリアを持つファイルシステムは、バッテリバックアップ付き装置
+(<ACRONYM
+CLASS="ACRONYM"
+>BBU</ACRONYM
+>)のディスクコントローラと組み合わせた際に、好ましくは動作しません。
+このような処理の流れにおいて、同期コマンドはコントローラキャッシュにあるデータを全てディスクへ強制的に書き込みを行うため、
+BBUのメリットの大半を失わせています。<A
+HREF="pgtestfsync.html"
+>pg_test_fsync</A
+>ユーティリティを
+使うことで、あなたの環境が影響を受けるかどうかを確認できます。もし影響を受けるようであれば、
+ファイルシステムのwriteバリアを無効にするか、(オプションがあれば)ディスクコントローラを再設定することで、
+BBUによる性能上の効果を得ることできるでしょう。もしwriteバリアを無効にした場合は、バッテリが
+動作していることを確認しておきましょう。バッテリの欠陥はデータロスの可能性に繋がります。
+ファイルシステムやディスクコントローラの設計者が、いずれはこの動作を修正してくれることが望まれます。
+  </P
+><P
+>オペレーティングシステムが、ストレージハードウェアに書き込み要求を送信した時、データが不揮発性のストレージ領域に本当に届いたかどうかを確認することはほぼできません。
+ですので、全てのストレージ構成品がデータ整合性を保証することをよく確認しておくことは、管理者の責任です。
+バッテリを持たない書き込みキャッシュを持つコントローラを使用しないでください。
+装置レベルでは、もし装置が停止前にデータが書き出されることを保証できないのであれば、write-backキャッシュを無効にしてください。
+もしSSDを使っている場合、多くのドライブはデフォルトでキャッシュ書き出しコマンドを無視することに注意して下さい。
+<A
+HREF="http://brad.livejournal.com/2116715.html"
+TARGET="_top"
+><TT
+CLASS="FILENAME"
+>diskchecker.pl</TT
+></A
+>を使うことで、I/Oサブシステムの動作の信頼性をテストすることができます。
+  </P
+><P
+>ディスクプラッタの書き込み操作自体によってもデータ損失が発生することがあります。
+ディスクプラッタは、通常512バイトのセクタに分割されています。
+物理的な読み込み操作、書き込み操作はすべて、セクタ全体を処理します。
+書き込み要求がディスクに達した時、その要求は512バイトの倍数(<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では大抵一度に8192バイトもしくは16セクタ分です)になるでしょう。そして
+電源断により、任意のタイミングで書き込み処理が失敗することがありえます。これは一部の512バイトのセクタに書き込みが行なわれたのに、残りのセクタには書き込みが行なわれていない状況を意味します。
+こうした問題の対策として、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、ディスク上の実際のページを変更する<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>前</I
+></SPAN
+>に定期的にページ全体のイメージを永続的なWAL格納領域に書き出します。
+これにより、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はクラッシュリカバリ時に部分的に書き出されたページをWALから復旧させることができます。
+もし、部分的なページ書き込みを防止できるファイルシステムソフトウェア（例えばZFS）を使うのであれば、<A
+HREF="runtime-config-wal.html#GUC-FULL-PAGE-WRITES"
+>full_page_writes</A
+>を無効にしてページイメージ作成を無効にすることができます。バッテリバックアップ付き（BBU）のディスクコントローラでは、フルページ（8kB）がBBUへ書き込まれることを保証できなければ、部分的なページ書き出しを防止できません。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="wal.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="wal-intro.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>信頼性とログ先行書き込み</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="wal.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ログ先行書き込み(<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>)</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

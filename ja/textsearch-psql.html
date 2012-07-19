@@ -1,0 +1,453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>psqlサポート</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="PREVIOUS"
+TITLE="GiSTおよびGINインデックス種類"
+HREF="textsearch-indexes.html"><LINK
+REL="NEXT"
+TITLE="制限事項"
+HREF="textsearch-limitations.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="GiSTおよびGINインデックス種類"
+HREF="textsearch-indexes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 12&#31456;全文検索</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="制限事項"
+HREF="textsearch-limitations.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEXTSEARCH-PSQL"
+>12.10. <SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>サポート</A
+></H1
+><P
+>   psqlでテキスト検索設定オブジェクトに関する情報は、コマンドの集まりを使って取得できます。
+</P><PRE
+CLASS="SYNOPSIS"
+>\dF{d,p,t}[<SPAN
+CLASS="OPTIONAL"
+>+</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>PATTERN</SPAN
+>]</PRE
+><P>
+   オプションの<TT
+CLASS="LITERAL"
+>+</TT
+>はより詳細な情報を出力します。
+  </P
+><P
+>   オプションパラメータの<TT
+CLASS="LITERAL"
+>PATTERN</TT
+>はテキスト検索オブジェクトの名前にすることができます。オプションとしてスキーマ修飾することができます。<TT
+CLASS="LITERAL"
+>PATTERN</TT
+>が省略されると、すべての可視的なオブジェクトが表示されます。<TT
+CLASS="LITERAL"
+>PATTERN</TT
+>は正規表現を与えることができ、さらにスキーマとオブジェクト名に対して<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>別々の</I
+></SPAN
+>パターンを与えることができ
+
+ます。次の例はこれを説明するものです。
+
+</P><PRE
+CLASS="SCREEN"
+>=&gt; \dF *fulltext*
+       List of text search configurations
+ Schema |  Name        | Description
+--------+--------------+-------------
+ public | fulltext_cfg |</PRE
+><P>
+
+</P><PRE
+CLASS="SCREEN"
+>=&gt; \dF *.fulltext*
+       List of text search configurations
+ Schema   |  Name        | Description
+----------+----------------------------
+ fulltext | fulltext_cfg |
+ public   | fulltext_cfg |</PRE
+><P>
+
+   以下のコマンドが利用できます。
+  </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><PRE
+CLASS="SYNOPSIS"
+>\dF[<SPAN
+CLASS="OPTIONAL"
+>+</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>PATTERN</SPAN
+>]</PRE
+></DT
+><DD
+><P
+>      テキスト検索設定を表示します(<TT
+CLASS="LITERAL"
+>+</TT
+>追加で詳細表示)。
+</P><PRE
+CLASS="SCREEN"
+>=&gt; \dF russian
+            List of text search configurations
+   Schema   |  Name   |            Description             
+------------+---------+------------------------------------
+ pg_catalog | russian | configuration for russian language
+
+=&gt; \dF+ russian
+Text search configuration "pg_catalog.russian"
+Parser: "pg_catalog.default"
+      Token      | Dictionaries 
+-----------------+--------------
+ asciihword      | english_stem
+ asciiword       | english_stem
+ email           | simple
+ file            | simple
+ float           | simple
+ host            | simple
+ hword           | russian_stem
+ hword_asciipart | english_stem
+ hword_numpart   | simple
+ hword_part      | russian_stem
+ int             | simple
+ numhword        | simple
+ numword         | simple
+ sfloat          | simple
+ uint            | simple
+ url             | simple
+ url_path        | simple
+ version         | simple
+ word            | russian_stem</PRE
+><P>
+     </P
+></DD
+><DT
+><PRE
+CLASS="SYNOPSIS"
+>\dFd[<SPAN
+CLASS="OPTIONAL"
+>+</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>PATTERN</SPAN
+>]</PRE
+></DT
+><DD
+><P
+>      テキスト検索辞書を表示します(<TT
+CLASS="LITERAL"
+>+</TT
+>追加で詳細表示)。
+</P><PRE
+CLASS="SCREEN"
+>=&gt; \dFd
+                            List of text search dictionaries
+   Schema   |      Name       |                        Description                        
+------------+-----------------+-----------------------------------------------------------
+ pg_catalog | danish_stem     | snowball stemmer for danish language
+ pg_catalog | dutch_stem      | snowball stemmer for dutch language
+ pg_catalog | english_stem    | snowball stemmer for english language
+ pg_catalog | finnish_stem    | snowball stemmer for finnish language
+ pg_catalog | french_stem     | snowball stemmer for french language
+ pg_catalog | german_stem     | snowball stemmer for german language
+ pg_catalog | hungarian_stem  | snowball stemmer for hungarian language
+ pg_catalog | italian_stem    | snowball stemmer for italian language
+ pg_catalog | norwegian_stem  | snowball stemmer for norwegian language
+ pg_catalog | portuguese_stem | snowball stemmer for portuguese language
+ pg_catalog | romanian_stem   | snowball stemmer for romanian language
+ pg_catalog | russian_stem    | snowball stemmer for russian language
+ pg_catalog | simple          | simple dictionary: just lower case and check for stopword
+ pg_catalog | spanish_stem    | snowball stemmer for spanish language
+ pg_catalog | swedish_stem    | snowball stemmer for swedish language
+ pg_catalog | turkish_stem    | snowball stemmer for turkish language</PRE
+><P>
+     </P
+></DD
+><DT
+><PRE
+CLASS="SYNOPSIS"
+>\dFp[<SPAN
+CLASS="OPTIONAL"
+>+</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>PATTERN</SPAN
+>]</PRE
+></DT
+><DD
+><P
+>      テキスト検索パーサを表示します(<TT
+CLASS="LITERAL"
+>+</TT
+>追加で詳細表示)。
+</P><PRE
+CLASS="SCREEN"
+>=&gt; \dFp
+        List of text search parsers
+   Schema   |  Name   |     Description     
+------------+---------+---------------------
+ pg_catalog | default | default word parser
+=&gt; \dFp+
+    Text search parser "pg_catalog.default"
+     Method      |    Function    | Description 
+-----------------+----------------+-------------
+ Start parse     | prsd_start     | 
+ Get next token  | prsd_nexttoken | 
+ End parse       | prsd_end       | 
+ Get headline    | prsd_headline  | 
+ Get token types | prsd_lextype   | 
+
+        Token types for parser "pg_catalog.default"
+   Token name    |               Description                
+-----------------+------------------------------------------
+ asciihword      | Hyphenated word, all ASCII
+ asciiword       | Word, all ASCII
+ blank           | Space symbols
+ email           | Email address
+ entity          | XML entity
+ file            | File or path name
+ float           | Decimal notation
+ host            | Host
+ hword           | Hyphenated word, all letters
+ hword_asciipart | Hyphenated word part, all ASCII
+ hword_numpart   | Hyphenated word part, letters and digits
+ hword_part      | Hyphenated word part, all letters
+ int             | Signed integer
+ numhword        | Hyphenated word, letters and digits
+ numword         | Word, letters and digits
+ protocol        | Protocol head
+ sfloat          | Scientific notation
+ tag             | XML tag
+ uint            | Unsigned integer
+ url             | URL
+ url_path        | URL path
+ version         | Version number
+ word            | Word, all letters
+(23 rows)</PRE
+><P>
+     </P
+></DD
+><DT
+><PRE
+CLASS="SYNOPSIS"
+>\dFt[<SPAN
+CLASS="OPTIONAL"
+>+</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+>PATTERN</SPAN
+>]</PRE
+></DT
+><DD
+><P
+>      テキスト検索テンプレートを表示します(<TT
+CLASS="LITERAL"
+>+</TT
+>追加で詳細表示)。
+</P><PRE
+CLASS="SCREEN"
+>=&gt; \dFt
+                           List of text search templates
+   Schema   |   Name    |                        Description                        
+------------+-----------+-----------------------------------------------------------
+ pg_catalog | ispell    | ispell dictionary
+ pg_catalog | simple    | simple dictionary: just lower case and check for stopword
+ pg_catalog | snowball  | snowball stemmer
+ pg_catalog | synonym   | synonym dictionary: replace word by its synonym
+ pg_catalog | thesaurus | thesaurus dictionary: phrase by phrase substitution</PRE
+><P>
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="textsearch-indexes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="textsearch-limitations.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>GiSTおよびGINインデックス種類</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>制限事項</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

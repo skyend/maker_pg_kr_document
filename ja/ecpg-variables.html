@@ -1,0 +1,1874 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ホスト変数の使用</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="SQLコマンドの実行"
+HREF="ecpg-commands.html"><LINK
+REL="NEXT"
+TITLE="動的SQL"
+HREF="ecpg-dynamic.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLコマンドの実行"
+HREF="ecpg-commands.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="動的SQL"
+HREF="ecpg-dynamic.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-VARIABLES"
+>33.4. ホスト変数の使用</A
+></H1
+><P
+><A
+HREF="ecpg-commands.html"
+>&#38917;33.3</A
+>では、埋め込みSQLプログラムでどのようにSQL文を実行するのかについて説明しました。
+このSQL文の中には固定値しか使用しないものや、ユーザが指定する値をSQL文の中に挿入する手段を提供しないもの、問い合わせが返す値をプログラムで処理する手段を提供しないものがありました。
+この種のSQL文は実際のアプリケーションでは役に立ちません。
+本節では、<I
+CLASS="FIRSTTERM"
+>ホスト変数</I
+>という単純な機構を使用した、Cプログラムと埋め込みSQL文との間でデータをやり取りする方法を詳細に説明します。
+埋め込みSQLプログラムでは、SQL文を<I
+CLASS="FIRSTTERM"
+>ホスト言語</I
+>となるCプログラムコードにおける<I
+CLASS="FIRSTTERM"
+>ゲストguests</I
+>とみなします。
+したがって、Cプログラムの変数は<I
+CLASS="FIRSTTERM"
+>ホスト変数</I
+>と呼ばれます。
+  </P
+><P
+>   PostgreSQLバックエンドとECPGアプリケーションの間で値をやり取りするその他の方法は、 <A
+HREF="ecpg-descriptors.html"
+>&#38917;33.7</A
+> で説明されているSQLデスクリプタを使う方法です。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-VARIABLES-OVERVIEW"
+>33.4.1. 概要</A
+></H2
+><P
+>埋め込みSQLにおけるCプログラムとSQL文との間でのデータのやり取りは特に単純です。
+値に適切な引用符を付与するといった、様々な複雑な処理を伴う、プログラムにデータを文中に貼り付けさせるという方法はなく、単にSQL文の中に、先頭にコロンを付けたC変数名を書くだけです。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL INSERT INTO sometable VALUES (:v1, 'foo', :v2);</PRE
+><P>
+このSQL文は、<TT
+CLASS="VARNAME"
+>v1</TT
+>と<TT
+CLASS="VARNAME"
+>v2</TT
+>という2つのC変数を参照し、また、通常のSQL文字列リテラルも使用しています。
+これは、使用できるデータの種類は1つだけという制限がないことを表しています。
+   </P
+><P
+>SQL文内にCの変数を挿入するこの様式は、SQL文で値式が想定されている所であればどこでも動作します。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-DECLARE-SECTIONS"
+>33.4.2. 宣言セクション</A
+></H2
+><P
+>例えば問い合わせ内のパラメータとして、プログラムからデータベースへデータを渡す、もしくは、データベースからプログラムへデータを渡すためには、このようなデータを含むように意図されたC変数を、埋め込みSQLプリプロセッサが管理できるように、特殊な印のついたセクションで宣言する必要があります。
+   </P
+><P
+>このセクションは以下で始まります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;</PRE
+><P>
+そして、以下で終わります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL END DECLARE SECTION;</PRE
+><P>
+この行の間は、以下のような通常のC変数宣言でなければなりません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>int   x = 4;
+char  foo[16], bar[16];</PRE
+><P>
+見てわかるとおり、省略可能ですが、変数に初期値を代入することができます。
+変数のスコープはプログラム内の宣言セクションの場所により決まります。
+また、以下のような暗黙的に宣言セクションを生成する構文を使って変数を宣言することもできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL int i = 4;</PRE
+><P>
+プログラム内に複数の宣言セクションを持たせることができます。
+   </P
+><P
+>また、宣言は普通のC変数としてそのまま出力ファイルに出力されます。
+ですので、これらを再度宣言する必要はありません。
+通常、SQLコマンドで使用する予定がない変数はこの特別なセクションの外側で宣言されます。
+   </P
+><P
+>構造体やunionの定義もまた、<TT
+CLASS="LITERAL"
+>DECLARE</TT
+>セクションの内側で表す必要があります。
+さもないと、プリプロセッサはその定義が不明であるために、これらの型を扱うことができません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-RETRIEVING"
+>33.4.3. クエリ実行結果の受け取り</A
+></H2
+><P
+>ここまでで、プログラムで生成したデータをSQLコマンドに渡すことができるようになりました。
+しかし、どのように問い合わせの結果を取り出すのでしょうか？
+この目的のために、埋め込みSQLでは、通常の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>と<TT
+CLASS="COMMAND"
+>FETCH</TT
+>を派生した、特殊なコマンドを提供しています。
+これらのコマンドは特別な<TT
+CLASS="LITERAL"
+>INTO</TT
+>句を持ち、ここで返された値をどのホスト変数に格納すればよいかを指定します。
+    <TT
+CLASS="COMMAND"
+>SELECT</TT
+> は単一行を返却するクエリに使用され、<TT
+CLASS="COMMAND"
+>FETCH</TT
+> は複数の業を返却するクエリにおいてカーソルととともに使用されます。
+   </P
+><P
+>以下にサンプルを示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/*
+ * assume this table:
+ * CREATE TABLE test1 (a int, b varchar(50));
+ */
+
+EXEC SQL BEGIN DECLARE SECTION;
+int v1;
+VARCHAR v2;
+EXEC SQL END DECLARE SECTION;
+
+ ...
+
+EXEC SQL SELECT a, b INTO :v1, :v2 FROM test;</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>INTO</TT
+>句が選択リストと<TT
+CLASS="LITERAL"
+>FROM</TT
+>句の間に現れます。
+選択リスト内の要素数と<TT
+CLASS="LITERAL"
+>INTO</TT
+>直後のリスト（目的リストとも呼ばれます）の要素数は等しくなければなりません。
+   </P
+><P
+>以下に<TT
+CLASS="COMMAND"
+>FETCH</TT
+>コマンドの使用例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+int v1;
+VARCHAR v2;
+EXEC SQL END DECLARE SECTION;
+
+ ...
+
+EXEC SQL DECLARE foo CURSOR FOR SELECT a, b FROM test;
+
+ ...
+
+do
+{
+    ...
+    EXEC SQL FETCH NEXT FROM foo INTO :v1, :v2;
+    ...
+} while (...);</PRE
+><P>
+ここでは、<TT
+CLASS="LITERAL"
+>INTO</TT
+>句が通常のすべての句の後ろに現れています。
+   </P
+><P
+>これらの手法は両方とも、一度に1行のみを取り出すことができます。
+複数の行を含む可能性がある結果集合を処理する必要がある場合は、2番目の例で示したようにカーソルを使用する必要があります。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-VARIABLES-TYPE-MAPPING"
+>33.4.4. データ型の対応</A
+></H2
+><P
+>    ECPGアプリケーションがPostgreSQLバックエンドとCアプリケーションの間で値をやり取りする際、例えばサーバからクエリの結果を受け取る、または入力パラメータとともにSQL文を実行する場合、それらの値はPostgreSQLのデータ型とホスト言語の変数の型（具体的にはC言語のデータ型）の間で変換される必要があります。
+    ECPGの重要な点のひとつは、ほとんどの場合においてECPGがこれらを自動的に扱うということです。
+   </P
+><P
+>    この点において、2つのデータ型があります: いくつかの単純なPostgreSQLのデータ型、<TT
+CLASS="TYPE"
+>integer</TT
+> や <TT
+CLASS="TYPE"
+>text</TT
+> などは、アプリケーションから直接読んだり書いたりすることができます。
+    その他のPostgreSQLのデータ型、<TT
+CLASS="TYPE"
+>timestamp</TT
+> や <TT
+CLASS="TYPE"
+>numeric</TT
+> などは、特別なライブラリ関数によってしかアクセスすることができません; <A
+HREF="ecpg-variables.html#ECPG-SPECIAL-TYPES"
+>&#38917;33.4.4.2</A
+> を参照してください。
+   </P
+><P
+>    <A
+HREF="ecpg-variables.html#ECPG-DATATYPE-HOSTVARS-TABLE"
+>&#34920;33-1</A
+> には、PostgreSQLのどのデータ型がC言語のデータ型に対応するかを示されています。
+    与えられたPostgreSQLのデータ型へ値を書き込みまたは読み込みしたい場合には、対応するC言語のデータ型の変数を宣言セクションにおいて宣言しなければなりません。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="ECPG-DATATYPE-HOSTVARS-TABLE"
+></A
+><P
+><B
+>&#34920; 33-1. PostgreSQLデータ型とC言語変数型の対応</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>PostgreSQL data type</TH
+><TH
+>Host variable type</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>smallint</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>short</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>integer</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>long long int</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>decimal</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>decimal</TT
+><A
+NAME="ECPG-DATATYPE-TABLE-FN"
+HREF="#FTN.ECPG-DATATYPE-TABLE-FN"
+><SPAN
+CLASS="footnote"
+>[a]</SPAN
+></A
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>numeric</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>numeric</TT
+><A
+HREF="ecpg-variables.html#FTN.ECPG-DATATYPE-TABLE-FN"
+><SPAN
+CLASS="footnote"
+>[a]</SPAN
+></A
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>real</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>float</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>serial</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>bigserial</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>long long int</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>oid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>unsigned int</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>character(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</TT
+>, <TT
+CLASS="TYPE"
+>varchar(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</TT
+>, <TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>char[<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>+1]</TT
+>, <TT
+CLASS="TYPE"
+>VARCHAR[<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>+1]</TT
+><A
+NAME="AEN40497"
+HREF="#FTN.AEN40497"
+><SPAN
+CLASS="footnote"
+>[b]</SPAN
+></A
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>name</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>char[NAMEDATALEN]</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>timestamp</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp</TT
+><A
+HREF="ecpg-variables.html#FTN.ECPG-DATATYPE-TABLE-FN"
+><SPAN
+CLASS="footnote"
+>[a]</SPAN
+></A
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>interval</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>interval</TT
+><A
+HREF="ecpg-variables.html#FTN.ECPG-DATATYPE-TABLE-FN"
+><SPAN
+CLASS="footnote"
+>[a]</SPAN
+></A
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>date</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>date</TT
+><A
+HREF="ecpg-variables.html#FTN.ECPG-DATATYPE-TABLE-FN"
+><SPAN
+CLASS="footnote"
+>[a]</SPAN
+></A
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bool</TT
+><A
+NAME="AEN40528"
+HREF="#FTN.AEN40528"
+><SPAN
+CLASS="footnote"
+>[c]</SPAN
+></A
+></TD
+></TR
+></TBODY
+><TR
+><TD
+COLSPAN="2"
+>&#27880;&#24847;:<BR><A
+NAME="FTN.ECPG-DATATYPE-TABLE-FN"
+>a. </A
+>この型は特別なライブラリ関数を通してのみアクセスできます; <A
+HREF="ecpg-variables.html#ECPG-SPECIAL-TYPES"
+>&#38917;33.4.4.2</A
+> を参照。<BR><A
+NAME="FTN.AEN40497"
+>b. </A
+><TT
+CLASS="FILENAME"
+>ecpglib.h</TT
+> で宣言。<BR><A
+NAME="FTN.AEN40528"
+>c. </A
+>ネイティブでなければ <TT
+CLASS="FILENAME"
+>ecpglib.h</TT
+> で宣言。<BR></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="ECPG-CHAR"
+>33.4.4.1. 文字列の処理</A
+></H3
+><P
+>     <TT
+CLASS="TYPE"
+>varchar</TT
+> and <TT
+CLASS="TYPE"
+>text</TT
+>のような文字列のデータ型を扱うため、ホスト変数を宣言するための2つの方法があります。
+    </P
+><P
+>     ひとつは <TT
+CLASS="TYPE"
+>char</TT
+> の配列 <TT
+CLASS="TYPE"
+>char[]</TT
+> を使うことで、C言語において文字列データを扱うもっとも一般的な方法です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+    char str[50];
+EXEC SQL END DECLARE SECTION;</PRE
+><P>
+     文字列の長さについて、自分自身で気を付けておく必要があります。
+     上記のホスト変数を49文字以上の文字列を返すクエリのターゲット変数として使った場合、バッファオーバーフローが発生します。
+    </P
+><P
+>     その他の方法は、ECPGによって提供される特殊なデータ型 <TT
+CLASS="TYPE"
+>VARCHAR</TT
+> を使う方法です。
+     <TT
+CLASS="TYPE"
+>VARCHAR</TT
+> の配列の定義は、すべての変数が名前の付いた <TT
+CLASS="TYPE"
+>struct</TT
+> に変換されます。
+     以下のような宣言は:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>VARCHAR var[180];</PRE
+><P>
+     次のように変換されます:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>struct varchar_var { int len; char arr[180]; } var;</PRE
+><P>
+     メンバー変数 <TT
+CLASS="STRUCTFIELD"
+>arr</TT
+> は終端のゼロの1バイトを含む文字列を保持します。
+     よって、文字列を <TT
+CLASS="TYPE"
+>VARCHAR</TT
+> ホスト変数に格納する場合には、ホスト変数はゼロ終端を含んだ長さで宣言されなければなりません。
+     メンバー変数 <TT
+CLASS="STRUCTFIELD"
+>len</TT
+> は <TT
+CLASS="STRUCTFIELD"
+>arr</TT
+> に格納された文字列のゼロ終端を含まない長さを保持します。
+     ホスト変数をクエリの入力として使用する際、<TT
+CLASS="LITERAL"
+>strlen(arr)</TT
+> と <TT
+CLASS="STRUCTFIELD"
+>len</TT
+> が違った場合には短いものが使用されます。
+    </P
+><P
+>     2つ以上の <TT
+CLASS="TYPE"
+>VARCHAR</TT
+> ホスト変数は、一行で定義することはできません。
+     以下のコードは <TT
+CLASS="COMMAND"
+>ecpg</TT
+> プリプロセッサを混乱させるでしょう:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>VARCHAR v1[128], v2[128];   /* WRONG */</PRE
+><P>
+     2つの変数は以下のように別々の行で定義されなければなりません:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>VARCHAR v1[128];
+VARCHAR v2[128];</PRE
+><P>
+    </P
+><P
+>     <TT
+CLASS="TYPE"
+>VARCHAR</TT
+> は大文字でも小文字でも記述することができますが、混在して記述することはできません。
+    </P
+><P
+>     <TT
+CLASS="TYPE"
+>char</TT
+> と <TT
+CLASS="TYPE"
+>VARCHAR</TT
+> ホスト変数は、他のSQLのデータ型の値を文字列表現として保持することもできます。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="ECPG-SPECIAL-TYPES"
+>33.4.4.2. 特殊なデータ型へのアクセス</A
+></H3
+><P
+>     ECPGには、PostgreSQLサーバからのいくつかの特殊なデータ型とやりとりするための特殊なデータ型があります。
+     特に、<TT
+CLASS="TYPE"
+>numeric</TT
+>, <TT
+CLASS="TYPE"
+>decimal</TT
+>, <TT
+CLASS="TYPE"
+>date</TT
+>, <TT
+CLASS="TYPE"
+>timestamp</TT
+>, <TT
+CLASS="TYPE"
+>interval</TT
+> 型へのサポートを実装しています。
+     これらのデータ型は複雑な内部構造を持つため、ホスト変数のプリミティブ型（<TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="TYPE"
+>long long int</TT
+>, または <TT
+CLASS="TYPE"
+>char[]</TT
+>）に対応させることはできません。
+     アプリケーションは特別な型としてホスト変数を宣言し、pgtypesライブラリ内の関数を使ってアクセスすることで、これらの型を扱います。
+     <A
+HREF="ecpg-pgtypes.html"
+>&#38917;33.6</A
+> で詳細を解説されるpgtypesライブラリは、例えばタイムスタンプにインターバルを加算する際にクエリをSQLサーバに送らずに済ますような、これらの型を扱うための基本的な関数を含んでいます。
+    </P
+><P
+>     移行のサブセクションは、これらの特殊なデータ型を説明します。
+     pgtypesライブラリ関数についての詳細は <A
+HREF="ecpg-pgtypes.html"
+>&#38917;33.6</A
+> を参照してください。
+    </P
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN40576"
+>33.4.4.2.1. timestamp, date</A
+></H4
+><P
+>      以下は、<TT
+CLASS="TYPE"
+>timestamp</TT
+> 変数をECPGホストアプリケーションで扱う典型的なパターンです。
+     </P
+><P
+>      最初に、プログラムは <TT
+CLASS="TYPE"
+>timestamp</TT
+> 型のためのヘッダファイルをインクルードする必要があります:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include &lt;pgtypes_timestamp.h&#62;</PRE
+><P>
+     </P
+><P
+>      次に、宣言セクションで <TT
+CLASS="TYPE"
+>timestamp</TT
+> 型のホスト変数を宣言します:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+timestamp ts;
+EXEC SQL END DECLARE SECTION;</PRE
+><P>
+     </P
+><P
+>      そして、ホスト変数へ値を読み込んだら、pgtypesライブラリ関数を使って処理をします。
+      以降の例では、<TT
+CLASS="TYPE"
+>timestamp</TT
+> の値は <CODE
+CLASS="FUNCTION"
+>PGTYPEStimestamp_to_asc()</CODE
+> 関数によって text (ASCII) 形式に変換されます:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL SELECT now()::timestamp INTO :ts;
+
+printf("ts = %s\n", PGTYPEStimestamp_to_asc(ts));</PRE
+><P>
+      This example will show some result like following:
+</P><PRE
+CLASS="SCREEN"
+>ts = 2010-06-27 18:03:56.949343</PRE
+><P>
+     </P
+><P
+>      また、DATE型も同じ方法で扱うことができます。
+      プログラムは <TT
+CLASS="FILENAME"
+>pgtypes_date.h</TT
+> をインクルードし、ホスト変数を date 型として宣言し、<CODE
+CLASS="FUNCTION"
+>PGTYPESdate_to_asc()</CODE
+> 関数によって DATE の値を text 形式に変換します。
+      pgtypesライブラリ関数についての詳細は、<A
+HREF="ecpg-pgtypes.html"
+>&#38917;33.6</A
+> を参照してください。
+     </P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="ECPG-TYPE-INTERVAL"
+>33.4.4.2.2. interval</A
+></H4
+><P
+>      <TT
+CLASS="TYPE"
+>interval</TT
+> 型の扱い方は <TT
+CLASS="TYPE"
+>timestamp</TT
+> や <TT
+CLASS="TYPE"
+>date</TT
+> 型と似ています。
+      但し、<TT
+CLASS="TYPE"
+>interval</TT
+> 型の値のために明示的にメモリを確保する必要があります。
+      言い換えると、この変数のためのメモリ領域はスタックではなくヒープ上に確保されます。
+     </P
+><P
+>      以下にプログラム例を示します:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include &lt;stdio.h&#62;
+#include &lt;stdlib.h&#62;
+#include &lt;pgtypes_interval.h&#62;
+
+int
+main(void)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+    interval *in;
+EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT TO testdb;
+
+    in = PGTYPESinterval_new();
+    EXEC SQL SELECT '1 min'::interval INTO :in;
+    printf("interval = %s\n", PGTYPESinterval_to_asc(in));
+    PGTYPESinterval_free(in);
+
+    EXEC SQL COMMIT;
+    EXEC SQL DISCONNECT ALL;
+    return 0;
+}</PRE
+><P>
+     </P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="ECPG-TYPE-NUMERIC-DECIMAL"
+>33.4.4.2.3. numeric, decimal</A
+></H4
+><P
+>      <TT
+CLASS="TYPE"
+>numeric</TT
+> と <TT
+CLASS="TYPE"
+>decimal</TT
+> 型の扱い方は <TT
+CLASS="TYPE"
+>interval</TT
+> 型と似ています: ポインタ宣言を必要とし、ヒープメモリを確保する必要があり、pgtypesライブラリ関数を使って変数にアクセスします。
+      pgtypesライブラリ関数の詳細については、<A
+HREF="ecpg-pgtypes.html"
+>&#38917;33.6</A
+> を参照してください。
+     </P
+><P
+>      <TT
+CLASS="TYPE"
+>decimal</TT
+> 型に対する専用の関数は提供されていません。
+      アプリケーションは処理を行うために pgtypesライブラリ関数を使って <TT
+CLASS="TYPE"
+>numeric</TT
+> 変数に変換する必要があります。
+     </P
+><P
+>      以下に <TT
+CLASS="TYPE"
+>numeric</TT
+> および <TT
+CLASS="TYPE"
+>decimal</TT
+> 型の変数の処理の例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#include &lt;stdio.h&#62;
+#include &lt;stdlib.h&#62;
+#include &lt;pgtypes_numeric.h&#62;
+
+EXEC SQL WHENEVER SQLERROR STOP;
+
+int
+main(void)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+    numeric *num;
+    numeric *num2;
+    decimal *dec;
+EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT TO testdb;
+
+    num = PGTYPESnumeric_new();
+    dec = PGTYPESdecimal_new();
+
+    EXEC SQL SELECT 12.345::numeric(4,2), 23.456::decimal(4,2) INTO :num, :dec;
+
+    printf("numeric = %s\n", PGTYPESnumeric_to_asc(num, 0));
+    printf("numeric = %s\n", PGTYPESnumeric_to_asc(num, 1));
+    printf("numeric = %s\n", PGTYPESnumeric_to_asc(num, 2));
+
+    /* Convert decimal to numeric to show a decimal value. */
+    num2 = PGTYPESnumeric_new();
+    PGTYPESnumeric_from_decimal(dec, num2);
+
+    printf("decimal = %s\n", PGTYPESnumeric_to_asc(num2, 0));
+    printf("decimal = %s\n", PGTYPESnumeric_to_asc(num2, 1));
+    printf("decimal = %s\n", PGTYPESnumeric_to_asc(num2, 2));
+
+    PGTYPESnumeric_free(num2);
+    PGTYPESdecimal_free(dec);
+    PGTYPESnumeric_free(num);
+
+    EXEC SQL COMMIT;
+    EXEC SQL DISCONNECT ALL;
+    return 0;
+}</PRE
+><P>
+     </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="ECPG-VARIABLES-NONPRIMITIVE-C"
+>33.4.4.3. 非プリミティブ型のホスト変数</A
+></H3
+><P
+>     ホスト変数として、配列、typedef、構造体およびポインタも使うことができます。
+    </P
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="ECPG-VARIABLES-ARRAYS"
+>33.4.4.3.1. 配列</A
+></H4
+><P
+>      ホスト変数としての配列の使い方には二通りの利用方法があります。
+      一つ目の使い方は、<A
+HREF="ecpg-variables.html#ECPG-CHAR"
+>&#38917;33.4.4.1</A
+> で説明されたように <TT
+CLASS="TYPE"
+>char[]</TT
+> または <TT
+CLASS="TYPE"
+>VARCHAR[]</TT
+> の何らかのテキスト文字列を保持するための方法です。
+      二つ目の使い方は、カーソルを用いずに複数行を返却するクエリ結果を受け取るために使う方法です。
+      配列を使わない場合、複数行からなるクエリの実行結果を処理するには、カーソルと <TT
+CLASS="COMMAND"
+>FETCH</TT
+> コマンドを使用する必要があります。
+      しかし、配列のホスト変数を使うと、複数行を一括して受け取ることができます。
+      配列の長さはすべての行を受け入れられるように定義されなければなりません。でなければバッファーオーバーフローが発生するでしょう。
+     </P
+><P
+>      以下の例は <TT
+CLASS="LITERAL"
+>pg_database</TT
+> システムテーブルをスキャンし、利用可能なデータベースのすべてのOIDとデータベース名を表示します:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>int
+main(void)
+{
+EXEC SQL BEGIN DECLARE SECTION;
+    int dbid[8];
+    char dbname[8][16];
+    int i;
+EXEC SQL END DECLARE SECTION;
+
+    memset(dbname, 0, sizeof(char)* 16 * 8);
+    memset(dbid, 0, sizeof(int) * 8);
+
+    EXEC SQL CONNECT TO testdb;
+
+    /* Retrieve multiple rows into arrays at once. */
+    EXEC SQL SELECT oid,datname INTO :dbid, :dbname FROM pg_database;
+
+    for (i = 0; i &lt; 8; i++)
+        printf("oid=%d, dbname=%s\n", dbid[i], dbname[i]);
+
+    EXEC SQL COMMIT;
+    EXEC SQL DISCONNECT ALL;
+    return 0;
+}</PRE
+><P>
+
+    この例は、以下の結果を表示します。（実際の値はローカルな環境に依存します）
+</P><PRE
+CLASS="SCREEN"
+>oid=1, dbname=template1
+oid=11510, dbname=template0
+oid=11511, dbname=postgres
+oid=313780, dbname=testdb
+oid=0, dbname=
+oid=0, dbname=
+oid=0, dbname=</PRE
+><P>
+     </P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="ECPG-VARIABLES-STRUCT"
+>33.4.4.3.2. 構造体</A
+></H4
+><P
+>      メンバー変数の名前がクエリ結果のカラム名に合致する構造体は、複数のカラムを一括して受け取るために利用することができます。
+      構造体は複数のカラムの値を単一のホスト変数で扱うことを可能にします。
+     </P
+><P
+>      以下の例は、<TT
+CLASS="LITERAL"
+>pg_database</TT
+> システムテーブルおよび <CODE
+CLASS="FUNCTION"
+>pg_database_size()</CODE
+> 関数を使って、利用可能なデータベースのOID、名前、サイズを取得します。
+      この例では、メンバー変数の名前が <TT
+CLASS="LITERAL"
+>SELECT</TT
+> 結果の各カラムに合致する構造体 <TT
+CLASS="VARNAME"
+>dbinfo_t</TT
+> が、複数のホスト変数に格納することなく <TT
+CLASS="LITERAL"
+>FETCH</TT
+> 文の一行の結果を受け取るために使用されています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+    typedef struct
+    {
+       int oid;
+       char datname[65];
+       long long int size;
+    } dbinfo_t;
+
+    dbinfo_t dbval;
+EXEC SQL END DECLARE SECTION;
+
+    memset(&amp;dbval, 0, sizeof(dbinfo_t));
+
+    EXEC SQL DECLARE cur1 CURSOR FOR SELECT oid, datname, pg_database_size(oid) AS size FROM pg_database;
+    EXEC SQL OPEN cur1;
+
+    /* when end of result set reached, break out of while loop */
+    EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+    while (1)
+    {
+        /* Fetch multiple columns into one structure. */
+        EXEC SQL FETCH FROM cur1 INTO :dbval;
+
+        /* Print members of the structure. */
+        printf("oid=%d, datname=%s, size=%lld\n", dbval.oid, dbval.datname, dbval.size);
+    }
+
+    EXEC SQL CLOSE cur1;</PRE
+><P>
+     </P
+><P
+>      この例は、次の結果を示します（実際の値はローカルな環境に依存します）
+</P><PRE
+CLASS="SCREEN"
+>oid=1, datname=template1, size=4324580
+oid=11510, datname=template0, size=4243460
+oid=11511, datname=postgres, size=4324580
+oid=313780, datname=testdb, size=8183012</PRE
+><P>
+     </P
+><P
+>      構造体のホスト変数は、多数のカラムを構造体のフィールドとして<SPAN
+CLASS="QUOTE"
+>"吸収"</SPAN
+>します。
+      追加のカラムは他のホスト変数に割り当てることができます。
+      例えば、上記のプログラムは構造体に含まれない <TT
+CLASS="VARNAME"
+>size</TT
+> 変数を使って以下のように書き換えることができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+    typedef struct
+    {
+       int oid;
+       char datname[65];
+    } dbinfo_t;
+
+    dbinfo_t dbval;
+    long long int size;
+EXEC SQL END DECLARE SECTION;
+
+    memset(&amp;dbval, 0, sizeof(dbinfo_t));
+
+    EXEC SQL DECLARE cur1 CURSOR FOR SELECT oid, datname, pg_database_size(oid) AS size FROM pg_database;
+    EXEC SQL OPEN cur1;
+
+    /* when end of result set reached, break out of while loop */
+    EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+    while (1)
+    {
+        /* Fetch multiple columns into one structure. */
+        EXEC SQL FETCH FROM cur1 INTO :dbval, :size;
+
+        /* Print members of the structure. */
+        printf("oid=%d, datname=%s, size=%lld\n", dbval.oid, dbval.datname, size);
+    }
+
+    EXEC SQL CLOSE cur1;</PRE
+><P>
+     </P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN40648"
+>33.4.4.3.3. Typedefs</A
+></H4
+><P
+>      新しい型と既存の型を対応付けるためには <TT
+CLASS="LITERAL"
+>typedef</TT
+> キーワードを使ってください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+    typedef char mychartype[40];
+    typedef long serial_t;
+EXEC SQL END DECLARE SECTION;</PRE
+><P>
+      また、同様に以下を使うこともできます:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL TYPE serial_t IS long;</PRE
+><P>
+      この宣言は、宣言セクションの一部である必要はありません。
+     </P
+></DIV
+><DIV
+CLASS="SECT4"
+><H4
+CLASS="SECT4"
+><A
+NAME="AEN40654"
+>33.4.4.3.4. ポインタ</A
+></H4
+><P
+>      ほとんどの一般的な型のポインタを宣言することができます。
+      但し、自動メモリ確保を使わずにクエリのターゲット変数として使うことはできません。
+      自動メモリ確保については <A
+HREF="ecpg-descriptors.html"
+>&#38917;33.7</A
+> を参照してください。
+     </P
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+    int   *intp;
+    char **charp;
+EXEC SQL END DECLARE SECTION;</PRE
+><P>
+     </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-VARIABLES-NONPRIMITIVE-SQL"
+>33.4.5. 非プリミティブSQLデータ型の扱い方</A
+></H2
+><P
+>    本節では、非スカラー型およびユーザ定義のSQLデータ型をECPGアプリケーションで扱う方法を示します。
+    この内容は、前の説で説明した非プリミティブ型のホスト変数の扱い方とは別のものです。
+   </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN40663"
+>33.4.5.1. 配列</A
+></H3
+><P
+>     SQLの配列は、ECPGにおいては直接的にはサポートされていません。
+     SQL配列をC言語の配列のホスト変数に簡単に対応させることはできません。
+     定められていない振る舞いを引き起こすでしょう。
+     但し、いくつかの回避策があります。
+    </P
+><P
+>     もし、クエリが配列の <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>要素</I
+></SPAN
+> に対して個別にアクセスした場合、ECPGにおける配列の利用を避けることができます。
+     その際、要素に対応させることができる型のホスト変数を利用しなければなりません。
+     例えば、カラムの型が <TT
+CLASS="TYPE"
+>integer</TT
+> の配列の場合、<TT
+CLASS="TYPE"
+>int</TT
+> 型のホスト変数を使用することができます。
+     同様に、要素の型が <TT
+CLASS="TYPE"
+>varchar</TT
+> または <TT
+CLASS="TYPE"
+>text</TT
+> の場合、 <TT
+CLASS="TYPE"
+>char[]</TT
+> ないし <TT
+CLASS="TYPE"
+>VARCHAR[]</TT
+> 型のホスト変数を使用することができます。
+    </P
+><P
+>     以下に例を示します。次のようなテーブルを仮定します:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE t3 (
+    ii integer[]
+);
+
+testdb=&#62; SELECT * FROM t3;
+     ii
+-------------
+ {1,2,3,4,5}
+(1 row)</PRE
+><P>
+
+     以下のプログラム例は、配列の4番目の要素を取得し、それを <TT
+CLASS="TYPE"
+>int</TT
+> 型のホスト変数に保存します:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+int ii;
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL DECLARE cur1 CURSOR FOR SELECT ii[4] FROM t3;
+EXEC SQL OPEN cur1;
+
+EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+while (1)
+{
+    EXEC SQL FETCH FROM cur1 INTO :ii ;
+    printf("ii=%d\n", ii);
+}
+
+EXEC SQL CLOSE cur1;</PRE
+><P>
+
+     この例は以下のような結果を示します:
+</P><PRE
+CLASS="SCREEN"
+>ii=4</PRE
+><P>
+    </P
+><P
+>     複数の配列の要素を、配列型のホスト変数の複数の要素にマッピングするためには、配列型のカラムの各要素とホスト変数配列の各要素は、以下の例のように別々に管理されなければなりません:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+int ii_a[8];
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL DECLARE cur1 CURSOR FOR SELECT ii[1], ii[2], ii[3], ii[4] FROM t3;
+EXEC SQL OPEN cur1;
+
+EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+while (1)
+{
+    EXEC SQL FETCH FROM cur1 INTO :ii_a[0], :ii_a[1], :ii_a[2], :ii_a[3];
+    ...
+}</PRE
+><P>
+    </P
+><P
+>     繰り返しになりますが、以下の例は
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+int ii_a[8];
+EXEC SQL END DECLARE SECTION;
+
+EXEC SQL DECLARE cur1 CURSOR FOR SELECT ii FROM t3;
+EXEC SQL OPEN cur1;
+
+EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+while (1)
+{
+    /* WRONG */
+    EXEC SQL FETCH FROM cur1 INTO :ii_a;
+    ...
+}</PRE
+><P>
+     この場合は正しく動作しません。なぜなら、配列型のカラムをホストの配列変数に直接対応させることはできないからです。
+    </P
+><P
+>     もうひとつの回避策は、配列をホスト変数の <TT
+CLASS="TYPE"
+>char[]</TT
+> または <TT
+CLASS="TYPE"
+>VARCHAR[]</TT
+> 型に文字列表現として保存することです。
+     この表現方法についての詳細は <A
+HREF="arrays.html#ARRAYS-INPUT"
+>&#38917;8.14.2</A
+> を参照してください。
+     このことは、配列にはホストプログラム内で自然な形ではアクセスできないことを意味しています（文字列表現を解析する追加処理が無ければ）。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN40687"
+>33.4.5.2. 複合型</A
+></H3
+><P
+>     複合型はECPGでは直接はサポートされていませんが、簡単な回避方法が利用可能です。
+     利用可能なワークアラウンドは、先に配列において説明されたものと似ています: 各属性に個別にアクセスするか、外部の文字列表現を使います。
+    </P
+><P
+>     以降の例のため、以下の型とテーブルを仮定します:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE comp_t AS (intval integer, textval varchar(32));
+CREATE TABLE t4 (compval comp_t);
+INSERT INTO t4 VALUES ( (256, 'PostgreSQL') );</PRE
+><P>
+
+     もっとも分かりやすい解決法は、各属性に個別にアクセスすることです。
+     以下のプログラムは、 <TT
+CLASS="TYPE"
+>comp_t</TT
+> 型の各要素を個別に選択することによってサンプルのテーブルからデータを受け取ります:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+int intval;
+varchar textval[33];
+EXEC SQL END DECLARE SECTION;
+
+/* Put each element of the composite type column in the SELECT list. */
+EXEC SQL DECLARE cur1 CURSOR FOR SELECT (compval).intval, (compval).textval FROM t4;
+EXEC SQL OPEN cur1;
+
+EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+while (1)
+{
+    /* Fetch each element of the composite type column into host variables. */
+    EXEC SQL FETCH FROM cur1 INTO :intval, :textval;
+
+    printf("intval=%d, textval=%s\n", intval, textval.arr);
+}
+
+EXEC SQL CLOSE cur1;</PRE
+><P>
+    </P
+><P
+>     この例を拡張して、 <TT
+CLASS="COMMAND"
+>FETCH</TT
+> コマンドの値を格納するホスト変数を一つの構造体にまとめることができます。
+     構造体の形のホスト変数の詳細については <A
+HREF="ecpg-variables.html#ECPG-VARIABLES-STRUCT"
+>&#38917;33.4.4.3.2</A
+> を参照してください。
+     構造体に変更するために、この例は以下のように変更することができます。
+     二つのホスト変数 <TT
+CLASS="VARNAME"
+>intval</TT
+> と <TT
+CLASS="VARNAME"
+>textval</TT
+> を <TT
+CLASS="STRUCTNAME"
+>comp_t</TT
+> 構造体のメンバー変数とし、構造体を <TT
+CLASS="COMMAND"
+>FETCH</TT
+> コマンドで指定します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+typedef struct
+{
+    int intval;
+    varchar textval[33];
+} comp_t;
+
+comp_t compval;
+EXEC SQL END DECLARE SECTION;
+
+/* Put each element of the composite type column in the SELECT list. */
+EXEC SQL DECLARE cur1 CURSOR FOR SELECT (compval).intval, (compval).textval FROM t4;
+EXEC SQL OPEN cur1;
+
+EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+while (1)
+{
+    /* Put all values in the SELECT list into one structure. */
+    EXEC SQL FETCH FROM cur1 INTO :compval;
+
+    printf("intval=%d, textval=%s\n", compval.intval, compval.textval.arr);
+}
+
+EXEC SQL CLOSE cur1;</PRE
+><P>
+
+     構造体が <TT
+CLASS="COMMAND"
+>FETCH</TT
+> コマンドで使われていますが、属性名は <TT
+CLASS="COMMAND"
+>SELECT</TT
+> 句において各々が指定されています。
+     これは、複合型の値のすべての属性を示す <TT
+CLASS="LITERAL"
+>*</TT
+> を用いることで拡張することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>...
+EXEC SQL DECLARE cur1 CURSOR FOR SELECT (compval).* FROM t4;
+EXEC SQL OPEN cur1;
+
+EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+while (1)
+{
+    /* Put all values in the SELECT list into one structure. */
+    EXEC SQL FETCH FROM cur1 INTO :compval;
+
+    printf("intval=%d, textval=%s\n", compval.intval, compval.textval.arr);
+}
+...</PRE
+><P>
+     この方法であれば、ECPGが複合型そのものを理解できないとしても、複合型はほぼシームレスに構造体に対応させることができます。
+    </P
+><P
+>     最後に、<TT
+CLASS="TYPE"
+>char[]</TT
+> または <TT
+CLASS="TYPE"
+>VARCHAR[]</TT
+> 型のホスト変数に外部の文字列表現として複合型の値を格納することもできます。
+     しかし、この方法ではホストプログラムから値のフィールドにアクセスするのは簡単ではありません。
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN40709"
+>33.4.5.3. ユーザ定義の基本型</A
+></H3
+><P
+>     新しいユーザ定義の基本型は、ECPGでは直接的にはサポートされていません。
+     外部の文字列表現、<TT
+CLASS="TYPE"
+>char[]</TT
+>または<TT
+CLASS="TYPE"
+>VARCHAR[]</TT
+> 型のホスト変数を使うことができ、この解決法は多くの型について確かに適切かつ十分です。
+    </P
+><P
+>     以下に <A
+HREF="xtypes.html"
+>&#38917;35.11</A
+> に含まれる <TT
+CLASS="TYPE"
+>complex</TT
+> 型を使った例を示します。 <TT
+CLASS="TYPE"
+>complex</TT
+> from
+     この型の外部文字列表現は <TT
+CLASS="LITERAL"
+>(%lf,%lf)</TT
+> で、<A
+HREF="xtypes.html"
+>&#38917;35.11</A
+> の <CODE
+CLASS="FUNCTION"
+>complex_in()</CODE
+> 関数および <CODE
+CLASS="FUNCTION"
+>complex_out()</CODE
+> 関数で定義されています。
+     以下の例は、カラム <TT
+CLASS="LITERAL"
+>a</TT
+> と <TT
+CLASS="LITERAL"
+>b</TT
+> に、complex 型の値 <TT
+CLASS="LITERAL"
+>(1,1)</TT
+> および <TT
+CLASS="LITERAL"
+>(3,3)</TT
+> を挿入し、その後、それらをテーブルからSELECTします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+    varchar a[64];
+    varchar b[64];
+EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL INSERT INTO test_complex VALUES ('(1,1)', '(3,3)');
+
+    EXEC SQL DECLARE cur1 CURSOR FOR SELECT a, b FROM test_complex;
+    EXEC SQL OPEN cur1;
+
+    EXEC SQL WHENEVER NOT FOUND DO BREAK;
+
+    while (1)
+    {
+        EXEC SQL FETCH FROM cur1 INTO :a, :b;
+        printf("a=%s, b=%s\n", a.arr, b.arr);
+    }
+
+    EXEC SQL CLOSE cur1;</PRE
+><P>
+
+     この例は、以下の結果を示します。
+</P><PRE
+CLASS="SCREEN"
+>a=(1,1), b=(3,3)</PRE
+><P>
+   </P
+><P
+>     その他の回避方法は、ユーザ定義型をECPGにおいて直接的に使うことを避けることであり、ユーザ定義型とECPGが扱えるプリミティブ型を変換する関数またはキャストを作成することです。
+     ただし、型のキャスト、特に暗黙のものは型システムにおいて慎重に導入されなければなりません。
+    </P
+><P
+>     例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION create_complex(r double, i double) RETURNS complex
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT $1 * complex '(1,0')' + $2 * complex '(0,1)' $$;</PRE
+><P>
+    この定義の後、以下の例は
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+double a, b, c, d;
+EXEC SQL END DECLARE SECTION;
+
+a = 1;
+b = 2;
+c = 3;
+d = 4;
+
+EXEC SQL INSERT INTO test_complex VALUES (create_complex(:a, :b), create_complex(:c, :d));</PRE
+><P>
+    以下と同じ効果をもたらします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL INSERT INTO test_complex VALUES ('(1,2)', '(3,4)');</PRE
+><P>
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-INDICATORS"
+>33.4.6. 指示子</A
+></H2
+><P
+>上の例ではNULL値を扱いません。
+実際、取り出し例では、もしデータベースからNULL値が取り出された場合にはエラーが発生します。
+データベースへNULL値を渡す、または、データベースからNULL値を取り出すためには、第二のホスト変数指定をデータを格納するホスト変数それぞれに追加しなければなりません。
+第二のホスト変数は<I
+CLASS="FIRSTTERM"
+>指示子</I
+>と呼ばれ、データがNULLかどうかを表すフラグが含まれます。
+NULLの場合、実際のホスト変数の値は無視されます。
+以下に、NULL値の取り出しを正しく扱う例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL BEGIN DECLARE SECTION;
+VARCHAR val;
+int val_ind;
+EXEC SQL END DECLARE SECTION:
+
+ ...
+
+EXEC SQL SELECT b INTO :val :val_ind FROM test1;</PRE
+><P>
+値がNULLでなければ、指示子変数<TT
+CLASS="VARNAME"
+>val_ind</TT
+>は0となります。
+値がNULLならば負の値となります。
+   </P
+><P
+>指示子は他の機能を持ちます。
+指示子の値が正ならば、値がNULLではありませんが、ホスト変数に格納する際に一部切り詰められたことを示します。
+   </P
+><P
+>    プリプロセッサ <TT
+CLASS="COMMAND"
+>ecpg</TT
+> に引数 <TT
+CLASS="LITERAL"
+>-r no_indicator</TT
+> が渡された場合、<SPAN
+CLASS="QUOTE"
+>"no-indicator"</SPAN
+> モードで動作します。
+    no-indicator モードでは、指示子変数が指定されなかった場合、（入力および出力において）文字列型に対して空の文字列としてnull値が、整数型に対してはもっとも小さな値が割り当てられます（例えば、<TT
+CLASS="TYPE"
+>int</TT
+> の場合 <TT
+CLASS="SYMBOL"
+>INT_MIN</TT
+> です）。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-commands.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-dynamic.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SQLコマンドの実行</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>動的SQL</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

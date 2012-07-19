@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SSHトンネルを使った安全なTCP/IP接続</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの準備と運用"
+HREF="runtime.html"><LINK
+REL="PREVIOUS"
+TITLE="SSLによる安全なTCP/IP接続"
+HREF="ssl-tcp.html"><LINK
+REL="NEXT"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SSLによる安全なTCP/IP接続"
+HREF="ssl-tcp.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 17&#31456;サーバの準備と運用</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SSH-TUNNELS"
+>17.10. <SPAN
+CLASS="APPLICATION"
+>SSH</SPAN
+>トンネルを使った安全なTCP/IP接続</A
+></H1
+><P
+>クライアントと<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバ間のネットワーク接続を暗号化するために<SPAN
+CLASS="APPLICATION"
+>SSH</SPAN
+>を使うことができます。 
+正しく行えば、SSL機能がクライアントになくても、これで十分に安全なネットワーク接続を行うことができます。
+  </P
+><P
+>まず<SPAN
+CLASS="APPLICATION"
+>SSH</SPAN
+>サーバが<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバと同じマシン上で正しく起動していて、<TT
+CLASS="COMMAND"
+>ssh</TT
+>を使ってログインできるユーザが存在することを確かめてください。
+そうすると、次に示すコマンドでクライアントマシンから安全なトンネルを確立することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ssh -L 63333:localhost:5432 joe@foo.com</PRE
+><P>
+<TT
+CLASS="OPTION"
+>-L</TT
+>引数の1番目の数字（63333）はトンネルのローカル側のポート番号で、未使用のポートを選択することが可能です。（IANAは49152から65535までのポートを私的使用のため予約しています。）
+2番目の数字（5432）は、トンネルのリモート側のサーバが使用しているポート番号です。
+2つのポート番号間の名前もしくはアドレスは、ログインしようとしているホストから見られる接続しようとしているデータベースサーバのホストで、例の中の<TT
+CLASS="LITERAL"
+>foo.com</TT
+>です。
+このトンネルを使ってデータベースサーバに接続するためには、ローカルマシンのポート63333に接続します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>psql -h localhost -p 63333 postgres</PRE
+><P>
+データベースサーバにとっては、ユーザが実際にホスト<TT
+CLASS="LITERAL"
+>foo.com</TT
+>上のユーザ<TT
+CLASS="LITERAL"
+>joe</TT
+>であるかのように見え、このユーザとホストによる接続向けに設定された認証手続きが使用されます。
+サーバはこの接続がSSLで暗号化されているとみなさないことに注意してください。
+実際、<SPAN
+CLASS="APPLICATION"
+>SSH</SPAN
+>サーバと<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバとの間は暗号化されません。
+この2つのサーバが同一マシンにある限り、セキュリティ上の危険性が増すことはありません。
+  </P
+><P
+>トンネルの確立が成功するためには、<TT
+CLASS="COMMAND"
+>ssh</TT
+>を使用して端末セッションを作成したのと同様に、<SPAN
+CLASS="SYSTEMITEM"
+>joe@foo.com</SPAN
+>ユーザが<TT
+CLASS="COMMAND"
+>ssh</TT
+>を通して接続することが許可されていなければいけません。
+  </P
+><P
+>  
+以下に示すようにポートフォワードを設定することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ssh -L 63333:foo.com:5432 joe@foo.com</PRE
+><P>
+   
+しかしそうすると、データベースサーバはその<TT
+CLASS="LITERAL"
+>foo.com</TT
+>インタフェースから接続が来たように判断し、デフォルトの設定である<TT
+CLASS="LITERAL"
+>listen_addresses = 'localhost'</TT
+>では開かれません。
+通常これは好ましいことではありません。
+  </P
+><P
+>  
+どこかのログインホスト経由でデータベースサーバに<SPAN
+CLASS="QUOTE"
+>"跳躍"</SPAN
+>しなければならない場合、以下のようにすることが可能です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ssh -L 63333:db.foo.com:5432 joe@shell.foo.com</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>shell.foo.com</TT
+>から<TT
+CLASS="LITERAL"
+>db.foo.com</TT
+>へのこのような接続はSSHトンネルで暗号化されません。
+SSHはいろいろな方法でネットワークが制約されているとき、かなりの数の設定可能性を提供しています。
+詳細はSSHの文書を参照してください。
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>ここで説明してきたものと似た概念の手続きを使用して、安全なトンネルを提供可能なアプリケーションが他にもいくつか存在します。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ssl-tcp.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SSLによる安全なTCP/IP接続</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>サーバの設定</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

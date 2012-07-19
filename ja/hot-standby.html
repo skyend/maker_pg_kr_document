@@ -1,0 +1,1284 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ホットスタンバイ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"><LINK
+REL="PREVIOUS"
+TITLE="この他のログシッピングの方法"
+HREF="log-shipping-alternative.html"><LINK
+REL="NEXT"
+TITLE="リカバリの設定"
+HREF="recovery-config.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="この他のログシッピングの方法"
+HREF="log-shipping-alternative.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 25&#31456;高可用性、負荷分散およびレプリケーション</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="高可用性、負荷分散およびレプリケーション"
+HREF="high-availability.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リカバリの設定"
+HREF="recovery-config.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="HOT-STANDBY"
+>25.5. ホットスタンバイ</A
+></H1
+><P
+>ホットスタンバイという単語は、サーバがアーカイブリカバリを実行している最中にサーバに接続し読み取り専用の問い合わせを実行することができる機能を説明するために使われます。
+これは、レプリケーションという目的およびバックアップからのリストアの両方で高い精度で好ましい状態にするために有用です。
+ホットスタンバイという単語はまた、ユーザが問い合わせを実行しながら、または、開いている接続を維持しながら、またはその両方で、サーバをリカバリ状態から通常の動作に移すことができる機能も示すものです。
+   </P
+><P
+>ホットスタンバイモードにおける問い合わせは、通常の問い合わせに類似していますが、利用上および管理上の差異が多少あり、以下に説明します。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="HOT-STANDBY-USERS"
+>25.5.1. ユーザのための概説</A
+></H2
+><P
+>スタンバイサーバで<A
+HREF="runtime-config-replication.html#GUC-HOT-STANDBY"
+>hot_standby</A
+>パラメータが真に設定されている場合、リカバリによりシステムが一貫性を持つようになった後接続を受け付け始めます。
+こうした接続はすべて読み取り専用に限定されます。
+一時テーブルであっても書き込むことはできません。
+   </P
+><P
+>スタンバイ上のデータはプライマリサーバから届くまでに多少の時間がかかります。
+このため、プライマリとスタンバイの間にはある程度の遅延があります。
+したがって、同じ問い合わせをほとんど同時にプライマリとスタンバイに対して実行すると、異なる結果が返る可能性があります。
+スタンバイ上のデータはプライマリに対して<I
+CLASS="FIRSTTERM"
+>最後には一貫性を持つ</I
+>といいます。
+あるトランザクションのコミットレコードがスタンバイ上で再生されると、そのトランザクションでなされた変更はスタンバイで獲得されるすべての新規スナップショットで可視になります。
+現在のトランザクション隔離レベルに応じて、スナップショットは各問い合わせの開始時または各トランザクションの開始時に獲得されます。
+詳細については<A
+HREF="transaction-iso.html"
+>&#38917;13.2</A
+>を参照してください。
+   </P
+><P
+>ホットスタンバイ中に開始されたトランザクションは以下のコマンドを発行することができます。。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>問い合わせによるアクセス - <TT
+CLASS="COMMAND"
+>SELECT</TT
+>および<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>
+      </P
+></LI
+><LI
+><P
+>カーソルコマンド - <TT
+CLASS="COMMAND"
+>DECLARE</TT
+>と<TT
+CLASS="COMMAND"
+>FETCH</TT
+>と<TT
+CLASS="COMMAND"
+>CLOSE</TT
+>
+      </P
+></LI
+><LI
+><P
+>パラメータの操作 - <TT
+CLASS="COMMAND"
+>SHOW</TT
+>と<TT
+CLASS="COMMAND"
+>SET</TT
+>と<TT
+CLASS="COMMAND"
+>RESET</TT
+>
+      </P
+></LI
+><LI
+><P
+>トランザクション管理コマンド
+        <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>BEGIN</TT
+>と<TT
+CLASS="COMMAND"
+>END</TT
+>と<TT
+CLASS="COMMAND"
+>ABORT</TT
+>と<TT
+CLASS="COMMAND"
+>START TRANSACTION</TT
+>
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SAVEPOINT</TT
+>と<TT
+CLASS="COMMAND"
+>RELEASE</TT
+>と<TT
+CLASS="COMMAND"
+>ROLLBACK TO SAVEPOINT</TT
+>
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>EXCEPTION</TT
+>ブロックおよびこの他の内部サブトランザクション
+          </P
+></LI
+></UL
+><P>
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>。
+なお、以下のモードが明示された場合に限ります。
+<TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+>または<TT
+CLASS="LITERAL"
+>ROW SHARE</TT
+>または<TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>
+      </P
+></LI
+><LI
+><P
+>計画と資源 - <TT
+CLASS="COMMAND"
+>PREPARE</TT
+>と<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>と<TT
+CLASS="COMMAND"
+>DEALLOCATE</TT
+>と<TT
+CLASS="COMMAND"
+>DISCARD</TT
+>
+      </P
+></LI
+><LI
+><P
+>プラグインと拡張 - <TT
+CLASS="COMMAND"
+>LOAD</TT
+>
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+>ホットスタンバイ中に開始したトランザクションではトランザクションIDを割り当てられません。
+また、システムのログ先行書き込みに書き出すことができません。
+このため、以下の動作はエラーメッセージを生成します。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>データ操作言語（DML）。
+<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>および<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>。
+リカバリ中にトリガ内で実行されてしまう場合でも許されていない動作であることに注意してください。
+現在のホットスタンバイ環境では行うことができないトランザクションIDの割り当てを行うことなく、テーブル行の読み書きを行うことができませんので、この制限は一時テーブルであっても適用されます。
+      </P
+></LI
+><LI
+><P
+>データ定義言語（DDL）。
+<TT
+CLASS="COMMAND"
+>CREATE</TT
+>、<TT
+CLASS="COMMAND"
+>DROP</TT
+>、<TT
+CLASS="COMMAND"
+>ALTER</TT
+>および<TT
+CLASS="COMMAND"
+>COMMENT</TT
+>。
+この制約は一時テーブルに対しても適用されます。
+これらの操作の実行がシステムカタログテーブルの更新を必要とするためです。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SELECT ... FOR SHARE | UPDATE</TT
+>。
+背後のデータファイルを更新することなく行ロックを獲得することはできないためです。
+      </P
+></LI
+><LI
+><P
+>データ操作言語のコマンドを生成する<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文のルール
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE MODE</TT
+>より高いモードを明示的に要求する<TT
+CLASS="COMMAND"
+>LOCK</TT
+>
+      </P
+></LI
+><LI
+><P
+>短いデフォルト構文の<TT
+CLASS="COMMAND"
+>LOCK</TT
+>。
+これは<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE MODE</TT
+>を要求するためです。
+      </P
+></LI
+><LI
+><P
+>読み取り専用でない状態を明示的に設定するトランザクション処理コマンド
+        <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>BEGIN READ WRITE</TT
+>と<TT
+CLASS="COMMAND"
+>START TRANSACTION READ WRITE</TT
+>
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SET TRANSACTION READ WRITE</TT
+>と<TT
+CLASS="COMMAND"
+>SET SESSION CHARACTERISTICS AS TRANSACTION READ WRITE</TT
+>
+          </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SET transaction_read_only = off</TT
+>
+          </P
+></LI
+></UL
+><P>
+      </P
+></LI
+><LI
+><P
+>二相コミットコマンド - <TT
+CLASS="COMMAND"
+>PREPARE TRANSACTION</TT
+>、<TT
+CLASS="COMMAND"
+>COMMIT PREPARED</TT
+>および<TT
+CLASS="COMMAND"
+>ROLLBACK PREPARED</TT
+>。
+読み取り専用トランザクションでも、プリペア相（二相コミットの第1相）においてWALの書き込みが必要だからです。
+      </P
+></LI
+><LI
+><P
+>シーケンス更新の関数 - <CODE
+CLASS="FUNCTION"
+>nextval()</CODE
+>と<CODE
+CLASS="FUNCTION"
+>setval()</CODE
+>
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>LISTEN</TT
+>、<TT
+CLASS="COMMAND"
+>UNLISTEN</TT
+>および<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+>通常の操作では、<SPAN
+CLASS="QUOTE"
+>"読み取り専用"</SPAN
+>トランザクションにはシーケンスの更新および<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>と<TT
+CLASS="COMMAND"
+>UNLISTEN</TT
+>と<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>の使用が許可されています。
+ホットスタンバイセッションの操作では、通常の読み取り専用セッションよりも少し厳しい制約を受けます。
+将来のリリースではこの制約の一部が緩和されるかもしれません。
+   </P
+><P
+>ホットスタンバイ中は、<TT
+CLASS="VARNAME"
+>transaction_read_only</TT
+>パラメータは常に真であり、変更することはできません。
+しかし、データベースを変更するような試行がない限り、ホットスタンバイ中の接続は他のデータベース接続とほとんど同じように動作します。
+もし、フェールオーバまたはスイッチオーバが発生すると、データベースは通常処理モードに切り替わります。
+サーバのモードが変わってもセッションは接続を保持します。
+ホットスタンバイが完了すると、読み書き可能なトランザクションを（ホットスタンバイ中に始まったセッションからであっても）始められるようになります。
+   </P
+><P
+>ユーザは<TT
+CLASS="COMMAND"
+>SHOW transaction_read_only</TT
+>を発行することで、そのセッションが読み取り専用かどうかを調べることができます。
+さらに、ユーザがスタンバイサーバに関する情報にアクセスできる関数群(<A
+HREF="functions-admin.html#FUNCTIONS-RECOVERY-INFO-TABLE"
+>&#34920;9-57</A
+>)があります。
+これらによりデータベースの現状認識を行うプログラムを作成することができます。
+これらを使用して、リカバリの進行状況を監視するために使用したり、データベースを特定の状態にリストアする複雑なプログラムを作成したりすることができます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="HOT-STANDBY-CONFLICT"
+>25.5.2. 問い合わせコンフリクトの処理</A
+></H2
+><P
+>プライマリサーバとスタンバイサーバは、多方面でゆるく結合しています。
+プライマリサーバの動作はスタンバイサーバに影響します。
+その結果、負の相互作用またはコンフリクトの可能性があります。
+最も分かりやすいコンフリクトは性能です。
+プライマリサーバで巨大なデータがロードされた場合、スタンバイサーバにおいて同様に巨大なWALレコードが生成されるので、スタンバイサーバにおける問い合わせは互いにI/Oなどのシステム資源を奪い合います。
+   </P
+><P
+>ホットスタンバイで発生する可能性があるコンフリクトの種類には他にもあります。
+これらのコンフリクトは、問い合わせをキャンセルしなければならない可能性があり、解消させるためにはセッションの接続を閉ざすことになる場合もあるため、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>致命的なコンフリクト</I
+></SPAN
+>です。
+ユーザにはこうしたコンフリクトを扱うための複数の方法が提供されます。
+コンフリクトする状況には以下があります。
+
+      <P
+></P
+></P><UL
+><LI
+><P
+>プライマリサーバで獲得されたアクセス排他ロックは、スタンバイの問い合わせにおけるテーブルアクセスとコンフリクトします。
+明示的な<TT
+CLASS="COMMAND"
+>LOCK</TT
+>コマンドおよび各種<ACRONYM
+CLASS="ACRONYM"
+>DDL</ACRONYM
+>操作を含みます。
+        </P
+></LI
+><LI
+><P
+>プライマリでテーブル空間を削除することは、一時作業ファイル用にそのテーブル空間を使用するスタンバイ側の問い合わせとコンフリクトします。
+        </P
+></LI
+><LI
+><P
+>プライマリでデータベースを削除することは、スタンバイ側でそのデータベースに接続するセッションとコンフリクトします。
+        </P
+></LI
+><LI
+><P
+>WALからレコードを消去するバキュームアプリケーションは、削除される任意の行を<SPAN
+CLASS="QUOTE"
+>"見る"</SPAN
+>ことができるスナップショットを持つスタンバイでのトランザクションとコンフリクトします。
+        </P
+></LI
+><LI
+><P
+>WALからレコードを消去するバキュームアプリケーションは、消去されるデータが可視か否かに関係なく、スタンバイで対象ページにアクセスする問い合わせとコンフリクトします。
+        </P
+></LI
+></UL
+><P>
+   </P
+><P
+>プライマリサーバでは、こうした状況は単に待たされるだけです。
+ユーザはコンフリクトする操作をキャンセルすることを選ぶことができます。
+しかし、スタンバイ側には選択肢がありません。
+WALに記録された操作はすでにプライマリで発生したものですので、スタンバイではその適用に失敗してはなりません。
+さらに、申請されたWALを無制限に待機させることを許すことは、まったく望まない結果になってしまうかもしれません。
+なぜなら、スタンバイの状態がプライマリの状態とだんだんとかけ離れてしまうからです。
+したがって適用すべきWALレコードとコンフリクトするスタンバイの問い合わせを強制的に取り消す仕組みが用意されています。
+   </P
+><P
+>この問題の例として、スタンバイサーバで現在問い合わせ対象となっているテーブルをプライマリサーバで<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>を行う管理者を考えてみます。
+スタンバイで<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>が適用されたら問い合わせを継続できないことは明確です。
+プライマリ上でこうした状況が発生した場合は、他の問い合わせが終わるまで<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>は待機されます。
+しかし、<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>がプライマリで実行された時、プライマリ側でスタンバイで稼動する問い合わせに関する情報がありませんので、スタンバイ側のこうした問い合わせを待機させることはできません。
+スタンバイ側で問い合わせが実行している時にWALの変更レコードがスタンバイに届けば、コンフリクトが発生します。
+スタンバイサーバはWALレコードの申請を遅延させる（およびその後の申請すべても遅延させる）か、<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>を適用できるようにコンフリクトする問い合わせを取り消すかのいずれかを行わなければなりません。
+   </P
+><P
+>コンフリクトする問い合わせが短ければ、申請されたWALを多少遅延させることで、問い合わせを完了させることが通常望まれます。
+しかし、申請されたWALが長く遅延することはたいていは望まれません。
+したがって、取り消し機能は<A
+HREF="runtime-config-replication.html#GUC-MAX-STANDBY-ARCHIVE-DELAY"
+>max_standby_archive_delay</A
+>と<A
+HREF="runtime-config-replication.html#GUC-MAX-STANDBY-STREAMING-DELAY"
+>max_standby_streaming_delay</A
+>というパラメータを持ちます。
+これらは申請されたWALに許される遅延を定義するものです。
+コンフリクトする問い合わせは、何らかの新しく受信したWALデータを適用するための各種遅延設定を超えたら取り消されます。
+アーカイブからWALデータを読み取る場合（つまりベースバックアップからの初期リカバリや大きく遅延したスタンバイサーバの<SPAN
+CLASS="QUOTE"
+>"追従"</SPAN
+>）とストリーミングレプリケーションとで異なる遅延値を指定することができるように2つのパラメータが存在します。
+   </P
+><P
+>主に高可用性のために存在するスタンバイサーバでは、スタンバイ側の問い合わせによって発生する遅延のためにプライマリと大きく遅延が発生することがないように、遅延パラメータを相対的に短く設定することが最善です。
+しかし、スタンバイサーバが長時間かかる問い合わせを実行するためのものであれば、長い遅延もしくは制限を設けないことが好まれるかもしれません。
+しかし、長時間かかる問い合わせがWALレコードの適用を遅延させてしまう場合、スタンバイサーバ上の他のセッションがプライマリにおける最近の変更を参照することができなくなることは覚えておいてください。
+   </P
+><P
+><TT
+CLASS="VARNAME"
+>max_standby_archive_delay</TT
+>または<TT
+CLASS="VARNAME"
+>max_standby_streaming_delay</TT
+>で指定した遅延を超えると、コンフリクトする問い合わせは取り消されます。
+通常これは単なる取り消しエラーという結果となりますが、<TT
+CLASS="COMMAND"
+>DROP DATABASE</TT
+>を再生する場合では、コンフリクトするセッション全体が終了します。
+また、コンフリクトが待機中のトランザクションで保持されるロックについてのものであれば、そのコンフリクトするセッションが終了します（この動作は将来変更されるかもしれません）。
+   </P
+><P
+>取り消された問い合わせは直ちに再試行されます（もちろん新規のトランザクション開始後に）。
+問い合わせの取り消しは、再生されるWALレコードの性質に依存するので、取り消された問い合わせが再度実行された場合には正常に動作するかもしれません。
+   </P
+><P
+>遅延パラメータはスタンバイサーバでWALデータを受信してからの経過時間と比べられることに注意してください。
+したがって、スタンバイ上で任意の問い合わせに許される猶予期間は、この遅延パラメータよりも大きくなることは決してありません。
+これまでの問い合わせを完了させるために待機した結果、あるいは、大量の更新負荷に追従することができなくなった結果、スタンバイがすでに遅延している場合は相当小さくなります。
+   </P
+><P
+>スタンバイ側の問い合わせとWAL再生の間でもっともよくあるコンフリクト理由は<SPAN
+CLASS="QUOTE"
+>"早すぎる消去"</SPAN
+>です。
+通常<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はMVCC規則にしたがって正確なデータの可視性を確実にするために、古い行バージョンを参照するトランザクションが存在しない場合それらを消去することが許されています。
+しかし、この規則はマスタ上で実行するトランザクションのみに適用させることができます。
+したがって、スタンバイ上のトランザクションでまだ可視である行バージョンを、マスタ上の消去処理が削除してしまう可能性があります。
+   </P
+><P
+>熟練したユーザは、行バージョンの消去と行バージョンの凍結の両方ともスタンバイ側の問い合わせとコンフリクトする可能性があることに気づくはずです。
+手作業での<TT
+CLASS="COMMAND"
+>VACUUM FREEZE</TT
+>は、更新または削除された行がないテーブルであったとしてもコンフリクトを発生し易いものです。
+   </P
+><P
+>プライマリサーバにおいて規則的かつ頻繁に更新されるテーブルは、スタンバイサーバにおける問い合わせの取り消しの原因になりやすいことを利用者は理解するべきです。
+そのような場合、<TT
+CLASS="VARNAME"
+>max_standby_archive_delay</TT
+>または<TT
+CLASS="VARNAME"
+>max_standby_streaming_delay</TT
+>の設定値は<TT
+CLASS="VARNAME"
+>statement_timeout</TT
+>の設定と同様に考えることができます。
+   </P
+><P
+>取り消しの数が受け入れがたいほど多い場合、他に救済的な処理法があります。
+１つ目の選択肢は、<TT
+CLASS="VARNAME"
+>hot_standby_feedback</TT
+>パラメータを設定することです。
+これは<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>による最近不要になった行の削除を防止しますので、消去によるコンフリクトが発生しません。
+これを行う場合、プライマリで不要になった行の消去が遅延することに注意しなければなりません。
+望まないテーブルの膨張が発生してしまうかもしれません。
+しかし、スタンバイ側で行うべき問い合わせをプライマリサーバ上で直接実行することと比べ、こうした消去に関する問題を優先する価値はありません。
+また、スタンバイに実行負荷を分散できるという利点があります。
+この場合、遅延したWALファイルにすでに、スタンバイ側で実行させたい問い合わせとコンフリクトする項目が含まれている可能性がありますので、<TT
+CLASS="VARNAME"
+>max_standby_archive_delay</TT
+>は長めにしなければなりません。
+   </P
+><P
+>他の選択肢は、不要になった行が通常よりも早く消去されないようにプライマリサーバで<A
+HREF="runtime-config-replication.html#GUC-VACUUM-DEFER-CLEANUP-AGE"
+>vacuum_defer_cleanup_age</A
+>を増やすことです。
+これにより、<TT
+CLASS="VARNAME"
+>max_standby_streaming_delay</TT
+>を長くすることなく、スタンバイでキャンセルが起こるようになる前により多くの時間、問い合わせを実行することができます。
+しかし、<TT
+CLASS="VARNAME"
+>vacuum_defer_cleanup_age</TT
+>はプライマリサーバ上で実行されたトランザクションを単位に測定されますので、この方法では特定の実行期間を保証することは困難です。
+   </P
+><P
+>問い合わせキャンセルの個数とその原因はスタンバイサーバ上の<TT
+CLASS="STRUCTNAME"
+>pg_stat_database_conflicts</TT
+>システムビューを用いて参照することができます。
+また<TT
+CLASS="STRUCTNAME"
+>pg_stat_database</TT
+>システムビューには要約された情報が含まれます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="HOT-STANDBY-ADMIN"
+>25.5.3. 管理者のための概説</A
+></H2
+><P
+><TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>において<TT
+CLASS="VARNAME"
+>hot_standby</TT
+>が<TT
+CLASS="LITERAL"
+>on</TT
+>に設定されかつ<TT
+CLASS="FILENAME"
+>recovery.conf</TT
+>が存在すれば、サーバはホットスタンバイモードで稼動します。
+しかし、サーバはまず問い合わせが実行できる程度の一貫性を持つ状態を提供するために十分なリカバリを完了させなければなりませんので、ホットスタンバイでの接続が有効になるまでに多少の時間がかかるかもしれません。
+サーバの準備ができたことを確認するために、アプリケーションで接続試行を繰り返すか、サーバログに以下のメッセージがあるかどうかを確認します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>LOG:  entering standby mode
+
+... 多少時間が経過して ...
+
+LOG:  consistent recovery state reached
+LOG:  database system is ready to accept read only connections</PRE
+><P>
+
+一貫性に関する情報はプライマリでチェックポイント毎に一度記録されます。
+プライマリで<TT
+CLASS="VARNAME"
+>wal_level</TT
+>が<TT
+CLASS="LITERAL"
+>hot_standby</TT
+>に設定されていない間に書き込まれたWALを読み取っている時、ホットスタンバイを有効にすることはできません。
+また、一貫性のある状態への到達は、以下の両方が存在する間遅延することがあります。
+
+      <P
+></P
+></P><UL
+><LI
+><P
+>サブトランザクション数が64を超える書き込みトランザクション
+        </P
+></LI
+><LI
+><P
+>非常に長く実行される書き込みトランザクション
+        </P
+></LI
+></UL
+><P>
+ファイルベースのログシッピング(「ウォームスタンバイ」)を実行しているのであれば、次のWALファイルが届く、長くともプライマリの<TT
+CLASS="VARNAME"
+>archive_timeout</TT
+>設定まで待機しなければなりません。
+   </P
+><P
+>プライマリサーバにおける設定値が変更した場合、スタンバイサーバにおいて数個のパラメータの再設定が必要です。
+スタンバイサーバにおける設定値は、プライマリサーバにおける設定値以上でなければなりません。
+所定値未満の設定の場合、スタンバイは起動を取りやめます。
+所定値以上の設定により、スタンバイサーバは再起動してリカバリが再び開始されます。
+このパラメータは以下です。
+
+      <P
+></P
+></P><UL
+><LI
+><P
+>         <TT
+CLASS="VARNAME"
+>max_connections</TT
+>
+        </P
+></LI
+><LI
+><P
+>         <TT
+CLASS="VARNAME"
+>max_prepared_transactions</TT
+>
+        </P
+></LI
+><LI
+><P
+>         <TT
+CLASS="VARNAME"
+>max_locks_per_transaction</TT
+>
+        </P
+></LI
+></UL
+><P>
+   </P
+><P
+><A
+HREF="runtime-config-replication.html#GUC-MAX-STANDBY-ARCHIVE-DELAY"
+>max_standby_archive_delay</A
+>および<A
+HREF="runtime-config-replication.html#GUC-MAX-STANDBY-STREAMING-DELAY"
+>max_standby_streaming_delay</A
+>の値が適切であるように管理者が選択することが重要です。
+最善の選択は業務上の優先順位によって変化します。
+例えば、サーバが主に高可用性を目的としたサーバとして作業するものであれば、短い遅延を設定したいでしょう。
+非常に積極的な設定ですが、ゼロにしたいかもしれません。
+スタンバイサーバが意思決定支援のための問い合わせ用の追加サーバとして作業するものであれば、数時間程度の最大の遅延値の設定、あるいは問い合わせの完了を永遠に待つことを意味する-1という設定でさえ、許容範囲であるかもしれません。
+   </P
+><P
+>プライマリ側で「ヒントビット」として書き出されたトランザクション状態はWALに記録されません。
+このためスタンバイ側のデータはスタンバイ側でヒントを再度書き出すことになります。
+ユーザは大規模なソート用の一時ファイルを書き出し、relcache情報ファイルを再作成します。
+したがって、ホットスタンバイモードではデータベースのすべてが本当に読み取り専用ではありません。
+また、ローカルでは読み取り専用のトランザクションであっても<SPAN
+CLASS="APPLICATION"
+>dblink</SPAN
+>モジュールを使用したリモートデータベースへの書き出しや、その他のPL関数を使用したデータベース外部への操作が可能であることに注意してください。
+   </P
+><P
+>リカバリモードの間、下記の管理者用コマンドは受理されません。
+
+      <P
+></P
+></P><UL
+><LI
+><P
+>データ定義言語、例えば<TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+>
+        </P
+></LI
+><LI
+><P
+>権限および所有権 - <TT
+CLASS="COMMAND"
+>GRANT</TT
+>と<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>と<TT
+CLASS="COMMAND"
+>REASSIGN</TT
+>
+        </P
+></LI
+><LI
+><P
+>保守コマンド - <TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>と<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>と<TT
+CLASS="COMMAND"
+>CLUSTER</TT
+>と<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>
+        </P
+></LI
+></UL
+><P>
+   </P
+><P
+>繰り返しますが、これらのコマンドの一部は、プライマリサーバにおける「読み取り専用」モードのトランザクションで実際に許可されていることに注意してください。
+   </P
+><P
+>その結果、スタンバイ側にのみ存在する追加のインデックスやスタンバイ側にのみ存在する統計情報を作成することはできません。
+これらの管理者用コマンドが必要な場合、プライマリ側で実行しなければなりません。
+最終的にこの変更はスタンバイ側に伝播します。
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_cancel_backend()</CODE
+>は利用者のバックエンドとして稼動しますが、リカバリを実行する起動プロセスでは稼動しません。
+<TT
+CLASS="STRUCTNAME"
+>pg_stat_activity</TT
+>は起動プロセスのエントリを表示しないし、リカバリトランザクションが実行中かどうかも表示しません。
+その結果、リカバリの間<TT
+CLASS="STRUCTNAME"
+>pg_prepared_xacts</TT
+>は常に空となります。
+準備した確信のもてないトランザクションの状態を解明したい場合、プライマリサーバにおいて<TT
+CLASS="LITERAL"
+>pg_prepared_xacts</TT
+>を表示するビューを作成し、ビューに解明のためのコマンドを発行してください。
+   </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>pg_locks</TT
+>は通常通りバックエンドで保持されるロックを示します。
+<TT
+CLASS="STRUCTNAME"
+>pg_locks</TT
+>はまた、リカバリによって再生されているトランザクションで保持される<TT
+CLASS="LITERAL"
+>AccessExclusiveLocks</TT
+>のすべてを所有する、起動プロセスで管理される仮想トランザクションも表示します。
+起動プロセスはデータベースの変更を行うためのロックを獲得しません。
+このため起動プロセスにおいて<TT
+CLASS="LITERAL"
+>AccessExclusiveLocks</TT
+>以外のロックは<TT
+CLASS="STRUCTNAME"
+>pg_locks</TT
+>では表示されません。
+これらは存在することを想定されているだけです。
+   </P
+><P
+>存在を検知する情報が単純なので、<SPAN
+CLASS="PRODUCTNAME"
+>Nagios</SPAN
+>プラグインは稼動します。
+一部の報告値が異なった、混乱を招く結果となりますが、<SPAN
+CLASS="PRODUCTNAME"
+>check_postgres</SPAN
+>の監視スクリプトも動作します。
+それでも、プライマリで行われるバキュームはその変更をスタンバイに送信します。
+   </P
+><P
+>リカバリの間WALの制御コマンドは稼動しません。
+例えば、<CODE
+CLASS="FUNCTION"
+>pg_start_backup</CODE
+>や<CODE
+CLASS="FUNCTION"
+>pg_switch_xlog</CODE
+>などです。
+   </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>pg_stat_statements</TT
+>も含み、動的に読み込み可能なモジュールは稼動します。
+   </P
+><P
+>デッドロック検出を含むアドバイザリロックは、通常リカバリにおいて稼動します。
+アドバイザリロックはWALに決して記録されないので、プライマリサーバでもスタンバイサーバでもWALの再実行においてコンフリクトが起こらないことに注意してください。
+プライマリサーバでアドバイザリロックを取得して、スタンバイサーバで同様のアドバイザリロックを掛けることはできません。
+アドバイザリロックは取得したサーバだけに関係するものです。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Slony</SPAN
+>や<SPAN
+CLASS="PRODUCTNAME"
+>Londiste</SPAN
+>や<SPAN
+CLASS="PRODUCTNAME"
+>Bucardo</SPAN
+>のようにトリガに基づいたレプリケーションシステムは、スタンバイサーバで全く稼動しません。
+しかし、それによる変更がスタンバイサーバに送られるまでは、プライマリサーバにおいて問題なく稼動します。
+WALの再実行はトリガに基づいたものではありません。
+したがって、データベースへの付加的な書き込みを必要とするか、トリガの使用に依存するものを、スタンバイサーバを中継して他のシステムへ送ることはできません。
+   </P
+><P
+>一部の<ACRONYM
+CLASS="ACRONYM"
+>UUID</ACRONYM
+>ジェネレータは、データベースに新しい状態を書き出すことに依存していない限り動作可能ですが、新しいOIDを割り当てることはできません。
+   </P
+><P
+>現時点では、読み取り専用のトランザクションでは一時テーブルの作成は許されません。
+このため既存のスクリプトが正しく動作しない場合があります。
+この制限は将来のリリースで緩和されるかもしれません。
+これは、標準SQLとの互換性の問題でもあり、技術的な問題でもあります。
+   </P
+><P
+>テーブル空間が空の場合だけ、<TT
+CLASS="COMMAND"
+>DROP TABLESPACE</TT
+>が成功します。
+一部のスタンバイ側のユーザは<TT
+CLASS="VARNAME"
+>temp_tablespaces</TT
+>パラメータを介してテーブル空間を活発に使用しているかもしれません。
+テーブル空間に一時ファイルが存在する場合、一時ファイルを確実に削除するためすべての問い合わせが取り消されます。
+このため、WAL再生を続けながらテーブル空間を削除することができます。
+   </P
+><P
+>プライマリサーバにおける<TT
+CLASS="COMMAND"
+>DROP DATABASE</TT
+>または<TT
+CLASS="COMMAND"
+>ALTER DATABASE ... SET TABLESPACE</TT
+>の実行により、スタンバイサーバのデータベースに接続するすべてのユーザを強制的に接続を切断させることになるWALエントリを生成します。
+これは<TT
+CLASS="VARNAME"
+>max_standby_streaming_delay</TT
+>の設定にかかわらず、直ちに起こります。
+<TT
+CLASS="COMMAND"
+>ALTER DATABASE ... RENAME</TT
+>はユーザを切断しないので大部分の場合は気がつきませんが、プログラムがデータベースの名称に依存するときは混乱の原因となることに注意してください。
+   </P
+><P
+>通常の(リカバリ以外の)モードで、ログイン権限を持つロールが接続している間にそのロールに<TT
+CLASS="COMMAND"
+>DROP USER</TT
+>または<TT
+CLASS="COMMAND"
+>DROP ROLE</TT
+>を発行した場合、接続中のユーザには何も起こらず、接続し続けます。
+しかし、そのユーザは再接続できません。
+この振舞いはリカバリモードでも適用されます。
+このためプライマリ側で<TT
+CLASS="COMMAND"
+>DROP USER</TT
+>されたとしても、スタンバイ側のユーザの接続は切断されません。
+   </P
+><P
+>リカバリの間も統計情報は収集されます。
+すべてのスキャン、読み取り、ブロック、インデックスの使用などは、スタンバイサーバにおいて正常に記録されます。
+再実行によりプライマリサーバの結果が重複して収集されることはないので、行の挿入によりpg_stat_user_tablesの挿入列の値は増加しません。
+リカバリの開始時点で統計情報ファイルが削除されるので、プライマリサーバとスタンバイサーバで統計情報は異なります。
+これは将来どうするか検討中であり、バグではありません。
+   </P
+><P
+>リカバリの間は自動バキュームは稼動しません。
+リカバリが終わると正常に起動します。
+   </P
+><P
+>リカバリの間バックグラウンドライタは稼動して（プライマリサーバにおけるチェックポイントに類似した）リスタートポイントを設定し、通常のブロック消去を行います。
+これはスタンバイサーバに保存されるヒントビット情報の更新を含むことができます。
+リカバリの間<TT
+CLASS="COMMAND"
+>CHECKPOINT</TT
+>コマンドは受理されますが、新規のチェックポイントではなくてリスタートポイントが設定されます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="HOT-STANDBY-PARAMETERS"
+>25.5.4. ホットスタンバイパラメータリファレンス</A
+></H2
+><P
+>種々のパラメータが上記<A
+HREF="hot-standby.html#HOT-STANDBY-CONFLICT"
+>&#38917;25.5.2</A
+>および<A
+HREF="hot-standby.html#HOT-STANDBY-ADMIN"
+>&#38917;25.5.3</A
+>で述べられています。
+   </P
+><P
+>プライマリサーバでは、<A
+HREF="runtime-config-wal.html#GUC-WAL-LEVEL"
+>wal_level</A
+>および<A
+HREF="runtime-config-replication.html#GUC-VACUUM-DEFER-CLEANUP-AGE"
+>vacuum_defer_cleanup_age</A
+>のパラメータを使用できます。
+プライマリサーバに<A
+HREF="runtime-config-replication.html#GUC-MAX-STANDBY-ARCHIVE-DELAY"
+>max_standby_archive_delay</A
+>および<A
+HREF="runtime-config-replication.html#GUC-MAX-STANDBY-STREAMING-DELAY"
+>max_standby_streaming_delay</A
+>を設定しても無効です。
+   </P
+><P
+>スタンバイサーバでは<A
+HREF="runtime-config-replication.html#GUC-HOT-STANDBY"
+>hot_standby</A
+>と<A
+HREF="runtime-config-replication.html#GUC-MAX-STANDBY-ARCHIVE-DELAY"
+>max_standby_archive_delay</A
+>と<A
+HREF="runtime-config-replication.html#GUC-MAX-STANDBY-STREAMING-DELAY"
+>max_standby_streaming_delay</A
+>のパラメータを使用できます。
+サーバがスタンバイモードの間<A
+HREF="runtime-config-replication.html#GUC-VACUUM-DEFER-CLEANUP-AGE"
+>vacuum_defer_cleanup_age</A
+>を設定しても無効です。
+しかし、スタンバイサーバがプライマリサーバになった場合、意味を持つようになります。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="HOT-STANDBY-CAVEATS"
+>25.5.5. 警告</A
+></H2
+><P
+>ホットスタンバイには幾つかの制限があります。
+将来のリリースでは改善されると思われます。
+
+  <P
+></P
+></P><UL
+><LI
+><P
+>現在ハッシュインデックスに対する操作はWALに記録されません。
+このため再生してもこれらのインデックスは更新されません。
+    </P
+></LI
+><LI
+><P
+>スナップショットを取ることができるようになる前に、実行中のトランザクションについての完全な知識が要求されます。
+(現時点では64を超える)多くのサブトランザクションを使用するトランザクションでは、実行中の最長の書き込みトランザクションが完了するまで、読み取り専用の接続の開始は遅延されます。
+この状況が起こると、それを説明するメッセージがサーバログに記録されます。
+    </P
+></LI
+><LI
+><P
+>スタンバイ問い合わせ用の有効な起動ポイントは、マスタにおけるチェックポイント毎に生成されます。
+マスタが停止状態にある時にスタンバイが停止した場合、プライマリが起動し、さらに起動ポイントをWALログに生成するまで再度ホットスタンバイになることができないことがあります。
+この状況は、通常考えられる状態では問題ではありません。
+一般的に、プライマリが停止し利用できなくなった場合、それはスタンバイに対して新しいプライマリに切り替わることを要求するような深刻な失敗が原因であることが多いはずです。
+また、プライマリを意図的に停止させるような状況では、それに伴いスタンバイが新しいプライマリになめらかに切り替わることも普通の手順です。
+    </P
+></LI
+><LI
+><P
+>リカバリの終了において、準備されたトランザクションが保持する<TT
+CLASS="LITERAL"
+>AccessExclusiveLocks</TT
+>には、通常の2倍のロックテーブルへのエントリ数が必要です。
+通常<TT
+CLASS="LITERAL"
+>AccessExclusiveLocks</TT
+>を取るプリペアドトランザクションを大量に同時実行させる、または、多くの<TT
+CLASS="LITERAL"
+>AccessExclusiveLocks</TT
+>を取る大規模なトランザクションを1つ実行させることを考えている場合、<TT
+CLASS="VARNAME"
+>max_locks_per_transaction</TT
+>の値を、おそらくプライマリサーバのパラメータ値の倍程度に大きくすることを勧めます。
+<TT
+CLASS="VARNAME"
+>max_prepared_transactions</TT
+>の設定が0ならば、これを検討する必要はまったくありません。
+    </P
+></LI
+><LI
+><P
+>シリアザイザブルトランザクション隔離レベルはまだホットスタンバイでは利用できません。
+（<A
+HREF="transaction-iso.html#XACT-SERIALIZABLE"
+>&#38917;13.2.3</A
+>および<A
+HREF="applevel-consistency.html#SERIALIZABLE-CONSISTENCY"
+>&#38917;13.4.1</A
+>参照）
+ホットスタンバイにおいてトランザクションをシリアザイザブルトランザクション隔離レベルに設定しようとすると、エラーになります。
+    </P
+></LI
+></UL
+><P>
+
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="log-shipping-alternative.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="recovery-config.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>この他のログシッピングの方法</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="high-availability.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リカバリの設定</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

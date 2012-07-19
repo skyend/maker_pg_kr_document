@@ -1,0 +1,720 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>開発者向けのオプション</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="独自のオプション"
+HREF="runtime-config-custom.html"><LINK
+REL="NEXT"
+TITLE="短いオプション"
+HREF="runtime-config-short.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="独自のオプション"
+HREF="runtime-config-custom.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="短いオプション"
+HREF="runtime-config-short.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-DEVELOPER"
+>18.17. 開発者向けのオプション</A
+></H1
+><P
+>    
+     以下のパラメータは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のソースコードに対する作業用のものです。
+中には深刻な損傷を負ったデータベースの復旧に役立つものもあります。
+実運用のデータベースでこれらを設定する理由はないはずです。
+したがって、これらはサンプルの<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>からは除外されています。
+これらのパラメータの多くは、それを動作させるために特殊なソースコンパイルを必要としていることに注意してください。
+    </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-ALLOW-SYSTEM-TABLE-MODS"
+></A
+><TT
+CLASS="VARNAME"
+>allow_system_table_mods</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	システムテーブルの構造変更を許可します。
+これは<TT
+CLASS="COMMAND"
+>initdb</TT
+>で使用されます。
+このパラメータはサーバ起動時にのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-DEBUG-ASSERTIONS"
+></A
+><TT
+CLASS="VARNAME"
+>debug_assertions</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	各種のアサーション検査を有効にします。
+これはデバッグ用の道具です。
+もしおかしな問題とかクラッシュを経験すれば、プログラミングの間違いが顕在化するので、これを有効にする必要があるかもしれません。
+このパラメータを使用するには、マクロ<TT
+CLASS="SYMBOL"
+>USE_ASSERT_CHECKING</TT
+>が、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の構築時に（<TT
+CLASS="COMMAND"
+>configure</TT
+>オプションの <TT
+CLASS="OPTION"
+>--enable-cassert</TT
+>で）定義されなければなりません。もし、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がアサーション付で構築されていれば、<TT
+CLASS="VARNAME"
+>debug_assertions</TT
+>のデフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>であることに注意してください。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-IGNORE-SYSTEM-INDEXES"
+></A
+><TT
+CLASS="VARNAME"
+>ignore_system_indexes</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	システムテーブルの読み込み時にシステムインデックスを無視します（しかしテーブルが更新された時はインデックスを更新します）。
+障害があるシステムインデックスを復旧する時、これは有用です。
+セッションが始まった後に、このパラメータを変更することはできません。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-POST-AUTH-DELAY"
+></A
+><TT
+CLASS="VARNAME"
+>post_auth_delay</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	非ゼロの場合、サーバプロセスが始まり認証手続きが終わった後に、指定した秒数の遅延が発生します。
+これは、デバッガを使用してサーバプロセスに接続する機会を開発者に提供することを目的としています。
+セッションが始まった後に、このパラメータを変更することはできません。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-PRE-AUTH-DELAY"
+></A
+><TT
+CLASS="VARNAME"
+>pre_auth_delay</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	非ゼロの場合、ここで指定した秒数分の遅延が新しくサーバプロセスがforkした後、認証手続きに入る前に発生します。
+これは、認証における誤動作を追跡するために、デバッガを使用してサーバプロセスに接続する機会を開発者に提供することを目的としたものです。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル内、または、サーバのコマンドラインでのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-TRACE-NOTIFY"
+></A
+><TT
+CLASS="VARNAME"
+>trace_notify</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>と<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>コマンドのための大量なデバッグ出力を生成します。
+この出力をクライアントもしくはサーバログに送信するためには、それぞれ、<A
+HREF="runtime-config-logging.html#GUC-CLIENT-MIN-MESSAGES"
+>client_min_messages</A
+>もしくは<A
+HREF="runtime-config-logging.html#GUC-LOG-MIN-MESSAGES"
+>log_min_messages</A
+>は<TT
+CLASS="LITERAL"
+>DEBUG1</TT
+>以下でなければなりません。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-TRACE-RECOVERY-MESSAGES"
+></A
+><TT
+CLASS="VARNAME"
+>trace_recovery_messages</TT
+> (<TT
+CLASS="TYPE"
+>enum</TT
+>)</DT
+><DD
+><P
+>       
+	復旧関連のデバッグ出力のログ取得を有効にします。さもないとログは取られません。
+	このパラメータはユーザに対し、<A
+HREF="runtime-config-logging.html#GUC-LOG-MIN-MESSAGES"
+>log_min_messages</A
+>の通常設定を上書きすることを許可します。
+	しかし、特定のメッセージに対してのみです。これはホットスタンバイのデバッグを意図したものです。
+	有効な値は、<TT
+CLASS="LITERAL"
+>DEBUG5</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG4</TT
+>、
+        <TT
+CLASS="LITERAL"
+>DEBUG3</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG2</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG1</TT
+>、および
+        <TT
+CLASS="LITERAL"
+>LOG</TT
+>です。
+	デフォルトの<TT
+CLASS="LITERAL"
+>LOG</TT
+>は、ログ取得の決定に全く影響しません。
+	その他の値は、あたかも<TT
+CLASS="LITERAL"
+>LOG</TT
+>優先度を所有しているごとく、それ、またはより高い優先度でログ取得される復旧関連デバッグメッセージの要因となります。
+	<TT
+CLASS="VARNAME"
+>log_min_messages</TT
+>の通常設定に対し、これは無条件にそれらをサーバログに送り込みます。
+	このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル内、または、サーバコマンドラインでのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-TRACE-SORT"
+></A
+><TT
+CLASS="VARNAME"
+>trace_sort</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	もしも有効であれば、並び替え操作の間のリソース使用についての情報を放出します。
+このパラメータは <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコンパイルされた時、<TT
+CLASS="SYMBOL"
+>TRACE_SORT</TT
+>マクロが定義されている場合にのみ有効です。
+（とは言っても、現在<TT
+CLASS="SYMBOL"
+>TRACE_SORT</TT
+>はデフォルトで定義されています。）
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>trace_locks</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	有効な場合、ロックの使用状況に関する情報を出力します。
+	出力される情報には、ロック操作の種類、ロックの種類、ロックまたはロック解除されているオブジェクトの一意な識別子が含まれます。
+	また、このオブジェクトに既に与えられているロック種類やこのオブジェクトで待機しているロック種類を表すビットマスクも含まれます。
+	ロック種類それぞれについて、与えられているロック数、待機中のロック数がその総数と共に出力されます。
+	ログファイル出力例を以下に示します。
+</P><PRE
+CLASS="SCREEN"
+>LOG:  LockAcquire: new: lock(0xb7acd844) id(24688,24696,0,0,0,1)
+      grantMask(0) req(0,0,0,0,0,0,0)=0 grant(0,0,0,0,0,0,0)=0
+      wait(0) type(AccessShareLock)
+LOG:  GrantLock: lock(0xb7acd844) id(24688,24696,0,0,0,1)
+      grantMask(2) req(1,0,0,0,0,0,0)=1 grant(1,0,0,0,0,0,0)=1
+      wait(0) type(AccessShareLock)
+LOG:  UnGrantLock: updated: lock(0xb7acd844) id(24688,24696,0,0,0,1)
+      grantMask(0) req(0,0,0,0,0,0,0)=0 grant(0,0,0,0,0,0,0)=0
+      wait(0) type(AccessShareLock)
+LOG:  CleanUpLock: deleting: lock(0xb7acd844) id(24688,24696,0,0,0,1)
+      grantMask(0) req(0,0,0,0,0,0,0)=0 grant(0,0,0,0,0,0,0)=0
+      wait(0) type(INVALID)</PRE
+><P>
+       
+	ダンプされる構造の詳細は、<TT
+CLASS="FILENAME"
+>src/include/storage/lock.h</TT
+> にあります。
+       </P
+><P
+>       
+	このパラメータは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコンパイル時に<TT
+CLASS="SYMBOL"
+>LOCK_DEBUG</TT
+>マクロが定義された場合のみ有効です。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>trace_lwlocks</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	有効な場合、軽量ロックの使用状況に関する情報を出力します。
+	軽量ロックは主に、共有メモリ上のデータ構造へのアクセスに関する排他制御機能を提供することを意図したものです。
+       </P
+><P
+>       
+	このパラメータは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコンパイル時に<TT
+CLASS="SYMBOL"
+>LOCK_DEBUG</TT
+>マクロが定義された場合のみ有効です。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>trace_userlocks</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	有効な場合、ユーザロックの使用状況に関する情報を出力します。
+	出力は<TT
+CLASS="SYMBOL"
+>trace_locks</TT
+>と同じですが、助言ロックに関するもののみを出力します。
+       </P
+><P
+>       
+	このパラメータは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコンパイル時に<TT
+CLASS="SYMBOL"
+>LOCK_DEBUG</TT
+>マクロが定義された場合のみ有効です。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>trace_lock_oidmin</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	設定すると、このOID未満のテーブルに関するロックの追跡を行いません。
+	（システムテーブルに関する出力を抑えるために使用します。）
+       </P
+><P
+>       
+	このパラメータは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコンパイル時に<TT
+CLASS="SYMBOL"
+>LOCK_DEBUG</TT
+>マクロが定義された場合のみ有効です。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>trace_lock_table</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	このテーブル（OID）に対し無条件でロックを追跡します。
+       </P
+><P
+>       
+	このパラメータは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコンパイル時に<TT
+CLASS="SYMBOL"
+>LOCK_DEBUG</TT
+>マクロが定義された場合のみ有効です。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>debug_deadlocks</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	設定すると、デッドロックタイムアウトが発生した時全ての進行中のロックについての情報がダンプされます。
+       </P
+><P
+>       
+	このパラメータは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコンパイル時に<TT
+CLASS="SYMBOL"
+>LOCK_DEBUG</TT
+>マクロが定義された場合のみ有効です。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>log_btree_build_stats</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	設定すると、各種B-Tree操作に関するシステムリソース（メモリとCPU）の使用についての統計情報をログに出力します。
+       </P
+><P
+>       
+	このパラメータは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がコンパイル時に<TT
+CLASS="SYMBOL"
+>BTREE_BUILD_STATS</TT
+>マクロが定義された場合のみ有効です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-WAL-DEBUG"
+></A
+><TT
+CLASS="VARNAME"
+>wal_debug</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	もしonであれば、WALに関連したデバッグ出力が有効になります。このパラメータは<TT
+CLASS="SYMBOL"
+>WAL_DEBUG</TT
+>マクロが <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のコンパイルの時に定義された場合にのみ有効です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-ZERO-DAMAGED-PAGES"
+></A
+><TT
+CLASS="VARNAME"
+>zero_damaged_pages</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	ページヘッダの障害がわかると、通常<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はエラーの報告を行い、現在のトランザクションを中断させます。
+<TT
+CLASS="VARNAME"
+>zero_damaged_pages</TT
+>をonに設定することにより、システムは代わりに警告を報告し、障害のあるメモリ内のページをゼロで埋め、処理を継続します。
+この動作により、障害のあったページ上にある全ての行の<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>データが破壊</I
+></SPAN
+>されます。
+しかし、これによりエラーを確実に無視し、正常なページに存在するテーブル内の行を取り出すことができます。
+        ハードウェアまたはソフトウェアのエラーによって破損が発生した場合のデータの復旧時に有用です。
+障害のあるページからのテーブルのデータの復旧をあきらめた場合を除き、通常はこれをonにしてはいけません。
+        ゼロで埋められたページはディスクに書き込みを強要されないため、このパラメータを再び無効にする以前にテーブル、またはインデックスを再作成することを勧めます。
+        デフォルトは<TT
+CLASS="LITERAL"
+>off</TT
+>であり、スーパーユーザのみ変更可能です。
+       </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-custom.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-short.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>独自のオプション</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>短いオプション</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

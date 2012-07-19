@@ -1,0 +1,621 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Cによるトリガ関数の作成</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="トリガ"
+HREF="triggers.html"><LINK
+REL="PREVIOUS"
+TITLE="データ変更の可視性"
+HREF="trigger-datachanges.html"><LINK
+REL="NEXT"
+TITLE="完全なトリガの例"
+HREF="trigger-example.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ変更の可視性"
+HREF="trigger-datachanges.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="トリガ"
+HREF="triggers.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 36&#31456;トリガ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="トリガ"
+HREF="triggers.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="完全なトリガの例"
+HREF="trigger-example.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TRIGGER-INTERFACE"
+>36.3. Cによるトリガ関数の作成</A
+></H1
+><P
+>本節ではトリガ関数とのインタフェースについて低レベルな詳細を説明します。
+この情報はC言語でトリガ関数を作成する時にのみ必要です。
+高レベルな言語で作成すれば、こうした詳細は代わりに扱ってもらえます。
+たいていの場合、Cでトリガを作成する前に手続き言語を使用することを検討すべきです。
+各手続き言語の文書で、その言語を使用したトリガ言語の作成方法を説明します。
+   </P
+><P
+>トリガ関数は<SPAN
+CLASS="QUOTE"
+>"version 1"</SPAN
+>関数マネージャインタフェースを使わなくてはいけません。
+   </P
+><P
+>関数がトリガマネージャから呼び出される時は、通常の引数が渡されるのではなく、<TT
+CLASS="STRUCTNAME"
+>TriggerData</TT
+>構造体を指す<SPAN
+CLASS="QUOTE"
+>"context"</SPAN
+>ポインタが渡されます。
+C関数は、トリガマネージャから呼び出されたのかどうかを以下のマクロを実行することで検査することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CALLED_AS_TRIGGER(fcinfo)</PRE
+><P>
+これは以下に展開されます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>((fcinfo)-&gt;context != NULL &amp;&amp; IsA((fcinfo)-&gt;context, TriggerData))</PRE
+><P>
+もしこれが真を返す場合、<TT
+CLASS="LITERAL"
+>fcinfo-&gt;context</TT
+>を<TT
+CLASS="LITERAL"
+>TriggerData *</TT
+>型にキャストし、指された<TT
+CLASS="STRUCTNAME"
+>TriggerData</TT
+>構造体を使用することは安全です。
+その関数は、<TT
+CLASS="STRUCTNAME"
+>TriggerData</TT
+>構造体やそれが指すどのようなデータも変更しては<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>いけません</I
+></SPAN
+>。
+   </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>struct TriggerData</TT
+>は<TT
+CLASS="FILENAME"
+>commands/trigger.h</TT
+>の中で定義されています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct TriggerData
+{
+    NodeTag       type;
+    TriggerEvent  tg_event;
+    Relation      tg_relation;
+    HeapTuple     tg_trigtuple;
+    HeapTuple     tg_newtuple;
+    Trigger      *tg_trigger;
+    Buffer        tg_trigtuplebuf;
+    Buffer        tg_newtuplebuf;
+} TriggerData;</PRE
+><P>
+
+メンバは下記のように定義されています。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="STRUCTFIELD"
+>type</TT
+></DT
+><DD
+><P
+>常に<TT
+CLASS="LITERAL"
+>T_TriggerData</TT
+>です。
+       </P
+></DD
+><DT
+><TT
+CLASS="STRUCTFIELD"
+>tg_event</TT
+></DT
+><DD
+><P
+>その関数が呼び出されたイベントを記述します。
+<TT
+CLASS="LITERAL"
+>tg_event</TT
+>を調べるためには下記のマクロを使うことができます。
+
+        <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_BEFORE(tg_event)</TT
+></DT
+><DD
+><P
+>トリガがBEFOREで発行された場合真を返します。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_AFTER(tg_event)</TT
+></DT
+><DD
+><P
+>トリガがAFTERで発行された場合真を返します。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_INSTEAD(tg_event)</TT
+></DT
+><DD
+><P
+>トリガがINSTEAD OFで発行された場合真を返します。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_FOR_ROW(tg_event)</TT
+></DT
+><DD
+><P
+>トリガが行レベルのイベントで発行された場合真を返します。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_FOR_STATEMENT(tg_event)</TT
+></DT
+><DD
+><P
+>トリガが文レベルのイベントで発行された場合真を返します。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_BY_INSERT(tg_event)</TT
+></DT
+><DD
+><P
+>トリガが<TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンドで発行された場合真を返します。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_BY_UPDATE(tg_event)</TT
+></DT
+><DD
+><P
+>トリガが<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドで発行された場合真を返します。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_BY_DELETE(tg_event)</TT
+></DT
+><DD
+><P
+>トリガが<TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドで発行された場合真を返します。
+           </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TRIGGER_FIRED_BY_TRUNCATE(tg_event)</TT
+></DT
+><DD
+><P
+>トリガが<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>コマンドで発行された場合真を返します。
+           </P
+></DD
+></DL
+></DIV
+><P>
+       </P
+></DD
+><DT
+><TT
+CLASS="STRUCTFIELD"
+>tg_relation</TT
+></DT
+><DD
+><P
+>トリガの発行元のリレーションを記述する構造体へのポインタです。
+この構造体についての詳細は、<TT
+CLASS="FILENAME"
+>utils/rel.h</TT
+>を参照してください。
+最も興味深いのは、<TT
+CLASS="LITERAL"
+>tg_relation-&gt;rd_att</TT
+>（リレーションタプルの記述子）と<TT
+CLASS="LITERAL"
+>tg_relation-&gt;rd_rel-&#62;relname</TT
+>です（リレーション名、これは<TT
+CLASS="TYPE"
+>char*</TT
+>ではなく<TT
+CLASS="TYPE"
+>NameData</TT
+>です。
+名前のコピーが必要な場合は、<TT
+CLASS="TYPE"
+>char*</TT
+>を得るために<TT
+CLASS="LITERAL"
+>SPI_getrelname(tg_relation)</TT
+>を使用してください）。
+       </P
+></DD
+><DT
+><TT
+CLASS="STRUCTFIELD"
+>tg_trigtuple</TT
+></DT
+><DD
+><P
+>トリガが発行された行へのポインタです。
+これは挿入される、削除される、あるいは更新される行です。
+もし<TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>でこのトリガが発行された時、この行を別のもので置き換えたくない（<TT
+CLASS="COMMAND"
+>INSERT</TT
+>の場合）場合や、その操作を飛ばしたくない場合は、これをこの関数から返してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="STRUCTFIELD"
+>tg_newtuple</TT
+></DT
+><DD
+><P
+>トリガが<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>で発行された場合は、行の新しいバージョンへのポインタです。
+<TT
+CLASS="COMMAND"
+>INSERT</TT
+>もしくは<TT
+CLASS="COMMAND"
+>DELETE</TT
+>の場合は、<TT
+CLASS="SYMBOL"
+>NULL</TT
+>です。
+<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>イベントの時、この行を別のもので置き換えたくない場合や操作を飛ばしたくない場合は、これをこの関数から返してください。
+       </P
+></DD
+><DT
+><TT
+CLASS="STRUCTFIELD"
+>tg_trigger</TT
+></DT
+><DD
+><P
+>以下のように<TT
+CLASS="FILENAME"
+>utils/rel.h</TT
+>で定義された、<TT
+CLASS="STRUCTNAME"
+>Trigger</TT
+>構造体へのポインタです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>typedef struct Trigger
+{
+    Oid         tgoid;
+    char       *tgname;
+    Oid         tgfoid;
+    int16       tgtype;
+    char        tgenabled;
+    bool        tgisinternal;
+    Oid         tgconstrrelid;
+    Oid         tgconstrindid;
+    Oid         tgconstraint;
+    bool        tgdeferrable;
+    bool        tginitdeferred;
+    int16       tgnargs;
+    int16       tgnattr;
+    int16      *tgattr;
+    char      **tgargs;
+    char       *tgqual;
+} Trigger;</PRE
+><P>
+
+ここで、<TT
+CLASS="STRUCTFIELD"
+>tgname</TT
+>がトリガの名前、<TT
+CLASS="STRUCTFIELD"
+>tgnargs</TT
+>が<TT
+CLASS="STRUCTFIELD"
+>tgargs</TT
+>内の引数の数、<TT
+CLASS="STRUCTFIELD"
+>tgargs</TT
+>は<TT
+CLASS="COMMAND"
+>CREATE TRIGGER</TT
+>文で指定された引数へのポインタの配列です。
+他のメンバは内部でのみ使用されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="STRUCTFIELD"
+>tg_trigtuplebuf</TT
+></DT
+><DD
+><P
+><TT
+CLASS="STRUCTFIELD"
+>tg_trigtuple</TT
+>を含むバッファです。
+そうしたタプルが存在しない場合やディスクバッファ内に格納されていない場合は<TT
+CLASS="SYMBOL"
+>InvalidBuffer</TT
+>です。
+       </P
+></DD
+><DT
+><TT
+CLASS="STRUCTFIELD"
+>tg_newtuplebuf</TT
+></DT
+><DD
+><P
+><TT
+CLASS="STRUCTFIELD"
+>tg_newtuple</TT
+>を含むバッファです。
+そうしたタプルが存在しない場合やディスクバッファ内に格納されていない場合は<TT
+CLASS="SYMBOL"
+>InvalidBuffer</TT
+>です。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+>トリガ関数は<TT
+CLASS="STRUCTNAME"
+>HeapTuple</TT
+>ポインタもしくは<TT
+CLASS="SYMBOL"
+>NULL</TT
+>ポインタ（SQLのNULLでは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ありません</I
+></SPAN
+>。
+したがって、<TT
+CLASS="PARAMETER"
+>isNull</TT
+>は真にはなりません）のどちらかを返さなければなりません。
+操作対象の行を変更したくない場合は、注意して、<TT
+CLASS="STRUCTFIELD"
+>tg_trigtuple</TT
+>か<TT
+CLASS="STRUCTFIELD"
+>tg_newtuple</TT
+>の適切な方を返してください。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="trigger-datachanges.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="trigger-example.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データ変更の可視性</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="triggers.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>完全なトリガの例</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

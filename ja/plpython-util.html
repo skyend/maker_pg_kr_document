@@ -1,0 +1,345 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ユーティリティ関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"><LINK
+REL="PREVIOUS"
+TITLE="明示的サブトランザクション"
+HREF="plpython-subtransaction.html"><LINK
+REL="NEXT"
+TITLE="環境変数"
+HREF="plpython-envar.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="明示的サブトランザクション"
+HREF="plpython-subtransaction.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 42&#31456;PL/Python - Python手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="環境変数"
+HREF="plpython-envar.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPYTHON-UTIL"
+>42.9. ユーティリティ関数</A
+></H1
+><P
+><TT
+CLASS="LITERAL"
+>plpy</TT
+>では、<TT
+CLASS="LITERAL"
+>plpy.debug(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>、<TT
+CLASS="LITERAL"
+>plpy.log(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>、<TT
+CLASS="LITERAL"
+>plpy.info(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>、<TT
+CLASS="LITERAL"
+>plpy.notice(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>、<TT
+CLASS="LITERAL"
+>plpy.warning(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>、<TT
+CLASS="LITERAL"
+>plpy.error(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>、および<TT
+CLASS="LITERAL"
+>plpy.fatal(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>関数を提供しています。
+
+<CODE
+CLASS="FUNCTION"
+>plpy.error</CODE
+>および<CODE
+CLASS="FUNCTION"
+>plpy.fatal</CODE
+>は、実際にPythonの例外を発生させます。
+これが捕捉されない場合、呼び出し中の問い合わせ外部に伝わり、その結果、現在のトランザクションもしくはサブトランザクションがアボートします。
+<TT
+CLASS="LITERAL"
+>raise plpy.Error(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>および<TT
+CLASS="LITERAL"
+>raise plpy.Fatal(<TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</TT
+>は、それぞれ<CODE
+CLASS="FUNCTION"
+>plpy.error</CODE
+>および<CODE
+CLASS="FUNCTION"
+>plpy.fatal</CODE
+>の呼び出しと同じです。
+他の関数は異なる重要度のメッセージを生成するだけです。
+<A
+HREF="runtime-config-logging.html#GUC-LOG-MIN-MESSAGES"
+>log_min_messages</A
+>と<A
+HREF="runtime-config-logging.html#GUC-CLIENT-MIN-MESSAGES"
+>client_min_messages</A
+>設定変数は、特定の重要度のメッセージをクライアントに報告するか、サーバのログに書き出すか、あるいはその両方かを制御します。
+詳細は<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+  </P
+><P
+>この他のユーティリティ関数群には<TT
+CLASS="LITERAL"
+>plpy.quote_literal(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</TT
+>、<TT
+CLASS="LITERAL"
+>plpy.quote_nullable(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</TT
+>および<TT
+CLASS="LITERAL"
+>plpy.quote_ident(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</TT
+>があります。
+これらは<A
+HREF="functions-string.html"
+>&#38917;9.4</A
+>で説明する組込みの引用符付け関数と同等です。
+これらはその場限りの問い合わせを構築する時に有用です。
+<A
+HREF="plpgsql-statements.html#PLPGSQL-QUOTE-LITERAL-EXAMPLE"
+>&#20363;39-1</A
+>の動的SQLと同等なPL/Pythonを以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>plpy.execute("UPDATE tbl SET %s = %s WHERE key = %s" % (
+    plpy.quote_ident(colname),
+    plpy.quote_nullable(newvalue),
+    plpy.quote_literal(keyvalue)))</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpython-subtransaction.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpython-envar.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>明示的サブトランザクション</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpython.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>環境変数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

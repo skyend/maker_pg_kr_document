@@ -1,0 +1,395 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.2.12</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.2.13"
+HREF="release-8-2-13.html"><LINK
+REL="NEXT"
+TITLE="リリース8.2.11"
+HREF="release-8-2-11.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.2.13"
+HREF="release-8-2-13.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.2.11"
+HREF="release-8-2-11.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-2-12"
+>E.59. リリース8.2.12</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2009-02-02</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.2.11に対し、各種の不具合を修正したものです。
+8.2メジャーリリースにおける新機能については<A
+HREF="release-8-2.html"
+>&#38917;E.71</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN118419"
+>E.59.1. バージョン8.2.12への移行</A
+></H2
+><P
+>8.2.Xからの移行ではダンプ/リストアは不要です。
+しかし、8.2.11より前のバージョンからアップグレードする場合は、8.2.11のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN118422"
+>E.59.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>headline()</CODE
+>関数におけるURLの扱いを改良しました。(Teodor)
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>headline()</CODE
+>関数における延長見出しの扱いを改良しました。(Teodor)
+     </P
+></LI
+><LI
+><P
+>符号化方式の変換が符号化方式の組み合わせの指定を間違えた変換関数で作成された場合にあり得る、アサートの失敗や誤変換を防止します。(Tom, Heikki)
+     </P
+></LI
+><LI
+><P
+>例えば<TT
+CLASS="COMMAND"
+>INSERT</TT
+>が<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>に書き換えられるといった、PL/pgSQLで実行された文が他の種類の文に書き換えられた場合にあり得るアサートの失敗を修正しました。(Heikki)
+     </P
+></LI
+><LI
+><P
+>データ型入力関数でスナップショットが利用できることを確実にしました。(Tom)
+     </P
+><P
+>これは主に、ユーザ定義の安定または不変関数を含む<TT
+CLASS="LITERAL"
+>CHECK</TT
+>制約付きで宣言されたドメインに影響します。
+こうした関数は通常、スナップショットが設定されていない場合失敗します。
+     </P
+></LI
+><LI
+><P
+>データ型入出力、特に、ドメインの検査制約で使用されるSPIを使用する関数をより安全にしました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM</TT
+>において小規模なテーブルに対する不要なロックを防止しました。
+      (Heikki)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UPDATE RETURNING tableoid</TT
+>が現在のOIDではなくゼロをかえす問題を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>推移的な等価性が外部結合句に適用される場合のプランナの選択度の誤推定を修正しました。(Tom)
+     </P
+><P
+>これにより<TT
+CLASS="LITERAL"
+>... from a left join b on a.a1 = b.b1 where a.a1 = 42 ...</TT
+>のような問い合わせで劣化した計画が作成されました。
+     </P
+></LI
+><LI
+><P
+>オプティマイザの長大な<TT
+CLASS="LITERAL"
+>IN</TT
+>リストの扱いを改良しました。
+     </P
+><P
+>この変更により、制約による除外が有効な場合にこうしたリストが、長く時間を浪費することを防止します。
+     </P
+></LI
+><LI
+><P
+>保持可能なカーソルの内容がTOASTテーブルの内容に依存しないことを確実にしました。(Tom)
+     </P
+><P
+>これまでカーソル内の大規模なフィールドはTOASTポインタとして表現される可能性がありました。
+これは、参照先のテーブルがカーソルを読み取る前に削除された場合や、大規模な値が削除、そしてバキュームされてしまった場合に失敗しました。
+これは通常のカーソルでは発生することはあり得ませんが、トランザクションの生成以降保持されるカーソルではあり得ます。
+     </P
+></LI
+><LI
+><P
+>集合を返す関数が結果全体を読み取らずに終了した時のメモリリークを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/dblink</TT
+>の<CODE
+CLASS="FUNCTION"
+>dblink_get_result(text,bool)</CODE
+>関数を修正しました。(Joe)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/sslinfo</TT
+>関数から不要な出力が行われる可能性を修正しました。
+      (Tom)
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>configure</SPAN
+>スクリプトがPL/Perl用のリンク情報の入手ができなかった場合に失敗を適切に報告するように修正しました。(Andrew)
+     </P
+></LI
+><LI
+><P
+>すべての文書において、現在活動していない<TT
+CLASS="LITERAL"
+>pgsql-ports</TT
+>と<TT
+CLASS="LITERAL"
+>pgsql-patches</TT
+>メーリングリストの代わりに、<TT
+CLASS="LITERAL"
+>pgsql-bugs</TT
+>または<TT
+CLASS="LITERAL"
+>pgsql-hackers</TT
+>を参照するようにしました。
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+>リリース2009a（カトマンズ、およびスイス、キューバにおける歴史的なDSTの訂正）に更新しました。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-2-13.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-2-11.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.2.13</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.2.11</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

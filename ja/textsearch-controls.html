@@ -1,0 +1,1197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テキスト検索の制御</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="PREVIOUS"
+TITLE="テーブルとインデックス"
+HREF="textsearch-tables.html"><LINK
+REL="NEXT"
+TITLE="追加機能"
+HREF="textsearch-features.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="テーブルとインデックス"
+HREF="textsearch-tables.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 12&#31456;全文検索</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加機能"
+HREF="textsearch-features.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEXTSEARCH-CONTROLS"
+>12.3. テキスト検索の制御</A
+></H1
+><P
+>  全文検索を実装するためには、文書から<TT
+CLASS="TYPE"
+>tsvector</TT
+>を、そしてユーザの問合わせから<TT
+CLASS="TYPE"
+>tsquery</TT
+>を作成する関数が存在しなければなりません。また、結果を意味のある順で返す必要があります。そこで、問合わせとの関連性で文書を比較する関数も必要になってきます。結果を体裁良く表示できることも重要です。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はこれらすべての機能を提供しています。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-PARSING-DOCUMENTS"
+>12.3.1. 文書のパース</A
+></H2
+><P
+>    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、文書を<TT
+CLASS="TYPE"
+>tsvector</TT
+>データ型に変換する<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>関数を提供しています。
+   </P
+><PRE
+CLASS="SYNOPSIS"
+>to_tsvector([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>document</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>) returns <TT
+CLASS="TYPE"
+>tsvector</TT
+></PRE
+><P
+>    <CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>は、テキスト文書をパースしてトークンにし、トークンを語彙素に変換、文書中の位置とともに語彙素をリストとして持つ<TT
+CLASS="TYPE"
+>tsvector</TT
+>を返します。文書は、指定したものか、あるいはデフォルトのテキスト検索設定にしたがって処理されます。単純な例を示します。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT to_tsvector('english', 'a fat  cat sat on a mat - it ate a fat rats');
+                  to_tsvector
+-----------------------------------------------------
+ 'ate':9 'cat':3 'fat':2,11 'mat':7 'rat':12 'sat':4</PRE
+><P>
+   </P
+><P
+>上に示す例では、結果の<TT
+CLASS="TYPE"
+>tsvector</TT
+>で、<TT
+CLASS="LITERAL"
+>a</TT
+>、<TT
+CLASS="LITERAL"
+>on</TT
+>、<TT
+CLASS="LITERAL"
+>it</TT
+>という単語が含まれないこと、<TT
+CLASS="LITERAL"
+>rats</TT
+>という単語が<TT
+CLASS="LITERAL"
+>rat</TT
+>になっていること、句読点記号<TT
+CLASS="LITERAL"
+>-</TT
+>が無視されていることがわかります。
+   </P
+><P
+>   <CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>関数は、文書をトークンに分解して、そのトークンに型を割り当てるパーサを内部的に呼び出しています。それぞれのトークンに対して辞書(<A
+HREF="textsearch-dictionaries.html"
+>&#38917;12.6</A
+>)のリストが検索されます。ここで、辞書のリストはトークンの型によって異なります。最初の辞書は、トークンを<I
+CLASS="FIRSTTERM"
+>認識</I
+>し、トークンを表現する一つ以上の正規化された<I
+CLASS="FIRSTTERM"
+>語彙素</I
+>を出力します。例えば、ある辞書は<TT
+CLASS="LITERAL"
+>rats</TT
+>は<TT
+CLASS="LITERAL"
+>rat</TT
+>の複数形であることを認識しているので、<TT
+CLASS="LITERAL"
+>rats</TT
+>は<TT
+CLASS="LITERAL"
+>rat</TT
+>になります。ある単語は<I
+CLASS="FIRSTTERM"
+>ストップワード</I
+>(<A
+HREF="textsearch-dictionaries.html#TEXTSEARCH-STOPWORDS"
+>&#38917;12.6.1</A
+>)として認識されます。これは、意味のある検索中にあまりも多く出現するため、無視されるものです。先の例では、<TT
+CLASS="LITERAL"
+>a</TT
+>、<TT
+CLASS="LITERAL"
+>on</TT
+>、および<TT
+CLASS="LITERAL"
+>it</TT
+>がそれです。もしリスト中の辞書のどれもがトークンを認識しなければ、そのトークンは無視されます。先の例では、句読点の<TT
+CLASS="LITERAL"
+>-</TT
+>がそうです。なぜなら、実際にはそのトークン型(<TT
+CLASS="LITERAL"
+>Space symbols</TT
+>)に対して辞書が割り当てられておらず、空白トークンは決してインデックス付けされないことを意味します。パーサ、辞書、そしてどのトークンがインデックス付けされるかという選択は、テキスト検索設定(<A
+HREF="textsearch-configuration.html"
+>&#38917;12.7</A
+>)によって決められます。同じデータベース中に多くの異なった設定を持つことができ、多くの言語用に定義済の設定が用意されています。先の例では、英語用として、デフォルトの<TT
+CLASS="LITERAL"
+>english</TT
+>設定を使っています。
+   </P
+><P
+>    関数<CODE
+CLASS="FUNCTION"
+>setweight</CODE
+>を使って<TT
+CLASS="TYPE"
+>tsvector</TT
+>のエントリに与えられた<I
+CLASS="FIRSTTERM"
+>重み</I
+>のラベルを与えることができます。ここで重みは、<TT
+CLASS="LITERAL"
+>A</TT
+>, <TT
+CLASS="LITERAL"
+>B</TT
+>, <TT
+CLASS="LITERAL"
+>C</TT
+>, <TT
+CLASS="LITERAL"
+>D</TT
+>のどれかの文字です。重みの典型的な使い方は、文書の各部分がどこから来たのかをマークすることです。たとえば、タイトルから来たのか、本文から来たのかなど。後でこの情報は検索結果のランキングに利用できます。
+   </P
+><P
+>    <CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>(<TT
+CLASS="LITERAL"
+>NULL</TT
+>)は<TT
+CLASS="LITERAL"
+>NULL</TT
+>を返すので、NULLになる可能性のある列に対しては<CODE
+CLASS="FUNCTION"
+>coalesce</CODE
+>を使うことをお勧めします。構造化された文書から<TT
+CLASS="TYPE"
+>tsvector</TT
+>を作るための推奨できる方法を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE tt SET ti =
+    setweight(to_tsvector(coalesce(title,'')), 'A')    ||
+    setweight(to_tsvector(coalesce(keyword,'')), 'B')  ||
+    setweight(to_tsvector(coalesce(abstract,'')), 'C') ||
+    setweight(to_tsvector(coalesce(body,'')), 'D');</PRE
+><P>
+
+    ここでは、完成した<TT
+CLASS="TYPE"
+>tsvector</TT
+>の語彙素に対して、ラベル付けのために<CODE
+CLASS="FUNCTION"
+>setweight</CODE
+>を使っています。そして、<TT
+CLASS="TYPE"
+>tsvector</TT
+>の連結演算子<TT
+CLASS="LITERAL"
+>||</TT
+>を使って、ラベルづけされた<TT
+CLASS="TYPE"
+>tsvector</TT
+>の値をマージします。(詳細は<A
+HREF="textsearch-features.html#TEXTSEARCH-MANIPULATE-TSVECTOR"
+>&#38917;12.4.1</A
+>を参照してください。)
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-PARSING-QUERIES"
+>12.3.2. 問合わせのパース</A
+></H2
+><P
+>    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、問合わせを<TT
+CLASS="TYPE"
+>tsquery</TT
+>に変換する<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>関数と<CODE
+CLASS="FUNCTION"
+>plainto_tsquery</CODE
+>関数を提供しています。<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>は、<CODE
+CLASS="FUNCTION"
+>plainto_tsquery</CODE
+>よりも多くの機能を提供していますが、入力のチェックはより厳格です。
+   </P
+><PRE
+CLASS="SYNOPSIS"
+>to_tsquery([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>querytext</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>) returns <TT
+CLASS="TYPE"
+>tsquery</TT
+></PRE
+><P
+>    <CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>は、<TT
+CLASS="REPLACEABLE"
+><I
+>querytext</I
+></TT
+>から<TT
+CLASS="TYPE"
+>tsquery</TT
+>としての値を生成します。<TT
+CLASS="REPLACEABLE"
+><I
+>querytext</I
+></TT
+>は、論理演算子<TT
+CLASS="LITERAL"
+>&amp;</TT
+> (AND), <TT
+CLASS="LITERAL"
+>|</TT
+> (OR)、<TT
+CLASS="LITERAL"
+>!</TT
+> (NOT)で区切られる単一のトークンから構成されなければなりません。これらの演算子は括弧でグループ化できます。言い換えると、<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>の入力は、<A
+HREF="datatype-textsearch.html"
+>&#38917;8.11</A
+>で述べられている一般規則にしたがっていなければなりません。違いは、基本的な<TT
+CLASS="TYPE"
+>tsquery</TT
+>の入力はトークンの表面的な値を受け取るのに対し、<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>は指定した、あるいはデフォルトの設定を使ってトークンを語彙素へと正規化し、設定にしたがって、ストップワードであるようなトークンを破棄します。例を示します。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT to_tsquery('english', 'The &amp; Fat &amp; Rats');
+  to_tsquery   
+---------------
+ 'fat' &amp; 'rat'</PRE
+><P>
+
+    基本的な<TT
+CLASS="TYPE"
+>tsquery</TT
+>の入力では、各々の語彙素に重みを付加することにより、同じ重みを持つ<TT
+CLASS="TYPE"
+>tsvector</TT
+>の語彙素のみに照合するようにすることができます。例を示します。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT to_tsquery('english', 'Fat | Rats:AB');
+    to_tsquery    
+------------------
+ 'fat' | 'rat':AB</PRE
+><P>
+
+    また、明示的な前方一致検索のため、<TT
+CLASS="LITERAL"
+>*</TT
+>を語彙素に与えることもできます。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT to_tsquery('supern:*A &amp; star:A*B');
+        to_tsquery        
+--------------------------
+ 'supern':*A &amp; 'star':*AB</PRE
+><P>
+
+    このような語彙素は、与えられた文字列で始まる<TT
+CLASS="TYPE"
+>tsvector</TT
+>中のどんな単語にも照合するでしょう。
+
+    <CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>は、単一引用符で囲まれた語句を受け付けることもできます。これは主に、設定の中にそういった語句を持つ同義語辞書を含んでいるときに有用です。以下の例では、ある同義語の中に<TT
+CLASS="LITERAL"
+>supernovae stars : sn</TT
+>という規則が含まれています。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT to_tsquery('''supernovae stars'' &amp; !crab');
+  to_tsquery
+---------------
+ 'sn' &amp; !'crab'</PRE
+><P>
+
+    引用符がない場合は、<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>は、ANDあるいはOR演算子で区切られていないトークンに対して構文エラーを引き起こします。
+   </P
+><PRE
+CLASS="SYNOPSIS"
+>plainto_tsquery([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>querytext</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>) returns <TT
+CLASS="TYPE"
+>tsquery</TT
+></PRE
+><P
+>    <CODE
+CLASS="FUNCTION"
+>plainto_tsquery</CODE
+>は整形されていないテキスト<TT
+CLASS="REPLACEABLE"
+><I
+>querytext</I
+></TT
+>を、<TT
+CLASS="TYPE"
+>tsquery</TT
+>に変換します。テキストはパースされ、<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>としてできる限り正規化されます。そして、<TT
+CLASS="LITERAL"
+>&amp;</TT
+> (AND) 論理演算子が存続した単語の間に挿入されます。
+   </P
+><P
+>   例：
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT plainto_tsquery('english', 'The Fat Rats');
+ plainto_tsquery 
+-----------------
+ 'fat' &amp; 'rat'</PRE
+><P>
+
+    <CODE
+CLASS="FUNCTION"
+>plainto_tsquery</CODE
+>は、入力中の論理演算子も、重さラベルも、前方一致ラベルも認識できないことに注意してください。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT plainto_tsquery('english', 'The Fat &amp; Rats:C');
+   plainto_tsquery   
+---------------------
+ 'fat' &amp; 'rat' &amp; 'c'</PRE
+><P>
+	
+    ここでは、入力中のすべての句読点がスペース記号に変換された結果、破棄されています。
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-RANKING"
+>12.3.3. 検索結果のランキング</A
+></H2
+><P
+>   ランキングはある問合わせに対して、どの程度文書が関連しているかを計測しようとするものです。合致している文書が多数あるとき、もっとも関連している文書が最初に表示されるようにするためです。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、2つの定義済ランキング関数を提供しています。それらは、辞書情報、近接度情報、構造的情報を加味します。すなわち、問合わせの用語がどの位の頻度で文書に出現するか、文書中でどの程度それらの用語が近接しているか、どの用語が含まれる文書部位が度の程度重要なのかを考慮します。しかし、関連度という概念は曖昧で、用途に強く依存します。異なる用途は、ランキングのために追加の情報を必要とするかも知れません。たとえば、文書の更新時刻など。組み込みのランキング関数は例に過ぎません。利用者の目的に応じて、自分用のランキング関数を作ったり、その結果を追加の情報と組み合わせることができます。
+   </P
+><P
+>   今のところ、二種類のランキング関数が利用可能です。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><PRE
+CLASS="SYNOPSIS"
+>ts_rank([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>weights</I
+></TT
+> <TT
+CLASS="TYPE"
+>float4[]</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>vector</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsvector</TT
+>,
+        <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>normalization</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+> </SPAN
+>]) returns <TT
+CLASS="TYPE"
+>float4</TT
+></PRE
+></DT
+><DD
+><P
+>        それらの語彙素にマッチした頻度に基づくベクターのランク。
+       </P
+></DD
+><DT
+><PRE
+CLASS="SYNOPSIS"
+>ts_rank_cd([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>weights</I
+></TT
+> <TT
+CLASS="TYPE"
+>float4[]</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>vector</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsvector</TT
+>,
+           <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>normalization</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+> </SPAN
+>]) returns <TT
+CLASS="TYPE"
+>float4</TT
+></PRE
+></DT
+><DD
+><P
+>       この関数は、"Information Processing and Management"ジャーナルに掲載された Clarke, Cormack, Tudhopeの"Relevance Ranking for One to Three Term Queries"で述べられている方法で、与えられた文書ベクターと問合わせの<I
+CLASS="FIRSTTERM"
+>表面密度(cover density)</I
+>を計算します。
+       </P
+><P
+>       この関数は、入力中に位置情報を必要とします。ですから、<SPAN
+CLASS="QUOTE"
+>"剥き出しの"</SPAN
+> <TT
+CLASS="TYPE"
+>tsvector</TT
+>値では動きません &mdash; この場合は常に0を返します。
+       </P
+></DD
+></DL
+></DIV
+><P>
+
+   </P
+><P
+>   これらの関数では、単語がどの程度ラベル付けに依存するかを、単語ごとに指定する機能が<TT
+CLASS="REPLACEABLE"
+><I
+>weights</I
+></TT
+>オプションパラメータによって提供されています。重み配列で、それぞれのカテゴリの単語がどの程度重み付けするかを指定します。その順は以下のようになっています。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>{D-weight, C-weight, B-weight, A-weight}</PRE
+><P>
+
+    <TT
+CLASS="REPLACEABLE"
+><I
+>weights</I
+></TT
+>を与えない場合は、次のデフォルト値が使われます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>{0.1, 0.2, 0.4, 1.0}</PRE
+><P>
+
+    重みの典型的な使い方は、文書のタイトルやアブストラクトのような特定の場所にある単語をマーク付けするような使い方です。そうすることにより、文書の本体に比べてそこにある単語がより重要なのか、そうでないのか、扱いを変えることができます。
+   </P
+><P
+>   文書が長ければ、それだけ問合わせ用語を含む確率が高くなるため、文書のサイズを考慮にいれることは理にかなっています。たとえば、5つの検索語を含む100語の文書は、たぶん5つの検索語を含む1000語の文書よりも関連性が高いでしょう。ランキング関数には、どちらも整数型の<TT
+CLASS="REPLACEABLE"
+><I
+>正規化</I
+></TT
+>オプションがあります。これは、文書の長さがランクに影響を与えるのかどうか、与えるとすればどの程度か、ということを指定します。この整数オプションは、いくつかの挙動を制御するので、ビットマスクになっています。複数の挙動を<TT
+CLASS="LITERAL"
+>|</TT
+>で指定できます(例：<TT
+CLASS="LITERAL"
+>2|4</TT
+>)。
+
+    <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>       0(デフォルト):文書の長さを無視します
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       1:ランクを(1 + log(文書の長さ))で割ります
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       2:ランクを文書の長さで割ります
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       4:ランクをエクステントの間の調和平均距離で割ります(これは<CODE
+CLASS="FUNCTION"
+>ts_rank_cd</CODE
+>で実装されています)
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       8: ランクを文書中の一意の単語の数で割ります
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       16: ランクをlog(文書中の一意の単語の数)+1 で割ります
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       32 ランクをランク自身+1 で割ります
+      </P
+></LI
+></UL
+><P>
+
+    2以上のフラグビットが指定された場合には、変換は上記に列挙された順に行われます。
+   </P
+><P
+>   これは重要なことですが、ランキング関数はグローバル情報を一切使わないので、時には必要になる1%から100%までの均一な正規化はできません。正規化オプション32(<TT
+CLASS="LITERAL"
+>rank/(rank+1)</TT
+>)を適用することにより、すべてのランクを0から1に分布させることができます。しかし、もちろんこれは表面的な変更に過ぎません。検索結果のならび順に影響を与えるものではありません。
+   </P
+><P
+>    マッチする順位の高い10位までを選ぶ例を示します。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT title, ts_rank_cd(textsearch, query) AS rank
+FROM apod, to_tsquery('neutrino|(dark &amp; matter)') query
+WHERE query @@ textsearch
+ORDER BY rank DESC
+LIMIT 10;
+                     title                     |   rank
+-----------------------------------------------+----------
+ Neutrinos in the Sun                          |      3.1
+ The Sudbury Neutrino Detector                 |      2.4
+ A MACHO View of Galactic Dark Matter          |  2.01317
+ Hot Gas and Dark Matter                       |  1.91171
+ The Virgo Cluster: Hot Plasma and Dark Matter |  1.90953
+ Rafting for Solar Neutrinos                   |      1.9
+ NGC 4650A: Strange Galaxy and Dark Matter     |  1.85774
+ Hot Gas and Dark Matter                       |   1.6123
+ Ice Fishing for Cosmic Neutrinos              |      1.6
+ Weak Lensing Distorts the Universe            | 0.818218</PRE
+><P>
+
+    同じ例を正規化ランキングを使ったものを示します。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT title, ts_rank_cd(textsearch, query, 32 /* rank/(rank+1) */ ) AS rank
+FROM apod, to_tsquery('neutrino|(dark &amp; matter)') query
+WHERE  query @@ textsearch
+ORDER BY rank DESC
+LIMIT 10;
+                     title                     |        rank
+-----------------------------------------------+-------------------
+ Neutrinos in the Sun                          | 0.756097569485493
+ The Sudbury Neutrino Detector                 | 0.705882361190954
+ A MACHO View of Galactic Dark Matter          | 0.668123210574724
+ Hot Gas and Dark Matter                       |  0.65655958650282
+ The Virgo Cluster: Hot Plasma and Dark Matter | 0.656301290640973
+ Rafting for Solar Neutrinos                   | 0.655172410958162
+ NGC 4650A: Strange Galaxy and Dark Matter     | 0.650072921219637
+ Hot Gas and Dark Matter                       | 0.617195790024749
+ Ice Fishing for Cosmic Neutrinos              | 0.615384618911517
+ Weak Lensing Distorts the Universe            | 0.450010798361481</PRE
+><P>
+   </P
+><P
+>   ランキングは、I/Oバウンドであるが故に遅い処理である、文書の<TT
+CLASS="TYPE"
+>tsvector</TT
+>へのアクセスが必要なので、高価な処理であるかもしれません。不幸なことに、実際の問合わせでは往々にして大量の検索結果が生じるため、これはほとんど不可避であると言えます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-HEADLINE"
+>12.3.4. 結果の強調</A
+></H2
+><P
+>   検索結果を表示する際には、文書の該当部分を表示し、どの程度問合わせと関連しているかを示すのが望ましいです。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はこの機能を実装した<CODE
+CLASS="FUNCTION"
+>ts_headline</CODE
+>関数を提供しています。
+   </P
+><PRE
+CLASS="SYNOPSIS"
+>ts_headline([<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+> <TT
+CLASS="TYPE"
+>regconfig</TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>document</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> <TT
+CLASS="TYPE"
+>tsquery</TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>options</I
+></TT
+> <TT
+CLASS="TYPE"
+>text</TT
+> </SPAN
+>]) returns <TT
+CLASS="TYPE"
+>text</TT
+></PRE
+><P
+>   <CODE
+CLASS="FUNCTION"
+>ts_headline</CODE
+>は、問合わせと一緒に文書を受け取り、問合わせが注目した文書中の語句を抜粋して返します。文書をパースするのに使われる設定を<TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+>で指定することができます。<TT
+CLASS="REPLACEABLE"
+><I
+>config</I
+></TT
+>が省略された場合は、<TT
+CLASS="VARNAME"
+>default_text_search_config</TT
+>設定が使われます。
+   </P
+><P
+>   <TT
+CLASS="REPLACEABLE"
+><I
+>options</I
+></TT
+>文字列を指定する場合は、一つ以上の<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+><TT
+CLASS="LITERAL"
+>=</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>のペアをカンマで区切ったものでなければなりません。
+    <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>       <TT
+CLASS="LITERAL"
+>StartSel</TT
+>, <TT
+CLASS="LITERAL"
+>StopSel</TT
+>: 文書中に表れる問合わせ単語を区切るこの文字列は、他の抜粋される単語と区別されます。これらの文字列が空白やカンマを含んでいる場合は、二重引用符で囲う必要があります。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       <TT
+CLASS="LITERAL"
+>MaxWords</TT
+>, <TT
+CLASS="LITERAL"
+>MinWords</TT
+>: この数字を使って見出しの最大の長さと最小の長さを指定します。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       <TT
+CLASS="LITERAL"
+>ShortWord</TT
+>: この長さか、それ以下の長さの単語は、見出しの最初と最後から削除されます。デフォルト値の3は、常用される英語の冠詞を取り除きます。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       <TT
+CLASS="LITERAL"
+>HighlightAll</TT
+>: 論理値フラグ; <TT
+CLASS="LITERAL"
+>true</TT
+>なら文書全体が見出しの様にハイライトされ、前の3つのパラメータは無視されます。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       <TT
+CLASS="LITERAL"
+>MaxFragments</TT
+>:表示するテキスト引用句、もしくは断片の最大数です。デフォルト値の0は断片化を起こさない見出しの生成の選択となります。0より大きい場合は断片化を基本とした見出しの生成の選択となります。この方法は、可能な限り多くの検索単語でテキスト断片を探し出し、検索単語周辺のそれらのテキスト断片を広げます。結果として、検索単語が各断片の中央部分近くに位置し、両端に単語を持つことになります。各断片は最大で<TT
+CLASS="LITERAL"
+>MaxWords</TT
+>と同数の単語を持ち、<TT
+CLASS="LITERAL"
+>ShortWord</TT
+>より少ないサイズの単語を断片の両端に持ちません。もし全ての検索単語を文書から見つけられなかった場合は、文書中の最初の<TT
+CLASS="LITERAL"
+>MinWords</TT
+>分の単語数から成る一つの断片が表示されるでしょう。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       <TT
+CLASS="LITERAL"
+>FragmentDelimiter</TT
+>: 複数の断片が表示される時、その断片はこの文字で区切られます。
+      </P
+></LI
+></UL
+><P>
+
+    指定されなかったオプションの値は以下のデフォルトになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>StartSel=&lt;b&gt;, StopSel=&lt;/b&gt;,
+MaxWords=35, MinWords=15, ShortWord=3, HighlightAll=FALSE,
+MaxFragments=0, FragmentDelimiter=" ... "</PRE
+><P>
+   </P
+><P
+>    例を示します。
+</P><PRE
+CLASS="SCREEN"
+>SELECT ts_headline('english',
+  'The most common type of search
+is to find all documents containing given query terms
+and return them in order of their similarity to the
+query.',
+  to_tsquery('query &amp; similarity'));
+                        ts_headline                         
+------------------------------------------------------------
+  containing given &lt;b&gt;query&lt;/b&gt; terms
+ and return them in order of their &lt;b&gt;similarity&lt;/b&gt; to the
+ &lt;b&gt;query&lt;/b&gt;.
+
+SELECT ts_headline('english',
+  'The most common type of search
+is to find all documents containing given query terms
+and return them in order of their similarity to the
+query.',
+  to_tsquery('query &amp; similarity'),
+  'StartSel = &lt;, StopSel = &gt;');
+                      ts_headline                      
+-------------------------------------------------------
+ containing given &lt;query&gt; terms
+ and return them in order of their &lt;similarity&gt; to the
+ &lt;query&gt;.</PRE
+><P>
+   </P
+><P
+>    <CODE
+CLASS="FUNCTION"
+>ts_headline</CODE
+>は、<TT
+CLASS="TYPE"
+>tsvector</TT
+>の要約ではなく、元の文書を使います。ですので遅い可能性があり、注意深く使用する必要があります。よくある間違いは、たった10個の文書を表示しようとしているのに、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>すべての</I
+></SPAN
+>合致した文書に<CODE
+CLASS="FUNCTION"
+>ts_headline</CODE
+>を適用することです。<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の副問合わせがこのときに役に立ちます。例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT id, ts_headline(body, q), rank
+FROM (SELECT id, body, q, ts_rank_cd(ti, q) AS rank
+      FROM apod, to_tsquery('stars') q
+      WHERE ti @@ q
+      ORDER BY rank DESC 
+      LIMIT 10) AS foo;</PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="textsearch-tables.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="textsearch-features.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>テーブルとインデックス</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>追加機能</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

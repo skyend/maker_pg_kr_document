@@ -1,0 +1,957 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>クライアントインタフェース</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="テストが網羅する範囲の検証"
+HREF="regress-coverage.html"><LINK
+REL="NEXT"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="PART"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="テストが網羅する範囲の検証"
+HREF="regress-coverage.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの管理"
+HREF="admin.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバプログラミング"
+HREF="server-programming.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="PART"
+><A
+NAME="CLIENT-INTERFACES"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><H1
+CLASS="TITLE"
+>IV. クライアントインタフェース</H1
+><DIV
+CLASS="PARTINTRO"
+><A
+NAME="AEN36198"
+></A
+><P
+>ここでは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に附属するクライアントプログラミングインタフェースについて説明します。
+各章は独立して読むことができます。
+クライアントプログラムには、この他にも様々なプログラミングインタフェースがありますが、これらのインタフェースは独自の資料とともに個別に配布されていますのでご注意ください
+（<A
+HREF="external-projects.html"
+>&#20184;&#37682;G</A
+>に人気があるインタフェースの一部を列挙しています）。
+読者は、データベースの操作や問い合わせを行うための<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンド（<A
+HREF="sql.html"
+>&#12497;&#12540;&#12488;II</A
+>を参照）、また、当然ながら、インタフェースが使用するプログラミング言語にも慣れ親しんでいることが必要です。
+   </P
+></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>31&#31456;<A
+HREF="libpq.html"
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</A
+></DT
+><DD
+><DL
+><DT
+>31.1. <A
+HREF="libpq-connect.html"
+>データベース接続制御関数</A
+></DT
+><DT
+>31.2. <A
+HREF="libpq-status.html"
+>接続状態関数</A
+></DT
+><DT
+>31.3. <A
+HREF="libpq-exec.html"
+>コマンド実行関数</A
+></DT
+><DT
+>31.4. <A
+HREF="libpq-async.html"
+>非同期コマンドの処理</A
+></DT
+><DT
+>31.5. <A
+HREF="libpq-cancel.html"
+>処理中の問い合わせのキャンセル</A
+></DT
+><DT
+>31.6. <A
+HREF="libpq-fastpath.html"
+>近道インタフェース</A
+></DT
+><DT
+>31.7. <A
+HREF="libpq-notify.html"
+>非同期通知</A
+></DT
+><DT
+>31.8. <A
+HREF="libpq-copy.html"
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンド関連関数</A
+></DT
+><DT
+>31.9. <A
+HREF="libpq-control.html"
+>制御関数</A
+></DT
+><DT
+>31.10. <A
+HREF="libpq-misc.html"
+>雑多な関数</A
+></DT
+><DT
+>31.11. <A
+HREF="libpq-notice-processing.html"
+>警告処理</A
+></DT
+><DT
+>31.12. <A
+HREF="libpq-events.html"
+>イベントシステム</A
+></DT
+><DT
+>31.13. <A
+HREF="libpq-envars.html"
+>環境変数</A
+></DT
+><DT
+>31.14. <A
+HREF="libpq-pgpass.html"
+>パスワードファイル</A
+></DT
+><DT
+>31.15. <A
+HREF="libpq-pgservice.html"
+>接続サービスファイル</A
+></DT
+><DT
+>31.16. <A
+HREF="libpq-ldap.html"
+>接続パラメータのLDAP検索</A
+></DT
+><DT
+>31.17. <A
+HREF="libpq-ssl.html"
+>SSLサポート</A
+></DT
+><DT
+>31.18. <A
+HREF="libpq-threading.html"
+>スレッド化プログラムの振舞い</A
+></DT
+><DT
+>31.19. <A
+HREF="libpq-build.html"
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>プログラムの構築</A
+></DT
+><DT
+>31.20. <A
+HREF="libpq-example.html"
+>サンプルプログラム</A
+></DT
+></DL
+></DD
+><DT
+>32&#31456;<A
+HREF="largeobjects.html"
+>ラージオブジェクト</A
+></DT
+><DD
+><DL
+><DT
+>32.1. <A
+HREF="lo-intro.html"
+>はじめに</A
+></DT
+><DT
+>32.2. <A
+HREF="lo-implementation.html"
+>実装機能</A
+></DT
+><DT
+>32.3. <A
+HREF="lo-interfaces.html"
+>クライアントインタフェース</A
+></DT
+><DT
+>32.4. <A
+HREF="lo-funcs.html"
+>サーバ側の関数</A
+></DT
+><DT
+>32.5. <A
+HREF="lo-examplesect.html"
+>サンプルプログラム</A
+></DT
+></DL
+></DD
+><DT
+>33&#31456;<A
+HREF="ecpg.html"
+><SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></A
+></DT
+><DD
+><DL
+><DT
+>33.1. <A
+HREF="ecpg-concept.html"
+>概念</A
+></DT
+><DT
+>33.2. <A
+HREF="ecpg-connect.html"
+>データベース接続の管理</A
+></DT
+><DT
+>33.3. <A
+HREF="ecpg-commands.html"
+>SQLコマンドの実行</A
+></DT
+><DT
+>33.4. <A
+HREF="ecpg-variables.html"
+>ホスト変数の使用</A
+></DT
+><DT
+>33.5. <A
+HREF="ecpg-dynamic.html"
+>動的SQL</A
+></DT
+><DT
+>33.6. <A
+HREF="ecpg-pgtypes.html"
+>pgtypes ライブラリ</A
+></DT
+><DT
+>33.7. <A
+HREF="ecpg-descriptors.html"
+>記述子領域の使用</A
+></DT
+><DT
+>33.8. <A
+HREF="ecpg-errors.html"
+>エラー処理</A
+></DT
+><DT
+>33.9. <A
+HREF="ecpg-preproc.html"
+>プリプロセッサ指示子</A
+></DT
+><DT
+>33.10. <A
+HREF="ecpg-process.html"
+>埋め込みSQLプログラムの処理</A
+></DT
+><DT
+>33.11. <A
+HREF="ecpg-library.html"
+>ライブラリ関数</A
+></DT
+><DT
+>33.12. <A
+HREF="ecpg-lo.html"
+>ラージオブジェクト</A
+></DT
+><DT
+>33.13. <A
+HREF="ecpg-cpp.html"
+><ACRONYM
+CLASS="ACRONYM"
+>C++</ACRONYM
+>アプリケーション</A
+></DT
+><DT
+>33.14. <A
+HREF="ecpg-sql-commands.html"
+>埋め込みSQLコマンド</A
+></DT
+><DT
+>33.15. <A
+HREF="ecpg-informix-compat.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+>互換モード</A
+></DT
+><DT
+>33.16. <A
+HREF="ecpg-develop.html"
+>内部</A
+></DT
+></DL
+></DD
+><DT
+>34&#31456;<A
+HREF="information-schema.html"
+>情報スキーマ</A
+></DT
+><DD
+><DL
+><DT
+>34.1. <A
+HREF="infoschema-schema.html"
+>スキーマ</A
+></DT
+><DT
+>34.2. <A
+HREF="infoschema-datatypes.html"
+>データ型</A
+></DT
+><DT
+>34.3. <A
+HREF="infoschema-information-schema-catalog-name.html"
+><TT
+CLASS="LITERAL"
+>information_schema_catalog_name</TT
+></A
+></DT
+><DT
+>34.4. <A
+HREF="infoschema-administrable-role-authorizations.html"
+><TT
+CLASS="LITERAL"
+>administrable_role_authorizations</TT
+></A
+></DT
+><DT
+>34.5. <A
+HREF="infoschema-applicable-roles.html"
+><TT
+CLASS="LITERAL"
+>applicable_roles</TT
+></A
+></DT
+><DT
+>34.6. <A
+HREF="infoschema-attributes.html"
+><TT
+CLASS="LITERAL"
+>attributes</TT
+></A
+></DT
+><DT
+>34.7. <A
+HREF="infoschema-character-sets.html"
+><TT
+CLASS="LITERAL"
+>character_sets</TT
+></A
+></DT
+><DT
+>34.8. <A
+HREF="infoschema-check-constraint-routine-usage.html"
+><TT
+CLASS="LITERAL"
+>check_constraint_routine_usage</TT
+></A
+></DT
+><DT
+>34.9. <A
+HREF="infoschema-check-constraints.html"
+><TT
+CLASS="LITERAL"
+>check_constraints</TT
+></A
+></DT
+><DT
+>34.10. <A
+HREF="infoschema-collations.html"
+><TT
+CLASS="LITERAL"
+>collations</TT
+></A
+></DT
+><DT
+>34.11. <A
+HREF="infoschema-collation-character-set-applicab.html"
+><TT
+CLASS="LITERAL"
+>collation_character_set_applicability</TT
+></A
+></DT
+><DT
+>34.12. <A
+HREF="infoschema-column-domain-usage.html"
+><TT
+CLASS="LITERAL"
+>column_domain_usage</TT
+></A
+></DT
+><DT
+>34.13. <A
+HREF="infoschema-column-privileges.html"
+><TT
+CLASS="LITERAL"
+>column_privileges</TT
+></A
+></DT
+><DT
+>34.14. <A
+HREF="infoschema-column-udt-usage.html"
+><TT
+CLASS="LITERAL"
+>column_udt_usage</TT
+></A
+></DT
+><DT
+>34.15. <A
+HREF="infoschema-columns.html"
+><TT
+CLASS="LITERAL"
+>columns</TT
+></A
+></DT
+><DT
+>34.16. <A
+HREF="infoschema-constraint-column-usage.html"
+><TT
+CLASS="LITERAL"
+>constraint_column_usage</TT
+></A
+></DT
+><DT
+>34.17. <A
+HREF="infoschema-constraint-table-usage.html"
+><TT
+CLASS="LITERAL"
+>constraint_table_usage</TT
+></A
+></DT
+><DT
+>34.18. <A
+HREF="infoschema-data-type-privileges.html"
+><TT
+CLASS="LITERAL"
+>data_type_privileges</TT
+></A
+></DT
+><DT
+>34.19. <A
+HREF="infoschema-domain-constraints.html"
+><TT
+CLASS="LITERAL"
+>domain_constraints</TT
+></A
+></DT
+><DT
+>34.20. <A
+HREF="infoschema-domain-udt-usage.html"
+><TT
+CLASS="LITERAL"
+>domain_udt_usage</TT
+></A
+></DT
+><DT
+>34.21. <A
+HREF="infoschema-domains.html"
+><TT
+CLASS="LITERAL"
+>domains</TT
+></A
+></DT
+><DT
+>34.22. <A
+HREF="infoschema-element-types.html"
+><TT
+CLASS="LITERAL"
+>element_types</TT
+></A
+></DT
+><DT
+>34.23. <A
+HREF="infoschema-enabled-roles.html"
+><TT
+CLASS="LITERAL"
+>enabled_roles</TT
+></A
+></DT
+><DT
+>34.24. <A
+HREF="infoschema-foreign-data-wrapper-options.html"
+><TT
+CLASS="LITERAL"
+>foreign_data_wrapper_options</TT
+></A
+></DT
+><DT
+>34.25. <A
+HREF="infoschema-foreign-data-wrappers.html"
+><TT
+CLASS="LITERAL"
+>foreign_data_wrappers</TT
+></A
+></DT
+><DT
+>34.26. <A
+HREF="infoschema-foreign-server-options.html"
+><TT
+CLASS="LITERAL"
+>foreign_server_options</TT
+></A
+></DT
+><DT
+>34.27. <A
+HREF="infoschema-foreign-servers.html"
+><TT
+CLASS="LITERAL"
+>foreign_servers</TT
+></A
+></DT
+><DT
+>34.28. <A
+HREF="infoschema-foreign-table-options.html"
+><TT
+CLASS="LITERAL"
+>foreign_table_options</TT
+></A
+></DT
+><DT
+>34.29. <A
+HREF="infoschema-foreign-tables.html"
+><TT
+CLASS="LITERAL"
+>foreign_tables</TT
+></A
+></DT
+><DT
+>34.30. <A
+HREF="infoschema-key-column-usage.html"
+><TT
+CLASS="LITERAL"
+>key_column_usage</TT
+></A
+></DT
+><DT
+>34.31. <A
+HREF="infoschema-parameters.html"
+><TT
+CLASS="LITERAL"
+>parameters</TT
+></A
+></DT
+><DT
+>34.32. <A
+HREF="infoschema-referential-constraints.html"
+><TT
+CLASS="LITERAL"
+>referential_constraints</TT
+></A
+></DT
+><DT
+>34.33. <A
+HREF="infoschema-role-column-grants.html"
+><TT
+CLASS="LITERAL"
+>role_column_grants</TT
+></A
+></DT
+><DT
+>34.34. <A
+HREF="infoschema-role-routine-grants.html"
+><TT
+CLASS="LITERAL"
+>role_routine_grants</TT
+></A
+></DT
+><DT
+>34.35. <A
+HREF="infoschema-role-table-grants.html"
+><TT
+CLASS="LITERAL"
+>role_table_grants</TT
+></A
+></DT
+><DT
+>34.36. <A
+HREF="infoschema-role-usage-grants.html"
+><TT
+CLASS="LITERAL"
+>role_usage_grants</TT
+></A
+></DT
+><DT
+>34.37. <A
+HREF="infoschema-routine-privileges.html"
+><TT
+CLASS="LITERAL"
+>routine_privileges</TT
+></A
+></DT
+><DT
+>34.38. <A
+HREF="infoschema-routines.html"
+><TT
+CLASS="LITERAL"
+>routines</TT
+></A
+></DT
+><DT
+>34.39. <A
+HREF="infoschema-schemata.html"
+><TT
+CLASS="LITERAL"
+>schemata</TT
+></A
+></DT
+><DT
+>34.40. <A
+HREF="infoschema-sequences.html"
+><TT
+CLASS="LITERAL"
+>sequences</TT
+></A
+></DT
+><DT
+>34.41. <A
+HREF="infoschema-sql-features.html"
+><TT
+CLASS="LITERAL"
+>sql_features</TT
+></A
+></DT
+><DT
+>34.42. <A
+HREF="infoschema-sql-implementation-info.html"
+><TT
+CLASS="LITERAL"
+>sql_implementation_info</TT
+></A
+></DT
+><DT
+>34.43. <A
+HREF="infoschema-sql-languages.html"
+><TT
+CLASS="LITERAL"
+>sql_languages</TT
+></A
+></DT
+><DT
+>34.44. <A
+HREF="infoschema-sql-packages.html"
+><TT
+CLASS="LITERAL"
+>sql_packages</TT
+></A
+></DT
+><DT
+>34.45. <A
+HREF="infoschema-sql-parts.html"
+><TT
+CLASS="LITERAL"
+>sql_parts</TT
+></A
+></DT
+><DT
+>34.46. <A
+HREF="infoschema-sql-sizing.html"
+><TT
+CLASS="LITERAL"
+>sql_sizing</TT
+></A
+></DT
+><DT
+>34.47. <A
+HREF="infoschema-sql-sizing-profiles.html"
+><TT
+CLASS="LITERAL"
+>sql_sizing_profiles</TT
+></A
+></DT
+><DT
+>34.48. <A
+HREF="infoschema-table-constraints.html"
+><TT
+CLASS="LITERAL"
+>table_constraints</TT
+></A
+></DT
+><DT
+>34.49. <A
+HREF="infoschema-table-privileges.html"
+><TT
+CLASS="LITERAL"
+>table_privileges</TT
+></A
+></DT
+><DT
+>34.50. <A
+HREF="infoschema-tables.html"
+><TT
+CLASS="LITERAL"
+>tables</TT
+></A
+></DT
+><DT
+>34.51. <A
+HREF="infoschema-triggered-update-columns.html"
+><TT
+CLASS="LITERAL"
+>triggered_update_columns</TT
+></A
+></DT
+><DT
+>34.52. <A
+HREF="infoschema-triggers.html"
+><TT
+CLASS="LITERAL"
+>triggers</TT
+></A
+></DT
+><DT
+>34.53. <A
+HREF="infoschema-usage-privileges.html"
+><TT
+CLASS="LITERAL"
+>usage_privileges</TT
+></A
+></DT
+><DT
+>34.54. <A
+HREF="infoschema-user-mapping-options.html"
+><TT
+CLASS="LITERAL"
+>user_mapping_options</TT
+></A
+></DT
+><DT
+>34.55. <A
+HREF="infoschema-user-mappings.html"
+><TT
+CLASS="LITERAL"
+>user_mappings</TT
+></A
+></DT
+><DT
+>34.56. <A
+HREF="infoschema-view-column-usage.html"
+><TT
+CLASS="LITERAL"
+>view_column_usage</TT
+></A
+></DT
+><DT
+>34.57. <A
+HREF="infoschema-view-routine-usage.html"
+><TT
+CLASS="LITERAL"
+>view_routine_usage</TT
+></A
+></DT
+><DT
+>34.58. <A
+HREF="infoschema-view-table-usage.html"
+><TT
+CLASS="LITERAL"
+>view_table_usage</TT
+></A
+></DT
+><DT
+>34.59. <A
+HREF="infoschema-views.html"
+><TT
+CLASS="LITERAL"
+>views</TT
+></A
+></DT
+></DL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="regress-coverage.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>テストが網羅する範囲の検証</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

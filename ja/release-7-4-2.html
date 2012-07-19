@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース7.4.2</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース7.4.3"
+HREF="release-7-4-3.html"><LINK
+REL="NEXT"
+TITLE="リリース7.4.1"
+HREF="release-7-4-1.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース7.4.3"
+HREF="release-7-4-3.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース7.4.1"
+HREF="release-7-4-1.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-7-4-2"
+>E.151. リリース7.4.2</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2004-03-08</P
+></BLOCKQUOTE
+></DIV
+><P
+>     このリリースは7.4.1の様々な不具合を修正したものです。
+7.4メジャーリリースにおける新機能については<A
+HREF="release-7-4.html"
+>&#38917;E.153</A
+>を参照してください。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN126662"
+>E.151.1. 7.4.2バージョンへの移行</A
+></H2
+><P
+>7.4.Xからの移行の場合は ダンプ/リストアは必要ありません。
+しかし、これは初期の7.4.Xシステムカタログの内容に存在した2つのエラーの修正を組み込む最も簡単な方法としてお勧めできます。
+7.4.2のinitdbを使用したダンプ、initdb、再ロードという流れにより、自動的にこの問題が修正されます。
+    </P
+><P
+>この2つのエラーのより深刻な点は、<TT
+CLASS="TYPE"
+>anyarray</TT
+>データ型が間違った整列ラベルを持っていたことです。
+<TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+>システムカタログが<TT
+CLASS="TYPE"
+>anyarray</TT
+>型の列を使用しているため、これは問題です。
+この間違ったラベル付けにより、doubleで整列された列(<TT
+CLASS="TYPE"
+>float8</TT
+>や<TT
+CLASS="TYPE"
+>timestamp</TT
+>など)を<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句に含む問い合わせの計画を作成中、プランナは間違った推定を行ない、最悪はクラッシュしてしまいます。
+initabや後述の手作業による修復手順に従って、全てのインストレーションでこのエラーを修復することを強く推奨します。
+
+    </P
+><P
+>あまり深刻ではないエラーは、<TT
+CLASS="COMMAND"
+>SET</TT
+>の代わりに<TT
+CLASS="LITERAL"
+>UPDATE pg_settings</TT
+>を使用できるように<TT
+CLASS="STRUCTNAME"
+>pg_settings</TT
+>システムビューの出力がpublicに対して更新アクセス可能すべきでした。
+これは、initdbや手作業で修正することができますが、<TT
+CLASS="LITERAL"
+>UPDATE pg_settings</TT
+>を使用したいのでない限り修正する必要はありません。
+    </P
+><P
+>initdbを実行したくなければ、以下の手順で<TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+>を修正することができます。
+データベーススーパーユーザで実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>-- clear out old data in pg_statistic:
+DELETE FROM pg_statistic;
+VACUUM pg_statistic;
+-- this should update 1 row:
+UPDATE pg_type SET typalign = 'd' WHERE oid = 2277;
+-- this should update 6 rows:
+UPDATE pg_attribute SET attalign = 'd' WHERE atttypid = 2277;
+--     
+-- At this point you MUST start a fresh backend to avoid a crash!
+--
+-- repopulate pg_statistic:
+ANALYZE;</PRE
+><P>
+
+これは稼働中のデータベースに対して行なうことができますが、変更したデータベースで実行中の全てのバックエンドは、<TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+>を安全に更新させるために、再起動されなければなりません。
+    </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>pg_settings</TT
+>エラーを修復するには単に以下を実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>GRANT SELECT, UPDATE ON pg_settings TO PUBLIC;</PRE
+><P>
+    </P
+><P
+>上述の手順は、<TT
+CLASS="LITERAL"
+>template1</TT
+>を含むインストレーションの<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>全ての</I
+></SPAN
+>データベースに対して行なわなければなりません。理想をいえば<TT
+CLASS="LITERAL"
+>template0</TT
+>にも行なってください。
+テンプレートデータベースに対して修復を行なわないと、将来作成されるデータベースに同じエラーが含まれることになります。
+<TT
+CLASS="LITERAL"
+>template1</TT
+>は他のデータベースと同様の方法で修正できますが、<TT
+CLASS="LITERAL"
+>template0</TT
+>の修正には更に手順が必要です。
+まず、任意のデータベースから以下を発行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE pg_database SET datallowconn = true WHERE datname = 'template0';</PRE
+><P>
+次に<TT
+CLASS="LITERAL"
+>template0</TT
+>に接続し、上の手順を実行してください。
+最後に以下を実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>-- re-freeze template0:
+VACUUM FREEZE;
+-- and protect it against future alterations:
+UPDATE pg_database SET datallowconn = false WHERE datname = 'template0';</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN126693"
+>E.151.2. 変更点</A
+></H2
+><P
+>リリース7.4.2には、リリース7.3.6で行なわれた修正に加え、以下の修正が組み込まれています。</P
+><P
+></P
+><UL
+><LI
+><P
+>Fix <TT
+CLASS="STRUCTNAME"
+>pg_statistics</TT
+> alignment bug that could crash optimizer</P
+><P
+>See above for details about this problem.</P
+></LI
+><LI
+><P
+>Allow non-super users to update <TT
+CLASS="STRUCTNAME"
+>pg_settings</TT
+></P
+></LI
+><LI
+><P
+>Fix several optimizer bugs, most of which led to
+<SPAN
+CLASS="QUOTE"
+>"variable not found in subplan target lists"</SPAN
+> errors</P
+></LI
+><LI
+><P
+>Avoid out-of-memory failure during startup of large multiple
+index scan</P
+></LI
+><LI
+><P
+>Fix multibyte problem that could lead to <SPAN
+CLASS="QUOTE"
+>"out of
+memory"</SPAN
+> error during <TT
+CLASS="COMMAND"
+>COPY IN</TT
+></P
+></LI
+><LI
+><P
+>Fix problems with <TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+> / <TT
+CLASS="COMMAND"
+>CREATE
+TABLE AS</TT
+> from tables without OIDs</P
+></LI
+><LI
+><P
+>Fix problems with <TT
+CLASS="FILENAME"
+>alter_table</TT
+> regression test
+during parallel testing</P
+></LI
+><LI
+><P
+>Fix problems with hitting open file limit, especially on OS X (Tom)</P
+></LI
+><LI
+><P
+>Partial fix for Turkish-locale issues</P
+><P
+>initdb will succeed now in Turkish locale, but there are still some
+inconveniences associated with the <TT
+CLASS="LITERAL"
+>i/I</TT
+> problem.</P
+></LI
+><LI
+><P
+>Make pg_dump set client encoding on restore</P
+></LI
+><LI
+><P
+>Other minor pg_dump fixes</P
+></LI
+><LI
+><P
+>Allow ecpg to again use C keywords as column names (Michael)</P
+></LI
+><LI
+><P
+>Added ecpg <TT
+CLASS="LITERAL"
+>WHENEVER NOT_FOUND</TT
+> to
+<TT
+CLASS="LITERAL"
+>SELECT/INSERT/UPDATE/DELETE</TT
+> (Michael)</P
+></LI
+><LI
+><P
+>Fix ecpg crash for queries calling set-returning functions (Michael)</P
+></LI
+><LI
+><P
+>Various other ecpg fixes (Michael)</P
+></LI
+><LI
+><P
+>Fixes for Borland compiler</P
+></LI
+><LI
+><P
+>Thread build improvements (Bruce)</P
+></LI
+><LI
+><P
+>Various other build fixes</P
+></LI
+><LI
+><P
+>Various JDBC fixes</P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-7-4-3.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-7-4-1.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース7.4.3</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース7.4.1</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

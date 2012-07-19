@@ -1,0 +1,460 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データベースアクセス</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"><LINK
+REL="PREVIOUS"
+TITLE="トリガ関数"
+HREF="plpython-trigger.html"><LINK
+REL="NEXT"
+TITLE="明示的サブトランザクション"
+HREF="plpython-subtransaction.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="トリガ関数"
+HREF="plpython-trigger.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 42&#31456;PL/Python - Python手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="明示的サブトランザクション"
+HREF="plpython-subtransaction.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPYTHON-DATABASE"
+>42.7. データベースアクセス</A
+></H1
+><P
+>PL/Python言語モジュールは自動的に<TT
+CLASS="LITERAL"
+>plpy</TT
+>というPythonモジュールをインポートします。
+このモジュールの関数と定数は、<TT
+CLASS="LITERAL"
+>plpy.<TT
+CLASS="REPLACEABLE"
+><I
+>foo</I
+></TT
+></TT
+>のように作成したPythonコードから使用することができます。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN56895"
+>42.7.1. データベースアクセス関数</A
+></H2
+><P
+><TT
+CLASS="LITERAL"
+>plpy</TT
+>モジュールは<CODE
+CLASS="FUNCTION"
+>execute</CODE
+>および<CODE
+CLASS="FUNCTION"
+>prepare</CODE
+>という2つの関数を用意しています。
+<CODE
+CLASS="FUNCTION"
+>plpy.execute</CODE
+>を、問い合わせ文字列および省略可能な制限引数を付けて呼び出すと、問い合わせが実行され、結果オブジェクトとして問い合わせ結果が返ります。
+結果オブジェクトはリストもしくは辞書オブジェクトをエミュレートします。
+結果オブジェクトは、行番号や列名によってアクセスすることができます。
+結果オブジェクトには、問い合わせ結果の行数を返す<CODE
+CLASS="FUNCTION"
+>nrows()</CODE
+>、<CODE
+CLASS="FUNCTION"
+>SPI_execute</CODE
+>が返す値を返す<CODE
+CLASS="FUNCTION"
+>status</CODE
+>というメソッドが追加されています。
+結果オブジェクトは、変更することができます。
+  </P
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>rv = plpy.execute("SELECT * FROM my_table", 5)</PRE
+><P>
+これは、<TT
+CLASS="LITERAL"
+>my_table</TT
+>から5行までを返します。
+<TT
+CLASS="LITERAL"
+>my_table</TT
+>に<TT
+CLASS="LITERAL"
+>my_column</TT
+>列が存在する場合、その列には以下のようにアクセスできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>foo = rv[i]["my_column"]</PRE
+><P>
+  </P
+><P
+>&#13;2番目の関数<CODE
+CLASS="FUNCTION"
+>plpy.prepare</CODE
+>は、問い合わせの実行計画を準備します。
+問い合わせ内にパラメータ参照がある場合、問い合わせ文字列および引数型のリストとともに呼び出されます。
+例えば、以下のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>plan = plpy.prepare("SELECT last_name FROM my_users WHERE first_name = $1", [ "text" ])</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>text</TT
+>は、<TT
+CLASS="LITERAL"
+>$1</TT
+>として渡される変数の型です。
+文を準備した後、それを実行するために関数<CODE
+CLASS="FUNCTION"
+>plpy.execute</CODE
+>を使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>rv = plpy.execute(plan, [ "name" ], 5)</PRE
+><P>
+3番目の引数は制限引数であり、省略可能です。
+  </P
+><P
+>問い合わせパラメータおよび結果行のフィールドは<A
+HREF="plpython-data.html"
+>&#38917;42.3</A
+>で示した通り、PostgreSQLとPythonのデータ型の間で変換されます。
+現在複合型がサポートされていないという例外があります。
+複合型は問い合わせパラメータとしては拒絶され、問い合わせの結果に存在する場合は文字列に変換されます。
+後者の問題の回避方法として、結果行のフィールドとしてではなく結果行として複合型が存在するように問い合わせを書き換えることができる場合があります。
+他に、結果として生じる文字列を手作業で解析して分離することもできますが、この方法は時代に左右されてしまいますので推奨されません。
+  </P
+><P
+>PL/Pythonモジュールを使用して準備した計画は自動的に保存されます。
+これが何を意味するのかについてはSPIの文書（<A
+HREF="spi.html"
+>&#31532;43&#31456;</A
+>）を参照してください。
+これを複数呼び出しにおいて効果的に使用するためには、永続的な格納用辞書である<TT
+CLASS="LITERAL"
+>SD</TT
+>または<TT
+CLASS="LITERAL"
+>GD</TT
+>（<A
+HREF="plpython-sharing.html"
+>&#38917;42.4</A
+>を参照）のいずれかを使用する必要があります。
+例えば、以下のようにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION usesavedplan() RETURNS trigger AS $$
+    if SD.has_key("plan"):
+        plan = SD["plan"]
+    else:
+        plan = plpy.prepare("SELECT 1")
+        SD["plan"] = plan
+    # rest of function
+$$ LANGUAGE plpythonu;</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPYTHON-TRAPPING"
+>42.7.2. エラーの捕捉</A
+></H2
+><P
+>データベースにアクセスする関数はエラーに遭遇し、エラーが関数をアボートして例外を発生させる原因となります。
+<CODE
+CLASS="FUNCTION"
+>plpy.execute</CODE
+>および<CODE
+CLASS="FUNCTION"
+>plpy.prepare</CODE
+>は、デフォルトでは関数を終了させる<TT
+CLASS="LITERAL"
+>plpy.SPIError</TT
+>のサブクラスのインスタンスを発生させることができます。
+このエラーは、<TT
+CLASS="LITERAL"
+>try/except</TT
+>構文を使用して、Pythonの他の例外と同様に処理できます。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION try_adding_joe() RETURNS text AS $$
+    try:
+        plpy.execute("INSERT INTO users(username) VALUES ('joe')")
+    except plpy.SPIError:
+        "うまくいかなかった" を返す
+    else:
+        "Joeが追加された" を返す
+$$ LANGUAGE plpythonu;</PRE
+><P>
+   </P
+><P
+>発生される例外の実クラスはエラーを引き起こした特定の条件と対応します。
+<A
+HREF="errcodes-appendix.html#ERRCODES-TABLE"
+>&#34920;A-1</A
+>にあり得る条件のリストがありますので参照してください。
+<TT
+CLASS="LITERAL"
+>plpy.spiexceptions</TT
+>モジュールは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の条件それぞれに対して、その条件名に因んだ名前の例外クラスを定義しています。
+例えば<TT
+CLASS="LITERAL"
+>division_by_zero</TT
+>は<TT
+CLASS="LITERAL"
+>DivisionByZero</TT
+>、<TT
+CLASS="LITERAL"
+>unique_violation</TT
+>は<TT
+CLASS="LITERAL"
+>UniqueViolation</TT
+>に、<TT
+CLASS="LITERAL"
+>fdw_error</TT
+>は<TT
+CLASS="LITERAL"
+>FdwError</TT
+>などのようになります。
+これらの例外クラスはそれぞれ<TT
+CLASS="LITERAL"
+>SPIError</TT
+>を継承したものです。
+このように分離することで特定のエラーをより簡単に扱うことができるようになります。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION insert_fraction(numerator int, denominator int) RETURNS text AS $$
+from plpy import spiexceptions
+try:
+    plan = plpy.prepare("INSERT INTO fractions (frac) VALUES ($1 / $2)", ["int", "int"])
+    plpy.execute(plan, [numerator, denominator])
+except spiexceptions.DivisionByZero:
+    return "denominator cannot equal zero"
+except spiexceptions.UniqueViolation:
+    return "already have that fraction"
+except plpy.SPIError, e:
+    return "other error, SQLSTATE %s" % e.sqlstate
+else:
+    return "fraction inserted"
+$$ LANGUAGE plpythonu;</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>plpy.spiexceptions</TT
+>モジュールからの全ての例外は<TT
+CLASS="LITERAL"
+>SPIError</TT
+>を継承するため、例外を処理する<TT
+CLASS="LITERAL"
+>except</TT
+>句は全てのデータベースアクセスエラーを捕捉することに注意してください。
+   </P
+><P
+>異なったエラー条件を処理する代りの方法として、<TT
+CLASS="LITERAL"
+>SPIError</TT
+>例外を捕捉して、例外オブジェクトの<TT
+CLASS="LITERAL"
+>sqlstate</TT
+>属性を調べることにより、<TT
+CLASS="LITERAL"
+>except</TT
+>ブロック内部の明細なエラー条件を決定できます。
+この属性は<SPAN
+CLASS="QUOTE"
+>"SQLSTATE"</SPAN
+>エラーコードを含む文字列値です。
+この方法は、ほぼ同じ機能を提供します。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpython-trigger.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpython-subtransaction.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>トリガ関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpython.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>明示的サブトランザクション</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

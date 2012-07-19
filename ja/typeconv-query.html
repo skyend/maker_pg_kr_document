@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>値の格納</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="型変換"
+HREF="typeconv.html"><LINK
+REL="PREVIOUS"
+TITLE="関数"
+HREF="typeconv-func.html"><LINK
+REL="NEXT"
+TITLE="UNION、CASEおよび関連する構文"
+HREF="typeconv-union-case.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数"
+HREF="typeconv-func.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="型変換"
+HREF="typeconv.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 10&#31456;型変換</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="型変換"
+HREF="typeconv.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="UNION、CASEおよび関連する構文"
+HREF="typeconv-union-case.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TYPECONV-QUERY"
+>10.4. 値の格納</A
+></H1
+><P
+>以下の手順に従って、テーブルに挿入される値は対象とする列のデータ型に変換されます。
+  </P
+><DIV
+CLASS="PROCEDURE"
+><P
+><B
+>値の格納における型変換</B
+></P
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+>対象に正確に一致するかどうかを検査します。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>なければ、式を対象の型に変換してみます。
+もし2つの型の間のキャストが登録されている場合、これは成功します。
+もし式がunknown型リテラルの場合、リテラル文字列の内容は対象の型の入力変換ルーチンに与えられます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>対象の型に対してサイズ調整キャストがあるかどうかを検査します。
+サイズ調整キャストは、ある型からその同じ型へのキャストです。
+<TT
+CLASS="STRUCTNAME"
+>pg_cast</TT
+>カタログに1つ見つかった場合は、格納先の列に収納する前に式に適用します。
+こうしたキャストを実装する関数は、常に<TT
+CLASS="TYPE"
+>integer</TT
+>型のパラメータを1つ余計に取ります。
+このパラメータは、格納先の列の<TT
+CLASS="STRUCTFIELD"
+>atttypmod</TT
+>値を受け付けます
+（<TT
+CLASS="STRUCTFIELD"
+>atttypmod</TT
+>の解釈方法はデータ型によって異なりますが、典型的にはそれの宣言された長さです）。
+また、キャストが明示的か暗黙的かを示す、第三の<TT
+CLASS="TYPE"
+>boolean</TT
+>パラメータを取ることもできます。
+サイズ検査や切り詰めなど、長さに依存したセマンティックスの適用について、キャスト関数が責任を持ちます。</P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN20069"
+></A
+><P
+><B
+>&#20363; 10-6. <TT
+CLASS="TYPE"
+>character</TT
+>格納における型変換</B
+></P
+><P
+><TT
+CLASS="TYPE"
+>varchar(20)</TT
+>として宣言された対象の列への以下の文では、対象の大きさが正確に調整されることを示します。
+
+</P><PRE
+CLASS="SCREEN"
+>CREATE TABLE vv (v character(20));
+INSERT INTO vv SELECT 'abc' || 'def';
+SELECT v, octet_length(v) FROM vv;
+
+          v           | octet_length
+----------------------+--------------
+ abcdef               |           20
+(1 row)</PRE
+><P></P
+><P
+>ここで実際に起こったのは、デフォルトで<TT
+CLASS="LITERAL"
+>||</TT
+>演算子が<TT
+CLASS="TYPE"
+>text</TT
+>の連結として解決できるように、2つのunknownリテラルが<TT
+CLASS="TYPE"
+>text</TT
+>に解決されたということです。
+そして演算子の<TT
+CLASS="TYPE"
+>text</TT
+>型の結果は対象の列の型に合うように<TT
+CLASS="TYPE"
+>bpchar</TT
+>(<SPAN
+CLASS="QUOTE"
+>"空白が埋められる文字"</SPAN
+>, <TT
+CLASS="TYPE"
+>character</TT
+>データ型の内部名)に変換されます
+（しかし、<TT
+CLASS="TYPE"
+>text</TT
+>から<TT
+CLASS="TYPE"
+>bpchar</TT
+>へバイナリ変換可能ですので、この型変換のために実際の関数呼び出しは挿入されません）。
+最後に、<TT
+CLASS="LITERAL"
+>bpchar(bpchar, integer, boolean)</TT
+>サイズ調整関数がシステムカタログの中から見つかり、演算子の結果と格納する列の長さを適用します。
+この型特有の関数は必要とされる長さを検査し、空白の埋め込みを行います。</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="typeconv-func.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="typeconv-union-case.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="typeconv.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>UNION</TT
+>、<TT
+CLASS="LITERAL"
+>CASE</TT
+>および関連する構文</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

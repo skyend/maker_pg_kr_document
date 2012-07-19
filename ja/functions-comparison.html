@@ -1,0 +1,714 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>比較演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="論理演算子"
+HREF="functions-logical.html"><LINK
+REL="NEXT"
+TITLE="算術関数と演算子"
+HREF="functions-math.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="論理演算子"
+HREF="functions-logical.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="算術関数と演算子"
+HREF="functions-math.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-COMPARISON"
+>9.2. 比較演算子</A
+></H1
+><P
+>   
+    <A
+HREF="functions-comparison.html#FUNCTIONS-COMPARISON-TABLE"
+>&#34920;9-1</A
+>に示す、通常の比較演算子は使用可能です。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-COMPARISON-TABLE"
+></A
+><P
+><B
+>&#34920; 9-1. 比較演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;</TT
+> </TD
+><TD
+>小なり</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;</TT
+> </TD
+><TD
+>大なり</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;=</TT
+> </TD
+><TD
+>等しいかそれ以下</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;=</TT
+> </TD
+><TD
+>等しいかそれ以上</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>=</TT
+> </TD
+><TD
+>等しい</TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;&gt;</TT
+> または <TT
+CLASS="LITERAL"
+>!=</TT
+> </TD
+><TD
+>等しくない</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     <TT
+CLASS="LITERAL"
+>!=</TT
+>演算子は構文解析で<TT
+CLASS="LITERAL"
+>&lt;&gt;</TT
+>に変換されます。<TT
+CLASS="LITERAL"
+>!=</TT
+>演算子と<TT
+CLASS="LITERAL"
+>&lt;&gt;</TT
+>演算子に異なる処理を行わせる実装はできません。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>   
+    比較演算子は関連性のある全てのデータ型で使用できます。全ての比較演算子は二項演算子で、<TT
+CLASS="TYPE"
+>boolean</TT
+>データ型を返します。<TT
+CLASS="LITERAL"
+>1 &lt; 2 &lt; 3</TT
+>のような式は（ブール値と<TT
+CLASS="LITERAL"
+>3</TT
+>を比較する<TT
+CLASS="LITERAL"
+>&lt;</TT
+>演算子がないので）無効です。
+   </P
+><P
+>    
+    
+    比較演算子に加えて特殊な<TT
+CLASS="TOKEN"
+>BETWEEN</TT
+>構文が使えます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>a</I
+></TT
+> BETWEEN <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> AND <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+></PRE
+><P>
+    
+    は
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>a</I
+></TT
+> &gt;= <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> AND <TT
+CLASS="REPLACEABLE"
+><I
+>a</I
+></TT
+> &lt;= <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+></PRE
+><P>
+    
+    <TT
+CLASS="TOKEN"
+>BETWEEN</TT
+>は範囲内に含まれるとして終点値を扱うことに注意してください。
+    <TT
+CLASS="LITERAL"
+>NOT BETWEEN</TT
+>はその反対の比較をします（指定した値は包括しません）。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>a</I
+></TT
+> NOT BETWEEN <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> AND <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+></PRE
+><P>
+    
+    は
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>a</I
+></TT
+> &lt; <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> OR <TT
+CLASS="REPLACEABLE"
+><I
+>a</I
+></TT
+> &gt; <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+></PRE
+><P>
+    と同一です。
+    
+   
+    <TT
+CLASS="LITERAL"
+>BETWEEN SYMMETRIC</TT
+>は、<TT
+CLASS="LITERAL"
+>AND</TT
+>の左側の引数が右側の引数より小さいか、もしくは等しいという必要性が無い点を除き<TT
+CLASS="LITERAL"
+>BETWEEN</TT
+>と同じです。
+    この条件を満たしていない場合、2つの引数は自動的に置き換えられますので、常に空ではない範囲となります。
+   </P
+><P
+>    
+    
+    
+    
+    
+    値がNULLかNULLでないかを検証するには次の構文を使います。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS NULL
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS NOT NULL</PRE
+><P>
+    
+    あるいは、これと同等の、非標準の構文も使えます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ISNULL
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> NOTNULL</PRE
+><P>
+    
+   </P
+><P
+>   
+    <TT
+CLASS="LITERAL"
+>NULL</TT
+>と<TT
+CLASS="LITERAL"
+>NULL</TT
+>とは<SPAN
+CLASS="QUOTE"
+>"等しい"</SPAN
+>関係にはありませんので、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> = NULL</TT
+>と記述しては<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>いけません</I
+></SPAN
+>
+（NULL値は不明の値を表しているため、不明な値同士が同じかどうかは識別できません）。
+これは標準SQLに従った動作です。
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>   
+    アプリケーションによっては、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> = NULL</TT
+>が、<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>がNULL値と評価されるのであれば真を返すことを期待することがあります。こうしたアプリケーションは標準SQLに従うように改修することを強く推奨します。しかし、それができなければ<A
+HREF="runtime-config-compatible.html#GUC-TRANSFORM-NULL-EQUALS"
+>transform_null_equals</A
+>を使用することで対応することができます。これを有効にした場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は<TT
+CLASS="LITERAL"
+>x = NULL</TT
+>句を<TT
+CLASS="LITERAL"
+>x IS NULL</TT
+>に変換します。
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>   
+    <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>が行値の場合、行式自体がNULLまたは、行のフィールドすべてがNULLの場合に<TT
+CLASS="LITERAL"
+>IS NULL</TT
+>は真となります。一方<TT
+CLASS="LITERAL"
+>IS NOT NULL</TT
+>は、行式自体が非NULLまたは、行のフィールドすべてが非NULLの場合に真となります。
+    この動作により、<TT
+CLASS="LITERAL"
+>IS NULL</TT
+>および<TT
+CLASS="LITERAL"
+>IS NOT NULL</TT
+>は行値評価式に対し常に反対の結果を返しません。つまりNULLと非NULLの値の両方を含む行値式はどちらの試験でも偽を返します。
+この定義は標準SQLに従ったもので、8.2より前のバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>における一貫性のない動作から変更されました。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>    
+    
+    
+    入力のどちらかが真または偽ではなくNULLの場合、通常の比較演算子は（<SPAN
+CLASS="QUOTE"
+>"不明"</SPAN
+>を意味する）nullを生成します。例えば<TT
+CLASS="LITERAL"
+>7 = NULL</TT
+>はnullになります。この動作が適切でない場合は、<TT
+CLASS="LITERAL"
+>IS [<SPAN
+CLASS="OPTIONAL"
+> NOT </SPAN
+>] DISTINCT FROM</TT
+>構文を使用してください。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS DISTINCT FROM <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS NOT DISTINCT FROM <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+></PRE
+><P>
+    
+    非NULLの入力では、<TT
+CLASS="LITERAL"
+>IS DISTINCT FROM</TT
+>は<TT
+CLASS="LITERAL"
+>&lt;&gt;</TT
+>演算子と同じです。
+しかし、入力がどちらもNULLの場合、これは偽を返し、片方の入力のみがNULLの場合は真を返します。
+同様に、<TT
+CLASS="LITERAL"
+>IS NOT DISTINCT FROM</TT
+>は非NULL入力では<TT
+CLASS="LITERAL"
+>=</TT
+>と同じですが、両方の入力がNULLであれば真を、片方のみがNULLの場合は偽を返します。このように、これらの構文はNULLを<SPAN
+CLASS="QUOTE"
+>"不明な値"</SPAN
+>ではなく、通常の値かのように動作します。
+   </P
+><P
+>    
+    
+    
+    
+    
+    
+    
+    論理値も次の構文で検証できます。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS TRUE
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS NOT TRUE
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS FALSE
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS NOT FALSE
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS UNKNOWN
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> IS NOT UNKNOWN</PRE
+><P>
+    
+    これらは、常に真か偽を返し、演算項目がNULLであってもNULL値を返すことはありません。NULL値が入力されると、<SPAN
+CLASS="QUOTE"
+>"不明"</SPAN
+>という論理値として扱われます。<TT
+CLASS="LITERAL"
+>IS UNKNOWN</TT
+>と<TT
+CLASS="LITERAL"
+>IS NOT UNKNOWN</TT
+>が、入力式が論理値型でなければならないという点を除き、それぞれ実質的に<TT
+CLASS="LITERAL"
+>IS NULL</TT
+>と<TT
+CLASS="LITERAL"
+>IS NOT NULL</TT
+>と同じであることに注意してください。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-logical.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-math.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>論理演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>算術関数と演算子</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>スレッド化プログラムの振舞い</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="PREVIOUS"
+TITLE="SSLサポート"
+HREF="libpq-ssl.html"><LINK
+REL="NEXT"
+TITLE="libpqプログラムの構築"
+HREF="libpq-build.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SSLサポート"
+HREF="libpq-ssl.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 31&#31456;<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpqプログラムの構築"
+HREF="libpq-build.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LIBPQ-THREADING"
+>31.18. スレッド化プログラムの振舞い</A
+></H1
+><P
+>デフォルトで<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>は再入可能、かつ、スレッドセーフです。
+アプリケーションコードをコンパイルする時にコンパイラの特殊なコマンドラインオプションに追加する必要があるかもしれません。
+スレッドを有効にしたアプリケーションの構築方法についての情報は、使用するシステムの文書を参照してください。
+また、<TT
+CLASS="LITERAL"
+>PTHREAD_CFLAGS</TT
+>と<TT
+CLASS="LITERAL"
+>PTHREAD_LIBS</TT
+>に関して<TT
+CLASS="FILENAME"
+>src/Makefile.global</TT
+>も一読してください。
+以下の関数により、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>のスレッドセーフ状態を確認することができます。
+  </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQISTHREADSAFE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQisthreadsafe</CODE
+>
+     </DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>ライブラリのスレッドセーフ状態を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQisthreadsafe();</PRE
+><P>
+     </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>がスレッドセーフの場合1が、さもなくば0が返ります。
+     </P
+></DD
+></DL
+></DIV
+><P
+>スレッドに関する1つの制限として、異なるスレッドから同時に同一の<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>オブジェクトを操作することはできません。
+具体的には、異なるスレッドから同一接続オブジェクトを介してコマンドを同時に発行することができません。
+(コマンドの同時実行が必要な場合、接続を複数使用してください。)
+  </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトは生成後、読み込み専用であり、そのためスレッド間で自由に渡すことができます。
+しかし<A
+HREF="libpq-misc.html"
+>&#38917;31.10</A
+>や<A
+HREF="libpq-events.html"
+>&#38917;31.12</A
+>で説明する<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>を変更する関数のいずれかを使用している場合、同一の<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>に対する同時操作を防ぐことも、作成者の責任です。
+  </P
+><P
+>非推奨の関数、<CODE
+CLASS="FUNCTION"
+>PQrequestCancel</CODE
+>や<CODE
+CLASS="FUNCTION"
+>PQoidStatus</CODE
+>はスレッドセーフではありませんので、マルチスレッドプログラムでは使用してはなりません。
+<CODE
+CLASS="FUNCTION"
+>PQrequestCancel</CODE
+>は<CODE
+CLASS="FUNCTION"
+>PQcancel</CODE
+>に、<CODE
+CLASS="FUNCTION"
+>PQoidStatus</CODE
+>は<CODE
+CLASS="FUNCTION"
+>PQoidValue</CODE
+>に置き換えることができます。
+  </P
+><P
+>(<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の内部に加えて)アプリケーション中でKerberosを利用している場合、Kerberos関数はスレッドセーフではありませんのでKerberos呼び出しの前後をロックする必要があるでしょう。
+<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>とアプリケーション間のロック処理を協調させる方法として<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>のソースコードの<CODE
+CLASS="FUNCTION"
+>PQregisterThreadLock</CODE
+>関数を参照してください。
+  </P
+><P
+>スレッドアプリケーションで問題が起きた場合、<TT
+CLASS="FILENAME"
+>src/tools/thread</TT
+>内のプログラムを実行して、プラットフォームがスレッドセーフではない関数を持っていないかどうか確認してください。
+このプログラムは<TT
+CLASS="FILENAME"
+>configure</TT
+>より実行されますが、バイナリ配布物の場合は、バイナリ構築時のライブラリとシステムのライブラリが一致しない可能性があります。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libpq-ssl.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libpq-build.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SSLサポート</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>プログラムの構築</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

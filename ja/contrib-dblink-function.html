@@ -1,0 +1,483 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>dblink</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="dblink"
+HREF="dblink.html"><LINK
+REL="PREVIOUS"
+TITLE="dblink_disconnect"
+HREF="contrib-dblink-disconnect.html"><LINK
+REL="NEXT"
+TITLE="dblink_exec"
+HREF="contrib-dblink-exec.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="dblink_disconnect"
+HREF="contrib-dblink-disconnect.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="dblink_disconnect"
+HREF="contrib-dblink-disconnect.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="dblink_exec"
+HREF="contrib-dblink-exec.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="dblink_exec"
+HREF="contrib-dblink-exec.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="CONTRIB-DBLINK-FUNCTION"
+></A
+>dblink</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN132074"
+></A
+><H2
+>&#21517;&#21069;</H2
+>dblink&nbsp;--&nbsp;リモートデータベースで問い合わせを実行します</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN132077"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>dblink(text connname, text sql [, bool fail_on_error]) returns setof record
+dblink(text connstr, text sql [, bool fail_on_error]) returns setof record
+dblink(text sql [, bool fail_on_error]) returns setof record</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN132079"
+></A
+><H2
+>説明</H2
+><P
+><CODE
+CLASS="FUNCTION"
+>dblink</CODE
+>はリモートデータベースで問い合わせ（通常は<TT
+CLASS="COMMAND"
+>SELECT</TT
+>ですが行を返す任意のSQLコマンドを行うことができます）を実行します。
+   </P
+><P
+>2つの<TT
+CLASS="TYPE"
+>text</TT
+>型の引数が与えられた場合、一番目の引数はまず永続接続の名前を検索するために使われます。
+もし見つかれば、コマンドがその接続上で実行されます。
+見つからなければ、一番目の引数は<CODE
+CLASS="FUNCTION"
+>dblink_connect</CODE
+>用の接続情報文字列として扱われ、このコマンド実行時と同様に指定された接続が開きます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN132087"
+></A
+><H2
+>引数</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="PARAMETER"
+>conname</TT
+></DT
+><DD
+><P
+>使用する接続の名前です。
+無名の接続を使用する場合はこのパラメータを省略します。
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>connstr</TT
+></DT
+><DD
+><P
+>上で<CODE
+CLASS="FUNCTION"
+>dblink_connect</CODE
+>で説明した接続情報文字列です。
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>sql</TT
+></DT
+><DD
+><P
+>例えば<TT
+CLASS="LITERAL"
+>select * from foo</TT
+>といった、リモートデータベースで実行させるSQL問い合わせです。
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>fail_on_error</TT
+></DT
+><DD
+><P
+>真（省略時のデフォルト）の場合、接続のリモート側で発生したエラーによりローカル側でもエラーが発生します。
+偽の場合リモート側のエラーはローカル側にはNOTICEとして報告され、この関数は行を返しません。
+      </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN132112"
+></A
+><H2
+>戻り値</H2
+><P
+>この関数は問い合わせにより生成された行を返します。
+<CODE
+CLASS="FUNCTION"
+>dblink</CODE
+>は任意の問い合わせで使用することができますので、これは特定の列集合を指定するのではなく、<TT
+CLASS="TYPE"
+>record</TT
+>型を返すものと宣言されています。
+これは呼び出し元の問い合わせで想定列集合を指定しなければならないことを意味します。
+さもないと<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は何が想定されているかわかりません。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT *
+    FROM dblink('dbname=mydb', 'select proname, prosrc from pg_proc')
+      AS t1(proname name, prosrc text)
+    WHERE proname LIKE 'bytea%';</PRE
+><P>
+
+<TT
+CLASS="LITERAL"
+>FROM</TT
+>句の<SPAN
+CLASS="QUOTE"
+>"別名"</SPAN
+>部分は関数が返す列名とその型を指定しなければなりません。
+（別名内の列名の指定はSQL標準の構文ですが、列の型の指定は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。）
+これによりシステムは、関数を実行する前に、<TT
+CLASS="LITERAL"
+>*</TT
+>がどのように展開されるか、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句内の<TT
+CLASS="STRUCTNAME"
+>proname</TT
+>が何を参照するかを理解します。
+実行時、リモートデータベースから返る実際の問い合わせの結果が<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で示された列数と異なる場合エラーが発生します。
+しかし、列名は一致する必要はありません。
+また、<CODE
+CLASS="FUNCTION"
+>dblink</CODE
+>は正確な型一致も強制しません。
+返されるデータ文字列が<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で宣言された列型の有効な入力である限り成功します。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN132128"
+></A
+><H2
+>注釈</H2
+><P
+><CODE
+CLASS="FUNCTION"
+>dblink</CODE
+>はリモート側の問い合わせ結果をローカルシステム側に渡す前にすべて取り込みます。
+問い合わせが大量の行を返すと想定される場合、<CODE
+CLASS="FUNCTION"
+>dblink_open</CODE
+>でカーソルを開き、一度に管理可能な行数を取り出す方が良いでしょう。
+   </P
+><P
+>前もって判明している問い合わせを<CODE
+CLASS="FUNCTION"
+>dblink</CODE
+>で使用する簡便な方法はビューを作成することです。
+これにより問い合わせの度に列型の情報を記載することなく、ビュー内に隠すことができます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE VIEW myremote_pg_proc AS
+  SELECT *
+    FROM dblink('dbname=postgres', 'select proname, prosrc from pg_proc')
+    AS t1(proname name, prosrc text);
+
+SELECT * FROM myremote_pg_proc WHERE proname LIKE 'bytea%';</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN132136"
+></A
+><H2
+>例</H2
+><PRE
+CLASS="SCREEN"
+>SELECT * FROM dblink('dbname=postgres', 'select proname, prosrc from pg_proc')
+  AS t1(proname name, prosrc text) WHERE proname LIKE 'bytea%';
+  proname   |   prosrc
+------------+------------
+ byteacat   | byteacat
+ byteaeq    | byteaeq
+ bytealt    | bytealt
+ byteale    | byteale
+ byteagt    | byteagt
+ byteage    | byteage
+ byteane    | byteane
+ byteacmp   | byteacmp
+ bytealike  | bytealike
+ byteanlike | byteanlike
+ byteain    | byteain
+ byteaout   | byteaout
+(12 rows)
+
+SELECT dblink_connect('dbname=postgres');
+ dblink_connect
+----------------
+ OK
+(1 row)
+
+SELECT * FROM dblink('select proname, prosrc from pg_proc')
+  AS t1(proname name, prosrc text) WHERE proname LIKE 'bytea%';
+  proname   |   prosrc
+------------+------------
+ byteacat   | byteacat
+ byteaeq    | byteaeq
+ bytealt    | bytealt
+ byteale    | byteale
+ byteagt    | byteagt
+ byteage    | byteage
+ byteane    | byteane
+ byteacmp   | byteacmp
+ bytealike  | bytealike
+ byteanlike | byteanlike
+ byteain    | byteain
+ byteaout   | byteaout
+(12 rows)
+
+SELECT dblink_connect('myconn', 'dbname=regression');
+ dblink_connect
+----------------
+ OK
+(1 row)
+
+SELECT * FROM dblink('myconn', 'select proname, prosrc from pg_proc')
+  AS t1(proname name, prosrc text) WHERE proname LIKE 'bytea%';
+  proname   |   prosrc
+------------+------------
+ bytearecv  | bytearecv
+ byteasend  | byteasend
+ byteale    | byteale
+ byteagt    | byteagt
+ byteage    | byteage
+ byteane    | byteane
+ byteacmp   | byteacmp
+ bytealike  | bytealike
+ byteanlike | byteanlike
+ byteacat   | byteacat
+ byteaeq    | byteaeq
+ bytealt    | bytealt
+ byteain    | byteain
+ byteaout   | byteaout
+(14 rows)</PRE
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="contrib-dblink-disconnect.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="contrib-dblink-exec.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>dblink_disconnect</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="dblink.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>dblink_exec</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

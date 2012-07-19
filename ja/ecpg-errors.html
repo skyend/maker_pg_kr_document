@@ -1,0 +1,1353 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>エラー処理</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="記述子領域の使用"
+HREF="ecpg-descriptors.html"><LINK
+REL="NEXT"
+TITLE="プリプロセッサ指示子"
+HREF="ecpg-preproc.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="記述子領域の使用"
+HREF="ecpg-descriptors.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="プリプロセッサ指示子"
+HREF="ecpg-preproc.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-ERRORS"
+>33.8. エラー処理</A
+></H1
+><P
+>本節では、埋め込みSQLプログラムにおいて、例外条件や警告をどのように扱うことができるかについて説明します。
+このために、共に使用できる２つの機能があります。
+   <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>WHENEVER</TT
+>コマンドを使用して、警告条件、エラー条件を扱うようにコールバックを設定することができます。
+     </P
+></LI
+><LI
+><P
+>エラーまたは警告に関する詳細情報は<TT
+CLASS="VARNAME"
+>sqlca</TT
+>変数から入手することができます。
+     </P
+></LI
+></UL
+><P>
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-WHENEVER"
+>33.8.1. コールバックの設定</A
+></H2
+><P
+>エラーや警告を受け取る簡単な手法の1つは、特定の条件が発生する度に特定の動作を実行するように設定することです。
+一般的には以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL WHENEVER <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+>;</PRE
+><P>
+   </P
+><P
+>    <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+>は以下のいずれかを取ることができます。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>SQLERROR</TT
+></DT
+><DD
+><P
+>SQL文の実行中にエラーが発生する度に、指定した動作が呼び出されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SQLWARNING</TT
+></DT
+><DD
+><P
+>SQL文の実行中に警告が発生する度に、指定した動作が呼び出されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NOT FOUND</TT
+></DT
+><DD
+><P
+>SQL文が0行を受け取る、もしくは0行に影響する時、指定した動作が呼び出されます。
+（この条件はエラーではありませんが、これを特別に扱いたい場合があります。）
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+>は以下のいずれかを取ることができます。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>CONTINUE</TT
+></DT
+><DD
+><P
+>これは、実際のところ、その条件が無視されることを意味します。
+これがデフォルトです。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>GOTO <TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+></TT
+><BR><TT
+CLASS="LITERAL"
+>GO TO <TT
+CLASS="REPLACEABLE"
+><I
+>label</I
+></TT
+></TT
+></DT
+><DD
+><P
+>指定したラベルに移動します
+（Cの<TT
+CLASS="LITERAL"
+>goto</TT
+>文を使用します）。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SQLPRINT</TT
+></DT
+><DD
+><P
+>標準エラーにメッセージを出力します。
+これは、単純なプログラムやプロトタイプ作成時に役に立ちます。
+メッセージの詳細は設定できません。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>STOP</TT
+></DT
+><DD
+><P
+>プログラムを終了させる<TT
+CLASS="LITERAL"
+>exit(1)</TT
+>を呼び出します。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DO BREAK</TT
+></DT
+><DD
+><P
+>Cの<TT
+CLASS="LITERAL"
+>break</TT
+>文を実行します。
+これはループ内、もしくは<TT
+CLASS="LITERAL"
+>switch</TT
+>文内でのみ使用しなければなりません。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CALL <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>args</I
+></TT
+>)</TT
+><BR><TT
+CLASS="LITERAL"
+>DO <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> (<TT
+CLASS="REPLACEABLE"
+><I
+>args</I
+></TT
+>)</TT
+></DT
+><DD
+><P
+>指定した引数で、指定したC関数を呼び出します。
+       </P
+></DD
+></DL
+></DIV
+><P>
+
+標準SQLでは<TT
+CLASS="LITERAL"
+>CONTINUE</TT
+>と<TT
+CLASS="LITERAL"
+>GOTO</TT
+>（と<TT
+CLASS="LITERAL"
+>GO TO</TT
+>）のみを提供しています。
+   </P
+><P
+>簡単なプログラムで使用してみたくなるような例を以下に示します。
+警告が発生した場合に簡単なメッセージを表示し、エラーが発生した場合にプログラムを中断します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL WHENEVER SQLWARNING SQLPRINT;
+EXEC SQL WHENEVER SQLERROR STOP;</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>EXEC SQL WHENEVER</TT
+>文はCの構文ではなく、SQLプリプロセッサのディレクティブです。
+設定したエラーもしくは警告動作は、最初の<TT
+CLASS="LITERAL"
+>EXEC SQL WHENEVER</TT
+>と条件を発生させたSQL文の間で、同一条件に異なる動作が設定されない限り、ハンドラを設定した箇所より後にある、すべての埋め込みSQL文に適用されます。
+Cプログラムの制御フローは関係しません。
+ですので、以下の2つのCプログラムの抜粋はどちらも望み通りの動作を行いません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/*
+ * WRONG
+ */
+int main(int argc, char *argv[])
+{
+    ...
+    if (verbose) {
+        EXEC SQL WHENEVER SQLWARNING SQLPRINT;
+    }
+    ...
+    EXEC SQL SELECT ...;
+    ...
+}</PRE
+><P>
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/*
+ * WRONG
+ */
+int main(int argc, char *argv[])
+{
+    ...
+    set_error_handler();
+    ...
+    EXEC SQL SELECT ...;
+    ...
+}
+
+static void set_error_handler(void)
+{
+    EXEC SQL WHENEVER SQLERROR STOP;
+}</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-SQLCA"
+>33.8.2. sqlca</A
+></H2
+><P
+>より強力にエラーを扱うために、埋め込みSQLインタフェースは以下の構造体を持つ<TT
+CLASS="VARNAME"
+>sqlca</TT
+>（SQL通信領域）という名前のグローバル変数を提供します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>struct
+{
+    char sqlcaid[8];
+    long sqlabc;
+    long sqlcode;
+    struct
+    {
+        int sqlerrml;
+        char sqlerrmc[SQLERRMC_LEN];
+    } sqlerrm;
+    char sqlerrp[8];
+    long sqlerrd[6];
+    char sqlwarn[8];
+    char sqlstate[5];
+} sqlca;</PRE
+><P>
+（マルチスレッド化されたプログラムでは、各スレッドは自動的に<TT
+CLASS="VARNAME"
+>sqlca</TT
+>のコピーを独自に持ちます。
+これは標準Cの<TT
+CLASS="VARNAME"
+>errno</TT
+>グローバル変数の扱いと同様に動作します。）
+   </P
+><P
+><TT
+CLASS="VARNAME"
+>sqlca</TT
+>は警告とエラーの両方を対象としています。
+1つのSQL文の実行時に複数の警告やエラーが発生した場合、<TT
+CLASS="VARNAME"
+>sqlca</TT
+>は最後のものに関した情報のみを含みます。
+   </P
+><P
+>直前の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文でエラーがなければ、<TT
+CLASS="LITERAL"
+>sqlca.sqlcode</TT
+>は0に、<TT
+CLASS="LITERAL"
+>sqlca.sqlstate</TT
+>は<TT
+CLASS="LITERAL"
+>"00000"</TT
+>になります。
+警告やエラーが発生した場合は、<TT
+CLASS="LITERAL"
+>sqlca.sqlcode</TT
+>は負の値に、<TT
+CLASS="LITERAL"
+>sqlca.sqlstate</TT
+>は<TT
+CLASS="LITERAL"
+>"00000"</TT
+>以外になります。
+正の<TT
+CLASS="LITERAL"
+>sqlca.sqlcode</TT
+>は、直前の問い合わせが0行を返したなどの無害な条件を示します。
+<TT
+CLASS="LITERAL"
+>sqlca.sqlcode</TT
+>と<TT
+CLASS="LITERAL"
+>sqlca.sqlstate</TT
+>は2つの異なるエラーコードスキーマです。
+後で詳細に説明します。
+   </P
+><P
+>直前のSQL文が成功すると、<TT
+CLASS="LITERAL"
+>sqlca.sqlerrd[1]</TT
+>は処理された行のOIDが、もしあれば、格納されます。
+また、もしそのコマンドで適切ならば、<TT
+CLASS="LITERAL"
+>sqlca.sqlerrd[2]</TT
+>は処理された、もしくは返された行数が格納されます。
+   </P
+><P
+>エラーもしくは警告の場合、<TT
+CLASS="LITERAL"
+>sqlca.sqlerrm.sqlerrmc</TT
+>には、そのエラーを説明する文字列が格納されます。
+<TT
+CLASS="LITERAL"
+>sqlca.sqlerrm.sqlerrml</TT
+>フィールドには<TT
+CLASS="LITERAL"
+>sqlca.sqlerrm.sqlerrmc</TT
+>に格納されたエラーメッセージ長が格納されます
+（<CODE
+CLASS="FUNCTION"
+>strlen()</CODE
+>の結果です。おそらくCプログラマは必要としないでしょう）。
+一部のメッセージは固定長の<TT
+CLASS="LITERAL"
+>sqlerrmc</TT
+>配列には長過ぎることに注意してください。
+この場合は切り詰められます。
+   </P
+><P
+>警告の場合、<TT
+CLASS="LITERAL"
+>sqlca.sqlwarn[2]</TT
+>は<TT
+CLASS="LITERAL"
+>W</TT
+>に設定されます
+（他のすべての場合では、これは<TT
+CLASS="LITERAL"
+>W</TT
+>以外の何かに設定されます）。
+<TT
+CLASS="LITERAL"
+>sqlca.sqlwarn[1]</TT
+>が<TT
+CLASS="LITERAL"
+>W</TT
+>に設定された場合、ホスト変数に代入する際に値が切り詰められています。
+他の要素が警告を示すように設定された場合、<TT
+CLASS="LITERAL"
+>sqlca.sqlwarn[0]</TT
+>は<TT
+CLASS="LITERAL"
+>W</TT
+>に設定されます。
+   </P
+><P
+>今のところ、<TT
+CLASS="STRUCTFIELD"
+>sqlcaid</TT
+>、<TT
+CLASS="STRUCTFIELD"
+>sqlcabc</TT
+>、<TT
+CLASS="STRUCTFIELD"
+>sqlerrp</TT
+>ならびに<TT
+CLASS="STRUCTFIELD"
+>sqlerrd</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>sqlwarn</TT
+>の上記以外の要素は有用な情報を持ちません。
+   </P
+><P
+><TT
+CLASS="VARNAME"
+>sqlca</TT
+>は標準SQLでは定義されていません。
+しかし、複数の他のSQLデータベースシステムで実装されています。
+その定義は基本部分は似ていますが、移植性を持つアプリケーションを作成する場合は実装の違いを注意して調査しなければなりません。
+   </P
+><P
+>ここで<TT
+CLASS="LITERAL"
+>WHENEVER</TT
+>と<TT
+CLASS="VARNAME"
+>sqlca</TT
+>を組み合わせて使用して、エラーが発生した時に<TT
+CLASS="VARNAME"
+>sqlca</TT
+>の内容を表示する、１つの例を示します。
+これはおそらく、より<SPAN
+CLASS="QUOTE"
+>"ユーザ向け"</SPAN
+>のエラー処理を組み込む前の、アプリケーションのデバッグまたはプロトタイプで有用です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXEC SQL WHENEVER SQLERROR CALL print_sqlca();
+
+void
+print_sqlca()
+{
+    fprintf(stderr, "==== sqlca ====\n");
+    fprintf(stderr, "sqlcode: %ld\n", sqlca.sqlcode);
+    fprintf(stderr, "sqlerrm.sqlerrml: %d\n", sqlca.sqlerrm.sqlerrml);
+    fprintf(stderr, "sqlerrm.sqlerrmc: %s\n", sqlca.sqlerrm.sqlerrmc);
+    fprintf(stderr, "sqlerrd: %ld %ld %ld %ld %ld %ld\n", sqlca.sqlerrd[0],sqlca.sqlerrd[1],sqlca.sqlerrd[2],
+                                                          sqlca.sqlerrd[3],sqlca.sqlerrd[4],sqlca.sqlerrd[5]);
+    fprintf(stderr, "sqlwarn: %d %d %d %d %d %d %d %d\n", sqlca.sqlwarn[0], sqlca.sqlwarn[1], sqlca.sqlwarn[2],
+                                                          sqlca.sqlwarn[3], sqlca.sqlwarn[4], sqlca.sqlwarn[5],
+                                                          sqlca.sqlwarn[6], sqlca.sqlwarn[7]);
+    fprintf(stderr, "sqlstate: %5s\n", sqlca.sqlstate);
+    fprintf(stderr, "===============\n");
+}</PRE
+><P>
+
+結果は以下のようになります（ここでのエラーはテーブル名の誤記述によるものです。）。
+
+</P><PRE
+CLASS="SCREEN"
+>==== sqlca ====
+sqlcode: -400
+sqlerrm.sqlerrml: 49
+sqlerrm.sqlerrmc: relation "pg_databasep" does not exist on line 38
+sqlerrd: 0 0 0 0 0 0
+sqlwarn: 0 0 0 0 0 0 0 0
+sqlstate: 42P01
+===============</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ECPG-SQLSTATE-SQLCODE"
+>33.8.3. <TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>対<TT
+CLASS="LITERAL"
+>SQLCODE</TT
+></A
+></H2
+><P
+><TT
+CLASS="LITERAL"
+>sqlca.sqlstate</TT
+>と<TT
+CLASS="LITERAL"
+>sqlca.sqlcode</TT
+>はエラーコードを提供する異なる2つの機構です。
+共に標準SQLから派生されたものですが、<TT
+CLASS="LITERAL"
+>SQLCODE</TT
+>はSQL-92版では廃れたものとされ、以降の版から削除されました。
+したがって、新規アプリケーションでは<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>を使用することを強く勧めます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>は5要素の文字配列です。
+この5文字は、各種のエラー条件、警告条件のコードを表現する数字、大文字から構成されます。
+<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>は階層を持った機構です。
+最初の2文字は条件を汎化したクラスを示し、残り3文字は汎化クラスの副クラスを示します。
+成功状態は<TT
+CLASS="LITERAL"
+>00000</TT
+>というコードで示されます。
+<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>コードのほとんどは標準SQLで定義されています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバは本質的に<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>エラーコードをサポートしています。
+したがって、すべてのアプリケーションでこのエラーコードを使用することで、高度な一貫性を達成することができます。
+詳細については<A
+HREF="errcodes-appendix.html"
+>&#20184;&#37682;A</A
+>を参照してください。
+   </P
+><P
+>廃止されたエラーコードの機構である<TT
+CLASS="LITERAL"
+>SQLCODE</TT
+>は単なる整数です。
+0という値は成功を意味し、正の値は追加情報を持った成功を、負の値はエラーを示します。
+標準SQLでは、直前のコマンドが0行を返す、もしくは0行に影響したことを示す+100という正の値のみを定義しています。
+負の値は規定されていません。
+したがって、この機構では低い移植性しか達成できず、また、コード体系も階層を持っていません。
+歴史的に、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の埋め込みSQLプロセッサには、いくつかの特殊な<TT
+CLASS="LITERAL"
+>SQLCODE</TT
+>の値が専用に割り当てられていました。
+以下に、その数値とそのシンボル名の一覧を示します。
+これらは他のSQL実装への移植性がないことを忘れないでください。
+アプリケーションの<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>機構への移行を簡易化するために、対応する<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>も示しています。
+しかし、2つのしくみの間の関係は1対1ではなく1対多です
+（実際は多対多です）。
+ですので、場合ごとに<A
+HREF="errcodes-appendix.html"
+>&#20184;&#37682;A</A
+>に示したグローバルな各<TT
+CLASS="LITERAL"
+>SQLSTATE</TT
+>を参照しなければなりません。
+   </P
+><P
+>以下は割り当て済みの<TT
+CLASS="LITERAL"
+>SQLCODE</TT
+>です。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>0 (<TT
+CLASS="SYMBOL"
+>ECPG_NO_ERROR</TT
+>)</DT
+><DD
+><P
+>エラーがないことを示す。(SQLSTATE 00000)
+      </P
+></DD
+><DT
+>100 (<TT
+CLASS="SYMBOL"
+>ECPG_NOT_FOUND</TT
+>)</DT
+><DD
+><P
+>これは、最後に実行したコマンドが取り出した、または、処理した行がゼロ行であったこと、あるいは、カーソルの最後であることを示す、害のない条件です。(SQLSTATE 02000)
+      </P
+><P
+>以下のように、カーソルをループ内で処理する時、ループを中断する時を検知する方法として、このコードを使用することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>while (1)
+{
+    EXEC SQL FETCH ... ;
+    if (sqlca.sqlcode == ECPG_NOT_FOUND)
+        break;
+}</PRE
+><P>
+しかし、<TT
+CLASS="LITERAL"
+>WHENEVER NOT FOUND DO BREAK</TT
+>はこれを内部で効率的に行います。
+このため、通常、外部で明示的に記述する利点はありません。
+      </P
+></DD
+><DT
+>-12 (<TT
+CLASS="SYMBOL"
+>ECPG_OUT_OF_MEMORY</TT
+>)</DT
+><DD
+><P
+>仮想メモリ不足を示します。
+この数値は<TT
+CLASS="LITERAL"
+>-ENOMEM</TT
+>として定義します。
+（SQLSTATE YE001）
+      </P
+></DD
+><DT
+>-200 (<TT
+CLASS="SYMBOL"
+>ECPG_UNSUPPORTED</TT
+>)</DT
+><DD
+><P
+>ライブラリが把握していない何かをプリプロセッサが生成したことを示します。
+おそらく、互換性がないプリプロセッサとライブラリのバージョンを使用しています。
+（SQLSTATE YE002）
+      </P
+></DD
+><DT
+>-201 (<TT
+CLASS="SYMBOL"
+>ECPG_TOO_MANY_ARGUMENTS</TT
+>)</DT
+><DD
+><P
+>コマンドの想定より多くのホスト変数が指定されたことを意味します。
+（SQLSTATE 07001もしくは07002）
+      </P
+></DD
+><DT
+>-202 (<TT
+CLASS="SYMBOL"
+>ECPG_TOO_FEW_ARGUMENTS</TT
+>)</DT
+><DD
+><P
+>コマンドの想定よりも少ないホスト変数が指定されたことを意味します。
+（SQLSTATE 07001もしくは07002）
+      </P
+></DD
+><DT
+>-203 (<TT
+CLASS="SYMBOL"
+>ECPG_TOO_MANY_MATCHES</TT
+>)</DT
+><DD
+><P
+>問い合わせが複数行を返したけれども、SQL文では1つの結果の格納の準備だけしかしていなかったことを意味します
+（例えば、指定された変数が配列ではなかった）。
+（SQLSTATE 21000）
+      </P
+></DD
+><DT
+>-204 (<TT
+CLASS="SYMBOL"
+>ECPG_INT_FORMAT</TT
+>)</DT
+><DD
+><P
+>ホスト変数の型が<TT
+CLASS="TYPE"
+>int</TT
+>ですが、データベース内のデータ型が異なり、その値を<TT
+CLASS="TYPE"
+>int</TT
+>として解釈させることができませんでした。
+ライブラリはこの変換に<CODE
+CLASS="FUNCTION"
+>strtol()</CODE
+>を使用します。
+（SQLSTATE 42804）
+      </P
+></DD
+><DT
+>-205 (<TT
+CLASS="SYMBOL"
+>ECPG_UINT_FORMAT</TT
+>)</DT
+><DD
+><P
+>ホスト変数の型が<TT
+CLASS="TYPE"
+>unsigned int</TT
+>ですが、データベース内のデータ型が異なり、その値を<TT
+CLASS="TYPE"
+>unsigned int</TT
+>として解釈させることができませんでした。
+ライブラリはこの変換に<CODE
+CLASS="FUNCTION"
+>strtoul()</CODE
+>を使用します。
+（SQLSTATE 42804）
+      </P
+></DD
+><DT
+>-206 (<TT
+CLASS="SYMBOL"
+>ECPG_FLOAT_FORMAT</TT
+>)</DT
+><DD
+><P
+>ホスト変数の型が<TT
+CLASS="TYPE"
+>float</TT
+>ですが、データベース内のデータ型が異なり、その値を<TT
+CLASS="TYPE"
+>float</TT
+>として解釈させることができませんでした。
+ライブラリはこの変換に<CODE
+CLASS="FUNCTION"
+>strtod()</CODE
+>を使用します。
+（SQLSTATE 42804）
+      </P
+></DD
+><DT
+>-207 (<TT
+CLASS="SYMBOL"
+>ECPG_NUMERIC_FORMAT</TT
+>)</DT
+><DD
+><P
+>ホスト変数の型が<TT
+CLASS="TYPE"
+>numeric</TT
+>ですが、データベース内のデータ型が異なり、その値を<TT
+CLASS="TYPE"
+>numeric</TT
+>として解釈させることができませんでした。
+（SQLSTATE 42804）
+      </P
+></DD
+><DT
+>-208 (<TT
+CLASS="SYMBOL"
+>ECPG_INTERVAL_FORMAT</TT
+>)</DT
+><DD
+><P
+>ホスト変数の型が<TT
+CLASS="TYPE"
+>interval</TT
+>であり、データベース内のデータが他の型であり、<TT
+CLASS="TYPE"
+>interval</TT
+>値として解釈することができない値を含みます。
+       (SQLSTATE 42804)
+      </P
+></DD
+><DT
+>-209 (<TT
+CLASS="SYMBOL"
+>ECPG_DATE_FORMAT</TT
+>)</DT
+><DD
+><P
+>ホスト変数の型が<TT
+CLASS="TYPE"
+>date</TT
+>であり、データベース内のデータが他の型であり、<TT
+CLASS="TYPE"
+>date</TT
+>値として解釈することができない値を含みます。
+       (SQLSTATE 42804)
+      </P
+></DD
+><DT
+>-210 (<TT
+CLASS="SYMBOL"
+>ECPG_TIMESTAMP_FORMAT</TT
+>)</DT
+><DD
+><P
+>ホスト変数の型が<TT
+CLASS="TYPE"
+>timestamp</TT
+>であり、データベース内のデータが他の型であり、<TT
+CLASS="TYPE"
+>timestamp</TT
+>値として解釈することができない値を含みます。
+      </P
+></DD
+><DT
+>-211 (<TT
+CLASS="SYMBOL"
+>ECPG_CONVERT_BOOL</TT
+>)</DT
+><DD
+><P
+>これは、ホスト変数の型が<TT
+CLASS="TYPE"
+>bool</TT
+>ですが、データベース内のデータが<TT
+CLASS="LITERAL"
+>'t'</TT
+>でも<TT
+CLASS="LITERAL"
+>'f'</TT
+>でもなかったことを意味します。
+（SQLSTATE 42804）
+      </P
+></DD
+><DT
+>-212 (<TT
+CLASS="SYMBOL"
+>ECPG_EMPTY</TT
+>)</DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバに送信されたSQL文が空でした
+（通常埋め込みSQLプログラムでは発生しません。ですので、これは内部エラーを示しているかもしれません）。
+（SQLSTATE YE002）
+      </P
+></DD
+><DT
+>-213 (<TT
+CLASS="SYMBOL"
+>ECPG_MISSING_INDICATOR</TT
+>)</DT
+><DD
+><P
+>NULL値が返されましたが、NULL用の指示子変数が与えられていませんでした。
+（SQLSTATE 22002）
+      </P
+></DD
+><DT
+>-214 (<TT
+CLASS="SYMBOL"
+>ECPG_NO_ARRAY</TT
+>)</DT
+><DD
+><P
+>配列が必要な箇所に普通の変数が使用されていました。
+（SQLSTATE 42804）
+      </P
+></DD
+><DT
+>-215 (<TT
+CLASS="SYMBOL"
+>ECPG_DATA_NOT_ARRAY</TT
+>)</DT
+><DD
+><P
+>配列値が必要な箇所にデータベースが普通の変数を返しました。
+（SQLSTATE 42804）
+      </P
+></DD
+><DT
+>-220 (<TT
+CLASS="SYMBOL"
+>ECPG_NO_CONN</TT
+>)</DT
+><DD
+><P
+>存在しない接続にプログラムがアクセスしようとしました。
+       （SQLSTATE 08003）
+      </P
+></DD
+><DT
+>-221 (<TT
+CLASS="SYMBOL"
+>ECPG_NOT_CONN</TT
+>)</DT
+><DD
+><P
+>存在するが開いていない接続にプログラムがアクセスしようとしました
+（これは内部エラーです）。
+（SQLSTATE YE002）
+      </P
+></DD
+><DT
+>-230 (<TT
+CLASS="SYMBOL"
+>ECPG_INVALID_STMT</TT
+>)</DT
+><DD
+><P
+>使用しようとしたSQL文がプリペアされていませんでした。
+       （SQLSTATE 26000）
+      </P
+></DD
+><DT
+>-239 (<TT
+CLASS="SYMBOL"
+>ECPG_INFORMIX_DUPLICATE_KEY</TT
+>)</DT
+><DD
+><P
+>重複キーエラー。一意性制約違反（Informix互換モード）。
+(SQLSTATE 23505)
+      </P
+></DD
+><DT
+>-240 (<TT
+CLASS="SYMBOL"
+>ECPG_UNKNOWN_DESCRIPTOR</TT
+>)</DT
+><DD
+><P
+>指定した記述子が見つかりませんでした。
+使用しようとしたSQL文はプリペアされていませんでした。
+（SQLSTATE 33000）
+      </P
+></DD
+><DT
+>-241 (<TT
+CLASS="SYMBOL"
+>ECPG_INVALID_DESCRIPTOR_INDEX</TT
+>)</DT
+><DD
+><P
+>記述子のインデックスが範囲外でした。
+（SQLSTATE 07009）
+      </P
+></DD
+><DT
+>-242 (<TT
+CLASS="SYMBOL"
+>ECPG_UNKNOWN_DESCRIPTOR_ITEM</TT
+>)</DT
+><DD
+><P
+>無効な記述子項目が要求されました。（これは内部エラーです。）
+（SQLSTATE YE002）
+      </P
+></DD
+><DT
+>-243 (<TT
+CLASS="SYMBOL"
+>ECPG_VAR_NOT_NUMERIC</TT
+>)</DT
+><DD
+><P
+>動的なSQL文の実行時にデータベースが数値を返しましたが、ホスト変数が数値でありませんでした。
+（SQLSTATE 07006）
+      </P
+></DD
+><DT
+>-244 (<TT
+CLASS="SYMBOL"
+>ECPG_VAR_NOT_CHAR</TT
+>)</DT
+><DD
+><P
+>動的なSQL文の実行時にデータベースが数値以外を返しましたが、ホスト変数が数値でした。
+       （SQLSTATE 07006）
+      </P
+></DD
+><DT
+>-284 (<TT
+CLASS="SYMBOL"
+>ECPG_INFORMIX_SUBSELECT_NOT_ONE</TT
+>)</DT
+><DD
+><P
+>副問い合わせの結果が単一行ではありません（Informix互換モード）。
+(SQLSTATE 21000)
+      </P
+></DD
+><DT
+>-400 (<TT
+CLASS="SYMBOL"
+>ECPG_PGSQL</TT
+>)</DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバで何らかのエラーが発生しました。
+このメッセージは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバからのエラーメッセージを含みます。
+      </P
+></DD
+><DT
+>-401 (<TT
+CLASS="SYMBOL"
+>ECPG_TRANS</TT
+>)</DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバがトランザクションのコミットやロールバックを始めることができないことを通知しました。
+（SQLSTATE 08007）
+      </P
+></DD
+><DT
+>-402 (<TT
+CLASS="SYMBOL"
+>ECPG_CONNECT</TT
+>)</DT
+><DD
+><P
+>データベースへの接続試行に失敗しました。
+       (SQLSTATE 08001)
+      </P
+></DD
+><DT
+>-403 (<TT
+CLASS="SYMBOL"
+>ECPG_DUPLICATE_KEY</TT
+>)</DT
+><DD
+><P
+>重複キーエラー。一意性制約違反。
+(SQLSTATE 23505)
+      </P
+></DD
+><DT
+>-404 (<TT
+CLASS="SYMBOL"
+>ECPG_SUBSELECT_NOT_ONE</TT
+>)</DT
+><DD
+><P
+>副問い合わせの結果が単一行ではありません。
+(SQLSTATE 21000)
+      </P
+></DD
+><DT
+>-602 (<TT
+CLASS="SYMBOL"
+>ECPG_WARNING_UNKNOWN_PORTAL</TT
+>)</DT
+><DD
+><P
+>無効なカーソル名が指定されました。
+(SQLSTATE 34000)
+      </P
+></DD
+><DT
+>-603 (<TT
+CLASS="SYMBOL"
+>ECPG_WARNING_IN_TRANSACTION</TT
+>)</DT
+><DD
+><P
+>トランザクションが進行中です。
+(SQLSTATE 25001)
+      </P
+></DD
+><DT
+>-604 (<TT
+CLASS="SYMBOL"
+>ECPG_WARNING_NO_TRANSACTION</TT
+>)</DT
+><DD
+><P
+>活動中（進行中）のトランザクションがありません。
+(SQLSTATE 25P01)
+      </P
+></DD
+><DT
+>-605 (<TT
+CLASS="SYMBOL"
+>ECPG_WARNING_PORTAL_EXISTS</TT
+>)</DT
+><DD
+><P
+>既存のカーソル名が指定されました。
+(SQLSTATE 42P03)
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-descriptors.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-preproc.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>記述子領域の使用</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>プリプロセッサ指示子</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

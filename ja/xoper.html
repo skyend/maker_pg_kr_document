@@ -1,0 +1,301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ユーザ定義の演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLの拡張"
+HREF="extend.html"><LINK
+REL="PREVIOUS"
+TITLE="ユーザ定義の型"
+HREF="xtypes.html"><LINK
+REL="NEXT"
+TITLE="演算子最適化に関する情報"
+HREF="xoper-optimization.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ユーザ定義の型"
+HREF="xtypes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 35&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の拡張</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="演算子最適化に関する情報"
+HREF="xoper-optimization.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="XOPER"
+>35.12. ユーザ定義の演算子</A
+></H1
+><P
+>演算子は裏側で実際の作業を行う関数を呼び出す<SPAN
+CLASS="QUOTE"
+>"構文上の飾り"</SPAN
+>です。
+ですから、演算子を作成する前にまずこの基礎となる関数を作成する必要があります。
+しかし、演算子は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>単なる</I
+></SPAN
+>構文上の飾りでは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ありません</I
+></SPAN
+>。
+問い合わせプランナによる演算子を使用する問い合わせの最適化を補助する追加情報をやり取りするからです。
+次節では、この追加情報について重点的に説明します。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では左単項演算子、右単項演算子、二項演算子をサポートしています。
+演算子はオーバーロード可能です。
+
+つまり、同じ演算子名をオペランドの数と型が異なる演算子に対して使用することができるということです。
+問い合わせが実行されると、システムは与えられたオペランドの数と型より呼び出すべき演算子を決定します。
+  </P
+><P
+>以下に2つの複素数の加算を行う演算子を作成する例を示します。
+既に<TT
+CLASS="TYPE"
+>complex</TT
+>型の定義（<A
+HREF="xtypes.html"
+>&#38917;35.11</A
+>を参照）を作成していることを前提としています。
+まず、実作業を行う関数が必要です。
+その後、演算子を定義できます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION complex_add(complex, complex)
+    RETURNS complex
+    AS '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>', 'complex_add'
+    LANGUAGE C IMMUTABLE STRICT;
+
+CREATE OPERATOR + (
+    leftarg = complex,
+    rightarg = complex,
+    procedure = complex_add,
+    commutator = +
+);</PRE
+><P>
+  </P
+><P
+>これで以下のような問い合わせを実行できるようになります。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT (a + b) AS c FROM test_complex;
+
+        c
+-----------------
+ (5.2,6.05)
+ (133.42,144.95)</PRE
+><P>
+  </P
+><P
+>ここでは二項演算子をどのように作成するのかを示しました。
+単項演算子を作成するには、単に<TT
+CLASS="LITERAL"
+>leftarg</TT
+>（左単項の場合）もしくは<TT
+CLASS="LITERAL"
+>rightarg</TT
+>（右方単項の場合）を省略するだけです。
+<TT
+CLASS="LITERAL"
+>procedure</TT
+>句と引数用の句のみが<TT
+CLASS="COMMAND"
+>CREATE OPERATOR</TT
+>での必須項目です。
+例で示した<TT
+CLASS="LITERAL"
+>commutator</TT
+>句は省略可能で、問い合わせオプティマイザへのヒントとなります。
+<TT
+CLASS="LITERAL"
+>commutator</TT
+>やその他のオプティマイザへのヒントについての詳細は次節で説明します。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="xtypes.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="xoper-optimization.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ユーザ定義の型</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="extend.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>演算子最適化に関する情報</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

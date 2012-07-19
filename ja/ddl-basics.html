@@ -1,0 +1,357 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>テーブルの基本</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ定義"
+HREF="ddl.html"><LINK
+REL="PREVIOUS"
+TITLE="データ定義"
+HREF="ddl.html"><LINK
+REL="NEXT"
+TITLE="デフォルト値"
+HREF="ddl-default.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 5&#31456;データ定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="デフォルト値"
+HREF="ddl-default.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DDL-BASICS"
+>5.1. テーブルの基本</A
+></H1
+><P
+>リレーショナルデータベースのテーブルは、紙に書く表によく似ています。
+テーブルは行と列からできています。
+列の数と順序は固定されており、それぞれの列に名前が付けられています。
+行の数は可変です。
+つまり行の数とは、その時点でどれだけのデータが格納されているのかを示すものです。
+SQLではテーブル内の行の順序は保証されません。
+テーブルを読み込むと、明示的に並び替えが要求されない限り、行は不特定な順序で返されます。
+これについては<A
+HREF="queries.html"
+>&#31532;7&#31456;</A
+>を参照してください。
+さらに、SQLでは行に固有の識別子が割り当てられないので、テーブル内にまったく同一の行がいくつも存在することがあり得ます。
+これは、SQLの基礎をなす算術モデルの結果ですが、通常は好ましいことではありません。
+この問題の対処法については、本章で後述します。
+  </P
+><P
+>それぞれの列にデータ型があります。
+データ型によって、列に割り当てられる値が制限されます。
+また、列に格納されているデータに意味が割り当てられ、データを計算に使用できるようになります。
+例えば、数値型と宣言された列は任意のテキスト文字列は受け付けません。
+そして、数値型の列に格納されているデータは算術計算に使用できます。
+これに対して、文字列型と宣言された列はほとんど全ての種類のデータを受け付けます。
+しかし、文字列の結合といった演算には使用できますが、算術計算には使用できません。 
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には、様々なアプリケーションに対応した多数のデータ型の集合が組み込まれています。
+またユーザが独自のデータ型を定義することも可能です。
+組み込みデータ型のほとんどにはわかりやすい名前と意味が付けれられているので、詳しい説明はここでは行わず、<A
+HREF="datatype.html"
+>&#31532;8&#31456;</A
+>で行います。
+よく使用されるデータ型としては、整数を表す<TT
+CLASS="TYPE"
+>integer</TT
+>、小数も表すことができる<TT
+CLASS="TYPE"
+>numeric</TT
+>、文字列を表す<TT
+CLASS="TYPE"
+>text</TT
+>、日付を表す<TT
+CLASS="TYPE"
+>date</TT
+>、時刻を表す<TT
+CLASS="TYPE"
+>time</TT
+>、そして日付と時間の両方を含む<TT
+CLASS="TYPE"
+>timestamp</TT
+>があります。 
+  </P
+><P
+>テーブルを作成するには、その名の通り<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>コマンドを使用します。
+このコマンドで最低限指定する必要があるのは、新規テーブル名、列名、各列のデータ型です。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE my_first_table (
+    first_column text,
+    second_column integer
+);</PRE
+><P>
+これで2列からなる<TT
+CLASS="LITERAL"
+>my_first_table</TT
+>という名前のテーブルが作成されます。
+最初の列の名前は<TT
+CLASS="LITERAL"
+>first_column</TT
+>で、そのデータ型は<TT
+CLASS="TYPE"
+>text</TT
+>です。
+2番目の列の名前は<TT
+CLASS="LITERAL"
+>second_column</TT
+>で、そのデータ型は<TT
+CLASS="TYPE"
+>integer</TT
+>です。
+テーブル名および列名は、<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS"
+>&#38917;4.1.1</A
+>で説明した識別子の構文に従います。
+通常、型名は識別子でもありますが、例外もあります。
+列リストはカンマで区切り、括弧で囲むことに注意してください。
+  </P
+><P
+>先ほどの例は、説明が目的であるため現実的ではありません。
+通常、テーブルおよび列の名前は、どのようなデータが格納されているかわかるような名前にします。
+以下に、より現実的な例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE products (
+    product_no integer,
+    name text,
+    price numeric
+);</PRE
+><P>
+（<TT
+CLASS="TYPE"
+>numeric</TT
+>型は小数を格納することができ、金額を扱う場合はこれが一般的です。）
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>相関するテーブルを数多く作成する場合は、テーブルと列の名前を一貫させるのが賢明です。
+例えば、テーブル名に単数形あるいは複数形どちらの名詞を使用するかという選択肢があります（これは論者によって好みが分かれています）。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>テーブルに含めることができる列の数には制限があります。
+制限は、列の型に応じて250〜1600の間となります。
+しかし、これほど多くの列を使用することは稀ですし、そのような場合は設計に問題があることも多いのです。
+  </P
+><P
+>必要のないテーブルができた場合は、<A
+HREF="sql-droptable.html"
+>DROP TABLE</A
+>コマンドを使用してそのテーブルを削除できます。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DROP TABLE my_first_table;
+DROP TABLE products;</PRE
+><P>
+存在しないテーブルを削除しようとすると、エラーになります。
+もっともテーブルが存在するかどうか関係なくスクリプト全体を動作させることができるように、テーブルを作成する前に、エラーメッセージを無視して無条件に削除操作を行うことは、SQLスクリプトファイルではよく行われることです。
+（この操作を行いたければ、エラーメッセージの出力を防ぐ<TT
+CLASS="LITERAL"
+>DROP TABLE IF EXISTS</TT
+>という構文を使用することができます。
+しかし、これは標準SQLではありません。）
+  </P
+><P
+>既に存在するテーブルを変更する方法については、本章で後述する<A
+HREF="ddl-alter.html"
+>&#38917;5.5</A
+>を参照してください。
+  </P
+><P
+>これまでに説明したツールを使用して、十分に機能するテーブルを作成できます。
+本章の残りでは、テーブル定義に機能を追加して、データの整合性、安全性、利便性を確実にする方法について述べていきます。
+この時点でテーブルにデータを入力したければ、本章の残りを後回しにして<A
+HREF="dml.html"
+>&#31532;6&#31456;</A
+>に進んでも構いません。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ddl.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ddl-default.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データ定義</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ddl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>デフォルト値</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

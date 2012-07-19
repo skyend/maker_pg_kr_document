@@ -1,0 +1,809 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SQLによるダンプ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="バックアップとリストア"
+HREF="backup.html"><LINK
+REL="PREVIOUS"
+TITLE="バックアップとリストア"
+HREF="backup.html"><LINK
+REL="NEXT"
+TITLE="ファイルシステムレベルのバックアップ"
+HREF="backup-file.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="バックアップとリストア"
+HREF="backup.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="バックアップとリストア"
+HREF="backup.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 24&#31456;バックアップとリストア</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="バックアップとリストア"
+HREF="backup.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ファイルシステムレベルのバックアップ"
+HREF="backup-file.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="BACKUP-DUMP"
+>24.1. <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>によるダンプ</A
+></H1
+><P
+>このダンプ方法の背景にある考え方はSQLコマンドでテキストファイルを生成し、そのファイルをサーバが再度読み込みを行った時に、ダンプした時点と同じ状態が再構築されるということです。
+この目的のため、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は<A
+HREF="app-pgdump.html"
+>pg_dump</A
+>ユーティリティプログラムを提供しています。
+このコマンドの基本となる使い方は以下の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+>pg_dump <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> &gt; <TT
+CLASS="REPLACEABLE"
+><I
+>outfile</I
+></TT
+></PRE
+><P>
+見てわかる通り、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は結果を標準出力に書き出します。
+これがどのように活用できるかをこれから説明します。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は、（優れた機能を特に発揮する）<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の通常のクライアントアプリケーションです。ということは、データベースに接続可能なあらゆるリモートホストからこのバックアップ手順を実行することができます。しかし、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は動作に特別な権限を必要とするわけではありませんが、特に、バックアップを行う全てのテーブルに対して読み込み権限を必要とします。ですから、実際の作業はほとんどの場合、データベースのスーパーユーザでバックアップを行なわなければなりません。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>を行うデータベースサーバを特定するにはコマンドラインの<TT
+CLASS="OPTION"
+>-h <TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+></TT
+>オプションと<TT
+CLASS="OPTION"
+>-p <TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></TT
+>オプションを使用します。デフォルトのホストはローカルホスト、または<TT
+CLASS="ENVAR"
+>PGHOST</TT
+>環境変数で指定したものです。同様に、デフォルトのポートは<TT
+CLASS="ENVAR"
+>PGPORT</TT
+>環境変数で指定されているか、うまく行かない場合にはコンパイル時の設定がデフォルトとなります（そこはうまくできていて、サーバは通常コンパイル時の設定をデフォルトとします）。
+  </P
+><P
+>他の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のクライアントアプリケーションのように、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>はデフォルトでオペレーティングシステムの現在のユーザ名と同じデータベースユーザ名で接続します。これを書き換えるには<TT
+CLASS="OPTION"
+>-U</TT
+>オプションを付けるか<TT
+CLASS="ENVAR"
+>PGUSER</TT
+>環境変数を設定します。<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>の接続は（<A
+HREF="client-authentication.html"
+>&#31532;19&#31456;</A
+>で説明されている）通常のクライアント認証方法によることを思い出してください。
+  </P
+><P
+>後で述べる他のバックアップ手法に対する<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>の重要な利点は、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>の出力は一般に新しいバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に再ロードできるということです。一方、ファイルレベルのバックアップと継続的アーカイブは両方とも非常にサーバ、バージョン依存です。
+<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は、32ビットから64ビットのサーバに移行するなどの異なるマシンアーキテクチャにデータベースを移す場合に上手くいく唯一の方法でもあります。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>で作成されたダンプは、内部的に整合性があります。つまり、ダンプは<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>が開始された際のデータベースのスナップショットを示しています。<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>の操作はデータベースに対する他の作業を妨げません（<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>のほとんどの形態であるような排他的ロックが必要な作業は例外です）。
+  </P
+><DIV
+CLASS="IMPORTANT"
+><BLOCKQUOTE
+CLASS="IMPORTANT"
+><P
+><B
+>&#37325;&#35201;&#38917;&#30446;: </B
+>（例えば外部キーのように）データベーススキーマがOIDに依存している場合、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>にOIDも一緒にダンプするよう指定しなければなりません。これを行うには<TT
+CLASS="OPTION"
+>-o</TT
+>コマンドラインオプションを使用します。
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="BACKUP-DUMP-RESTORE"
+>24.1.1. ダンプのリストア</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>で作成されたテキストファイルは<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>プログラムで読み込まれることを意図しています。以下に、ダンプをリストアする一般的なコマンドを示します。
+</P><PRE
+CLASS="SYNOPSIS"
+>psql <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> &lt; <TT
+CLASS="REPLACEABLE"
+><I
+>infile</I
+></TT
+></PRE
+><P>
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>infile</I
+></TT
+>は<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>コマンドにより出力されたファイルです。 
+<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+>データベースはこのコマンドでは作成されません。
+（例えば<TT
+CLASS="LITERAL"
+>createdb -T template0 <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></TT
+> のようにして）<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を実行する前に自分で<TT
+CLASS="LITERAL"
+>template0</TT
+>から作成してください。<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>は<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>と似たような、接続データベースサーバと使用するユーザ名を指定するオプションに対応しています。詳細については、<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>のリファレンスページを参照してください。
+   </P
+><P
+>SQLダンプのリストアを実行する前に、ダンプされたデータベース内のオブジェクトを所有するユーザやそのオブジェクト上に権限を与えられたユーザも存在しなければなりません。
+存在していない場合、リストアはそのオブジェクトの元々の所有権や付与された権限を再作成することができません
+（このようにしたい場合もあるでしょうが、通常そうではありません）。
+   </P
+><P
+>デフォルトで<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>スクリプトは、SQLエラーが起きた後も実行を継続します。
+<TT
+CLASS="LITERAL"
+>ON_ERROR_STOP</TT
+>変数を設定して<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を実行することで、その動作を変更し、SQLエラーが起きた場合に<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>が、終了ステータス3で終了するようにしたいと思うかもしれません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>psql --set ON_ERROR_STOP=on dbname &lt; infile</PRE
+><P>
+どちらしても、部分的にリストアされたデータベースにしかなりません。
+他に、ダンプ全体を1つのトランザクションとしてリストアするように指定することができます。
+こうすれば、リストアが完全に終わるか、完全にロールバックされるかのどちらかになります。
+このモードは、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>のコマンドラインオプションに<TT
+CLASS="OPTION"
+>-1</TT
+>または<TT
+CLASS="OPTION"
+>--single-transaction</TT
+>を渡すことで指定できます。
+このモードを使用する場合、数時間かけて実行していたリストアが軽微なエラーでロールバックしてしまうことに注意してください。しかし、部分的にリストアされたダンプから手作業で複雑なデータベースを整理するよりまだましかもしれません。
+   </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>と<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>ではパイプから読み書きができるので、あるサーバから別のサーバへデータベースを直接ダンプできます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>pg_dump -h <TT
+CLASS="REPLACEABLE"
+><I
+>host1</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> | psql -h <TT
+CLASS="REPLACEABLE"
+><I
+>host2</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></PRE
+><P>
+   </P
+><DIV
+CLASS="IMPORTANT"
+><BLOCKQUOTE
+CLASS="IMPORTANT"
+><P
+><B
+>&#37325;&#35201;&#38917;&#30446;: </B
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>で作成されるダンプは<TT
+CLASS="LITERAL"
+>template0</TT
+>と相対関係にあります。 
+つまり<TT
+CLASS="LITERAL"
+>template1</TT
+>を経由して追加されたあらゆる言語、プロシージャなども<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>によりダンプされます。 
+その結果としてリストアする際に、カスタマイズされた<TT
+CLASS="LITERAL"
+>template1</TT
+>を使用している場合は、上記の例のように、<TT
+CLASS="LITERAL"
+>template0</TT
+>から空のデータベースを作成する必要があります。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>バックアップをリストアした後、問い合わせオプティマイザが有用な統計情報を使用できるように、各データベースに対して<A
+HREF="sql-analyze.html"
+>ANALYZE</A
+>を実行することを勧めます。
+より詳しくは、<A
+HREF="routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+>&#38917;23.1.3</A
+> と <A
+HREF="routine-vacuuming.html#AUTOVACUUM"
+>&#38917;23.1.5</A
+>を参照してください。
+効率的に大規模なデータを<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にロードする方法に関するより多くの勧告については、<A
+HREF="populate.html"
+>&#38917;14.4</A
+>を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="BACKUP-DUMP-ALL"
+>24.1.2. <SPAN
+CLASS="APPLICATION"
+>pg_dumpall</SPAN
+>の使用</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は同時に単一のデータベースのみをダンプします。
+また、ロールやテーブル空間についての情報はダンプしません。
+（これらはテーブル毎ではなくクラスタ全体のものだからです。）
+データベースクラスタの全内容の簡便なダンプをサポートするために、<A
+HREF="app-pg-dumpall.html"
+><SPAN
+CLASS="APPLICATION"
+>pg_dumpall</SPAN
+></A
+>プログラムが提供されています。
+<SPAN
+CLASS="APPLICATION"
+>pg_dumpall</SPAN
+>は指定されたクラスタの各データベースのバックアップを行い、そして、ロールやテーブル空間定義などのクラスタ全体にわたるデータを保存します。
+このコマンドの基本的な使用方法は
+</P><PRE
+CLASS="SYNOPSIS"
+>pg_dumpall &gt; <TT
+CLASS="REPLACEABLE"
+><I
+>outfile</I
+></TT
+></PRE
+><P>
+です。
+ダンプの結果は<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>でリストアできます。
+</P><PRE
+CLASS="SYNOPSIS"
+>psql -f <TT
+CLASS="REPLACEABLE"
+><I
+>infile</I
+></TT
+> postgres</PRE
+><P>
+（実際、開始時に任意の既存のデータベース名を指定することができますが、空のクラスタ内にロードする場合は、通常 <TT
+CLASS="LITERAL"
+>postgres</TT
+> を使用すべきです。）
+ロールやテーブル空間の情報をリストアしなければならないので、<SPAN
+CLASS="APPLICATION"
+>pg_dumpall</SPAN
+>のダンプをリストアする時には、データベーススーパーユーザのアクセス権限を確実に必要とします。
+テーブル空間を使用している場合、ダンプ内のテーブル空間のパスが新しいインストレーションで適切であることを確認してください。
+   </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>pg_dumpall</SPAN
+>はコマンドを発令することによりロール、テーブル空間、およびデータベースを再作成し、それぞれのデータベースに対して<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>を起動します。このことは、それぞれのデータベースが内部的に矛盾がない限り、異なるデータベースのスナップショットは完全に同期しない可能性があることを示しています。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="BACKUP-DUMP-LARGE"
+>24.1.3. 大規模データベースの扱い</A
+></H2
+><P
+>オペレーティングシステムの中には最大ファイルサイズに制限があるものがあり、大きな<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>出力ファイルを作成しているときに問題を引き起こします。
+幸運なことに、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>は標準出力に書き出すことができますので、Unix標準のツールを使ってこの潜在的な問題を解決できます。取りうる方法がいくつか存在します。
+   </P
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>圧縮ダンプの使用. </B
+>たとえば、自分が愛用している<SPAN
+CLASS="APPLICATION"
+>gzip</SPAN
+>のような圧縮プログラムが使えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>pg_dump <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> | gzip &gt; <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>.gz</PRE
+><P>
+
+元に戻すには次のようにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>gunzip -c <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>.gz | psql <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></PRE
+><P>
+
+あるいは次のようにもできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cat <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>.gz | gunzip | psql <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+><TT
+CLASS="COMMAND"
+>split</TT
+>の使用. </B
+><TT
+CLASS="COMMAND"
+>split</TT
+>コマンドで結果を使用しているファイルシステムが受け付けられる大きさに分割することができます。
+例えば1メガバイトずつに分割するには次のようにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>pg_dump <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> | split -b 1m - <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></PRE
+><P>
+
+元に戻すには次のようにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cat <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>* | psql <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+><SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>のカスタムダンプ書式の使用. </B
+>もし<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が<SPAN
+CLASS="APPLICATION"
+>zlib</SPAN
+>圧縮ライブラリインストール済みのシステム上で構築されたのなら、カスタムダンプ書式では出力ファイルに書き出す時にデータを圧縮します。
+<TT
+CLASS="COMMAND"
+>gzip</TT
+>を使用した時と似通ったダンプサイズとなりますが、テーブルの復元を部分的に行えるという点で優れていると言えます。
+以下のコマンドは、カスタムダンプ書式でのデータベースのダンプを行います。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>pg_dump -Fc <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> &gt; <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></PRE
+><P>
+
+カスタム書式のダンプは<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>用のスクリプトではありませんので、代わりに<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>でリストアしなければなりません。例えば以下のようにします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>pg_restore -d <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></PRE
+><P>
+
+詳細は<A
+HREF="app-pgdump.html"
+>pg_dump</A
+>と<A
+HREF="app-pgrestore.html"
+>pg_restore</A
+>のリファレンスページを参照してください。
+    </P
+></DIV
+><P
+>巨大なデータベースに対しては、そのほかの２つの手法のうちの１つと一緒に<TT
+CLASS="COMMAND"
+>split</TT
+>を組み合わせる必要があるかもしれません。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="backup.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="backup-file.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>バックアップとリストア</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="backup.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ファイルシステムレベルのバックアップ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

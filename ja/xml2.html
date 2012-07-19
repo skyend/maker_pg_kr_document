@@ -1,0 +1,858 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>xml2</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="vacuumlo"
+HREF="vacuumlo.html"><LINK
+REL="NEXT"
+TITLE="外部プロジェクト"
+HREF="external-projects.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="vacuumlo"
+HREF="vacuumlo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="外部プロジェクト"
+HREF="external-projects.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="XML2"
+>F.47. xml2</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>xml2</TT
+>モジュールはXPath問い合わせとXSLT機能を提供します。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138835"
+>F.47.1. 廃止予定の可能性についてのお知らせ</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.3から、SQL/XML標準に基づくXML関連の機能はコアサーバ内に存在します。
+この機能は、XML構文検査、本モジュールと同等のことを行うXPath問い合わせなどを範囲としますが、APIには互換性はありません。
+新しい標準APIのため、本モジュールはPostgreSQL 8.4で削除される予定ですので、アプリケーションの変換が推奨されています。
+本モジュールの機能のうち新しいAPIに適用できないことがわかった場合、その不足に取り組むことができるようにpgsql-hackers@postgresql.orgにその問題を表明してください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138839"
+>F.47.2. 関数の説明</A
+></H2
+><P
+><A
+HREF="xml2.html#XML2-FUNCTIONS-TABLE"
+>&#34920;F-31</A
+>に本モジュールで提供する関数を示します。
+これらの関数は簡単なXML解析とXPath問い合わせを提供します。
+すべての引数は<TT
+CLASS="TYPE"
+>text</TT
+>型です。
+簡潔にするため説明しません。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="XML2-FUNCTIONS-TABLE"
+></A
+><P
+><B
+>&#34920; F-31. 関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>結果</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>       <CODE
+CLASS="FUNCTION"
+>        xml_is_well_formed(document)
+       </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bool</TT
+>
+      </TD
+><TD
+>       <P
+>これはパラメータとして与えられた文書テキストを解析し、文書が整形式のXMLであれば真を返します。
+（注意:PostgreSQL 8.2以前ではこの関数は<CODE
+CLASS="FUNCTION"
+>xml_valid()</CODE
+>と呼ばれていました。
+XMLでは整形と検証が異なる意味を持つため間違った名前でした。
+古い名前もまだ利用できますが、廃止予定です。）
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+>        <CODE
+CLASS="FUNCTION"
+>         xpath_string(document, query)
+        </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>text</TT
+>
+      </TD
+><TD
+ROWSPAN="3"
+>       <P
+>これらの関数は与えられた文書に対するXPath問い合わせを評価し、結果を指定した型にキャストします。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+>       <CODE
+CLASS="FUNCTION"
+>        xpath_number(document, query)
+       </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>float4</TT
+>
+      </TD
+></TR
+><TR
+><TD
+>       <CODE
+CLASS="FUNCTION"
+>        xpath_bool(document, query)
+       </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bool</TT
+>
+      </TD
+></TR
+><TR
+><TD
+>        <CODE
+CLASS="FUNCTION"
+>         xpath_nodeset(document, query, toptag, itemtag)
+        </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>text</TT
+>
+      </TD
+><TD
+>       <P
+>これは文書に対する問い合わせを評価し、XMLタグ内に結果を包みます。
+結果が複数の値であれば、出力は以下のようになります。
+</P><PRE
+CLASS="SYNOPSIS"
+>&lt;toptag&gt;
+&lt;itemtag&gt;Value 1 which could be an XML fragment&lt;/itemtag&gt;
+&lt;itemtag&gt;Value 2....&lt;/itemtag&gt;
+&lt;/toptag&gt;</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>toptag</TT
+>または<TT
+CLASS="LITERAL"
+>itemtag</TT
+>が空文字だった場合、対応するタグは省略されます。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+>        <CODE
+CLASS="FUNCTION"
+>         xpath_nodeset(document, query)
+        </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>text</TT
+>
+      </TD
+><TD
+>       <P
+><CODE
+CLASS="FUNCTION"
+>xpath_nodeset(document, query, toptag, itemtag)</CODE
+>と同様ですが、結果は両方のタグを省きます。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+>        <CODE
+CLASS="FUNCTION"
+>         xpath_nodeset(document, query, itemtag)
+        </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>text</TT
+>
+      </TD
+><TD
+>       <P
+><CODE
+CLASS="FUNCTION"
+>xpath_nodeset(document, query, toptag, itemtag)</CODE
+>と同様ですが、結果はtoptagを省きます。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+>        <CODE
+CLASS="FUNCTION"
+>         xpath_list(document, query, separator)
+        </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>text</TT
+>
+      </TD
+><TD
+>       <P
+>この関数は複数の値を指定した区切り文字で区切って返します。
+例えば、区切り文字が<TT
+CLASS="LITERAL"
+>,</TT
+>ならば<TT
+CLASS="LITERAL"
+>Value 1,Value 2,Value 3</TT
+>となります。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+>        <CODE
+CLASS="FUNCTION"
+>         xpath_list(document, query)
+        </CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>text</TT
+>
+      </TD
+><TD
+>これは、<TT
+CLASS="LITERAL"
+>,</TT
+>を区切り文字として使用する、上の関数のラッパです。
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138920"
+>F.47.3. <TT
+CLASS="LITERAL"
+>xpath_table</TT
+></A
+></H2
+><PRE
+CLASS="SYNOPSIS"
+>xpath_table(text key, text document, text relation, text xpaths, text criteria) returns setof record</PRE
+><P
+><CODE
+CLASS="FUNCTION"
+>xpath_table</CODE
+>は各文書集合に対するXPath問い合わせ集合を評価し、結果をテーブルとして返すテーブル関数です。
+元文書テーブルのプライマリキーフィールドが結果の第一列として返されますので、結果セットを容易に結合で使用することができます。
+パラメータについては<A
+HREF="xml2.html#XML2-XPATH-TABLE-PARAMETERS"
+>&#34920;F-32</A
+>で説明します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="XML2-XPATH-TABLE-PARAMETERS"
+></A
+><P
+><B
+>&#34920; F-32. <CODE
+CLASS="FUNCTION"
+>xpath_table</CODE
+>のパラメータ</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>パラメータ</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>key</TT
+></TD
+><TD
+>       <P
+><SPAN
+CLASS="QUOTE"
+>"key"</SPAN
+>フィールドの名前です。
+これは、出力テーブルの第一列として使用される単なるフィールドです。
+つまり、これは各出力行の出現元を識別するレコードです。
+（後述の複数値に関する注記を参照してください。）
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>document</TT
+></TD
+><TD
+>       <P
+>XML文書を含むフィールドの名前です。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>relation</TT
+></TD
+><TD
+>       <P
+>文書を含むテーブルまたはビューの名前です。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>xpaths</TT
+></TD
+><TD
+>       <P
+><TT
+CLASS="LITERAL"
+>|</TT
+>で区切られた、1つ以上のXPath式です。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>criteria</TT
+></TD
+><TD
+>       <P
+>WHERE句の内容です。
+これは省略することができません。
+リレーション内の全行を処理したい場合は<TT
+CLASS="LITERAL"
+>true</TT
+>または<TT
+CLASS="LITERAL"
+>1=1</TT
+>を使用してください。
+       </P
+>
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>（XPath文字列を除く）これらのパラメータは普通のSQL SELECT 文に単純に置換されます。
+このため、多少の柔軟性があります。
+  </P
+><P
+>   <TT
+CLASS="LITERAL"
+>    SELECT &lt;key&gt;, &lt;document&gt; FROM &lt;relation&gt; WHERE &lt;criteria&gt;
+   </TT
+>
+  </P
+><P
+>文は上の通りですので、これらのパラメータにはそれぞれの場所で有効なものであれば<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>何でも</I
+></SPAN
+>よいわけです。
+このSELECTの結果は正確に2つの列を返さなければなりません（キーまたは文書に対して複数のフィールドを列挙させようとしない限りです）。
+この簡略された手法では、SQLインジェクション攻撃を防ぐためにユーザから与えられた値をすべて検証しなければならないことに注意してください。
+  </P
+><P
+>この関数は、出力列を指定するための<TT
+CLASS="LITERAL"
+>AS</TT
+>句を付けた<TT
+CLASS="LITERAL"
+>FROM</TT
+>式内で使用されなければなりません。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM
+xpath_table('article_id',
+            'article_xml',
+            'articles',
+            '/article/author|/article/pages|/article/title',
+            'date_entered &#62; ''2003-01-01'' ')
+AS t(article_id integer, author text, page_count integer, title text);</PRE
+><P>
+この<TT
+CLASS="LITERAL"
+>AS</TT
+>句は、出力テーブルの列名とその型を定義します。
+先頭が<SPAN
+CLASS="QUOTE"
+>"key"</SPAN
+>フィールド、残りがXPath問い合わせに対応します。
+結果列よりより多くのXPath問い合わせが存在する場合、余った問い合わせは無視されます。
+XPath問い合わせより多くの結果列が存在する場合は余った列はNULLになります。
+  </P
+><P
+>この例で<TT
+CLASS="STRUCTNAME"
+>page_count</TT
+>結果列が整数として定義されていることに注意してください。
+関数は内部的に文字列表現で扱います。
+このため、出力内で整数で扱いたいと言っている時、XPath結果の文字列表現を取り出し、整数（または<TT
+CLASS="TYPE"
+>AS</TT
+>句で要求した任意の型）に変換するためにPostgreSQLの入力関数を使用します。
+例えば結果が空など、変換できない場合はエラーになります。
+ですので、データに何らかの問題があると考えられる場合、列型として<TT
+CLASS="TYPE"
+>text</TT
+>に限定する方がよいかもしれません。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の呼び出しでは、単なる<TT
+CLASS="LITERAL"
+>SELECT *</TT
+>でなければならない必要性はありません。
+出力列を名前で参照することも他のテーブルと結合することも可能です。
+この関数は希望の何らかの操作（例えば集約、結合、ソートなど）を行うことができる仮想テーブルを生成します。
+このため以下をより複雑な例として示すことができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT t.title, p.fullname, p.email
+FROM xpath_table('article_id', 'article_xml', 'articles',
+                 '/article/title|/article/author/@id',
+                 'xpath_string(article_xml,''/article/@date'') &#62; ''2003-03-20'' ')
+       AS t(article_id integer, title text, author_id integer),
+     tblPeopleInfo AS p
+WHERE t.author_id = p.person_id;</PRE
+><P>
+当然ながら、簡便にするためにこれをすべてビューとして包み隠すことができます。
+  </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN138984"
+>F.47.3.1. 複数値の結果</A
+></H3
+><P
+><CODE
+CLASS="FUNCTION"
+>xpath_table</CODE
+>関数は各XPath問い合わせの結果が複数の値を持つ可能性があることを前提としています。
+このため、この関数が返す行数は入力文書の数と同じにならない可能性があります。
+返される最初の行には各問い合わせの最初の結果が、2番目の行には各問い合わせの2番目の結果が含まれます。
+問い合わせの1つが他よりも少ない値を持つ場合は代わりにNULL値が返されます。
+   </P
+><P
+>指定したXPath問い合わせが単一の結果（おそらく一意な文書識別子）のみを返すことがユーザが分かっている場合があります。
+もしこれを複数の結果を返すXPathと一緒に使用されると、単一値の結果は結果の最初の行にのみ現れます。
+この解決方法はより単純なXPath問い合わせに対する結合部分としてキーフィールドを使用することです。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test (
+    id int PRIMARY KEY,
+    xml text
+);
+
+INSERT INTO test VALUES (1, '&lt;doc num="C1"&gt;
+&lt;line num="L1"&gt;&lt;a&gt;1&lt;/a&gt;&lt;b&gt;2&lt;/b&gt;&lt;c&gt;3&lt;/c&gt;&lt;/line&gt;
+&lt;line num="L2"&gt;&lt;a&gt;11&lt;/a&gt;&lt;b&gt;22&lt;/b&gt;&lt;c&gt;33&lt;/c&gt;&lt;/line&gt;
+&lt;/doc&gt;');
+
+INSERT INTO test VALUES (2, '&lt;doc num="C2"&gt;
+&lt;line num="L1"&gt;&lt;a&gt;111&lt;/a&gt;&lt;b&gt;222&lt;/b&gt;&lt;c&gt;333&lt;/c&gt;&lt;/line&gt;
+&lt;line num="L2"&gt;&lt;a&gt;111&lt;/a&gt;&lt;b&gt;222&lt;/b&gt;&lt;c&gt;333&lt;/c&gt;&lt;/line&gt;
+&lt;/doc&gt;');
+
+SELECT * FROM
+  xpath_table('id','xml','test',
+              '/doc/@num|/doc/line/@num|/doc/line/a|/doc/line/b|/doc/line/c',
+              'true')
+  AS t(id int, doc_num varchar(10), line_num varchar(10), val1 int, val2 int, val3 int)
+WHERE id = 1 ORDER BY doc_num, line_num
+
+ id | doc_num | line_num | val1 | val2 | val3
+----+---------+----------+------+------+------
+  1 | C1      | L1       |    1 |    2 |    3
+  1 |         | L2       |   11 |   22 |   33</PRE
+><P>
+   </P
+><P
+>各行に<TT
+CLASS="LITERAL"
+>doc_num</TT
+>を付けるためには、2つの<CODE
+CLASS="FUNCTION"
+>xpath_table</CODE
+>を呼び出し、その結果を結合することです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT t.*,i.doc_num FROM
+  xpath_table('id', 'xml', 'test',
+              '/doc/line/@num|/doc/line/a|/doc/line/b|/doc/line/c',
+              'true')
+    AS t(id int, line_num varchar(10), val1 int, val2 int, val3 int),
+  xpath_table('id', 'xml', 'test', '/doc/@num', 'true')
+    AS i(id int, doc_num varchar(10))
+WHERE i.id=t.id AND i.id=1
+ORDER BY doc_num, line_num;
+
+ id | line_num | val1 | val2 | val3 | doc_num
+----+----------+------+------+------+---------
+  1 | L1       |    1 |    2 |    3 | C1
+  1 | L2       |   11 |   22 |   33 | C1
+(2 rows)</PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138994"
+>F.47.4. XSLT関数</A
+></H2
+><P
+>libxsltがインストールされている場合、以下の関数を使用することができます。
+  </P
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN138997"
+>F.47.4.1. <TT
+CLASS="LITERAL"
+>xslt_process</TT
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>xslt_process(text document, text stylesheet, text paramlist) returns text</PRE
+><P
+>この関数はXSLスタイルシートを文書に適用し、変換した結果を返します。
+<TT
+CLASS="LITERAL"
+>paramlist</TT
+>は、'a=1,b=2'という形で指定された、変換で使用されるパラメータ代入式のリストです。
+パラメータ解析はあまり熟考されたものではないことに注意してください。パラメータ値にカンマを入れることができません。
+   </P
+><P
+>また、文書またはスタイルシートのいずれかの値が&lt;で始まらなければ、URLとして扱われ、libxsltはそれを取り込みます。
+この結果<CODE
+CLASS="FUNCTION"
+>xslt_process</CODE
+>をURLの内容を取り込むための道具として使用できることになります。
+これにはセキュリティ上の暗示があることに注意しなければなりません。
+   </P
+><P
+>また、変換用のパラメータを渡さない、2つのパラメータを取るバージョンの<CODE
+CLASS="FUNCTION"
+>xslt_process</CODE
+>も存在します。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139007"
+>F.47.5. 作者</A
+></H2
+><P
+>   John Gray <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:jgray@azuli.co.uk"
+>jgray@azuli.co.uk</A
+>&#62;</CODE
+>
+  </P
+><P
+>本モジュールの開発はTorchbox Ltd. (www.torchbox.com)が後援です。
+PostgreSQLと同じBSDライセンスです。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="vacuumlo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="external-projects.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>vacuumlo</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>外部プロジェクト</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

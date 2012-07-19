@@ -1,0 +1,368 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SQLへの準拠</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="付録"
+HREF="appendixes.html"><LINK
+REL="PREVIOUS"
+TITLE="SQLキーワード"
+HREF="sql-keywords-appendix.html"><LINK
+REL="NEXT"
+TITLE="サポートされている機能"
+HREF="features-sql-standard.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="APPENDIX"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLキーワード"
+HREF="sql-keywords-appendix.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLキーワード"
+HREF="sql-keywords-appendix.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サポートされている機能"
+HREF="features-sql-standard.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="APPENDIX"
+><H1
+><A
+NAME="FEATURES"
+></A
+>&#20184;&#37682; D. SQLへの準拠</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>D.1. <A
+HREF="features-sql-standard.html"
+>サポートされている機能</A
+></DT
+><DT
+>D.2. <A
+HREF="unsupported-features-sql-standard.html"
+>サポートされていない機能</A
+></DT
+></DL
+></DIV
+><P
+>本節では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がどの程度現在の標準SQLに準拠しているかについて、概要を説明します。
+以下の情報は互換性についての完全な説明ではありません。
+しかし、ユーザにとって十分適切かつ有用な詳細を主な話題としてここで示しています。
+ </P
+><P
+>標準SQLの公式な名称は、ISO/IEC 9075 <SPAN
+CLASS="QUOTE"
+>"Database Language SQL"</SPAN
+>です。
+この標準SQLの改訂バージョンは不定期にリリースされています。
+最も最近の改訂は2008年に行われました。
+この2008年版はISO/IEC 9075:2008、もしくは単にSQL:2008と呼ばれています。
+この前のバージョンはSQL:2003、SQL:1999とSQL-92です。
+それぞれ前のバージョンを置き換えたバージョンですので、より昔のバージョンへの適合性についての主張には公的な利点がありません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の開発では、伝統的な機能もしくは共通の考えと矛盾しないように、標準SQLの最新の公式バージョンに準拠させようとしています。
+標準SQLで必須とされた機能の多くは、多少構文や機能に違いはあるものの、サポートされています。
+さらに適合性を高めることが将来のリリースで期待されています。
+ </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SQL-92</ACRONYM
+>では、適合性について、Entry、Intermediate、Fullという3つの機能セットを定義しました。
+標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の準拠をうたっているデータベース管理システムのほとんどは、Entryレベルのみに適合しています。
+IntermediateもしくはFullレベルの機能の全体的なセットは、非常に膨大になり過ぎるか、もしくは旧来の動作と競合するからです。
+ </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SQL:1999</ACRONYM
+>から、標準SQLは、<ACRONYM
+CLASS="ACRONYM"
+>SQL-92</ACRONYM
+>で見受けられた3レベルに機能を非効率的に分散させるのではなく、個々の機能を大規模な集合として定義されるようになりました。
+こうした機能の大規模なサブセットを、全てのSQL準拠の実装が提供しなければならない<SPAN
+CLASS="QUOTE"
+>"コア"</SPAN
+>機能として表しています。
+いくつかの省略可能な機能は<SPAN
+CLASS="QUOTE"
+>"パッケージ"</SPAN
+>という形にまとめられ、SQLの実装はこれに対して互換性をうたうことができるようになりました。
+つまり特定機能のグループへの準拠が可能です。
+ </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SQL:2008</ACRONYM
+>と<ACRONYM
+CLASS="ACRONYM"
+>SQL:2003</ACRONYM
+>版の標準はまた、数個の部品に分かれています。
+それぞれ省略した名前を持ちます。
+この部品に連続した番号が付いていないことに注意してください。
+
+  <P
+></P
+></P><UL
+><LI
+><P
+>ISO/IEC 9075-1 Framework (SQL/Framework)</P
+></LI
+><LI
+><P
+>ISO/IEC 9075-2 Foundation (SQL/Foundation)</P
+></LI
+><LI
+><P
+>ISO/IEC 9075-3 Call Level Interface (SQL/CLI)</P
+></LI
+><LI
+><P
+>ISO/IEC 9075-4 Persistent Stored Modules (SQL/PSM)</P
+></LI
+><LI
+><P
+>ISO/IEC 9075-9 Management of External Data (SQL/MED)</P
+></LI
+><LI
+><P
+>ISO/IEC 9075-10 Object Language Bindings (SQL/OLB)</P
+></LI
+><LI
+><P
+>ISO/IEC 9075-11 Information and Definition Schemas (SQL/Schemata)</P
+></LI
+><LI
+><P
+>ISO/IEC 9075-13 Routines and Types using the Java Language (SQL/JRT)</P
+></LI
+><LI
+><P
+>ISO/IEC 9075-14 XML-related specifications (SQL/XML)</P
+></LI
+></UL
+><P>
+ </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のコア部分は 1、2、9、11、および14番の部分に対応しています。
+第3部分はODBCドライバを、そして第13部分はPL/Javaプラグインを網羅していますが、これらコンポーネントに対する正確な適合性は検証されていません。
+第4と第10部分は現時点で<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に実装されていません。
+ </P
+><P
+>PostgreSQLはSQL:2008の主な機能のほとんどをサポートします。
+完全なコアの互換性に必要な179の必須機能の内、PostgreSQLは少なくとも160個に適合します。
+さらに省略可能な機能を数多くサポートします。
+本書の執筆時点で、SQL:2008のコアに完全に適合したデータベース管理システムのバージョンはないということを、ここで言及しておくのは価値のあることかもしれません。
+ </P
+><P
+>以下の2つの節では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でサポートされているこれらの機能をリストし、その後に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でまだサポートされていない<ACRONYM
+CLASS="ACRONYM"
+>SQL:2008</ACRONYM
+>で定義された機能をリストしています。
+これら2つのリストはおおよそのものです。
+サポート対象であるとリストされている機能が些細な部分で準拠していない可能性があり、サポートされていないある機能の大部分が、実際には実装されている可能性があります。
+本書の主要な部分では、動作するものとしないものについての最も正確な情報を常に伝えます。
+ </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>ハイフンを含む機能コードはサブ機能です。
+したがって、特定のサブ機能がサポートされない場合、他のサブ機能がサポートされていてもそのメイン機能はサポートされない機能としてリストされています。
+  </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-keywords-appendix.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="features-sql-standard.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>キーワード</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="appendixes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>サポートされている機能</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

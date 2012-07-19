@@ -1,0 +1,756 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PL/pgSQLの秘訣</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="トリガプロシージャ"
+HREF="plpgsql-trigger.html"><LINK
+REL="NEXT"
+TITLE="PL/pgSQLによる開発向けのヒント"
+HREF="plpgsql-development-tips.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="トリガプロシージャ"
+HREF="plpgsql-trigger.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQLによる開発向けのヒント"
+HREF="plpgsql-development-tips.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-IMPLEMENTATION"
+>39.10. <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の秘訣</A
+></H1
+><P
+>本節では、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>利用者の知識として重要な、実装の詳細を述べます。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-VAR-SUBST"
+>39.10.1. 変数置換</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数内のSQL文および式は変数および関数のパラメータを参照することができます。
+背後では、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>はこうした参照を問い合わせパラメータに置き換えます。
+パラメータまたは列参照が文法的に許されているところでのみパラメータは置換されます。
+極端な場合として、以下のよろしくないプログラミングスタイルの例を考えてみましょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO foo (foo) VALUES (foo);</PRE
+><P>
+最初に現れる<TT
+CLASS="LITERAL"
+>foo</TT
+>の場所は文法的にはテーブル名でなければなりません。
+このため関数が<TT
+CLASS="LITERAL"
+>foo</TT
+>という名前の変数を持っていたとしても、置換されません。
+2番目の場所はテーブルの列名でなければなりません。
+このためこれも置換されません。
+3番目の場所のみが関数の変数参照の候補です。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>9.0より前の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、3つの場合すべてにおいて変数を置換しようとし、構文エラーを引き起こしました。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>変数名は文法的にはテーブル列名と違いがありませんので、テーブルを参照する文の中であいまいさが出る可能性があります。
+与えられた名前はテーブル列を意味するのでしょうか、それとも変数なのでしょうか。
+前の例を次のように変えてみましょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO dest (col) SELECT foo + bar FROM src;</PRE
+><P>
+ここでは、<TT
+CLASS="LITERAL"
+>dest</TT
+>および<TT
+CLASS="LITERAL"
+>src</TT
+>はテーブル名でなければなりません。
+また、<TT
+CLASS="LITERAL"
+>col</TT
+>は<TT
+CLASS="LITERAL"
+>dest</TT
+>の列でなければなりませんが、<TT
+CLASS="LITERAL"
+>foo</TT
+>および<TT
+CLASS="LITERAL"
+>bar</TT
+>は理論上関数の変数かもしれませんし、<TT
+CLASS="LITERAL"
+>src</TT
+>の列かもしれません。
+   </P
+><P
+>デフォルトで<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>はSQL文における名前が変数かテーブル列のいずれかを参照可能な場合にエラーを報告します。
+変数または列の名前を変更することやあいまいな参照を修飾すること、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>にどちらを優先して解釈するかを通知することで、こうした問題を解消することができます。
+   </P
+><P
+>最も簡単な解法は変数名または列名を変更することです。
+一般的なコーディング法として、列の命名と<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数の命名とで規約を分ける方法があります。
+例えば、一貫して関数の変数は<TT
+CLASS="LITERAL"
+>v_<TT
+CLASS="REPLACEABLE"
+><I
+>something</I
+></TT
+></TT
+>という名前とし、列名は<TT
+CLASS="LITERAL"
+>v_</TT
+>で始まらないようにすれば、競合は起こりません。
+   </P
+><P
+>その他、あいまいな参照を明確にするために修飾することができます。
+上の例では、<TT
+CLASS="LITERAL"
+>src.foo</TT
+>によりテーブル列への参照についてあいまいさが解消します。
+あいまい性のない変数参照を行うためには、ラベル付けしたブロック内で変数を宣言し、そのブロックのラベルを使用します(<A
+HREF="plpgsql-structure.html"
+>&#38917;39.2</A
+>参照)。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>&lt;&lt;block&gt;&gt;
+DECLARE
+    foo int;
+BEGIN
+    foo := ...;
+    INSERT INTO dest (col) SELECT block.foo + bar FROM src;</PRE
+><P>
+ここで<TT
+CLASS="LITERAL"
+>block.foo</TT
+>は<TT
+CLASS="LITERAL"
+>src</TT
+>に<TT
+CLASS="LITERAL"
+>foo</TT
+>列があったとしても、変数を意味することになります。
+<TT
+CLASS="LITERAL"
+>FOUND</TT
+>などの特別な変数を含め、関数パラメータを関数名で修飾することができます。
+これらは暗黙的に関数名をラベル名とした上位ブロック内で宣言されているためです。
+   </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の大規模な本体コードにおける、すべてのあいまいな参照を修正することが現実的ではない場合があります。
+こうした場合、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>にあいまいな参照を変数として解決すべき(この動作は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.0より前の<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の動作と互換性を持ちます)、または、テーブル列参照として解決すべき(<SPAN
+CLASS="PRODUCTNAME"
+>Oracle</SPAN
+>などの他のシステムと互換性を持ちます)と指定することができます。
+   </P
+><P
+>システム全体に対してこの動作を変更するためには<TT
+CLASS="LITERAL"
+>plpgsql.variable_conflict</TT
+>設定パラメータを<TT
+CLASS="LITERAL"
+>error</TT
+>、<TT
+CLASS="LITERAL"
+>use_variable</TT
+>、<TT
+CLASS="LITERAL"
+>use_column</TT
+>のいずれかに設定します(<TT
+CLASS="LITERAL"
+>error</TT
+>が標準配布におけるデフォルトです)。
+このパラメータは以降の<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数の文のコンパイルに影響しますが、現在のセッションでコンパイル済みの文には影響を与えません。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>がロードされる前にこのパラメータを設定するためには、<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>の<A
+HREF="runtime-config-custom.html#GUC-CUSTOM-VARIABLE-CLASSES"
+>custom_variable_classes</A
+>リストに追加する必要があります。
+この設定を変更することで、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の動作において予期できない変化が発生することがありますので、これはスーパーユーザのみが変更することができます。
+   </P
+><P
+>また、関数テキストの先頭に以下の特殊なコマンドの1つをいれることで、関数単位で動作を設定することもできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#variable_conflict error
+#variable_conflict use_variable
+#variable_conflict use_column</PRE
+><P>
+これらのコマンドを記述した関数に対してのみ、コマンドは影響を与え、<TT
+CLASS="LITERAL"
+>plpgsql.variable_conflict</TT
+>の設定を上書きします。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION stamp_user(id int, comment text) RETURNS void AS $$
+    #variable_conflict use_variable
+    DECLARE
+        curtime timestamp := now();
+    BEGIN
+         UPDATE users SET last_modified = curtime, comment = comment
+           WHERE users.id = id;
+    END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>コマンドにおいて、<TT
+CLASS="LITERAL"
+>curtime</TT
+>、<TT
+CLASS="LITERAL"
+>comment</TT
+>および<TT
+CLASS="LITERAL"
+>id</TT
+>は、<TT
+CLASS="LITERAL"
+>users</TT
+>に同名の列があるか否かに関わらず、関数の変数またはパラメータを参照します。
+テーブル列を参照させるために<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句において<TT
+CLASS="LITERAL"
+>users.id</TT
+>と参照を修飾する必要があったことに注意して下さい。
+しかし<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>リストの対象としての<TT
+CLASS="LITERAL"
+>comment</TT
+>への参照は修飾させる必要がありませんでした。
+これは文法的に<TT
+CLASS="LITERAL"
+>users</TT
+>の列でなければならないためです。
+以下のように<TT
+CLASS="LITERAL"
+>variable_conflict</TT
+>の設定に依存せずに同じ関数を作成することもできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION stamp_user(id int, comment text) RETURNS void AS $$
+    &lt;&lt;fn&gt;&gt;
+    DECLARE
+        curtime timestamp := now();
+    BEGIN
+        UPDATE users SET last_modified = fn.curtime, comment = stamp_user.comment
+          WHERE users.id = stamp_user.id;
+    END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+   </P
+><P
+>変数置換は<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>コマンドまたはその亜種におけるコマンド文字列の中では起こりません。
+そのようなコマンドに可変値を挿入する時は、<A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-EXECUTING-DYN"
+>&#38917;39.5.4</A
+>に述べたように、文字列の値を構成するものの一部とするか<TT
+CLASS="LITERAL"
+>USING</TT
+>を使用してください。
+   </P
+><P
+>今のところ変数置換は、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>と<TT
+CLASS="COMMAND"
+>INSERT</TT
+>と<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>と<TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドの中だけで作動します。
+メインSQLエンジンが問い合わせパラメータをこれらのコマンドでしか許可しないからです。
+他の種類の文（通常ユーティリティ文といいます）において可変名または可変値を使用するには、文字列としてユーティリティ文を構成し<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-PLAN-CACHING"
+>39.10.2. 計画のキャッシュ</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>インタプリタは、初めてその関数が（各セッションで）呼び出された時に、関数のソーステキストを解析し、バイナリ形式の命令ツリーを内部で作成します。
+この命令ツリーは完全に<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>文構造に変換されますが、関数内部の個々の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>式と<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドは即座に変換されません。
+   </P
+><P
+>    
+各式や<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドが初めてその関数で実行される時に、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>インタプリタは（<ACRONYM
+CLASS="ACRONYM"
+>SPI</ACRONYM
+>マネージャの<CODE
+CLASS="FUNCTION"
+>SPI_prepare</CODE
+>、<CODE
+CLASS="FUNCTION"
+>SPI_saveplan</CODE
+>関数を使用して）実行計画の準備を行います。
+その後にその式やコマンドが行われる時には、その準備された計画を再利用します。
+こうして、実行計画が必要とされる問い合わせを内包した条件付きコードを持つ関数では、そのデータベース接続が有効な間実際に使用された部分についてのみ、計画の準備と保存が行われます。
+これにより、解析にかかる総時間をかなり短縮し、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数の文の問い合わせ計画を生成することができます。
+欠点は特定の式や問い合わせのエラーが、関数の該当部分が実行されるまで検出されないことです。
+（典型的な構文エラーは、最初の解釈において検出されますが、それより深いエラーは、実行の時まで検出されません）。
+   </P
+><P
+>問い合わせで使用される任意のテーブルで任意のスキーマが変更された場合、または、問い合わせで使用されるユーザ定義関数が再定義された場合、保存された計画に対する計画の再作成は自動的に行われます。
+これはほとんどの場合事前に準備された計画の再利用を透過的にさせますが、無効となった計画が再利用されてしまう境界問題があります。
+例えば、ユーザ定義演算子を削除し、再作成した場合にはすでに保持されている計画に影響を与えません。
+あたかも変更されなかったかのように関数の背後にある元の演算子を呼び出し続けます。
+必要に応じて、データベースセッションを新しく始めることでキャッシュを初期化することができます。
+   </P
+><P
+>このように<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>は実行計画を保存しますので、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数内に直接現れるSQLコマンドは実行の度に同じテーブルとフィールドを参照しなければなりません。
+つまり、SQLコマンドにて、テーブルやフィールドの名前としてパラメータを使用することができません。
+実行の度に新しく問い合わせ計画を作成する無駄を覚悟で、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>文を使った動的問い合わせを構成することで、この制限を回避できます。
+   </P
+><P
+>上に述べたように<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数値を使用する度に変更できるために、準備した計画はパラメータ化されることがその他の重要な点です。
+この意味は、特定の変数値のために作成する時より、計画の効率が悪くなる場合があるということです。
+以下の例において、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * INTO myrec FROM dictionary WHERE word LIKE search_term;</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>search_term</TT
+>が<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数とします。
+この問い合わせ計画のキャッシュが、<TT
+CLASS="STRUCTFIELD"
+>word</TT
+>のインデックスを使用することはありません。
+というのは、プランナは実行時における<TT
+CLASS="LITERAL"
+>LIKE</TT
+>パターンが固定したものだと仮定できないからです。
+インデックスを使用するためには、<TT
+CLASS="LITERAL"
+>LIKE</TT
+>パターンが特定の定数である問い合わせを計画しなければなりません。
+この場合も、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>が実行ごとに作成された新規の計画を使用できます。
+   </P
+><P
+>レコード変数の変わりやすいという性質はこの接続において別の問題となります。
+レコード変数のフィールドが式や文の中で使用される場合、そのフィールドのデータ型を関数を呼び出す度に変更してはいけません。
+それぞれの式が最初に実行された時のデータ型を使用して、その式の計画が作成されているからです。
+必要な場合<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>を使用してこの問題を回避することができます。
+    </P
+><P
+>同一の関数が2つ以上のテーブルのトリガとして使用される場合、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>はテーブルごとの計画を準備してキャッシュします。
+すなわち、各々のトリガ関数とテーブルの組ごとにキャッシュするのであり、トリガ関数ごとではありません。
+このため、データ型の変更に伴う問題の一部を軽減します。
+例えば、別のテーブルにある異なったデータ型であっても、<TT
+CLASS="LITERAL"
+>key</TT
+>と命名した列に対してトリガ関数は有効に作動します。
+    </P
+><P
+>同様に、多様型の引数を持った関数は、実際に呼び出す引数の型の組み合わせごとに別々の計画をキャッシュします。
+そのため、データ型の差異が原因で予期しない失敗が起こることはありません。
+    </P
+><P
+>計画のキャッシュにより、時間に依存する値の解釈の結果に違いが現れることがあります。
+例えば、以下の2つの関数の結果は異なります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION logfunc1(logtxt text) RETURNS void AS $$
+    BEGIN
+        INSERT INTO logtable VALUES (logtxt, 'now');
+    END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+
+および
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION logfunc2(logtxt text) RETURNS void AS $$
+    DECLARE
+        curtime timestamp;
+    BEGIN
+        curtime := 'now';
+        INSERT INTO logtable VALUES (logtxt, curtime);
+    END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+    </P
+><P
+><CODE
+CLASS="FUNCTION"
+>logfunc1</CODE
+>の場合では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のメインパーサは、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>用の計画を準備する時に、<CODE
+CLASS="CLASSNAME"
+>logtable</CODE
+>の対象列の型から<TT
+CLASS="LITERAL"
+>'now'</TT
+>を<TT
+CLASS="TYPE"
+>timestamp</TT
+>と解釈しなければならないことを把握しています。
+こうして、パーサは<TT
+CLASS="COMMAND"
+>INSERT</TT
+>が計画された時点で<TT
+CLASS="LITERAL"
+>'now'</TT
+>を定数に変換し、その定数値をその後のセッションの有効期間における<CODE
+CLASS="FUNCTION"
+>logfunc1</CODE
+>の全ての呼び出しで使用します。
+言うまでもありませんが、これはプログラマが意図した動作ではありません。
+    </P
+><P
+><CODE
+CLASS="FUNCTION"
+>logfunc2</CODE
+>の場合では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のメインパーサは<TT
+CLASS="LITERAL"
+>'now'</TT
+>の型を決定することができません。
+そのため、<TT
+CLASS="LITERAL"
+>now</TT
+>という文字列を持つ<TT
+CLASS="TYPE"
+>text</TT
+>型のデータ値を返します。
+<TT
+CLASS="VARNAME"
+>curtime</TT
+>ローカル変数に代入する時に、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>インタプリタはこの文字列を<CODE
+CLASS="FUNCTION"
+>text_out</CODE
+>と<CODE
+CLASS="FUNCTION"
+>timestamp_in</CODE
+>関数を変換に使用して<TT
+CLASS="TYPE"
+>timestamp</TT
+>型にキャストします。
+ですから、演算されたタイムスタンプは、プログラマが意図した通り、実行の度に更新されます。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-trigger.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-development-tips.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>トリガプロシージャ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>による開発向けのヒント</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

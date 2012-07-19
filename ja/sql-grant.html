@@ -1,0 +1,1182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>GRANT</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="FETCH"
+HREF="sql-fetch.html"><LINK
+REL="NEXT"
+TITLE="INSERT"
+HREF="sql-insert.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="FETCH"
+HREF="sql-fetch.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="FETCH"
+HREF="sql-fetch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="INSERT"
+HREF="sql-insert.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="INSERT"
+HREF="sql-insert.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-GRANT"
+></A
+>GRANT</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN72460"
+></A
+><H2
+>&#21517;&#21069;</H2
+>GRANT&nbsp;--&nbsp;アクセス権限を定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN72465"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>GRANT { { SELECT | INSERT | UPDATE | DELETE | TRUNCATE | REFERENCES | TRIGGER }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON { [ TABLE ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [, ...]
+         | ALL TABLES IN SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...] }
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { { SELECT | INSERT | UPDATE | REFERENCES } ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] )
+    [, ...] | ALL [ PRIVILEGES ] ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) }
+    ON [ TABLE ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [, ...]
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { { USAGE | SELECT | UPDATE }
+    [, ...] | ALL [ PRIVILEGES ] }
+    ON { SEQUENCE <TT
+CLASS="REPLACEABLE"
+><I
+>sequence_name</I
+></TT
+> [, ...]
+         | ALL SEQUENCES IN SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...] }
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { { CREATE | CONNECT | TEMPORARY | TEMP } [, ...] | ALL [ PRIVILEGES ] }
+    ON DATABASE <TT
+CLASS="REPLACEABLE"
+><I
+>database_name</I
+></TT
+> [, ...]
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { USAGE | ALL [ PRIVILEGES ] }
+    ON FOREIGN DATA WRAPPER <TT
+CLASS="REPLACEABLE"
+><I
+>fdw_name</I
+></TT
+> [, ...]
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { USAGE | ALL [ PRIVILEGES ] }
+    ON FOREIGN SERVER <TT
+CLASS="REPLACEABLE"
+><I
+>server_name</I
+></TT
+> [, ...]
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { EXECUTE | ALL [ PRIVILEGES ] }
+    ON { FUNCTION <TT
+CLASS="REPLACEABLE"
+><I
+>function_name</I
+></TT
+> ( [ [ <TT
+CLASS="REPLACEABLE"
+><I
+>argmode</I
+></TT
+> ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>arg_name</I
+></TT
+> ] <TT
+CLASS="REPLACEABLE"
+><I
+>arg_type</I
+></TT
+> [, ...] ] ) [, ...]
+         | ALL FUNCTIONS IN SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...] }
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { USAGE | ALL [ PRIVILEGES ] }
+    ON LANGUAGE <TT
+CLASS="REPLACEABLE"
+><I
+>lang_name</I
+></TT
+> [, ...]
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { { SELECT | UPDATE } [, ...] | ALL [ PRIVILEGES ] }
+    ON LARGE OBJECT <TT
+CLASS="REPLACEABLE"
+><I
+>loid</I
+></TT
+> [, ...]
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { { CREATE | USAGE } [, ...] | ALL [ PRIVILEGES ] }
+    ON SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+> [, ...]
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT { CREATE | ALL [ PRIVILEGES ] }
+    ON TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace_name</I
+></TT
+> [, ...]
+    TO { [ GROUP ] <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> | PUBLIC } [, ...] [ WITH GRANT OPTION ]
+
+GRANT <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...] TO <TT
+CLASS="REPLACEABLE"
+><I
+>role_name</I
+></TT
+> [, ...] [ WITH ADMIN OPTION ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-GRANT-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>GRANT</TT
+>には基本的に2つの種類があります。
+1つはデータベースオブジェクト（テーブル、列、ビュー、外部テーブル、シーケンス、データベース、異種データラッパ、異種サーバ、関数、手続き言語、スキーマ、テーブル空間）に対する権限の付与、もう1つはロール内のメンバ資格の付与です。
+これらの種類は多くの点で似ていますが、説明は別々に行わなければならない程違いがあります。
+  </P
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-GRANT-DESCRIPTION-OBJECTS"
+></A
+><H3
+>データベースオブジェクトに対するGRANT</H3
+><P
+>この種類の<TT
+CLASS="COMMAND"
+>GRANT</TT
+>コマンドはデータベースオブジェクトの特定の権限を1つ以上のロールに付与します。
+既に権限が他のロールに付与されている場合でも、追加として付与されます。
+  </P
+><P
+>1つ以上のスキーマ内の同じ種類のオブジェクトすべてに対して権限を付与するオプションも存在します。
+この機能は現在テーブル、シーケンス、関数のみでサポートされます。
+（しかし<TT
+CLASS="LITERAL"
+>ALL TABLES</TT
+>にはビューおよび外部テーブルが含まれるとみなされていることに注意してください。）
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>キーワードは、今後作成されるロールを含む、全てのロールへの許可を示します。
+<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>は、全てのロールを常に含む、暗黙的に定義されたグループと考えることができます。
+個々のロールは全て、ロールに直接許可された権限、ロールが現在属しているロールに許可された権限、そして、<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>に許可された権限を合わせた権限を持っています。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>WITH GRANT OPTION</TT
+>が指定されると、権限の受領者は、その後、他にその権限を与えることができます。
+グラントオプションがない場合、受領者はこれを行うことができません。
+グラントオプションは<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>には与えることができません。
+  </P
+><P
+>所有者（通常はオブジェクトを作成したユーザ）はデフォルトで全ての権限を保持しているため、オブジェクトの所有者に権限を許可する必要はありません
+（ただし、オブジェクトの作成者が、安全性を確保するために自らの権限を取り消すことは可能です）。
+  </P
+><P
+>オブジェクトを削除する権限や何らかの方法でオブジェクトの定義を変更する権限は、付与可能な権限として扱われません。
+これらの権限は、所有者固有のものであり、許可したり取り消したりすることはできません。
+（しかし、オブジェクトを所有するロール内のメンバ関係を付与したり取り消すことで、同等な効果を入手することができます。
+後で説明します。）
+所有者は、オブジェクトに対する全てのグラントオプションも暗黙的に保持しています。
+  </P
+><P
+>オブジェクトの種類によっては、デフォルト権限として、最初からいくつかの権限が<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>に付与されていることがあります。
+デフォルトでは、テーブル、列、スキーマ、テーブル空間に関してPUBLICに与えられたアクセス権限はありません。PUBLICに与えられるのは、<TT
+CLASS="LITERAL"
+>CONNECT</TT
+>権限、データベースの<TT
+CLASS="LITERAL"
+>TEMP</TT
+>テーブルの作成権限、関数の<TT
+CLASS="LITERAL"
+>EXECUTE</TT
+>権限、言語の<TT
+CLASS="LITERAL"
+>USAGE</TT
+>権限などです。 
+もちろんオブジェクトの作成者はこれらの権限を取り消すことができます
+（最大限の安全性を得るため、<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>コマンドはオブジェクトを作成したトランザクションと同じトランザクション内で発行してください。
+そうすれば、他のユーザがそのオブジェクトを使用する時間はなくなります）。
+また、これらの初期デフォルト権限の設定は<A
+HREF="sql-alterdefaultprivileges.html"
+>ALTER DEFAULT PRIVILEGES</A
+>コマンドを使用して変更可能です。
+  </P
+><P
+>設定可能な権限は以下のものです。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>SELECT</DT
+><DD
+><P
+>任意の列、指定した列リスト、指定したテーブル、ビュー、シーケンスの任意の列に対する<A
+HREF="sql-select.html"
+>SELECT</A
+>を許可します。
+また、<A
+HREF="sql-copy.html"
+>COPY</A
+> TOの使用も許可します。
+<A
+HREF="sql-update.html"
+>UPDATE</A
+>や<A
+HREF="sql-delete.html"
+>DELETE</A
+>で存在する列を参照するためにも、この権限は必要です。
+シーケンスでは、この権限によって<CODE
+CLASS="FUNCTION"
+>currval</CODE
+>関数を使用することができます。
+ラージオブジェクトでは、この権限によってオブジェクトを読み取ることができます。
+      </P
+></DD
+><DT
+>INSERT</DT
+><DD
+><P
+>指定したテーブルへの新規行の<A
+HREF="sql-insert.html"
+>INSERT</A
+>を許可します。
+列リストが指定された場合は、これらの列のみを<TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンド内で代入することができます（この結果、その他の列はデフォルト値となります）。
+また、<A
+HREF="sql-copy.html"
+>COPY</A
+> FROMの使用も許可します。
+      </P
+></DD
+><DT
+>UPDATE</DT
+><DD
+><P
+>任意の列、指定した列リスト、指定したテーブルに対する<A
+HREF="sql-update.html"
+>UPDATE</A
+>を許可します。
+（実際には、単純ではない<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>コマンドはすべて、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限を同様に必要とします。
+どの行を更新すべきかを決めるため、または、列の新しい値を計算するため、またはその両方のため、テーブル列を参照する必要があるからです。）
+<TT
+CLASS="LITERAL"
+>SELECT ... FOR UPDATE</TT
+>および<TT
+CLASS="LITERAL"
+>SELECT ... FOR SHARE</TT
+>も、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限に加えて、少なくとも1つの列に対するこの権限を必要とします。
+シーケンスでは、この権限により<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>および<CODE
+CLASS="FUNCTION"
+>setval</CODE
+>の使用が許可されます。
+ラージオブジェクトでは、この権限によりオブジェクトの書き出しや切り詰めを行うことができます。
+      </P
+></DD
+><DT
+>DELETE</DT
+><DD
+><P
+>指定したテーブルからの行の<A
+HREF="sql-delete.html"
+>DELETE</A
+>を許可します。
+（実際には、単純ではない<TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドはすべて、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>権限を同様に必要とします。
+どの行を削除すべきかを決めるためにテーブル列を参照する必要があるからです。）
+      </P
+></DD
+><DT
+>TRUNCATE</DT
+><DD
+><P
+>指定したテーブルに対して<A
+HREF="sql-truncate.html"
+>TRUNCATE</A
+>を行うことができます。
+      </P
+></DD
+><DT
+>REFERENCES</DT
+><DD
+><P
+>外部キー制約を作成するには、参照する側と参照される側の両方の列に対して、この権限を持っていなければなりません。
+この権限はテーブルのすべての列に付与することも、特定の列のみに付与することもできます。
+      </P
+></DD
+><DT
+>TRIGGER</DT
+><DD
+><P
+>指定したテーブル上のトリガの作成を許可します
+（<A
+HREF="sql-createtrigger.html"
+>CREATE TRIGGER</A
+>文を参照してください）。
+      </P
+></DD
+><DT
+>CREATE</DT
+><DD
+><P
+>対象がデータベースの場合は、データベース内での新規スキーマの作成を許可します。
+      </P
+><P
+>対象がスキーマの場合は、スキーマ内での新規オブジェクトの作成を許可します。 
+既存のオブジェクトの名前を変更するには、オブジェクトを所有し、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>かつ</I
+></SPAN
+>、そのオブジェクトが入っているスキーマに対してこの権限を保持していなければなりません。
+      </P
+><P
+>対象がテーブル空間の場合は、テーブル空間内でのテーブルとインデックス、一時ファイルの作成と、デフォルトのテーブル空間としてこのテーブル空間を持つデータベースの作成を許可します
+（この権限の取り消しによって既存のデータベースやスキーマの振舞いが変わることはないことに注意してください）。
+      </P
+></DD
+><DT
+>CONNECT</DT
+><DD
+><P
+>ユーザは指定されたデータベースに接続することができます。
+この権限は（<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>で組み込まれる制限の検査に加え）接続開始時に検査されます。
+      </P
+></DD
+><DT
+>TEMPORARY<BR>TEMP</DT
+><DD
+><P
+>指定したデータベースの使用中に一時テーブルを作成することを許可します。
+      </P
+></DD
+><DT
+>EXECUTE</DT
+><DD
+><P
+>指定された関数、さらにその関数で実装されている任意の演算子の使用を許可します。  
+これは、関数に適用することができる唯一の権限です
+（この構文は集約関数についても同じように機能します）。
+      </P
+></DD
+><DT
+>USAGE</DT
+><DD
+><P
+>手続き言語において、その言語で関数を作成することを許可します。
+これは、手続き言語に適用することができる唯一の権限です。
+      </P
+><P
+>スキーマにおいて、指定したスキーマに含まれるオブジェクトへのアクセスを許可します（オブジェクト自体の権限要件が満たされている場合）。
+基本的には、この権限によってスキーマ内のオブジェクトを<SPAN
+CLASS="QUOTE"
+>"検索"</SPAN
+>する権限も認められます。
+この権限がなくても、例えばシステムテーブルを問い合わせることでオブジェクト名は判りますが、SQLを介してアクセスすることができません。
+また、この権限を取り除いた後でも、存在し続けているバックエンドがこうした検索を以前に実行していた文を持っている可能性があります。
+このため、これはオブジェクトへのアクセスを防ぐ、完全に安全な方法ではありません。
+      </P
+><P
+>シーケンスにおいて、この権限は<CODE
+CLASS="FUNCTION"
+>currval</CODE
+>および<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>関数の使用を許可します。
+      </P
+><P
+>異種データラッパにおいて、この権限を与えられると異種データラッパを使用する新しいサーバを作成することができます。
+      </P
+><P
+>サーバにおいて、この権限を与えられると、サーバと関連する、自身が所有するユーザのユーザマップを作成、変更、削除を行うことができます。
+またこの権限を与えられると、サーバと関連するユーザマップのオプションを問い合わせることができます。
+      </P
+></DD
+><DT
+>ALL PRIVILEGES</DT
+><DD
+><P
+>利用可能な全ての権限を一度に付与します。
+<TT
+CLASS="LITERAL"
+>PRIVILEGES</TT
+>キーワードは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では省略可能ですが、厳密にはSQLでは必須です。
+      </P
+></DD
+></DL
+></DIV
+><P>
+
+その他のコマンドの実行に必要な権限は、そのコマンドのリファレンスページにて示されています。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="SQL-GRANT-DESCRIPTION-ROLES"
+></A
+><H3
+>ロールに対するGRANT</H3
+><P
+>この種類の<TT
+CLASS="COMMAND"
+>GRANT</TT
+>コマンドは、1つ以上のロール内のメンバ資格を付与します。
+これによりロールに付与された権限を各メンバに伝えますので、ロール内のメンバ資格は重要です。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>WITH ADMIN OPTION</TT
+>が指定された場合、メンバはロール内のメンバ資格を他に付与することができるようになります。
+また同様にロール内のメンバ資格を取り上げることもできるようになります。
+アドミンオプションがないと、一般ユーザは他への権限の付与や取り上げを行うことができません。
+しかし、データベーススーパーユーザはすべてのロール内のメンバ資格を誰にでも付与したり、削除したりすることができます。
+<TT
+CLASS="LITERAL"
+>CREATEROLE</TT
+>権限を持つロールは、スーパーユーザロール以外のロール内のメンバ資格の付与、取り上げが可能です。
+  </P
+><P
+>権限の場合と異なり、ロール内のメンバ資格を<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>に付与することはできません。
+また、このコマンド構文では無意味な<TT
+CLASS="LITERAL"
+>GROUP</TT
+>という単語を受け付けないことに注意してください。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-GRANT-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+>アクセス権限を取り消すには、<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>コマンドが使用されます。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.1から、ユーザとグループという概念は、ロールと呼ばれる１種類の実体に統合されました。
+そのため、<TT
+CLASS="LITERAL"
+>GROUP</TT
+>キーワードを使用して付与者がユーザかグループかどうかを識別する必要はなくなりました。
+このコマンドではまだ<TT
+CLASS="LITERAL"
+>GROUP</TT
+>は許されていますが、何の意味もありません。
+   </P
+><P
+>ユーザは特定の列やテーブル全体に対する権限を持つ場合に<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>などを実行することができます。
+テーブルレベルの権限を付与してからある列に対する権限を取り除くことは、望まないことでしょう。
+テーブルレベルの権限は列レベルの操作による影響を受けません。
+   </P
+><P
+>オブジェクトの所有者でもなく、そのオブジェクトに何の権限も持たないユーザが、そのオブジェクトの権限を<TT
+CLASS="COMMAND"
+>GRANT</TT
+>しようとしても、コマンドの実行は直ちに失敗します。
+何らかの権限を持っている限り、コマンドの実行は進行しますが、与えることのできる権限は、そのユーザがグラントオプションを持つ権限のみです。
+グラントオプションを持っていない場合、<TT
+CLASS="COMMAND"
+>GRANT ALL PRIVILEGES</TT
+>構文は警告メッセージを発します。
+一方、その他の構文では、コマンドで名前を指定した権限に関するグラントオプションを持っていない場合に警告メッセージを発します
+（原理上、ここまでの説明はオブジェクトの所有者に対しても当てはまりますが、所有者は常に全てのグラントオプションを保持しているものとして扱われるため、こうした状態は決して起こりません）。
+   </P
+><P
+>データベーススーパーユーザのみが、オブジェクトに関する権限設定に関係なく、全てのオブジェクトにアクセスできることには注意しなければなりません。
+スーパーユーザが持つ権限は、Unixシステムにおける<TT
+CLASS="LITERAL"
+>root</TT
+>権限に似ています。
+<TT
+CLASS="LITERAL"
+>root</TT
+>と同様、絶対に必要な場合以外は、スーパーユーザとして操作を行わないのが賢明です。
+   </P
+><P
+>スーパーユーザが<TT
+CLASS="COMMAND"
+>GRANT</TT
+>や<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>の発行を選択した場合、それらのコマンドは対象とするオブジェクトの所有者が発行したかのように実行されます。
+特に、こうしたコマンドで与えられる権限は、オブジェクトの所有者によって与えられたものとして表されます。
+（ロールのメンバ資格では、メンバ資格は含まれるロール自身が与えたものとして表されます。）
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>GRANT</TT
+>および<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>は、影響するオブジェクトの所有者以外のロールによって実行することもできますが、
+オブジェクトを所有するロールのメンバであるか、そのオブジェクトに対し<TT
+CLASS="LITERAL"
+>WITH GRANT OPTION</TT
+>権限を持つロールのメンバでなければなりません。
+この場合、その権限は、そのオブジェクトの実際の所有者ロールまたは<TT
+CLASS="LITERAL"
+>WITH GRANT OPTION</TT
+>権限を持つロールによって付与されたものとして記録されます。
+例えば、<TT
+CLASS="LITERAL"
+>t1</TT
+>テーブルが<TT
+CLASS="LITERAL"
+>g1</TT
+>ロールによって所有され、<TT
+CLASS="LITERAL"
+>u1</TT
+>が<TT
+CLASS="LITERAL"
+>g1</TT
+>ロールのメンバであるとします。
+この場合、<TT
+CLASS="LITERAL"
+>u1</TT
+>は<TT
+CLASS="LITERAL"
+>t1</TT
+>上の権限を<TT
+CLASS="LITERAL"
+>u2</TT
+>に付与できます。
+しかし、これらの権限は<TT
+CLASS="LITERAL"
+>g1</TT
+>によって直接付与されたものとして現れます。
+後で<TT
+CLASS="LITERAL"
+>g1</TT
+>ロールの他のメンバがこの権限を取り上げることができます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>GRANT</TT
+>を実行したロールが、ロールの持つ複数メンバ資格の経路を通して間接的に必要な権限を持つ場合、
+どのロールが権限を付与したロールとして記録されるかについては指定されません。
+こうした場合、<TT
+CLASS="COMMAND"
+>SET ROLE</TT
+>を使用して、<TT
+CLASS="COMMAND"
+>GRANT</TT
+>を行わせたい特定のロールになることを推奨します。
+   </P
+><P
+>テーブルへの権限付与によって、<TT
+CLASS="TYPE"
+>SERIAL</TT
+>列によって関連付けされたシーケンスを含む、そのテーブルで使用されるシーケンスへの権限の拡張は自動的に行われません。
+シーケンスへの権限は別途設定しなければなりません。
+
+   </P
+><P
+>既存のテーブルおよび列に対する権限についての情報を得るには、以下の例のように<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>の<TT
+CLASS="COMMAND"
+>\dp</TT
+>コマンドを使用してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>=&gt; \dp mytable
+                              Access privileges
+ Schema |  Name   | Type  |   Access privileges   | Column access privileges 
+--------+---------+-------+-----------------------+--------------------------
+ public | mytable | table | miriam=arwdDxt/miriam | col1:
+                          : =r/miriam             :   miriam_rw=rw/miriam
+                          : admin=arw/miriam        
+(1 row)</PRE
+><P>
+<TT
+CLASS="COMMAND"
+>\dp</TT
+>で表される項目は、以下のように解釈することができます。
+</P><PRE
+CLASS="LITERALLAYOUT"
+>rolename=xxxx -- ロールに与えられた権限
+        =xxxx -- PUBLICに与えられた権限
+
+            r -- SELECT（読み取り（read））
+            w -- UPDATE（書き込み（write））
+            a -- INSERT（追加（append））
+            d -- DELETE
+            D -- TRUNCATE
+            x -- REFERENCES
+            t -- TRIGGER
+            X -- EXECUTE
+            U -- USAGE
+            C -- CREATE
+            c -- CONNECT
+            T -- TEMPORARY
+      arwdDxt -- すべての権限 (テーブル用。他のオブジェクトでは異なります。)
+            * -- 直前の権限に関するグラントオプション
+
+        /yyyy -- この権限を付与したロール</PRE
+><P>
+
+上記の例では、<TT
+CLASS="LITERAL"
+>mytable</TT
+>テーブルを作成し、次のコマンドを実行した後に<TT
+CLASS="LITERAL"
+>miriam</TT
+>ユーザに表示されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>GRANT SELECT ON mytable TO PUBLIC;
+GRANT SELECT, UPDATE, INSERT ON mytable TO admin;
+GRANT SELECT (col1), UPDATE (col1) ON mytable TO miriam_rw;</PRE
+><P>
+   </P
+><P
+>テーブル以外のオブジェクトでは、その権限を表示することができる他の<TT
+CLASS="COMMAND"
+>\d</TT
+>コマンドがあります。
+   </P
+><P
+>あるオブジェクトの<SPAN
+CLASS="QUOTE"
+>"アクセス権限"</SPAN
+>列が空の場合、そのオブジェクトはデフォルトの権限を持っていることを意味します（つまり権限フィールドがNULL）。
+所有者に対しては、デフォルト権限として常に全ての権限が含まれていますが、オブジェクトの種類によっては、<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>の権限が含まれていることがあります。
+これについては既に説明した通りです。
+オブジェクトに対する最初の<TT
+CLASS="COMMAND"
+>GRANT</TT
+>または<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>が実行されるとデフォルトの権限がインスタンス化され（例えば<TT
+CLASS="LITERAL"
+>{miriam=arwdDxt/miriam}</TT
+>のように作成されます）、与えられた要求によってこれらを変更します。
+同様に、デフォルト以外の権限を持つ列に対してのみ<SPAN
+CLASS="QUOTE"
+>"列アクセス権限"</SPAN
+>内で項目が表示されます。
+（注意：
+この目的のために、<SPAN
+CLASS="QUOTE"
+>"デフォルト権限"</SPAN
+>とはそのオブジェクト種類の組み込みのデフォルト権限を意味します。
+<TT
+CLASS="COMMAND"
+>ALTER DEFAULT PRIVILEGES</TT
+>コマンドにより影響をうける権限を持つオブジェクトは常に、この<TT
+CLASS="COMMAND"
+>ALTER</TT
+>による影響を含む、明示的な権限項目を持って表示されます。）
+   </P
+><P
+>所有者が暗黙のうちに持つグラントオプションは、上記のアクセス権限の表示に出力されていない点に注目してください。
+<TT
+CLASS="LITERAL"
+>*</TT
+>は、グラントオプションが明示的に誰かに与えられた場合にのみ出力されます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-GRANT-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>films</TT
+>テーブルにデータを追加する権限を全てのユーザに与えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>GRANT INSERT ON films TO PUBLIC;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>kinds</TT
+>ビューにおける利用可能な全ての権限を、<TT
+CLASS="LITERAL"
+>manuel</TT
+>ユーザに与えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>GRANT ALL PRIVILEGES ON kinds TO manuel;</PRE
+><P>
+
+上のコマンドをスーパーユーザや<TT
+CLASS="LITERAL"
+>kinds</TT
+>の所有者が実行した場合は、全ての権限が付与されますが、他のユーザが実行した場合は、そのユーザがグラントオプションを持つ権限のみが付与されることに注意してください。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>admins</TT
+>ロール内のメンバ資格を<TT
+CLASS="LITERAL"
+>joe</TT
+>ユーザに与えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>GRANT admins TO joe;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-GRANT-COMPATIBILITY"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLに従い、<TT
+CLASS="LITERAL"
+>ALL PRIVILEGES</TT
+>内の<TT
+CLASS="LITERAL"
+>PRIVILEGES</TT
+>は必須です。
+標準SQLでは、1つのコマンドによる複数オブジェクトへの権限の設定はサポートしていません。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、オブジェクトの所有者は、自身が持つ権限を取り消すことができます。
+例えば、テーブル所有者は自身の<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>権限を取り消すことで、自分にとってそのテーブルが読み取り専用になるよう変更することができます。
+これは、標準SQLでは不可能です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、所有者の権限を、所有者自身により与えられたものとして扱っているため、同様に所有者自身で権限を取り消すことができるようになっています。
+標準SQLでは、所有者の権限は仮想的な<SPAN
+CLASS="QUOTE"
+>"_SYSTEM"</SPAN
+>実体によって与えられたものとして扱っています。
+そのため、所有者はその権限を取り消すことができません。
+   </P
+><P
+>標準SQLでは、文字セット、集合、翻訳、ドメインといったその他の種類のオブジェクトに対して、<TT
+CLASS="LITERAL"
+>USAGE</TT
+>権限を付与することができます。
+   </P
+><P
+>データベース、テーブル空間、スキーマ、言語についての権限は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72719"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-revoke.html"
+>REVOKE</A
+>, <A
+HREF="sql-alterdefaultprivileges.html"
+>ALTER DEFAULT PRIVILEGES</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-fetch.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-insert.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>FETCH</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>INSERT</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

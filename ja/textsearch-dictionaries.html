@@ -1,0 +1,1277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>辞書</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="全文検索"
+HREF="textsearch.html"><LINK
+REL="PREVIOUS"
+TITLE="パーサ"
+HREF="textsearch-parsers.html"><LINK
+REL="NEXT"
+TITLE="設定例"
+HREF="textsearch-configuration.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="パーサ"
+HREF="textsearch-parsers.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 12&#31456;全文検索</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="全文検索"
+HREF="textsearch.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="設定例"
+HREF="textsearch-configuration.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEXTSEARCH-DICTIONARIES"
+>12.6. 辞書</A
+></H1
+><P
+>  辞書は、検索の対象とならない単語(<I
+CLASS="FIRSTTERM"
+>ストップワード</I
+>)を削除するために使われます。また、同じ単語から派生した異なる形態の単語が照合するようにするために、単語を<I
+CLASS="FIRSTTERM"
+>正規化</I
+>するためにも使われます。検索の品質を向上するという面以外にも、正規化とストップワードの削除は、<TT
+CLASS="TYPE"
+>tsvector</TT
+>表現の文書のサイズを小さくし、結果として性能を向上させます。正規化は常に言語学的な意味を持つとは限らず、通常は用途の意味論に依存します。
+  </P
+><P
+>   正規化の例を示します。
+
+   <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>      言語学的 - Ispell辞書は入力された単語を正規化された形式に変換しようとします。語幹辞書は単語の終了部を削除します。
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>以下のような<ACRONYM
+CLASS="ACRONYM"
+>URL</ACRONYM
+>が同一のURLに一致するように正規化することができます。
+      <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>         http://www.pgsql.ru/db/mw/index.html
+        </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>         http://www.pgsql.ru/db/mw/
+        </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>         http://www.pgsql.ru/db/../db/mw/index.html
+        </P
+></LI
+></UL
+><P>
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>     色の名前は、16進値に変換できます。例：
+      <TT
+CLASS="LITERAL"
+>red, green, blue, magenta -&#62; FF0000, 00FF00, 0000FF, FF00FF</TT
+>
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>      数をインデックス付けする際には、可能な範囲を縮小するために、端数を削除することができます。たとえば、もし正規化後に小数点未満2桁を保持するならば、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>3.14</I
+></SPAN
+>15926, <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>3.14</I
+></SPAN
+>は同じことになります。
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+>   辞書は、トークンを入力し、以下を返すプログラムです。   
+
+   <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>      入力が辞書に登録されていれば語彙素の配列(一つのトークンが一つ以上の語彙素を生成する可能性があることに注意してください)
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>      辞書が入力を認識しないが、ストップワードであることは認識する場合は空の配列
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>      元々のトークンを新規のトークンに置き換え、それに続く辞書にその新規トークン渡す場合は、<TT
+CLASS="LITERAL"
+>TSL_FILTER</TT
+>フラグセットを伴う単一の語彙素(このような置き換え機能をもつ辞書は<I
+CLASS="FIRSTTERM"
+>フィルタリング辞書</I
+>と呼ばれます)
+     </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>      辞書が入力トークンを認識しない場合は<TT
+CLASS="LITERAL"
+>NULL</TT
+>
+     </P
+></LI
+></UL
+><P>
+  </P
+><P
+>   <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、多くの言語に定義済の辞書を提供しています。また、カスタムパラメータを使った新しい辞書を作るためのテンプレートも利用できます。定義済の辞書のテンプレートについては、以下で述べています。今あるテンプレートが適当でないのなら、新しいものを作ることもできます。例は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の配布物の<TT
+CLASS="FILENAME"
+>contrib/</TT
+>をご覧下さい。
+  </P
+><P
+>   テキスト検索設定は、パーサと、パーサの出力トークンを処理する辞書の集合を結び付けます。パーサが返却する各々のトークン型に対して、設定で辞書のリストを指定します。パーサがあるトークン型を見つけると、ある辞書が単語を認識するまでリスト中の辞書が順番に調べられます。ストップワードであるか、あるいはどの辞書もトークンを認識しない場合はそれは捨てられ、インデックス付けや検索の対象となりません。通常、非<TT
+CLASS="LITERAL"
+>NULL</TT
+>を返す最初の辞書の出力が結果を決めることになり、他の残りの辞書は参照されません。しかし、フィルタリング辞書は与えられたワードを変更し、それを続く辞書へ渡すことができます。
+  </P
+><P
+>辞書をリストする一般的な方法は、まずもっとも範囲の狭い、特定用途向の辞書を配置し、次にもっと一般的な辞書を置き、最後に<SPAN
+CLASS="APPLICATION"
+>Snowball</SPAN
+>語幹処理や<TT
+CLASS="LITERAL"
+>simple</TT
+>辞書のような、すべてを認識する非常に一般的な辞書を置くことです。たとえば、天文学向の検索では(<TT
+CLASS="LITERAL"
+>astro_en</TT
+>設定)では、<TT
+CLASS="TYPE"
+>asciiword</TT
+> (ASCII単語)型を天文学用語の同義語辞書、一般的な英語辞書、そして<SPAN
+CLASS="APPLICATION"
+>Snowball</SPAN
+>英語語幹辞書に結び付けることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TEXT SEARCH CONFIGURATION astro_en
+    ADD MAPPING FOR asciiword WITH astrosyn, english_ispell, english_stem;</PRE
+><P>
+  </P
+><P
+>   フィルタリング辞書は、リスト中の好きな場所へ配置できます。(役に立たなくなるリストの最後を除きます。)フィルタリング辞書は、後続の辞書の処理を単純化するために、一部の文字の正規化を行うのに有用です。例えば、フィルタリング辞書は<A
+HREF="unaccent.html"
+>unaccent</A
+>モジュールで実施される様な、アクセント記号が付与された文字からアクセント記号を取り除くのに使用することができます。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-STOPWORDS"
+>12.6.1. ストップワード</A
+></H2
+><P
+>   ストップワードは、ほとんどすべての文書に現れるような非常に一般的で、ほかのものと同じようには扱う価値のない単語です。ですから、全文検索の際には無視して構いません。たとえば、すべての英語のテキストは<TT
+CLASS="LITERAL"
+>a</TT
+>や<TT
+CLASS="LITERAL"
+>the</TT
+>のような単語を含んでおり、インデックスの中にそれらを入れても役に立ちません。しかし、ストップワードは<TT
+CLASS="TYPE"
+>tsvector</TT
+>中の位置に影響を与えるので、結局ランキングにも影響があります。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT to_tsvector('english','in the list of stop words');
+        to_tsvector
+----------------------------
+ 'list':3 'stop':5 'word':6</PRE
+><P>
+
+    位置1, 2, 4は、ストップワードのために失われています。ストップワード有無により、文書のために計算されたランクは非常に影響を受けます。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT ts_rank_cd (to_tsvector('english','in the list of stop words'), to_tsquery('list &amp; stop'));
+ ts_rank_cd
+------------
+       0.05
+
+SELECT ts_rank_cd (to_tsvector('english','list stop words'), to_tsquery('list &amp; stop'));
+ ts_rank_cd
+------------
+        0.1</PRE
+><P>
+
+   </P
+><P
+>    ストップワードをどのように扱うかは、特定の辞書に任されています。例えば、<TT
+CLASS="LITERAL"
+>ispell</TT
+>辞書はまず単語を正規化し、そして、ストップワードのリストを検索します。一方、<TT
+CLASS="LITERAL"
+>Snowball</TT
+>語幹抽出はまずストップワードのリストを検査します。動作が異なる理由は、ノイズが紛れ込む可能性を減らすことです。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-SIMPLE-DICTIONARY"
+>12.6.2. simple辞書</A
+></H2
+><P
+>    <TT
+CLASS="LITERAL"
+>simple</TT
+>辞書テンプレートは、入力トークンを小文字に変換し、ストップワードのファイルに対してチェックすることによって動作します。もしファイルの中にあれば、空の配列が返却され、そのトークンは捨てられます。そうでないときは、小文字形式の単語が正規化された語彙素として返却されます。別の方法としては、ストップワードではないものは、認識できないものとすることもできます。そうすることにより、それらをリスト中の次の辞書に渡すことができます。
+   </P
+><P
+>    <TT
+CLASS="LITERAL"
+>simple</TT
+>テンプレートを使った辞書定義の例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TEXT SEARCH DICTIONARY public.simple_dict (
+    TEMPLATE = pg_catalog.simple,
+    STOPWORDS = english
+);</PRE
+><P>
+
+    ここで、<TT
+CLASS="LITERAL"
+>english</TT
+>は、ストップワードファイルのベースネームです。ファイルのフルネームは、<TT
+CLASS="FILENAME"
+>$SHAREDIR/tsearch_data/english.stop</TT
+>です。<TT
+CLASS="LITERAL"
+>$SHAREDIR</TT
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>インストール先の共有データディレクトリです。これは、よく<TT
+CLASS="FILENAME"
+>/usr/local/share/postgresql</TT
+>に置いてあります。(良くわからない場合は<TT
+CLASS="COMMAND"
+>pg_config  --sharedir</TT
+>を使ってください)。ファイル形式は、単に1行ごとに単語を書くだけです。空行と、後方の空白は無視されます。大文字は小文字に変換されます。このファイルの内容に関する処理はこれだけです。
+   </P
+><P
+>    これで辞書のテストができます。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT ts_lexize('public.simple_dict','YeS');
+ ts_lexize
+-----------
+ {yes}
+
+SELECT ts_lexize('public.simple_dict','The');
+ ts_lexize
+-----------
+ {}</PRE
+><P>
+   </P
+><P
+>    また、ストップワードファイルの中に見つからないときに、小文字に変換した単語を返す代りに、<TT
+CLASS="LITERAL"
+>NULL</TT
+>を返すことを選ぶこともできます。この挙動は、辞書の<TT
+CLASS="LITERAL"
+>Accept</TT
+>パラメータを<TT
+CLASS="LITERAL"
+>false</TT
+>に設定することで選択されます。
+
+    さらに例を続けます。
+
+</P><PRE
+CLASS="SCREEN"
+>ALTER TEXT SEARCH DICTIONARY public.simple_dict ( Accept = false );
+
+SELECT ts_lexize('public.simple_dict','YeS');
+ ts_lexize
+-----------
+
+
+SELECT ts_lexize('public.simple_dict','The');
+ ts_lexize
+-----------
+ {}</PRE
+><P>
+   </P
+><P
+>    デフォルト設定の<TT
+CLASS="LITERAL"
+>Accept</TT
+> = <TT
+CLASS="LITERAL"
+>true</TT
+>では、<TT
+CLASS="LITERAL"
+>simple</TT
+>辞書は、辞書リストの最後に置かなければ意味がありません。なぜなら、後続の辞書にトークンを渡すことがないからです。逆に<TT
+CLASS="LITERAL"
+>Accept</TT
+> = <TT
+CLASS="LITERAL"
+>false</TT
+>は、後続の辞書が少なくとも一つはあるときに意味があります。
+   </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>     ほとんどの辞書の形式は、ストップワードファイルのように設定ファイルに依存します。これらのファイルは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必ず</I
+></SPAN
+>UTF-8エンコーディングにしてください。サーバのエンコーディングがUTF-8でない場合は、サーバに読み込まれる際に実際のデータベースエンコーディングに変換されます。
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>     通常、辞書はデータベースセッションの中で最初に使われる際に、一度だけ読み込まれます。辞書を変更し、現在使われているセッションの中で新しい内容が読み込まれるようにしたい場合は、その辞書に対して<TT
+CLASS="COMMAND"
+>ALTER TEXT SEARCH DICTIONARY</TT
+>を発行してください。これは実際にはどんなパラメータ値をも変更しない<SPAN
+CLASS="QUOTE"
+>"ダミー"</SPAN
+>の更新でよいです。
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-SYNONYM-DICTIONARY"
+>12.6.3. 同義語辞書</A
+></H2
+><P
+>    この辞書テンプレートは、単語を同義語に置き換える辞書を作るために使われます。語句はサポートされていません(そのためには類語テンプレート(<A
+HREF="textsearch-dictionaries.html#TEXTSEARCH-THESAURUS"
+>&#38917;12.6.4</A
+>)を使ってください)。同義語辞書は、言語学的な問題、たとえば、英語語幹辞書が'Paris'という単語を'pari'に縮小してしまうのを防ぎます。<TT
+CLASS="LITERAL"
+>Paris paris</TT
+>という行を同義語辞書に登録し、<TT
+CLASS="LITERAL"
+>english_stem</TT
+>辞書の前に置くようにするだけでよいのです。下記はその例です。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT * FROM ts_debug('english', 'Paris');
+   alias   |   description   | token |  dictionaries  |  dictionary  | lexemes 
+-----------+-----------------+-------+----------------+--------------+---------
+ asciiword | Word, all ASCII | Paris | {english_stem} | english_stem | {pari}
+
+CREATE TEXT SEARCH DICTIONARY my_synonym (
+    TEMPLATE = synonym,
+    SYNONYMS = my_synonyms
+);
+
+ALTER TEXT SEARCH CONFIGURATION english
+    ALTER MAPPING FOR asciiword
+    WITH my_synonym, english_stem;
+
+SELECT * FROM ts_debug('english', 'Paris');
+   alias   |   description   | token |       dictionaries        | dictionary | lexemes 
+-----------+-----------------+-------+---------------------------+------------+---------
+ asciiword | Word, all ASCII | Paris | {my_synonym,english_stem} | my_synonym | {paris}</PRE
+><P>
+   </P
+><P
+>    <TT
+CLASS="LITERAL"
+>synonym</TT
+>テンプレートに必要なパラメータは<TT
+CLASS="LITERAL"
+>SYNONYMS</TT
+>だけで、その設定ファイルのベースネームです &mdash; 上の例では<TT
+CLASS="LITERAL"
+>my_synonyms</TT
+>です。ファイルのフルネームは、<TT
+CLASS="FILENAME"
+>$SHAREDIR/tsearch_data/my_synonyms.syn</TT
+> となります(ここで<TT
+CLASS="LITERAL"
+>$SHAREDIR</TT
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>をインストールした際の、共有データディレクトリです)。ファイルの形式は、置き換え対象の1単語につき1行で、単語には空白で区切られた同義語が後に続きます。空行、後方の空白は無視されます。
+   </P
+><P
+>    <TT
+CLASS="LITERAL"
+>synonym</TT
+>テンプレートはまた、<TT
+CLASS="LITERAL"
+>CaseSensitive</TT
+>というオプションパラメータを持っており、デフォルトは<TT
+CLASS="LITERAL"
+>false</TT
+>です。<TT
+CLASS="LITERAL"
+>CaseSensitive</TT
+>が<TT
+CLASS="LITERAL"
+>false</TT
+>の時は
+
+、同義語辞書内の単語は入力トークンと同様に小文字に変換されます。<TT
+CLASS="LITERAL"
+>true</TT
+>の時は、単語とトークンは小文字に変換されずそのまま比較されます。
+   </P
+><P
+>   アスタリスク(<TT
+CLASS="LITERAL"
+>*</TT
+>)は設定ファイル中の同義語の最後に付与することができます。これは同義語を接頭語とすることを意味します。アスタリスクは、エントリが<CODE
+CLASS="FUNCTION"
+>to_tsvector()</CODE
+>で使用される場合には無視されますが、<CODE
+CLASS="FUNCTION"
+>to_tsquery()</CODE
+>で使用される場合、結果は前方一致を伴った問い合わせになるでしょう。(詳しくは<A
+HREF="textsearch-controls.html#TEXTSEARCH-PARSING-QUERIES"
+>&#38917;12.3.2</A
+>を見てください。)例えば、<TT
+CLASS="FILENAME"
+>$SHAREDIR/tsearch_data/synonym_sample.syn</TT
+>に以下の様なエントリをもっていたとします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>postgres        pgsql
+postgresql      pgsql
+postgre pgsql
+gogle   googl
+indices index*</PRE
+><P>
+この場合、次のような結果を得ることになります。
+</P><PRE
+CLASS="SCREEN"
+>mydb=# CREATE TEXT SEARCH DICTIONARY syn (template=synonym, synonyms='synonym_sample');
+mydb=# SELECT ts_lexize('syn','indices');
+ ts_lexize
+-----------
+ {index}
+(1 row)
+
+mydb=# CREATE TEXT SEARCH CONFIGURATION tst (copy=simple);
+mydb=# ALTER TEXT SEARCH CONFIGURATION tst ALTER MAPPING FOR asciiword WITH syn;
+mydb=# SELECT to_tsvector('tst','indices');
+ to_tsvector
+-------------
+ 'index':1
+(1 row)
+
+mydb=# SELECT to_tsquery('tst','indices');
+ to_tsquery
+------------
+ 'index':*
+(1 row)
+
+mydb=# SELECT 'indexes are very useful'::tsvector;
+            tsvector             
+---------------------------------
+ 'are' 'indexes' 'useful' 'very'
+(1 row)
+
+mydb=# SELECT 'indexes are very useful'::tsvector @@ to_tsquery('tst','indices');
+ ?column?
+----------
+ t
+(1 row)</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-THESAURUS"
+>12.6.4. 類語辞書</A
+></H2
+><P
+>    類語辞書(<ACRONYM
+CLASS="ACRONYM"
+>TZ</ACRONYM
+>と略されることがあります)は、単語と語句の関係情報を集めたものです。つまり、広義用語(<ACRONYM
+CLASS="ACRONYM"
+>BT</ACRONYM
+>)、狭義用語(<ACRONYM
+CLASS="ACRONYM"
+>NT</ACRONYM
+>)、優先用語、非優先用語、関連用語などです。
+   </P
+><P
+>    基本的には、類語辞書は、非優先用語を優先用語に置き換え、オプションで元の用語もインデックス付けのため保存します。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の現在の類語辞書の実装は、同義語辞書を拡張し、<I
+CLASS="FIRSTTERM"
+>語句</I
+>のサポートを追加したものです。類語辞書は、以下のようなフォーマットの設定ファイルを必要とします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+># this is a comment
+sample word(s) : indexed word(s)
+more sample word(s) : more indexed word(s)
+...</PRE
+><P>
+
+    ここで、コロン(<TT
+CLASS="SYMBOL"
+>:</TT
+>)は、語句とその置き換え対象の区切
+    りです。
+   </P
+><P
+>    類語辞書は、<I
+CLASS="FIRSTTERM"
+>副辞書</I
+>(辞書設定で指定します)を、一致する語句をチェックする前に入力テキストを正規化するために使います。副辞書はただ一つだけ選べます。副辞書が単語を認識できない場合はエラーが報告されます。その場合は、その単語の利用を止めるか、副辞書にそのことを教えなければなりません。アスタリスク(<TT
+CLASS="SYMBOL"
+>*</TT
+>)をインデックス付けされた単語の先頭に置くことにより、副辞書の適用をスキップできます。しかしながら、すべてのサンプルの単語は、副辞書に認識<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>されなければなりません</I
+></SPAN
+>。
+   </P
+><P
+>    複数の類語が照合するときは、類語辞書はもっとも長いものを選びます。そして、語句は、最後の定義を使って分解されます。
+   </P
+><P
+>    特定のストップワードを副辞書に認識するように指定することはできません。その代り、ストップワードが出現する位置を<TT
+CLASS="LITERAL"
+>?</TT
+>でマークします。たとえば、<TT
+CLASS="LITERAL"
+>a</TT
+>と<TT
+CLASS="LITERAL"
+>the</TT
+>が副辞書によればストップワードだったとします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>? one ? two : swsw</PRE
+><P>
+
+    は、<TT
+CLASS="LITERAL"
+>a one the two</TT
+>と<TT
+CLASS="LITERAL"
+>the one a two</TT
+>に照合します。そして、両方とも<TT
+CLASS="LITERAL"
+>swsw</TT
+>に置き換えられます。
+   </P
+><P
+>    類語辞書は語句を認識することができるので、状態を記憶してパーサと連携を保たなければなりません。類語辞書は、この機能を使って次の単語を引き続き処理するのか、単語の蓄積を止めるのかを決定します。類語辞書の設定は注意深く行わなければなりません。たとえば、類語辞書が<TT
+CLASS="LITERAL"
+>asciiword</TT
+>トークンだけを扱うようになっている場合、<TT
+CLASS="LITERAL"
+>one 7</TT
+>のような類語辞書の定義は、トークン型
+
+<TT
+CLASS="LITERAL"
+>uint</TT
+>が類語辞書にアサインされていないので動きません。
+   </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>     類語辞書はインデックス付けの際に利用されるので、類語辞書を設定変更すると、再インデックス付けが<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必要</I
+></SPAN
+>になります。他のほとんどの辞書では、ストップワードを追加あるいは削除するような小さな変更は、インデックス付けを必要としません。
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="TEXTSEARCH-THESAURUS-CONFIG"
+>12.6.4.1. 類語設定</A
+></H3
+><P
+>    新しい類語辞書を定義するには、<TT
+CLASS="LITERAL"
+>thesaurus</TT
+>テンプレートを使います。例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TEXT SEARCH DICTIONARY thesaurus_simple (
+    TEMPLATE = thesaurus,
+    DictFile = mythesaurus,
+    Dictionary = pg_catalog.english_stem
+);</PRE
+><P>
+
+    ここで、
+
+    <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+>       <TT
+CLASS="LITERAL"
+>thesaurus_simple</TT
+>は新しい辞書の名前です。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       <TT
+CLASS="LITERAL"
+>mythesaurus</TT
+>は、類語設定ファイルのベースネームです。(フルパスは、<TT
+CLASS="FILENAME"
+>$SHAREDIR/tsearch_data/mythesaurus.ths</TT
+>となります。ここで、<TT
+CLASS="LITERAL"
+>$SHAREDIR</TT
+>はインストール時の共有データディレクトリです。)
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>       類語正規化で使用する<TT
+CLASS="LITERAL"
+>pg_catalog.english_stem</TT
+>は副辞書です(ここでは、Snowball英語語幹辞書)。副辞書にはそれ用の設定(たとえばストップワード)があることに注意してください。ここではそれは表示していません。
+      </P
+></LI
+></UL
+><P>
+
+    これで、類語辞書<TT
+CLASS="LITERAL"
+>thesaurus_simple</TT
+>を、設定中の希望のトークンにバインドすることができるようになります。例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TEXT SEARCH CONFIGURATION russian
+    ALTER MAPPING FOR asciiword, asciihword, hword_asciipart 
+    WITH thesaurus_simple;</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="TEXTSEARCH-THESAURUS-EXAMPLES"
+>12.6.4.2. 類語の例</A
+></H3
+><P
+>    天文学の単語の組合わせを含む単純な天文学用の<TT
+CLASS="LITERAL"
+>thesaurus_astro</TT
+>類語を考えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>supernovae stars : sn
+crab nebulae : crab</PRE
+><P>
+
+    以下で辞書を作り、トークン型を天文学類語辞書と英語の語幹辞書に結び付けます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TEXT SEARCH DICTIONARY thesaurus_astro (
+    TEMPLATE = thesaurus,
+    DictFile = thesaurus_astro,
+    Dictionary = english_stem
+);
+
+ALTER TEXT SEARCH CONFIGURATION russian
+    ALTER MAPPING FOR asciiword, asciihword, hword_asciipart
+    WITH thesaurus_astro, english_stem;</PRE
+><P>
+
+    さあ、これでどのように動くか試せます。<CODE
+CLASS="FUNCTION"
+>ts_lexize</CODE
+>は類語をテストする目的にはあまり有用ではありません。なぜなら、それは入力を単一のトークンとして扱うからです。その代りに、<CODE
+CLASS="FUNCTION"
+>plainto_tsquery</CODE
+>と<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>を使って入力文字列を複数のトークンに分解します。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT plainto_tsquery('supernova star');
+ plainto_tsquery
+-----------------
+ 'sn'
+
+SELECT to_tsvector('supernova star');
+ to_tsvector
+-------------
+ 'sn':1</PRE
+><P>
+
+    原則として、引数を引用符で囲めば<CODE
+CLASS="FUNCTION"
+>to_tsquery</CODE
+>が使えます。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT to_tsquery('''supernova star''');
+ to_tsquery
+------------
+ 'sn'</PRE
+><P>
+
+    <TT
+CLASS="LITERAL"
+>english_stem</TT
+>語幹辞書を同義語辞書の定義時に指定したので、<TT
+CLASS="LITERAL"
+>supernova star</TT
+>が<TT
+CLASS="LITERAL"
+>thesaurus_astro</TT
+>中の<TT
+CLASS="LITERAL"
+>supernovae stars</TT
+>に照合していることに注意してください。語幹処理が<TT
+CLASS="LITERAL"
+>e</TT
+>と<TT
+CLASS="LITERAL"
+>s</TT
+>を削除しています。
+   </P
+><P
+>    置き換え後の語句とオリジナルの語句の両方をインデックス付けするには、定義の右項にオリジナルを追加するだけで良いです。
+
+</P><PRE
+CLASS="SCREEN"
+>supernovae stars : sn supernovae stars
+
+SELECT plainto_tsquery('supernova star');
+       plainto_tsquery
+-----------------------------
+ 'sn' &amp; 'supernova' &amp; 'star'</PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-ISPELL-DICTIONARY"
+>12.6.5. <SPAN
+CLASS="APPLICATION"
+>Ispell</SPAN
+>辞書</A
+></H2
+><P
+>    <SPAN
+CLASS="APPLICATION"
+>Ispell</SPAN
+>辞書テンプレートは、<I
+CLASS="FIRSTTERM"
+>形態論辞書</I
+>を提供します。これによって、言語学的に多様な単語の形態を同じ語彙素に変換することができます。たとえば、英語<SPAN
+CLASS="APPLICATION"
+>Ispell</SPAN
+>辞書は、検索語<TT
+CLASS="LITERAL"
+>bank</TT
+>の語形変化と活用変化、たとえば<TT
+CLASS="LITERAL"
+>banking</TT
+>, <TT
+CLASS="LITERAL"
+>banked</TT
+>, <TT
+CLASS="LITERAL"
+>banks</TT
+>, <TT
+CLASS="LITERAL"
+>banks'</TT
+>, and <TT
+CLASS="LITERAL"
+>bank's</TT
+>に
+
+照合します。
+   </P
+><P
+>    <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の標準配布には、<SPAN
+CLASS="APPLICATION"
+>Ispell</SPAN
+>の設定ファイルは含まれていません。多くの言語用の辞書が<A
+HREF="http://ficus-www.cs.ucla.edu/geoff/ispell.html"
+TARGET="_top"
+>Ispell</A
+>で入手できます。また、より新しい辞書のフォーマットもサポートされています &mdash;  <A
+HREF="http://en.wikipedia.org/wiki/MySpell"
+TARGET="_top"
+>MySpell</A
+> (OO &lt; 2.0.1)
+    と <A
+HREF="http://sourceforge.net/projects/hunspell/"
+TARGET="_top"
+>Hunspell</A
+>
+    (OO &gt;= 2.0.2)。多数の辞書のリストが <A
+HREF="http://wiki.services.openoffice.org/wiki/Dictionaries"
+TARGET="_top"
+>OpenOffice
+    Wiki</A
+>で入手できます。
+   </P
+><P
+>    <SPAN
+CLASS="APPLICATION"
+>Ispell</SPAN
+>辞書を作るには、組み込みの<TT
+CLASS="LITERAL"
+>ispell</TT
+>テンプレートを使い、いくつかパラメータを指定します。
+   </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TEXT SEARCH DICTIONARY english_ispell (
+    TEMPLATE = ispell,
+    DictFile = english,
+    AffFile = english,
+    StopWords = english
+);</PRE
+><P
+>    ここで、<TT
+CLASS="LITERAL"
+>DictFile</TT
+>, <TT
+CLASS="LITERAL"
+>AffFile</TT
+>, および<TT
+CLASS="LITERAL"
+>StopWords</TT
+>は、辞書のベースネーム、接辞ファイル、ストップワードファイルを指定します。ストップワードファイルは、上で説明した<TT
+CLASS="LITERAL"
+>simple</TT
+>辞書と同じ形式です。ほかのファイルの形式はここでは説明されませんが、上にあげたウェブサイトに説明があります。
+   </P
+><P
+>    Ispell辞書は通常限られた数の単語を認識します。ですので、なんでも認識できるSnowball辞書のような、より適用範囲の広い辞書による後処理が必要です。
+   </P
+><P
+>    Ispell辞書を使って複合語を分割することができます。これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がサポートする優れた機能です。接辞ファイルは、複合語形式の候補になる辞書中の単語に印を付ける<TT
+CLASS="LITERAL"
+>compoundwords controlled</TT
+>文を使う特別なフラグを指定しなければならないことに注意してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>compoundwords  controlled z</PRE
+><P>
+
+	ノルウェー語の例をいくつか示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ts_lexize('norwegian_ispell', 'overbuljongterningpakkmesterassistent');
+   {over,buljong,terning,pakk,mester,assistent}
+SELECT ts_lexize('norwegian_ispell', 'sjokoladefabrikk');
+   {sjokoladefabrikk,sjokolade,fabrikk}</PRE
+><P>
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	 <SPAN
+CLASS="APPLICATION"
+>MySpell</SPAN
+>は複合語をサポートしていません。<SPAN
+CLASS="APPLICATION"
+>Hunspell</SPAN
+>は複合語の高度なサポートを提供しています。いまのところ、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はHunspellの基本的な複合語操作しかサポートしていません。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTSEARCH-SNOWBALL-DICTIONARY"
+>12.6.6. <SPAN
+CLASS="APPLICATION"
+>Snowball</SPAN
+>辞書</A
+></H2
+><P
+>   
+    <SPAN
+CLASS="APPLICATION"
+>Snowball</SPAN
+>辞書テンプレートは、有名な「英語用のポーターの語幹アルゴリズム」を発明したMartin Porterのプロジェクトに基づいています。Snowballは今では多くの言語用の語幹アルゴリズムを提供しています(詳細は<A
+HREF="http://snowball.tartarus.org"
+TARGET="_top"
+>Snowballのサイト</A
+>を参照してください)。各々のアルゴリズムにより、その言語において単語の共通部分を取りだし、基本部もしくは語幹の綴りに縮退させることができます。Snowball辞書には、どの語幹処理を使うかを識別する<TT
+CLASS="LITERAL"
+>言語</TT
+>パラメータが必須で、加えて、オプションで無視すべき単語のリストを保持する<TT
+CLASS="LITERAL"
+>ストップワード</TT
+>ファイルを指定することもできます。(<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の標準的なストップワードファイルもまたSnowball projectから提供されています)。たとえば、以下と同じ組み込みの定義があります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TEXT SEARCH DICTIONARY english_stem (
+    TEMPLATE = snowball,
+    Language = english,
+    StopWords = english
+);</PRE
+><P>
+
+   
+    ストップワードファイルの形式はすでに説明されているものと同じです。
+   </P
+><P
+>   
+       <SPAN
+CLASS="APPLICATION"
+>Snowball</SPAN
+>辞書は、単純化できるかどうかに関係なく、すべての単語を認識するので、辞書リストの最後に置く必要があります。他の辞書の前に置くのは意味がありません。<SPAN
+CLASS="APPLICATION"
+>Snowball</SPAN
+>辞書は決してトークンを次の辞書に渡さないからです。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="textsearch-parsers.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="textsearch-configuration.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>パーサ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="textsearch.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>設定例</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

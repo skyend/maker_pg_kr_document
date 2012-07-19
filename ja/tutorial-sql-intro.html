@@ -1,0 +1,339 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>序文</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQL言語"
+HREF="tutorial-sql.html"><LINK
+REL="PREVIOUS"
+TITLE="SQL言語"
+HREF="tutorial-sql.html"><LINK
+REL="NEXT"
+TITLE="概念"
+HREF="tutorial-concepts.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 2&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="概念"
+HREF="tutorial-concepts.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-SQL-INTRO"
+>2.1. 序文</A
+></H1
+><P
+>本章では、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>を使用した簡単な操作方法について、その概要を説明します。
+このチュートリアルは単なる入門用であり、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>についての完全な教科書ではありません。
+<A
+HREF="biblio.html#MELT93"
+><I
+>Understanding the New <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></I
+></A
+>や<A
+HREF="biblio.html#DATE97"
+><I
+>A Guide to the <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+> Standard</I
+></A
+>など、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>を説明した書籍は多くあります。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>言語が持つ機能の中には標準を拡張したものがあることには注意してください。
+   </P
+><P
+>以下で示す例では、前章で説明した<TT
+CLASS="LITERAL"
+>mydb</TT
+>という名前のデータベースを作成し、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>を起動できるようになっていることを前提としています。
+   </P
+><P
+>このマニュアルで示す例は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ソース配布物に含まれており、<TT
+CLASS="FILENAME"
+>src/tutorial/</TT
+>以下に展開されます。
+（<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のバイナリ配布物ではこのファイルはコンパイルされていないかも知れません。）
+このファイルを使用するためには、以下に示すように、まずこのディレクトリに移動し、<SPAN
+CLASS="APPLICATION"
+>make</SPAN
+>を実行してください。
+
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>cd <TT
+CLASS="REPLACEABLE"
+><I
+>....</I
+></TT
+>/src/tutorial</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>make</KBD
+></PRE
+><P>
+
+これによりスクリプトが作成され、そして、ユーザ定義の関数と型を含むCのファイルがコンパイルされます
+その後、以下を行うことで、チュートリアルを始めることができます。
+
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>cd <TT
+CLASS="REPLACEABLE"
+><I
+>....</I
+></TT
+>/tutorial</KBD
+>
+<SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>psql -s mydb</KBD
+>
+<SAMP
+CLASS="COMPUTEROUTPUT"
+>...</SAMP
+>
+
+<SAMP
+CLASS="PROMPT"
+>mydb=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>\i basics.sql</KBD
+></PRE
+><P>
+
+<TT
+CLASS="LITERAL"
+>\i</TT
+>は、指定したファイルからコマンドを読み込みます。
+<TT
+CLASS="COMMAND"
+>psql</TT
+>の<TT
+CLASS="LITERAL"
+>-s</TT
+>オプションによって、それぞれの文をサーバに送る前に一時停止する、シングルステップモードとなります。
+本節で使用するコマンドは<TT
+CLASS="FILENAME"
+>basics.source</TT
+>ファイル内にあります。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-sql.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-concepts.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>概念</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>構造的な基本事項</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"><LINK
+REL="PREVIOUS"
+TITLE="インストール"
+HREF="tutorial-install.html"><LINK
+REL="NEXT"
+TITLE="データベースの作成"
+HREF="tutorial-createdb.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インストール"
+HREF="tutorial-install.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 1&#31456;さあ始めましょう</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベースの作成"
+HREF="tutorial-createdb.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-ARCH"
+>1.2. 構造的な基本事項</A
+></H1
+><P
+>先に進む前に、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>システム構成の基礎を理解すべきです。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の各部分がどのように相互作用しているかを理解することにより、本章の内容がわかりやすくなります。
+   </P
+><P
+>データベースの用語で言うと、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はクライアント/サーバモデルを使用しています。 
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のセッションは以下の協調動作するプロセス（プログラム）から構成されます。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+>サーバプロセス。
+これは、データベースファイルを管理し、クライアントアプリケーションからのデータベースの接続を受け付け、クライアントに代わってデータベースに対する処理を行います。
+データベースサーバプログラムは<TT
+CLASS="FILENAME"
+>postgres</TT
+>と呼ばれています。
+       
+      </P
+></LI
+><LI
+><P
+>ユーザの、データベース操作を行うクライアント（フロントエンド）アプリケーション。
+クライアントアプリケーションはその性質上非常に多様性があります。
+テキスト指向のツール、グラフィカルなアプリケーション、データベースにアクセスしWebページを表示するWebサーバ、あるいはデータベースに特化した保守ツールなどがあります。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の配布物では、いくつかのクライアントアプリケーションを用意しています。
+そのほとんどはユーザによって開発されました。
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+>典型的なクライアント/サーバアプリケーションでは、クライアントとサーバはホストが異なっても構いません。
+その場合、クライアントとサーバはTCP/IPネットワーク接続経由で通信を行います。
+このことには注意してください。
+なぜなら、クライアントマシンからアクセスできるファイルは、データベースサーバマシンではアクセスできない（または、異なるファイル名でアクセスできるだけである）可能性があるからです。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバはクライアントから複数の同時接続を取り扱うことができます。
+これを達成するため、サーバは接続ごとに新しいプロセスを開始（<SPAN
+CLASS="QUOTE"
+>"fork"</SPAN
+>）します。
+その時点から、クライアントと新しいサーバプロセスは元の<TT
+CLASS="FILENAME"
+>postgres</TT
+>プロセスによる干渉がない状態で通信を行います。
+こうして、マスターサーバは常に稼働し、クライアントとの接続を待ち、一方、クライアントと関連したサーバプロセスは通信を行います
+（もちろんこれは全てユーザからはわかりません。ここでの説明は完全性のみを目的としています）。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-install.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-createdb.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インストール</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-start.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データベースの作成</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

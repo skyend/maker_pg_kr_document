@@ -1,0 +1,295 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>WALの内部</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"><LINK
+REL="PREVIOUS"
+TITLE="WALの設定"
+HREF="wal-configuration.html"><LINK
+REL="NEXT"
+TITLE="リグレッションテスト"
+HREF="regress.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="WALの設定"
+HREF="wal-configuration.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 29&#31456;信頼性とログ先行書き込み</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="信頼性とログ先行書き込み"
+HREF="wal.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リグレッションテスト"
+HREF="regress.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WAL-INTERNALS"
+>29.5. WALの内部</A
+></H1
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>は自動的に有効になります。
+<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>ログが必要とするディスク容量を確保すること、そして必要ならばチューニングすることを除いては（<A
+HREF="wal-configuration.html"
+>&#38917;29.4</A
+>を参照）、管理者は何もする必要はありません。
+  </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>ログは、データディレクトリ以下の<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>ディレクトリに、通常16メガバイトのサイズを持つセグメントファイルの集合として格納されています(ただし、このサイズはサーバ構築時の<TT
+CLASS="OPTION"
+>--with-wal-segsize</TT
+>というconfigureオプションで変更できます)。各セグメントは通常8キロバイトのページに分割されます(このサイズは<TT
+CLASS="OPTION"
+>--with-wal-blocksize</TT
+>というconfigureオプションで変更できます)。
+ログレコード用のヘッダは<TT
+CLASS="FILENAME"
+>access/xlog.h</TT
+>に記述されています。 
+レコードの内容は、ログの対象となる事象の種類によって異なります。
+セグメントファイルは名前として<TT
+CLASS="FILENAME"
+>000000010000000000000000</TT
+>から始まる、常に増加する数が与えられています。
+数字は巡回しませんが、利用可能な数字を使い尽くすには非常に長い時間がかかるはずです。
+  </P
+><P
+>主要なデータベースファイルが置いてあるディスクとは別のディスクにログを置くと利点があります。
+これは<TT
+CLASS="FILENAME"
+>pg_xlog</TT
+>ディレクトリを別の場所に（もちろんサーバを終了しておいてから）移動し、主データディレクトリ以下の元々の場所から新しい場所へのシンボリックリンクを張ることによって可能となります。
+  </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>の目的である、確実にデータベースレコードが変更される前にログが書き出されることは、実際にはキャッシュにしかデータがなく、ディスクには格納されていない時にが格納に成功したとカーネルに虚偽の報告を行うことによって失われる可能性があります。
+そのような状況では、電源が落ちた際に、復旧不可能なデータの破壊が起こることがあります。
+管理者は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の<ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>ログを保持しているディスク装置がそのような嘘の報告をしないように保証するべきです。(<A
+HREF="wal-reliability.html"
+>&#38917;29.1</A
+>を参照して下さい。)
+  </P
+><P
+>チェックポイントが実行され、ログが吐き出された後、チェックポイントの位置は<TT
+CLASS="FILENAME"
+>pg_control</TT
+>に保存されます。
+したがって、リカバリの開始の際は、サーバはまず<TT
+CLASS="FILENAME"
+>pg_control</TT
+>を読み、次にチェックポイントレコードを読みます。 
+そして、チェックポイントレコード内で示されたログの位置から前方をスキャンすることでREDO処理を行います。
+データページの内容全体は、チェックポイント後の最初のページ変更時にログ内に保存されますので(<A
+HREF="runtime-config-wal.html#GUC-FULL-PAGE-WRITES"
+>full_page_writes</A
+>パラメータが無効にされていないという前提です)、そのチェックポイント以降に変更された全てのページは一貫した状態に復旧されます。
+  </P
+><P
+><TT
+CLASS="FILENAME"
+>pg_control</TT
+>が壊れた場合に備え、ログセグメントを逆順に読み（すなわち新しいものから古いものへと）、最終チェックポイントを見つける方法を実際には実装した方が良いと思われます。
+まだこれはできていません。
+<TT
+CLASS="FILENAME"
+>pg_control</TT
+>はかなり小さなもの（1ディスクページ未満）ですので、一部のみ書き込みされるという問題は起こりません。
+またこの書き込みの時点では、<TT
+CLASS="FILENAME"
+>pg_control</TT
+>自体の読み込みができないことによるデータベースエラーという報告はありません。
+このため、<TT
+CLASS="FILENAME"
+>pg_control</TT
+>は理屈では弱点ですが、実質問題になりません。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="wal-configuration.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="regress.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>WAL</ACRONYM
+>の設定</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="wal.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リグレッションテスト</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

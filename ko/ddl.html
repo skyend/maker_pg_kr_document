@@ -1,0 +1,422 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>데이터 정의 </TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE = \"PostgreSQL 9.1.4 문서\"\n
+HREF="index.html"><LINK
+REL="UP"
+TITLE = \" SQL 언어\"\n
+HREF="sql.html"><LINK
+REL="PREVIOUS"
+TITLE = \" 함수 호출\"\n
+HREF="sql-syntax-calling-funcs.html"><LINK
+REL="NEXT"
+TITLE = \" 테이블 의 기본\"\n
+HREF="ddl-basics.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+입문부터 운영 튜닝 노하우 새로운 기능 의 해설 등 다양한 내용의 기술 해설 기사를 읽어 하실 수 있습니다.
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4 문서 </A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" 함수 호출\"\n
+HREF="sql-syntax-calling-funcs.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE = \" SQL 구문 \"\n
+HREF="sql-syntax.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 데이터 조작 \"\n
+HREF="dml.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE = \" 테이블 의 기본\"\n
+HREF="ddl-basics.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="DDL"
+></A
+>&#31532; 5 장 データ定義</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>5.1. <A
+HREF="ddl-basics.html"
+>테이블 의 기본 </A
+></DT
+><DT
+>5.2. <A
+HREF="ddl-default.html"
+>기본값 </A
+></DT
+><DT
+>5.3. <A
+HREF="ddl-constraints.html"
+>제약 </A
+></DT
+><DD
+><DL
+><DT
+>5.3.1. <A
+HREF="ddl-constraints.html#AEN2411"
+>검사 제약 조건 </A
+></DT
+><DT
+>5.3.2. <A
+HREF="ddl-constraints.html#AEN2445"
+>비 NULL 제약 </A
+></DT
+><DT
+>5.3.3. <A
+HREF="ddl-constraints.html#AEN2471"
+>고유 제약 조건 </A
+></DT
+><DT
+>5.3.4. <A
+HREF="ddl-constraints.html#AEN2494"
+>기본 키 </A
+></DT
+><DT
+>5.3.5. <A
+HREF="ddl-constraints.html#DDL-CONSTRAINTS-FK"
+>외부 키 </A
+></DT
+><DT
+>5.3.6. <A
+HREF="ddl-constraints.html#DDL-CONSTRAINTS-EXCLUSION"
+>독점 제약 </A
+></DT
+></DL
+></DD
+><DT
+>5.4. <A
+HREF="ddl-system-columns.html"
+>시스템 열 </A
+></DT
+><DT
+>5.5. <A
+HREF="ddl-alter.html"
+>테이블의 변경 </A
+></DT
+><DD
+><DL
+><DT
+>5.5.1. <A
+HREF="ddl-alter.html#AEN2706"
+>열을 추가 </A
+></DT
+><DT
+>5.5.2. <A
+HREF="ddl-alter.html#AEN2722"
+>열 삭제 </A
+></DT
+><DT
+>5.5.3. <A
+HREF="ddl-alter.html#AEN2733"
+>제약 조건 추가 </A
+></DT
+><DT
+>5.5.4. <A
+HREF="ddl-alter.html#AEN2742"
+>제약 삭제 </A
+></DT
+><DT
+>5.5.5. <A
+HREF="ddl-alter.html#AEN2757"
+>열의 기본값을 변경 </A
+></DT
+><DT
+>5.5.6. <A
+HREF="ddl-alter.html#AEN2767"
+>열의 데이터 형식 변경 </A
+></DT
+><DT
+>5.5.7. <A
+HREF="ddl-alter.html#AEN2777"
+>열 이름 바꾸기 </A
+></DT
+><DT
+>5.5.8. <A
+HREF="ddl-alter.html#AEN2784"
+>테이블 이름 바꾸기 </A
+></DT
+></DL
+></DD
+><DT
+>5.6. <A
+HREF="ddl-priv.html"
+>권한 </A
+></DT
+><DT
+>5.7. <A
+HREF="ddl-schemas.html"
+>스키마 </A
+></DT
+><DD
+><DL
+><DT
+>5.7.1. <A
+HREF="ddl-schemas.html#DDL-SCHEMAS-CREATE"
+>스키마 만들기 </A
+></DT
+><DT
+>5.7.2. <A
+HREF="ddl-schemas.html#DDL-SCHEMAS-PUBLIC"
+>public 스키마 </A
+></DT
+><DT
+>5.7.3. <A
+HREF="ddl-schemas.html#DDL-SCHEMAS-PATH"
+>스키마 검색 경로 </A
+></DT
+><DT
+>5.7.4. <A
+HREF="ddl-schemas.html#DDL-SCHEMAS-PRIV"
+>스키마 및 권한 </A
+></DT
+><DT
+>5.7.5. <A
+HREF="ddl-schemas.html#DDL-SCHEMAS-CATALOG"
+>시스템 카탈로그 스키마 </A
+></DT
+><DT
+>5.7.6. <A
+HREF="ddl-schemas.html#DDL-SCHEMAS-PATTERNS"
+>사용 패턴 </A
+></DT
+><DT
+>5.7.7. <A
+HREF="ddl-schemas.html#DDL-SCHEMAS-PORTABILITY"
+>이식 </A
+></DT
+></DL
+></DD
+><DT
+>5.8. <A
+HREF="ddl-inherit.html"
+>상속 </A
+></DT
+><DT
+>5.9. <A
+HREF="ddl-partitioning.html"
+>파티션 </A
+></DT
+><DD
+><DL
+><DT
+>5.9.1. <A
+HREF="ddl-partitioning.html#DDL-PARTITIONING-OVERVIEW"
+>개요 </A
+></DT
+><DT
+>5.9.2. <A
+HREF="ddl-partitioning.html#DDL-PARTITIONING-IMPLEMENTATION"
+>파티셔닝 구현 </A
+></DT
+><DT
+>5.9.3. <A
+HREF="ddl-partitioning.html#DDL-PARTITIONING-MANAGING-PARTITIONS"
+>파티션 관리 </A
+></DT
+><DT
+>5.9.4. <A
+HREF="ddl-partitioning.html#DDL-PARTITIONING-CONSTRAINT-EXCLUSION"
+>파티션 및 제한 에 의한 제외 </A
+></DT
+><DT
+>5.9.5. <A
+HREF="ddl-partitioning.html#DDL-PARTITIONING-ALTERNATIVES"
+>다른 파티셔닝 방법 </A
+></DT
+><DT
+>5.9.6. <A
+HREF="ddl-partitioning.html#DDL-PARTITIONING-CAVEATS"
+>경고 </A
+></DT
+></DL
+></DD
+><DT
+>5.10. <A
+HREF="ddl-foreign-data.html"
+>외부 데이터 </A
+></DT
+><DT
+>5.11. <A
+HREF="ddl-others.html"
+>다른 데이터베이스 개체 </A
+></DT
+><DT
+>5.12. <A
+HREF="ddl-depend.html"
+>의존성 추적 </A
+></DT
+></DL
+></DIV
+><P
+>이 장에서는 데이터를 저장하기위한 데이터베이스 구조를 만드는 방법을 설명합니다.
+관계형 데이터베이스는 원시 데이터 테이블에 저장 됩니다.
+따라서 이 장에서는 테이블 만들기 및 수정 또는 테이블에 어떤 데이터를 저장 할지 여부를 제어하는 기능에 대해 중점적으로 설명합니다.
+또한 테이블 스키마에 구성하는 방법 및 테이블 에 대한 권한 할당 에 대해 설명 합니다.
+그리고 마지막으로  상속 뷰 함수 및 트리거와 같은 데이터 저장 에 영향을주는 기능 에 대해 간략하게 설명합니다.
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-syntax-calling-funcs.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ddl-basics.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>함수 호출 </TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>테이블 의 기본 </TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

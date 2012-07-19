@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>定常的なデータベース保守作業</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの管理"
+HREF="admin.html"><LINK
+REL="PREVIOUS"
+TITLE="文字セットサポート"
+HREF="multibyte.html"><LINK
+REL="NEXT"
+TITLE="定常的なバキューム作業"
+HREF="routine-vacuuming.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="文字セットサポート"
+HREF="multibyte.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="多言語対応"
+HREF="charset.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="バックアップとリストア"
+HREF="backup.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="定常的なバキューム作業"
+HREF="routine-vacuuming.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="MAINTENANCE"
+></A
+>&#31532; 23&#31456;定常的なデータベース保守作業</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>23.1. <A
+HREF="routine-vacuuming.html"
+>定常的なバキューム作業</A
+></DT
+><DD
+><DL
+><DT
+>23.1.1. <A
+HREF="routine-vacuuming.html#VACUUM-BASICS"
+>バキューム作業の基本</A
+></DT
+><DT
+>23.1.2. <A
+HREF="routine-vacuuming.html#VACUUM-FOR-SPACE-RECOVERY"
+>ディスク容量の復旧</A
+></DT
+><DT
+>23.1.3. <A
+HREF="routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+>プランナ用の統計情報の更新</A
+></DT
+><DT
+>23.1.4. <A
+HREF="routine-vacuuming.html#VACUUM-FOR-WRAPAROUND"
+>トランザクションIDの周回エラーの防止</A
+></DT
+><DT
+>23.1.5. <A
+HREF="routine-vacuuming.html#AUTOVACUUM"
+>自動バキュームデーモン</A
+></DT
+></DL
+></DD
+><DT
+>23.2. <A
+HREF="routine-reindex.html"
+>定常的なインデックスの再作成</A
+></DT
+><DT
+>23.3. <A
+HREF="logfile-maintenance.html"
+>ログファイルの保守</A
+></DT
+></DL
+></DIV
+><P
+>他のデータベースソフトウェア同様、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>も、最適な性能を得るために定常的に実施しなければならない作業があります。
+ここで説明する作業は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必要な</I
+></SPAN
+>ものであり、その性質上繰り返し行うべきものです。
+しかし、<SPAN
+CLASS="APPLICATION"
+>cron</SPAN
+>スクリプトなどの標準ツールや、Windowsの<SPAN
+CLASS="APPLICATION"
+>タスクスケジューラ</SPAN
+>を使用して簡単に自動化することができます。
+適切なスクリプトを設定し、その実行がうまく行くかどうかを点検することは、データベース管理者の責任です。
+  </P
+><P
+>明らかに必要な保守作業の1つに、定期的なデータのバックアップコピーの作成があります。
+最近のバックアップがなければ、（ディスクの破損、火災、重要なテーブルの間違った削除などの）破滅の後、復旧することができません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で可能なバックアップとリカバリ機構については、<A
+HREF="backup.html"
+>&#31532;24&#31456;</A
+>にて詳細に説明します。
+  </P
+><P
+>他の保守作業の主なカテゴリには、定期的なデータベースの<SPAN
+CLASS="QUOTE"
+>"バキューム"</SPAN
+>があります。
+この作業については<A
+HREF="routine-vacuuming.html"
+>&#38917;23.1</A
+>で説明します。
+問い合わせプランナで使用される統計情報の更新も密接に関連しますが、こちらに関しては<A
+HREF="routine-vacuuming.html#VACUUM-FOR-STATISTICS"
+>&#38917;23.1.3</A
+>で説明します。
+  </P
+><P
+>この他、定期的に行わなければならない作業にログファイルの管理があります。
+これについては<A
+HREF="logfile-maintenance.html"
+>&#38917;23.3</A
+>で説明します。
+  </P
+><P
+><A
+HREF="http://bucardo.org/wiki/Check_postgres"
+TARGET="_top"
+><SPAN
+CLASS="APPLICATION"
+>check_postgres</SPAN
+></A
+>が、データベースの健全性を監視し、異常な状態を報告するために用意されています。
+<SPAN
+CLASS="APPLICATION"
+>check_postgres</SPAN
+>はNagiosおよびMRTGに組み込まれたものですが、独立して実行させることができます。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は他のデータベース管理システムに比べ、保守作業は少ないと言えます。
+それでもなお、これらの作業に適切に注意することは、システムに対する快適かつ充実した経験を確実に得るのに効果があります。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="multibyte.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="routine-vacuuming.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>文字セットサポート</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="admin.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>定常的なバキューム作業</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

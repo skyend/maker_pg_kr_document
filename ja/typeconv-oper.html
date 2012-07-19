@@ -1,0 +1,500 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="型変換"
+HREF="typeconv.html"><LINK
+REL="PREVIOUS"
+TITLE="概要"
+HREF="typeconv-overview.html"><LINK
+REL="NEXT"
+TITLE="関数"
+HREF="typeconv-func.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="概要"
+HREF="typeconv-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="型変換"
+HREF="typeconv.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 10&#31456;型変換</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="型変換"
+HREF="typeconv.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数"
+HREF="typeconv-func.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TYPECONV-OPER"
+>10.2. 演算子</A
+></H1
+><P
+>演算式に参照される特定の演算子は、以下の手順を用いて決定されます。
+関連する演算子の優先順位によりどの下位式をどの演算子の入力と見なすかが決定されますので、この手順はこの優先順位により間接的な影響を受けることに注意して下さい。
+詳細は<A
+HREF="sql-syntax-lexical.html#SQL-PRECEDENCE"
+>&#38917;4.1.6</A
+>を参照してください。
+  </P
+><DIV
+CLASS="PROCEDURE"
+><P
+><B
+>演算子における型の解決</B
+></P
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+><CODE
+CLASS="CLASSNAME"
+>pg_operator</CODE
+>システムカタログから、調査の対象とする演算子を選択します。
+スキーマ修飾がされていない演算子名が使用される場合（通常の場合）、現行の検索パスで可視になっていて、同一の名前と引数の数を持つ演算子が調査対象であるとみなされます
+（<A
+HREF="ddl-schemas.html#DDL-SCHEMAS-PATH"
+>&#38917;5.7.3</A
+>を参照してください）。
+修飾された演算子名が与えられている場合、指定されたスキーマの演算子のみが調査対象とみなされます。</P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>検索パスで引数のデータ型が同じである複数の演算子を検出した場合、そのパスで最初に検出された演算子のみを調査対象とみなします。
+引数のデータ型が異なる演算子は、検索パス内の位置に関係なく、同じように調べられます。</P
+></LI
+></OL
+></LI
+><LI
+CLASS="STEP"
+><P
+>正確に入力引数型を受け付ける演算子があるかどうか検査します。
+該当する演算子があれば（調査される演算子の集合内で正確に一致するものは1つしかあり得ません）、それを使用します。</P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>二項演算子の1つの引数が<TT
+CLASS="TYPE"
+>unknown</TT
+>型であった場合、この検査のもう片方の引数と同一の型であると仮定します。
+2つの<TT
+CLASS="TYPE"
+>unknown</TT
+>入力、もしくは<TT
+CLASS="TYPE"
+>unknown</TT
+>入力を伴う単項演算子が呼び出された場合、この段階では対を見つけることはありません。</P
+></LI
+></OL
+></LI
+><LI
+CLASS="STEP"
+><P
+>最もよく合うものを検索します。</P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>演算子の候補のうち、入力値のデータ型が一致せず、また、（暗黙的な変換を使用して）一致するように変換できないものを破棄します。
+<TT
+CLASS="TYPE"
+>unknown</TT
+>リテラルは、上記の目的で何にでも変換可能とみなされます。
+1つの侯補しか残らない場合、それを使います。
+それ以外の場合は次の段階に進みます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>全ての侯補を検索し、入力型に最も正確に合うものを残します
+（この時、ドメインはその基本型と同一であるとみなします）。
+正確に合うものが何もなければ全ての侯補を残します。
+1つの侯補しか残らない場合、それを使います。
+それ以外の場合は次の段階に進みます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>全ての侯補を検索し、型変換が必要とされる所で（入力データ型カテゴリの）好ましい型を受け付けるものを残します。
+好ましい型を受け付けるものが何もなければ全ての侯補を残します。
+1つの侯補しか残らない場合、それを使います。
+それ以外の場合は次の段階に進みます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>入力引数で<TT
+CLASS="TYPE"
+>unknown</TT
+>のものがあった場合、それらの残った侯補に引数位置で受け入れられる型カテゴリを検査します。
+各位置において、候補が<TT
+CLASS="TYPE"
+>string</TT
+>カテゴリを受け付ける場合は、そのカテゴリを選択します
+（unknown 型のリテラルは文字列のようなものですので、この文字列への重み付けは適切です）。
+そうでなければ、もし残った全ての侯補が同じ型カテゴリを受け入れる場合はそのカテゴリを選択します。
+そうでもなければ、さらに手掛かりがなければ正しい選択が演繹されることができませんので、失敗となります。
+ここで、選択された型カテゴリを受け付けない演算子候補は破棄されます。
+さらに、それらカテゴリ内の好ましい型を受け付ける候補が1つでもある場合、その引数の好ましい型ではないものを受け付ける候補は破棄されます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>1つの侯補しか残らない場合、それを使います。
+もし侯補がない、もしくは1つより多い侯補が残る場合は失敗します。</P
+></LI
+></OL
+></LI
+></OL
+></DIV
+><P
+>以下に例を示します。</P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN19925"
+></A
+><P
+><B
+>&#20363; 10-1. 階乗演算子の型解決</B
+></P
+><P
+>階乗演算子として、<TT
+CLASS="TYPE"
+>bigint</TT
+>を引数とするものが標準カタログ内に1つのみ定義されています（<TT
+CLASS="LITERAL"
+>!</TT
+>を後に付けます）。
+スキャナは、以下の問い合わせ式の引数にまず<TT
+CLASS="TYPE"
+>integer</TT
+>型を割り当てます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT 40 ! AS "40 factorial";
+
+                   40 factorial
+--------------------------------------------------
+ 815915283247897734345611269596115894272000000000
+(1 row)</PRE
+><P>
+
+パーサはオペランドを型変換し、問い合わせは以下と等価になります。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT CAST(40 AS bigint) ! AS "40 factorial";</PRE
+><P></P
+></DIV
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN19933"
+></A
+><P
+><B
+>&#20363; 10-2. 文字列連結演算子の型解決</B
+></P
+><P
+>文字列類似構文は、文字列の作業の他、複雑な拡張型の作業にも使用されます。
+型の指定がない文字列は、類似演算子候補に一致します。</P
+><P
+>例えば、以下は指定がない引数が1つあります。
+</P><PRE
+CLASS="SCREEN"
+>SELECT text 'abc' || 'def' AS "text and unknown";
+
+ text and unknown
+------------------
+ abcdef
+(1 row)</PRE
+><P></P
+><P
+>この場合、パーサは両引数で<TT
+CLASS="TYPE"
+>text</TT
+>を取る演算子があるかどうかを検索します。
+この演算子は存在しますので、第二引数は<TT
+CLASS="TYPE"
+>text</TT
+>型として解釈されるものと仮定されます。</P
+><P
+>以下は型の指定がない連結です。
+</P><PRE
+CLASS="SCREEN"
+>SELECT 'abc' || 'def' AS "unspecified";
+
+ unspecified
+-------------
+ abcdef
+(1 row)</PRE
+><P></P
+><P
+>この場合、問い合わせ内に型が指定されていませんので、どの型を使用すべきかについての初期の指針がありません。
+ですから、パーサは全ての演算子候補を検索し、文字列カテゴリとビット列カテゴリ入力を受け付ける候補を見つけます。
+使用できる場合は文字列カテゴリが優先されますので、文字列カテゴリが選択され、それからその好ましい型である<TT
+CLASS="TYPE"
+>text</TT
+>が、不明のリテラルを解決する型として使用されます。</P
+></DIV
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN19945"
+></A
+><P
+><B
+>&#20363; 10-3. 絶対値と否定演算子の型解決</B
+></P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の演算子カタログには、前置演算子<TT
+CLASS="LITERAL"
+>@</TT
+>用に複数の項目があります。
+これは全て各種数値データ型に対する絶対値計算を実装するものです。
+その1つは、数値カテゴリの好ましい型である<TT
+CLASS="TYPE"
+>float8</TT
+>型用の項目です。
+したがって、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、<TT
+CLASS="TYPE"
+>unknown</TT
+>の入力があった場合にこれを使用します。
+</P><PRE
+CLASS="SCREEN"
+>SELECT @ '-4.5' AS "abs";
+ abs
+-----
+ 4.5
+(1 row)</PRE
+><P>
+ここでシステムは、選択した演算子を適用する前に、unknown型のリテラルを<TT
+CLASS="TYPE"
+>float8</TT
+>へ暗黙的に型変換します。
+以下のように<TT
+CLASS="TYPE"
+>float8</TT
+>が使用され、他の型が使用されていないことを検証することができます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT @ '-4.5e500' AS "abs";
+
+ERROR:  "-4.5e500" is out of range for type double precision</PRE
+><P></P
+><P
+>一方、前置演算子<TT
+CLASS="LITERAL"
+>~</TT
+>（ビット否定）は、整数データ型のみで定義され、<TT
+CLASS="TYPE"
+>float8</TT
+>用は定義されていません。
+ですから、<TT
+CLASS="LITERAL"
+>~</TT
+>における上と同様の場合では、以下のような結果になります。
+</P><PRE
+CLASS="SCREEN"
+>SELECT ~ '20' AS "negation";
+
+ERROR:  operator is not unique: ~ "unknown"
+HINT:  Could not choose a best candidate operator. You might need to add
+explicit type casts.</PRE
+><P>
+これは、システムが、複数の<TT
+CLASS="LITERAL"
+>~</TT
+>演算子候補のうちどれが好ましいかを決定することができなかったため発生します。
+明示的なキャストを使用することで補助することができます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT ~ CAST('20' AS int8) AS "negation";
+
+ negation
+----------
+      -21
+(1 row)</PRE
+><P></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="typeconv-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="typeconv-func.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>概要</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="typeconv.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,727 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>情報スキーマ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="クライアントインタフェース"
+HREF="client-interfaces.html"><LINK
+REL="PREVIOUS"
+TITLE="内部"
+HREF="ecpg-develop.html"><LINK
+REL="NEXT"
+TITLE="スキーマ"
+HREF="infoschema-schema.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="内部"
+HREF="ecpg-develop.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバプログラミング"
+HREF="server-programming.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="スキーマ"
+HREF="infoschema-schema.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="INFORMATION-SCHEMA"
+></A
+>&#31532; 34&#31456;情報スキーマ</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>34.1. <A
+HREF="infoschema-schema.html"
+>スキーマ</A
+></DT
+><DT
+>34.2. <A
+HREF="infoschema-datatypes.html"
+>データ型</A
+></DT
+><DT
+>34.3. <A
+HREF="infoschema-information-schema-catalog-name.html"
+><TT
+CLASS="LITERAL"
+>information_schema_catalog_name</TT
+></A
+></DT
+><DT
+>34.4. <A
+HREF="infoschema-administrable-role-authorizations.html"
+><TT
+CLASS="LITERAL"
+>administrable_role_authorizations</TT
+></A
+></DT
+><DT
+>34.5. <A
+HREF="infoschema-applicable-roles.html"
+><TT
+CLASS="LITERAL"
+>applicable_roles</TT
+></A
+></DT
+><DT
+>34.6. <A
+HREF="infoschema-attributes.html"
+><TT
+CLASS="LITERAL"
+>attributes</TT
+></A
+></DT
+><DT
+>34.7. <A
+HREF="infoschema-character-sets.html"
+><TT
+CLASS="LITERAL"
+>character_sets</TT
+></A
+></DT
+><DT
+>34.8. <A
+HREF="infoschema-check-constraint-routine-usage.html"
+><TT
+CLASS="LITERAL"
+>check_constraint_routine_usage</TT
+></A
+></DT
+><DT
+>34.9. <A
+HREF="infoschema-check-constraints.html"
+><TT
+CLASS="LITERAL"
+>check_constraints</TT
+></A
+></DT
+><DT
+>34.10. <A
+HREF="infoschema-collations.html"
+><TT
+CLASS="LITERAL"
+>collations</TT
+></A
+></DT
+><DT
+>34.11. <A
+HREF="infoschema-collation-character-set-applicab.html"
+><TT
+CLASS="LITERAL"
+>collation_character_set_applicability</TT
+></A
+></DT
+><DT
+>34.12. <A
+HREF="infoschema-column-domain-usage.html"
+><TT
+CLASS="LITERAL"
+>column_domain_usage</TT
+></A
+></DT
+><DT
+>34.13. <A
+HREF="infoschema-column-privileges.html"
+><TT
+CLASS="LITERAL"
+>column_privileges</TT
+></A
+></DT
+><DT
+>34.14. <A
+HREF="infoschema-column-udt-usage.html"
+><TT
+CLASS="LITERAL"
+>column_udt_usage</TT
+></A
+></DT
+><DT
+>34.15. <A
+HREF="infoschema-columns.html"
+><TT
+CLASS="LITERAL"
+>columns</TT
+></A
+></DT
+><DT
+>34.16. <A
+HREF="infoschema-constraint-column-usage.html"
+><TT
+CLASS="LITERAL"
+>constraint_column_usage</TT
+></A
+></DT
+><DT
+>34.17. <A
+HREF="infoschema-constraint-table-usage.html"
+><TT
+CLASS="LITERAL"
+>constraint_table_usage</TT
+></A
+></DT
+><DT
+>34.18. <A
+HREF="infoschema-data-type-privileges.html"
+><TT
+CLASS="LITERAL"
+>data_type_privileges</TT
+></A
+></DT
+><DT
+>34.19. <A
+HREF="infoschema-domain-constraints.html"
+><TT
+CLASS="LITERAL"
+>domain_constraints</TT
+></A
+></DT
+><DT
+>34.20. <A
+HREF="infoschema-domain-udt-usage.html"
+><TT
+CLASS="LITERAL"
+>domain_udt_usage</TT
+></A
+></DT
+><DT
+>34.21. <A
+HREF="infoschema-domains.html"
+><TT
+CLASS="LITERAL"
+>domains</TT
+></A
+></DT
+><DT
+>34.22. <A
+HREF="infoschema-element-types.html"
+><TT
+CLASS="LITERAL"
+>element_types</TT
+></A
+></DT
+><DT
+>34.23. <A
+HREF="infoschema-enabled-roles.html"
+><TT
+CLASS="LITERAL"
+>enabled_roles</TT
+></A
+></DT
+><DT
+>34.24. <A
+HREF="infoschema-foreign-data-wrapper-options.html"
+><TT
+CLASS="LITERAL"
+>foreign_data_wrapper_options</TT
+></A
+></DT
+><DT
+>34.25. <A
+HREF="infoschema-foreign-data-wrappers.html"
+><TT
+CLASS="LITERAL"
+>foreign_data_wrappers</TT
+></A
+></DT
+><DT
+>34.26. <A
+HREF="infoschema-foreign-server-options.html"
+><TT
+CLASS="LITERAL"
+>foreign_server_options</TT
+></A
+></DT
+><DT
+>34.27. <A
+HREF="infoschema-foreign-servers.html"
+><TT
+CLASS="LITERAL"
+>foreign_servers</TT
+></A
+></DT
+><DT
+>34.28. <A
+HREF="infoschema-foreign-table-options.html"
+><TT
+CLASS="LITERAL"
+>foreign_table_options</TT
+></A
+></DT
+><DT
+>34.29. <A
+HREF="infoschema-foreign-tables.html"
+><TT
+CLASS="LITERAL"
+>foreign_tables</TT
+></A
+></DT
+><DT
+>34.30. <A
+HREF="infoschema-key-column-usage.html"
+><TT
+CLASS="LITERAL"
+>key_column_usage</TT
+></A
+></DT
+><DT
+>34.31. <A
+HREF="infoschema-parameters.html"
+><TT
+CLASS="LITERAL"
+>parameters</TT
+></A
+></DT
+><DT
+>34.32. <A
+HREF="infoschema-referential-constraints.html"
+><TT
+CLASS="LITERAL"
+>referential_constraints</TT
+></A
+></DT
+><DT
+>34.33. <A
+HREF="infoschema-role-column-grants.html"
+><TT
+CLASS="LITERAL"
+>role_column_grants</TT
+></A
+></DT
+><DT
+>34.34. <A
+HREF="infoschema-role-routine-grants.html"
+><TT
+CLASS="LITERAL"
+>role_routine_grants</TT
+></A
+></DT
+><DT
+>34.35. <A
+HREF="infoschema-role-table-grants.html"
+><TT
+CLASS="LITERAL"
+>role_table_grants</TT
+></A
+></DT
+><DT
+>34.36. <A
+HREF="infoschema-role-usage-grants.html"
+><TT
+CLASS="LITERAL"
+>role_usage_grants</TT
+></A
+></DT
+><DT
+>34.37. <A
+HREF="infoschema-routine-privileges.html"
+><TT
+CLASS="LITERAL"
+>routine_privileges</TT
+></A
+></DT
+><DT
+>34.38. <A
+HREF="infoschema-routines.html"
+><TT
+CLASS="LITERAL"
+>routines</TT
+></A
+></DT
+><DT
+>34.39. <A
+HREF="infoschema-schemata.html"
+><TT
+CLASS="LITERAL"
+>schemata</TT
+></A
+></DT
+><DT
+>34.40. <A
+HREF="infoschema-sequences.html"
+><TT
+CLASS="LITERAL"
+>sequences</TT
+></A
+></DT
+><DT
+>34.41. <A
+HREF="infoschema-sql-features.html"
+><TT
+CLASS="LITERAL"
+>sql_features</TT
+></A
+></DT
+><DT
+>34.42. <A
+HREF="infoschema-sql-implementation-info.html"
+><TT
+CLASS="LITERAL"
+>sql_implementation_info</TT
+></A
+></DT
+><DT
+>34.43. <A
+HREF="infoschema-sql-languages.html"
+><TT
+CLASS="LITERAL"
+>sql_languages</TT
+></A
+></DT
+><DT
+>34.44. <A
+HREF="infoschema-sql-packages.html"
+><TT
+CLASS="LITERAL"
+>sql_packages</TT
+></A
+></DT
+><DT
+>34.45. <A
+HREF="infoschema-sql-parts.html"
+><TT
+CLASS="LITERAL"
+>sql_parts</TT
+></A
+></DT
+><DT
+>34.46. <A
+HREF="infoschema-sql-sizing.html"
+><TT
+CLASS="LITERAL"
+>sql_sizing</TT
+></A
+></DT
+><DT
+>34.47. <A
+HREF="infoschema-sql-sizing-profiles.html"
+><TT
+CLASS="LITERAL"
+>sql_sizing_profiles</TT
+></A
+></DT
+><DT
+>34.48. <A
+HREF="infoschema-table-constraints.html"
+><TT
+CLASS="LITERAL"
+>table_constraints</TT
+></A
+></DT
+><DT
+>34.49. <A
+HREF="infoschema-table-privileges.html"
+><TT
+CLASS="LITERAL"
+>table_privileges</TT
+></A
+></DT
+><DT
+>34.50. <A
+HREF="infoschema-tables.html"
+><TT
+CLASS="LITERAL"
+>tables</TT
+></A
+></DT
+><DT
+>34.51. <A
+HREF="infoschema-triggered-update-columns.html"
+><TT
+CLASS="LITERAL"
+>triggered_update_columns</TT
+></A
+></DT
+><DT
+>34.52. <A
+HREF="infoschema-triggers.html"
+><TT
+CLASS="LITERAL"
+>triggers</TT
+></A
+></DT
+><DT
+>34.53. <A
+HREF="infoschema-usage-privileges.html"
+><TT
+CLASS="LITERAL"
+>usage_privileges</TT
+></A
+></DT
+><DT
+>34.54. <A
+HREF="infoschema-user-mapping-options.html"
+><TT
+CLASS="LITERAL"
+>user_mapping_options</TT
+></A
+></DT
+><DT
+>34.55. <A
+HREF="infoschema-user-mappings.html"
+><TT
+CLASS="LITERAL"
+>user_mappings</TT
+></A
+></DT
+><DT
+>34.56. <A
+HREF="infoschema-view-column-usage.html"
+><TT
+CLASS="LITERAL"
+>view_column_usage</TT
+></A
+></DT
+><DT
+>34.57. <A
+HREF="infoschema-view-routine-usage.html"
+><TT
+CLASS="LITERAL"
+>view_routine_usage</TT
+></A
+></DT
+><DT
+>34.58. <A
+HREF="infoschema-view-table-usage.html"
+><TT
+CLASS="LITERAL"
+>view_table_usage</TT
+></A
+></DT
+><DT
+>34.59. <A
+HREF="infoschema-views.html"
+><TT
+CLASS="LITERAL"
+>views</TT
+></A
+></DT
+></DL
+></DIV
+><P
+>情報スキーマは、現在のデータベースで定義されたオブジェクトについての情報を持つビューの集合から構成されます。
+情報スキーマは標準SQLで定義されています。
+したがって、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に特化し、実装上の事項にならって作成されるシステムカタログとは異なり、移植性があり、安定性を保持できるものと期待することができます。
+しかし、情報スキーマのビューには、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>固有の機能についての情報が含まれていません。
+これに問い合わせを行うためには、システムカタログもしくは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>固有のビューに問い合わせを行う必要があります。
+ </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>制約情報についてデータベースに問い合わせるとき、一行を返すことが想定される標準に準拠したクエリが数行の結果を返す場合があります。これは、制約名がスキーマ内で一意になることをSQL標準が要求しているのに対して、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はこの制約を強制しないためです。<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は自動生成される制約の名前がスキーマ内で重複することを防ぎますが、ユーザは重複する名前を指定することができます。
+  </P
+><P
+>この問題は、<TT
+CLASS="LITERAL"
+>check_constraint_routine_usage</TT
+>や<TT
+CLASS="LITERAL"
+>check_constraints</TT
+>、<TT
+CLASS="LITERAL"
+>domain_constraints</TT
+>、<TT
+CLASS="LITERAL"
+>referential_constraints</TT
+>といった情報スキーマビューを検索するときに表面化することがあります。いくつかの他のビューにも同様の問題がありますが、重複行を識別する助けになるテーブル名を含んでいます。例えば<TT
+CLASS="LITERAL"
+>constraint_column_usage</TT
+>や<TT
+CLASS="LITERAL"
+>constraint_table_usage</TT
+>、<TT
+CLASS="LITERAL"
+>table_constraints</TT
+>などです。
+  </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-develop.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="infoschema-schema.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>内部</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="client-interfaces.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>スキーマ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,1154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>明示的ロック</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="同時実行制御"
+HREF="mvcc.html"><LINK
+REL="PREVIOUS"
+TITLE="トランザクションの分離"
+HREF="transaction-iso.html"><LINK
+REL="NEXT"
+TITLE="アプリケーションレベルでのデータの一貫性チェック"
+HREF="applevel-consistency.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="トランザクションの分離"
+HREF="transaction-iso.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="同時実行制御"
+HREF="mvcc.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 13&#31456;同時実行制御</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="同時実行制御"
+HREF="mvcc.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="アプリケーションレベルでのデータの一貫性チェック"
+HREF="applevel-consistency.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="EXPLICIT-LOCKING"
+>13.3. 明示的ロック</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、テーブル内のデータに対する同時アクセスを制御するために様々な種類のロックモードを備えています。
+これらのモードは、<ACRONYM
+CLASS="ACRONYM"
+>MVCC</ACRONYM
+>では必要な動作を得られない場合、アプリケーション制御のロックに使用することができます。
+また、ほとんどの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>コマンドでは、参照されるテーブルがそのコマンドの実行中に別の方法で削除もしくは変更されていないことを確実にするために、適切なモードのロックを自動的に獲得します。
+（例えば、<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>コマンドは、同じテーブルに対する他の操作とは同時に実行することは危険です。
+そのため、そのテーブルへの排他ロックを強制的に獲得します。）
+   </P
+><P
+>現在のデータベースサーバで重要なロックの一覧を確認するには、<A
+HREF="view-pg-locks.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_locks</TT
+></A
+>システムビューを使用してください。
+ロック管理サブシステムの状況監視についての詳細は<A
+HREF="monitoring.html"
+>&#31532;27&#31456;</A
+>を参照してください。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LOCKING-TABLES"
+>13.3.1. テーブルレベルロック</A
+></H2
+><P
+>以下のリストに、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で自動的に使用される、使用可能なロックモードとその文脈を示します。
+また、<A
+HREF="sql-lock.html"
+>LOCK</A
+>コマンドを使用して、こうしたロックを明示的に獲得することもできます。
+これらのロックモードは、たとえその名前に<SPAN
+CLASS="QUOTE"
+>"row（行）"</SPAN
+>という言葉が付いていても、全てテーブルレベルのロックであることに注意してください。
+ロックモードの名前は歴史的なものです。
+これらの名前は、各ロックモードの代表的な使用方法をある程度表しています。
+しかし、意味的には全て同じです。
+ロックモード間における唯一の実質的な差異は、どのモードがどのモードと競合するかというロックモードの組み合わせです(<A
+HREF="explicit-locking.html#TABLE-LOCK-COMPATIBILITY"
+>&#34920;13-2</A
+>を参照してください)。
+2つのトランザクションで、競合するモードのロックを同時に同一テーブル上に保持することはできません
+（しかし、トランザクションは自分自身とは決して競合しません。
+例えば、<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックを獲得し、その後同じテーブルに<TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+>ロックを獲得できる可能性があります）。
+競合しないロックモードは、多くのトランザクションで同時に保持することが可能です。
+特に、ロックモードには、自己競合するもの（例えば、<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>は同時に複数のトランザクションで保持することは不可能）と、自己競合しないもの（例えば、<TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+>は複数のトランザクションで保持可能）があることに注意してください。
+   </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><P
+><B
+>テーブルレベルロックモード</B
+></P
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+></DT
+><DD
+><P
+>         <TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックモードとのみ競合します。
+        </P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドにより、参照されるテーブルに対してこのモードのロックが獲得されます。
+通常、テーブルの<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>読み取り</I
+></SPAN
+>のみで変更を行わない問い合わせであれば全て、このロックモードを獲得します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ROW SHARE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>EXCLUSIVE</TT
+>および<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックモードと競合します。
+        </P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>および<TT
+CLASS="COMMAND"
+>SELECT FOR SHARE</TT
+>コマンドは、（参照はされているが、<TT
+CLASS="OPTION"
+>FOR UPDATE/FOR SHARE</TT
+>として選択はされていない他のテーブルに対する<TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+>ロックに加えて）対象となるテーブル上にこのモードのロックを獲得します。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>SHARE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>EXCLUSIVE</TT
+>、および<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックモードと競合します。
+        </P
+><P
+><TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、および<TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンドは、（参照される他の全てのテーブルに対する<TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+>ロックに加えて）対象となるテーブル上にこのモードのロックを獲得します。
+通常、このロックモードは、テーブルの<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>データを変更する</I
+></SPAN
+>問い合わせにより獲得されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SHARE UPDATE EXCLUSIVE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>SHARE UPDATE EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>EXCLUSIVE</TT
+>、および<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックモードと競合します。
+このモードにより、同時実行されるスキーマの変更および<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>コマンドの実行から、テーブルを保護します。
+        </P
+><P
+>（<TT
+CLASS="OPTION"
+>FULL</TT
+>なしの）<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>コマンド、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>コマンド、<TT
+CLASS="COMMAND"
+>CREATE INDEX CONCURRENTLY</TT
+>、および、<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>のいくつかの形式によって獲得されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SHARE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE UPDATE EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>EXCLUSIVE</TT
+>、および<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックモードと競合します。
+このモードは、同時実行されるデータ変更からテーブルを保護します。
+        </P
+><P
+>         （<TT
+CLASS="OPTION"
+>CONCURRENTLY</TT
+>なしの）<TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+>によって獲得されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE UPDATE EXCLUSIVE</TT
+>、
+<TT
+CLASS="LITERAL"
+>SHARE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>EXCLUSIVE</TT
+>、および<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックモードと競合します。
+このモードは、1つのセッションだけが一度にそれを保持することができるよう、自己排他的に同時のデータ変更からテーブルを保護します。
+        </P
+><P
+>このロックモードを自動的に獲得する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>コマンドはありません。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>EXCLUSIVE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>ROW SHARE</TT
+>、<TT
+CLASS="LITERAL"
+>ROW EXCLUSIVE</TT
+>、
+<TT
+CLASS="LITERAL"
+>SHARE UPDATE EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE</TT
+>、
+<TT
+CLASS="LITERAL"
+>SHARE ROW EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>EXCLUSIVE</TT
+>、および<TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックモードと競合します。
+このモードは、同時実行される<TT
+CLASS="LITERAL"
+>ACCESS SHARE</TT
+>のみを許可します。
+つまり、このロックモードを保持するトランザクションと並行して実行できる処理は、テーブルの読み取りだけです。
+        </P
+><P
+>ユーザテーブルに対してこのロックモードを自動的に獲得する<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>コマンドはありません。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+></DT
+><DD
+><P
+>全てのモードのロック（<TT
+CLASS="LITERAL"
+>ACCESS
+         SHARE</TT
+>、<TT
+CLASS="LITERAL"
+>ROW SHARE</TT
+>、<TT
+CLASS="LITERAL"
+>ROW
+         EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE UPDATE
+         EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE</TT
+>、<TT
+CLASS="LITERAL"
+>SHARE
+         ROW EXCLUSIVE</TT
+>、<TT
+CLASS="LITERAL"
+>EXCLUSIVE</TT
+>、および
+         <TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>）と競合します。
+このモードにより、その保持者以外にテーブルにアクセスするトランザクションがないことが保証されます。
+        </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>、<TT
+CLASS="COMMAND"
+>DROP TABLE</TT
+>、<TT
+CLASS="COMMAND"
+>TRUNCATE</TT
+>、<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>、<TT
+CLASS="COMMAND"
+>CLUSTER</TT
+>、<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>コマンドによって獲得されます。
+また、明示的にモードを指定しなければ、これが<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>文を使用する際のデフォルトのロックモードです。
+        </P
+></DD
+></DL
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+><TT
+CLASS="LITERAL"
+>ACCESS EXCLUSIVE</TT
+>ロックのみが、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>（<TT
+CLASS="OPTION"
+>FOR UPDATE/SHARE</TT
+>なし）文をブロックします。
+      </P
+></BLOCKQUOTE
+></DIV
+><P
+>通常ロックは獲得した後、トランザクションの終わりまで保持されます。
+しかし、ロックがセーブポイントの確立後に獲得された場合、セーブポイントがロールバックされると、ロックは即座に解放されます。
+これは、<TT
+CLASS="COMMAND"
+>ROLLBACK</TT
+>がセーブポイント以降に行われたすべてのコマンドの効果を取消すという原則と整合性が取れています。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>例外ブロック内で獲得されたロックに対しても同様です。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>例外ブロック内で獲得されたロックに対しても道央です。
+そのブロックからエラーで抜けた後、獲得されたロックは解放されます。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="TABLE-LOCK-COMPATIBILITY"
+></A
+><P
+><B
+>&#34920; 13-2.  ロックモードの競合</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL
+WIDTH="1*"
+TITLE="lockst"><COL><COL><COL><COL><COL><COL><COL
+WIDTH="1*"
+TITLE="lockend"><THEAD
+><TR
+><TH
+ROWSPAN="2"
+>要求するロックモード</TH
+><TH
+COLSPAN="8"
+>現在のロックモード</TH
+></TR
+><TR
+><TH
+>ACCESS SHARE</TH
+><TH
+>ROW SHARE</TH
+><TH
+>ROW EXCLUSIVE</TH
+><TH
+>SHARE UPDATE EXCLUSIVE</TH
+><TH
+>SHARE</TH
+><TH
+>SHARE ROW EXCLUSIVE</TH
+><TH
+>EXCLUSIVE</TH
+><TH
+>ACCESS EXCLUSIVE</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>ACCESS SHARE</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+></TR
+><TR
+><TD
+>ROW SHARE</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+></TR
+><TR
+><TD
+>ROW EXCLUSIVE</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+></TR
+><TR
+><TD
+>SHARE UPDATE EXCLUSIVE</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+></TR
+><TR
+><TD
+>SHARE</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+></TR
+><TR
+><TD
+>SHARE ROW EXCLUSIVE</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+></TR
+><TR
+><TD
+>EXCLUSIVE</TD
+><TD
+ALIGN="CENTER"
+>&nbsp;</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+></TR
+><TR
+><TD
+>ACCESS EXCLUSIVE</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+><TD
+ALIGN="CENTER"
+>X</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LOCKING-ROWS"
+>13.3.2. 行レベルロック</A
+></H2
+><P
+>テーブルレベルロックに加えて、排他ロックまたは共有ロックを行うことができる、行レベルロックがあります。
+特定の行に対する行レベルの排他ロックは、行が更新または削除される時に自動的に獲得されます。
+トランザクションがコミットまたはロールバックされるまで、単にテーブルレベルロックのように、このロックは保持されます。
+行レベルロックは、データの問い合わせには影響を与えません。
+行レベルロックは、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>同じ行に対する書き込み</I
+></SPAN
+>だけををブロックします。
+    </P
+><P
+>実際に行を変更せずに行に対して行レベルロックを獲得するには、該当する行を<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>で選択してください。
+いったん行レベルロックが獲得されると、競合を心配しないで、そのトランザクション内では何回でも行の変更が可能であるということを覚えておいてください。
+    </P
+><P
+>ある行に対する行レベルの共有ロックを獲得するには、<TT
+CLASS="COMMAND"
+>SELECT FOR SHARE</TT
+>を使用してその行を選択してください。
+共有ロックは、他のトランザクションによる同じ共有ロックの獲得を阻害しません。
+しかし、他のトランザクションが共有ロックを保持している行に対して、更新、削除、排他ロックの獲得を行うことができるトランザクションはありません。
+これらを試すと、共有ロックが解放されるまでブロックされます。
+    </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、メモリ上に変更された行の情報を記憶しないため、同時にロックできる行数の上限はありません。
+しかし、行をロックする際に、ディスクに書き込む作業が発生するかもしれません。
+例えば<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>は、選択された行をロックしたものと印を付けるために変更を行いますので、ディスクにその結果を書き込むことになります。
+    </P
+><P
+>テーブルと行ロックに加え、ページレベルの共有/排他ロックがあり、これらは共有バッファプールにあるテーブルページへの読み書きのアクセスを管理するために使用されます。
+これらのロックは、行が取得された後や更新された後に即座に解除されます。
+アプリケーション開発者は通常ページレベルロックを考慮する必要はありませんが、ロックについて全てを説明したかったためここで取り上げました。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LOCKING-DEADLOCKS"
+>13.3.3. デッドロック</A
+></H2
+><P
+>明示的なロックの使用は、<I
+CLASS="FIRSTTERM"
+>デッドロック</I
+>の原因となる可能性があります。
+デッドロックとは、2つ（もしくはそれ以上）のトランザクションにおいて、それぞれが、他方のトランザクションが必要とするロックを所持してしまうことです。
+例えば、トランザクション1がテーブルAに排他ロックを獲得していて、次にテーブルBに排他ロックを獲得しようとする際に、トランザクション2が既にテーブルBに排他ロックを獲得済みであって、今からテーブルAに排他ロックを獲得しようと試みる場合、どちらのトランザクションも処理を進められません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、自動的にデッドロック状況を検知し、関係するトランザクションの一方をアボートすることにより、この状況を解決し、もう一方のトランザクションの処理を完了させます
+（どちらのトランザクションをアボートするかを正確に予期するのは難しく、これに依存すべきではありません）。
+    </P
+><P
+>デッドロックは行レベルロックの結果として発生する可能性があります
+（したがって、明示的なロック処理を使用していなくても発生する可能性があります）。
+2つの同時実行トランザクションがあるテーブルを変更する状況を考えてみます。
+1つ目のトランザクションは以下を実行します。
+</P><PRE
+CLASS="SCREEN"
+>UPDATE accounts SET balance = balance + 100.00 WHERE acctnum = 11111;</PRE
+><P>
+
+これは、指定した口座番号の行に対し行レベルロックを獲得します。
+次に2番目のトランザクションが以下を実行します。
+
+</P><PRE
+CLASS="SCREEN"
+>UPDATE accounts SET balance = balance + 100.00 WHERE acctnum = 22222;
+UPDATE accounts SET balance = balance - 100.00 WHERE acctnum = 11111;</PRE
+><P>
+
+1つ目の<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>文は指定された行に対する行レベルロックの獲得に成功し、この行の更新に成功します。
+しかし、2つ目の<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>文は、更新対象の行がロックされていることを検知し、ロックを獲得したトランザクションが完了するまで待機します。
+トランザクション2は、ここで、続きを実行する前にトランザクション1が完了するのを待機しています。
+さて、トランザクション1がここで以下を実行します。
+
+</P><PRE
+CLASS="SCREEN"
+>UPDATE accounts SET balance = balance - 100.00 WHERE acctnum = 22222;</PRE
+><P>
+
+トランザクション1は指定した行の行レベルロックを獲得しようとしますが、これは不可能です。
+トランザクション2がそのロックを既に獲得しているからです。
+そのため、トランザクション2が完了するのを待機することになります。
+こうして、トランザクション1はトランザクション2でブロックされ、トランザクション2はトランザクション1でブロックされる、つまり、デッドロック状態です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はデッドロック状態を検知し、片方のトランザクションを中断させます。
+    </P
+><P
+>デッドロックを防ぐ最も良い方法は、データベースを使用する全てのアプリケーションが、整合性のある順序で複数のオブジェクトに対するロックを獲得することです。
+前に示したデッドロックの例で、もし両方のトランザクションで同じ順序で行を更新していたらデッドロックは起こりません。
+また、トランザクション内のオブジェクトに対して獲得した最初のロックが、そのオブジェクトが必要とする最も制限的なモードであることを確実に保証すべきです。
+このことが事前に検証できない場合、デッドロックによりアボートするトランザクションを再試行すれば、デッドロックをデータベースを稼働させながらでも処理することができます。
+    </P
+><P
+>デッドロック状況が検出されなければ、テーブルレベルロックもしくは行レベルロックを要求するトランザクションは、競合するロックが解放されるまで、無期限に待機します。
+したがって、アプリケーションで長時間（例えば、ユーザの入力待ち）トランザクションを開いたまま保持しておくのは、推奨されません。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ADVISORY-LOCKS"
+>13.3.4. 勧告的ロック</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、アプリケーション独自の意味を持つロックを生成する手法を提供します。
+これは、その使用に関してシステムによる制限がないこと、つまり、正しい使用に関してはアプリケーションが責任を持つことから<I
+CLASS="FIRSTTERM"
+>勧告的ロック</I
+>と呼ばれます。
+勧告的ロックは、MVCC方式に合わせづらいロック計画で有用に使用することができます。
+例えば、一般的な勧告的ロックの使用方法は、よく<SPAN
+CLASS="QUOTE"
+>"フラットファイル"</SPAN
+>データ管理システムと呼ばれる、悲観的ロックの戦略をエミュレートすることです。
+同様の目的で、テーブル内にフラグを格納することもできますが、勧告的ロックの方が高速で、テーブルの肥大化を防ぐことができ、またセッション終了時にはサーバにより自動的に除去されます。
+    </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には、2つの異なるタイプの勧告的ロックがあります。
+セッションレベルとトランザクションレベルがあります。セッションレベルで一旦獲得すると、勧告的ロックは明示的に解放されるか、セッションが終了するまで保持されます。
+標準的なロック要求とは異なり、セッションレベルでの勧告的ロック要求はトランザクションという意味には従いません。
+ロックがトランザクション期間中に獲得され、そのトランザクションを後でロールバックしたとしても、ロールバック後も保持されます。
+そして、呼び出し元のトランザクションが後で失敗したとしてもアンロックは有効です。
+所有するプロセスの中でロックを複数回獲得することもできます。
+この場合、個々の完了したロック要求に対して、ロックを実際に解放する前に対応するアンロック要求が存在しなければなりません。
+一方トランザクションレベルのロックは、より通常ロック要求に似たような動作します。
+それらは、トランザクションの終わりに自動的に解放され、明示的にアンロックすることはできません。
+この動作は、セッションレベルで勧告的ロックを短期間で使用する動作よりも、より便利な場合が多くあります。
+セッションレベルとトランザクションレベルで、同じ勧告的ロックの識別子を使ったロック要求は、期待通り互いにブロックするでしょう。
+セッションが与えられた勧告的ロックを既に保持していれば、他のセッションがロックを待っていても、追加の要求は常に成功するでしょう。
+これについては、既存のロックおよび新しい要求がセッションレベル、トランザクションレベルのどちらであっても、そのようになります。
+    </P
+><P
+>すべての<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のロックと同様、
+任意のセッションで現在保持されている勧告的ロックはすべて、<A
+HREF="view-pg-locks.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_locks</TT
+></A
+>システムビューで列挙されています。
+    </P
+><P
+>勧告的ロックと通常ロックはどちらも共有メモリプールに格納され、その容量は<A
+HREF="runtime-config-locks.html#GUC-MAX-LOCKS-PER-TRANSACTION"
+>max_locks_per_transaction</A
+>と<A
+HREF="runtime-config-connection.html#GUC-MAX-CONNECTIONS"
+>max_connections</A
+>設定変数により決定されます。
+このメモリを浪費しないように注意が必要です。
+さもないと、サーバはロック獲得をまったく許可することができなくなります。
+これは、サーバで許可できる勧告的ロック数に上限があることを意味します。
+サーバの設定によりますが、通常、1万から10万程度になります。
+    </P
+><P
+>特に明示的な順序付けと<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>句を持つ問い合わせでは、勧告的ロックモードを使用する幾つかの場合において、SQL式が評価される順序を考慮し獲得されたロックを制御することに気を配らなければなりません。
+以下に例を示します。
+</P><PRE
+CLASS="SCREEN"
+>SELECT pg_advisory_lock(id) FROM foo WHERE id = 12345; -- 問題なし
+SELECT pg_advisory_lock(id) FROM foo WHERE id &gt; 12345 LIMIT 100; -- 危険！
+SELECT pg_advisory_lock(q.id) FROM
+(
+  SELECT id FROM foo WHERE id &gt; 12345 LIMIT 100
+) q; -- 問題なし</PRE
+><P>
+上の例では、ロック獲得関数が実行される前に<TT
+CLASS="LITERAL"
+>LIMIT</TT
+> が適用されることを保障できないため、2番目の形式は危険です。
+これにより、アプリケーションが想定していないなんからのロックが生成される可能性があります。
+そのため、（セッションが終了するまで）解放に失敗することになります。
+アプリケーションから見ると、こうしたロックはただの飾りですが、<TT
+CLASS="STRUCTNAME"
+>pg_locks</TT
+>からは参照され続けます。
+    </P
+><P
+>勧告的ロックを扱うための関数については、<A
+HREF="functions-admin.html#FUNCTIONS-ADVISORY-LOCKS"
+>&#34920;9-62</A
+>で説明します。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="transaction-iso.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="applevel-consistency.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>トランザクションの分離</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="mvcc.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>アプリケーションレベルでのデータの一貫性チェック</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

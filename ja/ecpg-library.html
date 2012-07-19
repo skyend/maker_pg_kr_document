@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ライブラリ関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"><LINK
+REL="PREVIOUS"
+TITLE="埋め込みSQLプログラムの処理"
+HREF="ecpg-process.html"><LINK
+REL="NEXT"
+TITLE="ラージオブジェクト"
+HREF="ecpg-lo.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="埋め込みSQLプログラムの処理"
+HREF="ecpg-process.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 33&#31456;<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+> - C言語による埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ECPG - C言語による埋め込みSQL"
+HREF="ecpg.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ラージオブジェクト"
+HREF="ecpg-lo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ECPG-LIBRARY"
+>33.11. ライブラリ関数</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>libecpg</TT
+>ライブラリには基本的に、埋め込みSQLコマンドで表現される機能を実装するために使用する<SPAN
+CLASS="QUOTE"
+>"隠された"</SPAN
+>関数が含まれています。
+しかし、直接呼び出すことができる便利な関数もあります。
+これによりコードが移植不可能になることに注意してください。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>ECPGdebug(int <TT
+CLASS="REPLACEABLE"
+><I
+>on</I
+></TT
+>, FILE *<TT
+CLASS="REPLACEABLE"
+><I
+>stream</I
+></TT
+>)</CODE
+>は第1引数が0以外で渡された場合、デバッグログを有効にします。
+デバッグログは<TT
+CLASS="REPLACEABLE"
+><I
+>stream</I
+></TT
+>に出力されます。
+このログには、すべての入力変数が挿入されたすべての<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文と、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバが返した結果が含まれます。
+<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文のエラーを見つける時に非常に役に立ちます。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>Windowsでは、<SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>ライブラリとアプリケーションが異なるフラグでコンパイルされると、この関数の呼び出しは、<TT
+CLASS="LITERAL"
+>FILE</TT
+>ポインタの内部表現が異なるため、アプリケーションをクラッシュさせる可能性があります。
+特に、そのライブラリを使用するすべてのライブラリとすべてのアプリケーションに対して、multithreaded/single-threaded、release/debug、およびstatic/dynamicフラグは同じでなければなりません。 
+    </P
+></BLOCKQUOTE
+></DIV
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>ECPGget_PGconn(const char *<TT
+CLASS="REPLACEABLE"
+><I
+>connection_name</I
+></TT
+>)</CODE
+>は、指定された名前で識別されるライブラリデータベース接続ハンドルを返します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>connection_name</I
+></TT
+>の設定が<TT
+CLASS="LITERAL"
+>NULL</TT
+>の場合、現在の接続ハンドルが返されます。
+接続ハンドルを識別できない場合、関数は<TT
+CLASS="LITERAL"
+>NULL</TT
+>を返します。
+必要ならば返される接続ハンドルを使用して、任意の<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の他の関数を呼び出すことができます。
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>関数を直接使用して<SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>からデータベース接続ハンドルを操作することは推奨されません。
+     </P
+></BLOCKQUOTE
+></DIV
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>ECPGtransactionStatus(const char *<TT
+CLASS="REPLACEABLE"
+><I
+>connection_name</I
+></TT
+>)</CODE
+>は、<TT
+CLASS="REPLACEABLE"
+><I
+>connection_name</I
+></TT
+>で識別される指定接続の現在のトランザクション状態を返します。
+返される状態コードの詳細については<A
+HREF="libpq-status.html"
+>&#38917;31.2</A
+>とlibpqの<CODE
+CLASS="FUNCTION"
+>PQtransactionStatus()</CODE
+>を参照してください。
+     </P
+></LI
+><LI
+><P
+><CODE
+CLASS="FUNCTION"
+>ECPGstatus(int <TT
+CLASS="REPLACEABLE"
+><I
+>lineno</I
+></TT
+>, const char* <TT
+CLASS="REPLACEABLE"
+><I
+>connection_name</I
+></TT
+>)</CODE
+>はデータベースに接続している場合は真を、さもなくば偽を返します。
+単一の接続を使用している場合は<TT
+CLASS="REPLACEABLE"
+><I
+>connection_name</I
+></TT
+>を<TT
+CLASS="LITERAL"
+>NULL</TT
+>とすることができます。
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ecpg-process.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ecpg-lo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>埋め込みSQLプログラムの処理</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ecpg.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ラージオブジェクト</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

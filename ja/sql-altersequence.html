@@ -1,0 +1,811 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER SEQUENCE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER SCHEMA"
+HREF="sql-alterschema.html"><LINK
+REL="NEXT"
+TITLE="ALTER SERVER"
+HREF="sql-alterserver.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER SCHEMA"
+HREF="sql-alterschema.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER SCHEMA"
+HREF="sql-alterschema.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER SERVER"
+HREF="sql-alterserver.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER SERVER"
+HREF="sql-alterserver.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERSEQUENCE"
+></A
+>ALTER SEQUENCE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN61505"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER SEQUENCE&nbsp;--&nbsp;   シーケンスジェネレータの定義を変更する
+  </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN61510"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER SEQUENCE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ INCREMENT [ BY ] <TT
+CLASS="REPLACEABLE"
+><I
+>increment</I
+></TT
+> ]
+    [ MINVALUE <TT
+CLASS="REPLACEABLE"
+><I
+>minvalue</I
+></TT
+> | NO MINVALUE ] [ MAXVALUE <TT
+CLASS="REPLACEABLE"
+><I
+>maxvalue</I
+></TT
+> | NO MAXVALUE ]
+    [ START [ WITH ] <TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+> ]
+    [ RESTART [ [ WITH ] <TT
+CLASS="REPLACEABLE"
+><I
+>restart</I
+></TT
+> ] ]
+    [ CACHE <TT
+CLASS="REPLACEABLE"
+><I
+>cache</I
+></TT
+> ] [ [ NO ] CYCLE ]
+    [ OWNED BY { <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> | NONE } ]
+ALTER SEQUENCE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+>
+ALTER SEQUENCE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>
+ALTER SEQUENCE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SET SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61527"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER SEQUENCE</TT
+>は、既存のシーケンスジェネレータのパラメータを変更します。
+<TT
+CLASS="COMMAND"
+>ALTER SEQUENCE</TT
+>で指定されなかったパラメータについては、以前の設定が保持されます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER SEQUENCE</TT
+>を使用するには、シーケンスの所有者でなければなりません。
+シーケンスのスキーマを変更するには、新しいスキーマにおける<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限も持たなければなりません。
+所有者を変更するには、新しく所有者となるロールの直接または間接的なメンバでなければなりません。
+またそのロールはシーケンスのスキーマ上に<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限を持たなければなりません。
+（これらの制限は、シーケンスの削除または再作成によりユーザが実行できないことを、所有者の変更により実行されないことを確実にするためのものです。
+しかし、スーパーユーザはすべてのシーケンスの所有者を変更することができます。）
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61536"
+></A
+><H2
+>パラメータ</H2
+><P
+>    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>変更するシーケンスの名前です（スキーマ修飾名も可）。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>increment</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>INCREMENT BY <TT
+CLASS="REPLACEABLE"
+><I
+>increment</I
+></TT
+></TT
+>句は省略可能です。
+正の値が指定された時は昇順のシーケンス、負の値が指定された時は降順のシーケンスを作成します。
+指定がない場合、以前の増分値が保持されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>minvalue</I
+></TT
+><BR><TT
+CLASS="LITERAL"
+>NO MINVALUE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>MINVALUE <TT
+CLASS="REPLACEABLE"
+><I
+>minvalue</I
+></TT
+></TT
+>はシーケンスジェネレータが生成する最小値を決定します。
+<TT
+CLASS="LITERAL"
+>NO MINVALUE</TT
+>が指定された場合、昇順の時は1、降順の時は-(2<SUP
+>63</SUP
+>-1)がデフォルトになります。
+どちらのオプションも指定されていなければ、現在の最小値が保持されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>maxvalue</I
+></TT
+><BR><TT
+CLASS="LITERAL"
+>NO MAXVALUE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>MAXVALUE <TT
+CLASS="REPLACEABLE"
+><I
+>maxvalue</I
+></TT
+></TT
+>はシーケンスが生成する最大値を決定します。
+<TT
+CLASS="LITERAL"
+>NO MAXVALUE</TT
+>が指定された場合、昇順の時は2<SUP
+>63</SUP
+>-1、降順の時は-1がデフォルトになります。
+どちらのオプションも指定されていなければ、現在の最大値が保持されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+></DT
+><DD
+><P
+>省略可能な<TT
+CLASS="LITERAL"
+>START WITH <TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+></TT
+>句は、記録されているシーケンスの開始値を変更します。
+これは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>現在の</I
+></SPAN
+>シーケンス値に影響しません。
+単に将来実行される<TT
+CLASS="COMMAND"
+>ALTER SEQUENCE RESTART</TT
+>コマンドが使用する値を設定するだけです。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>restart</I
+></TT
+></DT
+><DD
+><P
+>省略可能な<TT
+CLASS="LITERAL"
+>RESTART WITH <TT
+CLASS="REPLACEABLE"
+><I
+>restart</I
+></TT
+></TT
+>句は、シーケンスの現在値を変更します。
+これは<TT
+CLASS="LITERAL"
+>is_called</TT
+> = <TT
+CLASS="LITERAL"
+>false</TT
+>付きで<CODE
+CLASS="FUNCTION"
+>setval</CODE
+>関数を呼び出すことと同じです。
+指定した値は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>次の</I
+></SPAN
+><CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>呼出時に返されます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>restart</I
+></TT
+>を付けずに<TT
+CLASS="LITERAL"
+>RESTART</TT
+>と記述することは、<TT
+CLASS="COMMAND"
+>CREATE SEQUENCE</TT
+>で記録、または前回<TT
+CLASS="COMMAND"
+>ALTER SEQUENCE START WITH</TT
+>で設定された開始値を指定したことと同じです。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>cache</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>CACHE <TT
+CLASS="REPLACEABLE"
+><I
+>cache</I
+></TT
+></TT
+>句を使用すると、アクセスを高速化するために、シーケンス番号を事前に割り当て、メモリに保存しておくことができます。
+最小値は1です（一度に生成する値が1つだけなので、キャッシュがない状態になります）。
+指定がなければ、以前のキャッシュ値が保持されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CYCLE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>CYCLE</TT
+>キーワードを使用すると、シーケンスが限界値（昇順の場合は<TT
+CLASS="REPLACEABLE"
+><I
+>maxvalue</I
+></TT
+>、降順の場合は<TT
+CLASS="REPLACEABLE"
+><I
+>minvalue</I
+></TT
+>）に達した時、そのシーケンスを周回させることができます。このキーワードは省略可能です。
+限界値に達した時、次に生成される番号は、昇順の場合は<TT
+CLASS="REPLACEABLE"
+><I
+>minvalue</I
+></TT
+>、降順の場合は<TT
+CLASS="REPLACEABLE"
+><I
+>maxvalue</I
+></TT
+>になります。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NO CYCLE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>NO CYCLE</TT
+>キーワードが指定されると、シーケンスの限界値に達した後の<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>呼び出しは全てエラーとなります。このキーワードは省略可能です。
+<TT
+CLASS="LITERAL"
+>CYCLE</TT
+>も<TT
+CLASS="LITERAL"
+>NO CYCLE</TT
+>も指定されていない場合は、以前の周回動作が保持されます。
+	   </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OWNED BY</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+><BR><TT
+CLASS="LITERAL"
+>OWNED BY NONE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>OWNED BY</TT
+>オプションにより、シーケンスは指定されたテーブル列に関連付けされ、その列（やテーブル全体）が削除されると、自動的にシーケンスも同様に削除されるようになります。
+指定があると、以前に指定されたシーケンスの関連は、指定された関連に置き換えられます。
+指定するテーブルは、シーケンスと同一所有者でなければならず、また、同一のスキーマ内に存在しなければなりません。
+<TT
+CLASS="LITERAL"
+>OWNED BY NONE</TT
+>を指定することで、既存の関連は削除され、シーケンスは<SPAN
+CLASS="QUOTE"
+>"独立"</SPAN
+>したものになります。
+
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></DT
+><DD
+><P
+>シーケンスの新しい所有者のユーザ名です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>シーケンスの新しい名称です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></DT
+><DD
+><P
+>シーケンスの新しいスキーマです。
+     </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61652"
+></A
+><H2
+>注釈</H2
+><P
+>同じシーケンスから番号を取得するトランザクションの同時実行ブロックを防ぐために、シーケンス生成パラメータに関する<TT
+CLASS="COMMAND"
+>ALTER SEQUENCE</TT
+>の操作はロールバックできません。
+<TT
+CLASS="COMMAND"
+>ALTER SEQUENCE</TT
+>による変更は即座に反映され、元に戻すことはできません。
+しかし、<TT
+CLASS="LITERAL"
+>OWNED BY</TT
+>、<TT
+CLASS="LITERAL"
+>OWNER TO</TT
+>、<TT
+CLASS="LITERAL"
+>RENAME TO</TT
+>および<TT
+CLASS="LITERAL"
+>SET SCHEMA</TT
+>句は通常のカタログ更新となり、ロールバックすることができます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER SEQUENCE</TT
+>は、コマンドを実行したバックエンド以外のバックエンドにおける<CODE
+CLASS="FUNCTION"
+>nextval</CODE
+>に対しては、すぐには効力を発揮しません。これらのバックエンドは事前に割り当てられた（キャッシュされた）値を持っており、この値を全て使い果たした後に、変更されたシーケンス生成パラメータを検知します。
+コマンドを実行したバックエンドには、即座に変更が反映されます。
+
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER SEQUENCE</TT
+>はシーケンスの<CODE
+CLASS="FUNCTION"
+>currval</CODE
+>状態には影響しません。
+（8.3より前の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では影響を与える場合がありました。）
+  </P
+><P
+>歴史的な理由により<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>はシーケンスにも使用することができます。
+しかし、シーケンスに対して許される<TT
+CLASS="COMMAND"
+>ALTER TABLE</TT
+>の構文は、上で示した構文と等価なものだけです。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61671"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>serial</TT
+>シーケンスを105から再開します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER SEQUENCE serial RESTART WITH 105;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61676"
+></A
+><H2
+>   互換性
+  </H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER SEQUENCE</TT
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張である<TT
+CLASS="LITERAL"
+>START WITH</TT
+>、<TT
+CLASS="LITERAL"
+>OWNED BY</TT
+>、<TT
+CLASS="LITERAL"
+>OWNER TO</TT
+>、<TT
+CLASS="LITERAL"
+>RENAME TO</TT
+>、<TT
+CLASS="LITERAL"
+>SET SCHEMA</TT
+>構文を除いて、標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>に従っています。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN61687"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createsequence.html"
+>CREATE SEQUENCE</A
+>, <A
+HREF="sql-dropsequence.html"
+>DROP SEQUENCE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alterschema.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alterserver.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER SCHEMA</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER SERVER</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

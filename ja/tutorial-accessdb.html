@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データベースへのアクセス</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"><LINK
+REL="PREVIOUS"
+TITLE="データベースの作成"
+HREF="tutorial-createdb.html"><LINK
+REL="NEXT"
+TITLE="SQL言語"
+HREF="tutorial-sql.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベースの作成"
+HREF="tutorial-createdb.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 1&#31456;さあ始めましょう</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="さあ始めましょう"
+HREF="tutorial-start.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="tutorial-sql.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TUTORIAL-ACCESSDB"
+>1.4. データベースへのアクセス</A
+></H1
+><P
+>データベースを作成した後、以下によってアクセスできます。
+
+    <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+STYLE="list-style-type: disc"
+><P
+><SPAN
+CLASS="APPLICATION"
+><I
+CLASS="FIRSTTERM"
+>psql</I
+></SPAN
+>という<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>対話式端末プログラムを実行。
+これにより、対話式に<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドの入力、編集、実行を行うことができます。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>データベースの作成や操作をサポートする<SPAN
+CLASS="APPLICATION"
+>pgAdmin</SPAN
+>や、<ACRONYM
+CLASS="ACRONYM"
+>ODBC</ACRONYM
+>もしくは<ACRONYM
+CLASS="ACRONYM"
+>JDBC</ACRONYM
+>を備えたオフィススイートなどの既存のグラフィカルなフロントエンドツールを使用。
+これらについてはこのチュートリアルでは取り上げません。
+      </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>複数の使用可能言語の1つを使用した、独自のアプリケーションの作成。
+これについては、<A
+HREF="client-interfaces.html"
+>&#12497;&#12540;&#12488;IV</A
+>で詳しく説明します。
+      </P
+></LI
+></UL
+><P>
+
+このチュートリアルの例を試すには、<TT
+CLASS="COMMAND"
+>psql</TT
+>から始めることを勧めます。
+以下のコマンドを入力することによって、<TT
+CLASS="LITERAL"
+>mydb</TT
+>データベースをアクティブにすることができます。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$</SAMP
+> <KBD
+CLASS="USERINPUT"
+>psql mydb</KBD
+></PRE
+><P>
+データベース名を与えなかった場合、データベース名はデフォルトでユーザアカウント名となります。
+この仕組みについては前節で<TT
+CLASS="COMMAND"
+>createdb</TT
+>を使って既に説明しています。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>psql</TT
+>では、始めに以下のメッセージが表示されます。
+</P><PRE
+CLASS="SCREEN"
+>psql (9.1.4)
+Type "help" for help.
+
+mydb=&gt;</PRE
+><P>
+    
+最後の行は以下のようになっているかもしれません。
+</P><PRE
+CLASS="SCREEN"
+>mydb=#</PRE
+><P>
+これは、データベーススーパーユーザであることを示します。
+自身で<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>をインストールした場合に最もよく現れます。
+スーパーユーザであることは、アクセス制御の支配を受けないことを意味します。
+チュートリアルの段階では、これは重要ではありません。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>psql</TT
+>の起動に問題が発生した場合は、前節に戻ってください。
+<TT
+CLASS="COMMAND"
+>createdb</TT
+>の診断と<TT
+CLASS="COMMAND"
+>psql</TT
+>の診断方法は似ており、前者が動作すれば後者も同様に動作するはずです。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>psql</TT
+>が最後に出力する行はプロンプトで、<TT
+CLASS="COMMAND"
+>psql</TT
+>が入力を監視していること、<TT
+CLASS="COMMAND"
+>psql</TT
+>が管理する作業領域に<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>問い合わせを入力できることを示しています。
+以下のコマンドを試してください。
+    
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>mydb=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT version();</KBD
+>
+                               version
+ -----------------------------------------------------------------------
+ PostgreSQL 9.1.4 on i586-pc-linux-gnu, compiled by GCC 2.96, 32-bit
+(1 row)
+
+<SAMP
+CLASS="PROMPT"
+>mydb=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT current_date;</KBD
+>
+    date
+------------
+ 2002-08-31
+(1 row)
+
+<SAMP
+CLASS="PROMPT"
+>mydb=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>SELECT 2 + 2;</KBD
+>
+ ?column?
+----------
+        4
+(1 row)</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>psql</TT
+>プログラムは、SQLコマンドではない、多くの内部コマンドを持っています。
+それらはバックスラッシュ文字<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>\</TT
+>"</SPAN
+>から始まります。
+例えば、各種<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドの構文に関するヘルプを以下のようにして得ることができます。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>mydb=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>\h</KBD
+></PRE
+><P>
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>psql</TT
+>を終了するには、以下を入力します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>mydb=&gt;</SAMP
+> <KBD
+CLASS="USERINPUT"
+>\q</KBD
+></PRE
+><P>
+<TT
+CLASS="COMMAND"
+>psql</TT
+>は終了し、コマンドシェルに戻ります
+（他の内部コマンドについては<TT
+CLASS="COMMAND"
+>psql</TT
+>のプロンプトで<TT
+CLASS="LITERAL"
+>\?</TT
+>を入力してください）。
+<TT
+CLASS="COMMAND"
+>psql</TT
+>の完全な能力については<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>で説明されています。
+このチュートリアルではこれらの機能は明示的に使用しませんが、便利な場合これらを使用しても構いません。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tutorial-createdb.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tutorial-sql.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データベースの作成</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="tutorial-start.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>言語</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

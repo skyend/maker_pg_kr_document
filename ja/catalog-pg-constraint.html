@@ -1,0 +1,862 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>pg_constraint</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="システムカタログ"
+HREF="catalogs.html"><LINK
+REL="PREVIOUS"
+TITLE="pg_class"
+HREF="catalog-pg-class.html"><LINK
+REL="NEXT"
+TITLE="pg_collation"
+HREF="catalog-pg-collation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pg_class"
+HREF="catalog-pg-class.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="システムカタログ"
+HREF="catalogs.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 45&#31456;システムカタログ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="システムカタログ"
+HREF="catalogs.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pg_collation"
+HREF="catalog-pg-collation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CATALOG-PG-CONSTRAINT"
+>45.12. <TT
+CLASS="STRUCTNAME"
+>pg_constraint</TT
+></A
+></H1
+><P
+><TT
+CLASS="STRUCTNAME"
+>pg_constraint</TT
+>カタログはテーブル上の検査制約、プライマリキー制約、一意性制約、外部キー制約、排他制約を格納します
+（列制約は特別扱いされていません。
+全ての列制約は何らかのテーブル制約と同等です。）
+非NULL制約はここではなく、<TT
+CLASS="STRUCTNAME"
+>pg_attribute</TT
+>カタログで示されます。 
+  </P
+><P
+>(<TT
+CLASS="COMMAND"
+>CREATE CONSTRAINT TRIGGER</TT
+>で作成される)ユーザ定義の制約トリガもこのテーブルの項目の元になります。
+  </P
+><P
+>   ドメイン上の検査制約もここに格納されます。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="AEN85799"
+></A
+><P
+><B
+>&#34920; 45-12. <TT
+CLASS="STRUCTNAME"
+>pg_constraint</TT
+>の列</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>型</TH
+><TH
+>参照先</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conname</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>name</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>制約名（一意である必要はありません）。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>connamespace</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-namespace.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_namespace</TT
+></A
+>.oid</TT
+></TD
+><TD
+>       この制約を含む名前空間のOID。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>contype</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>char</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>        <TT
+CLASS="LITERAL"
+>c</TT
+> = 検査制約、
+        <TT
+CLASS="LITERAL"
+>f</TT
+> = 外部キー制約、
+        <TT
+CLASS="LITERAL"
+>p</TT
+> = プライマリキー制約、
+        <TT
+CLASS="LITERAL"
+>u</TT
+> = 一意性制約、
+        <TT
+CLASS="LITERAL"
+>t</TT
+> = 制約トリガ,
+        <TT
+CLASS="LITERAL"
+>x</TT
+> = 排他制約
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>condeferrable</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bool</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>制約は遅延可能かどうか?</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>condeferred</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bool</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>制約はデフォルトで遅延可能かどうか?</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>convalidated</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bool</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>制約が検証されているか？現時点では外部キーの場合のみ偽になる可能性があります。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conrelid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-class.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+></A
+>.oid</TT
+></TD
+><TD
+>この制約が存在しているテーブルです。テーブル制約でなければ0です。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>contypid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-type.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_type</TT
+></A
+>.oid</TT
+></TD
+><TD
+>この制約が存在しているドメインです。ドメイン制約でなければ0です。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conindid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-class.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+></A
+>.oid</TT
+></TD
+><TD
+>一意性制約、プライマリキー制約、外部キー制約、排他制約の場合、この制約をサポートするインデックス。
+さもなくばゼロ。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>confrelid</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-class.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+></A
+>.oid</TT
+></TD
+><TD
+>外部キーであれば、参照されるテーブルです。そうでなければ0です。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>confupdtype</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>char</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>外部キー更新アクションコード:
+            <TT
+CLASS="LITERAL"
+>a</TT
+> = no action,
+            <TT
+CLASS="LITERAL"
+>r</TT
+> = restrict,
+            <TT
+CLASS="LITERAL"
+>c</TT
+> = cascade,
+            <TT
+CLASS="LITERAL"
+>n</TT
+> = set null,
+            <TT
+CLASS="LITERAL"
+>d</TT
+> = set default</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>confdeltype</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>char</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>外部キー削除アクションコード:
+            <TT
+CLASS="LITERAL"
+>a</TT
+> = no action,
+            <TT
+CLASS="LITERAL"
+>r</TT
+> = restrict,
+            <TT
+CLASS="LITERAL"
+>c</TT
+> = cascade,
+            <TT
+CLASS="LITERAL"
+>n</TT
+> = set null,
+            <TT
+CLASS="LITERAL"
+>d</TT
+> = set default
+          </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>confmatchtype</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>char</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>外部キーの一致型:
+            <TT
+CLASS="LITERAL"
+>f</TT
+> = full,
+            <TT
+CLASS="LITERAL"
+>p</TT
+> = partial,
+            <TT
+CLASS="LITERAL"
+>u</TT
+> = simple (指定なし)
+          </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conislocal</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>bool</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>       この制約はリレーションでローカルに定義されています。制約はローカルに定義されていて同時に継承されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>coninhcount</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int4</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>この制約がもつ直系の先祖の数。
+先祖の数がゼロではない制約は削除や改名はできません。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conkey</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int2[]</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-attribute.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_attribute</TT
+></A
+>.attnum</TT
+></TD
+><TD
+>テーブル制約(外部キーを含みますが制約トリガは含みません)であれば、その制約によって制約される列のリスト</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>confkey</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int2[]</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-attribute.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_attribute</TT
+></A
+>.attnum</TT
+></TD
+><TD
+>外部キーであれば、参照される列のリスト</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conpfeqop</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid[]</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-operator.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_operator</TT
+></A
+>.oid</TT
+></TD
+><TD
+>外部キーであれば、PK = FKの比較のための同値演算子のリスト</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conppeqop</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid[]</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-operator.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_operator</TT
+></A
+>.oid</TT
+></TD
+><TD
+>外部キーであれば、PK = PKの比較のための同値演算子のリスト</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conffeqop</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid[]</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-operator.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_operator</TT
+></A
+>.oid</TT
+></TD
+><TD
+>外部キーであれば、FK = FKの比較のための同値演算子のリスト</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conexclop</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>oid[]</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+><A
+HREF="catalog-pg-operator.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_operator</TT
+></A
+>.oid</TT
+></TD
+><TD
+>排他制約の場合、列単位の排他演算子のリスト。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>conbin</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>pg_node_tree</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>検査制約であれば、式の内部表現形式</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="STRUCTFIELD"
+>consrc</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>&nbsp;</TD
+><TD
+>検査制約であれば、人間が見てわかる形式の式</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>排他制約の場合、単純な列参照である制約要素でのみ<TT
+CLASS="STRUCTFIELD"
+>conkey</TT
+>が有用です。
+その他の場合、<TT
+CLASS="STRUCTFIELD"
+>conkey</TT
+>はゼロであり、関連するインデックスは制約される式を調査して見つけなければなりません。
+（したがってインデックスでは<TT
+CLASS="STRUCTFIELD"
+>conkey</TT
+>は<TT
+CLASS="STRUCTNAME"
+>pg_index</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>indkey</TT
+>の内容と同じものを持ちます。）
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="STRUCTFIELD"
+>consrc</TT
+>は参照されているオブジェクトが変更されても更新されません。
+例えば列名の変更を追跡しません。
+検査制約を引き出すためには、このフィールドに信頼を寄せるよりも<CODE
+CLASS="FUNCTION"
+>pg_get_constraintdef()</CODE
+>を使うのが最善です。
+   </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="LITERAL"
+>pg_class.relchecks</TT
+>はそれぞれのリレーションに対してこのテーブルで検出された検査制約の項目数と一致しなければなりません。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="catalog-pg-class.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="catalog-pg-collation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="catalogs.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="STRUCTNAME"
+>pg_collation</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

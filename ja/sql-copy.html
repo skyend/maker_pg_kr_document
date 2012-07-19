@@ -1,0 +1,1899 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>COPY</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="COMMIT PREPARED"
+HREF="sql-commit-prepared.html"><LINK
+REL="NEXT"
+TITLE="CREATE AGGREGATE"
+HREF="sql-createaggregate.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="COMMIT PREPARED"
+HREF="sql-commit-prepared.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="COMMIT PREPARED"
+HREF="sql-commit-prepared.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE AGGREGATE"
+HREF="sql-createaggregate.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE AGGREGATE"
+HREF="sql-createaggregate.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-COPY"
+></A
+>COPY</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN63779"
+></A
+><H2
+>&#21517;&#21069;</H2
+>COPY&nbsp;--&nbsp;ファイルとテーブルの間でデータをコピーする</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN63784"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>COPY <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) ]
+    FROM { '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>' | STDIN }
+    [ [ WITH ] ( <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> [, ...] ) ]
+
+COPY { <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) ] | ( <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> ) }
+    TO { '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>' | STDOUT }
+    [ [ WITH ] ( <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> [, ...] ) ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>は以下のいずれかです。</SPAN
+></SPAN
+>
+
+    FORMAT <TT
+CLASS="REPLACEABLE"
+><I
+>format_name</I
+></TT
+>
+    OIDS [ <TT
+CLASS="REPLACEABLE"
+><I
+>boolean</I
+></TT
+> ]
+    DELIMITER '<TT
+CLASS="REPLACEABLE"
+><I
+>delimiter_character</I
+></TT
+>'
+    NULL '<TT
+CLASS="REPLACEABLE"
+><I
+>null_string</I
+></TT
+>'
+    HEADER [ <TT
+CLASS="REPLACEABLE"
+><I
+>boolean</I
+></TT
+> ]
+    QUOTE '<TT
+CLASS="REPLACEABLE"
+><I
+>quote_character</I
+></TT
+>'
+    ESCAPE '<TT
+CLASS="REPLACEABLE"
+><I
+>escape_character</I
+></TT
+>'
+    FORCE_QUOTE { ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) | * }
+    FORCE_NOT_NULL ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) |
+    ENCODING '<TT
+CLASS="REPLACEABLE"
+><I
+>encoding_name</I
+></TT
+>'</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63807"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のテーブルと標準のファイルシステムのファイル間でデータを移動します。 
+<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>コマンドはテーブルの内容をファイル<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>に</I
+></SPAN
+>コピーします。 
+また、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>コマンドは、ファイル<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>から</I
+></SPAN
+>テーブルへとデータをコピーします（この時、既にテーブルにあるデータにコピーした内容を追加します）。
+また、<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>により<TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせの結果をコピーすることができます。
+  </P
+><P
+>列リストが指定されている場合、<TT
+CLASS="COMMAND"
+>COPY</TT
+>は、指定された列のデータのみのコピーをファイルからまたはファイルへ行います。
+列リストに含まれていない列がテーブル内にある場合、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>はそれらの列にデフォルトの値を挿入します。
+  </P
+><P
+>ファイル名付きの<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバに対して直接ファイルへの読み書きをするように命じます。
+指定したファイルは必ずサーバからアクセスできる必要があります。また、ファイル名はサーバから見たように指定されなければなりません。
+<TT
+CLASS="LITERAL"
+>STDIN</TT
+>や<TT
+CLASS="LITERAL"
+>STDOUT</TT
+>が指定された場合、データはクライアントとサーバ間を流れます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63826"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+></DT
+><DD
+><P
+>既存のテーブルの名前です（スキーマ修飾名も可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+></DT
+><DD
+><P
+>コピー対象の列リストです。このパラメータは省略可能です。  
+列リストが指定されていない場合は、テーブルの全ての列がコピーされます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+></DT
+><DD
+><P
+>指定した<A
+HREF="sql-select.html"
+>SELECT</A
+>コマンドまたは<A
+HREF="sql-values.html"
+>VALUES</A
+>コマンドの結果がコピーされます。
+問い合わせを括弧でくくる必要があることに注意してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+></DT
+><DD
+><P
+>入出力ファイルの絶対パス名です。
+Windowsユーザの場合、パス名内にバックスラッシュを使用する際には<TT
+CLASS="LITERAL"
+>E''</TT
+>文字列を使用し、二重にする必要があるかもしれません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>STDIN</TT
+></DT
+><DD
+><P
+>入力がクライアントアプリケーションからのものであることを指定します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>STDOUT</TT
+></DT
+><DD
+><P
+>出力がクライアントアプリケーションへのものであることを指定します。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>boolean</I
+></TT
+></DT
+><DD
+><P
+>選択オプションを有効とするか無効とするかを指定します。
+オプションを有効にするには、<TT
+CLASS="LITERAL"
+>TRUE</TT
+>、<TT
+CLASS="LITERAL"
+>ON</TT
+>または<TT
+CLASS="LITERAL"
+>1</TT
+>と、無効にするには<TT
+CLASS="LITERAL"
+>FALSE</TT
+>、<TT
+CLASS="LITERAL"
+>OFF</TT
+>または<TT
+CLASS="LITERAL"
+>0</TT
+>と記述します。
+また<TT
+CLASS="REPLACEABLE"
+><I
+>boolean</I
+></TT
+>値は省略可能であり、省略時は<TT
+CLASS="LITERAL"
+>TRUE</TT
+>とみなされます。
+   </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FORMAT</TT
+></DT
+><DD
+><P
+>読み取りまたは書き込みに使用するデータ書式を選択します。
+<TT
+CLASS="LITERAL"
+>text</TT
+>、<TT
+CLASS="LITERAL"
+>csv</TT
+>（カンマ区切り値）、または<TT
+CLASS="LITERAL"
+>binary</TT
+>です。
+デフォルトは<TT
+CLASS="LITERAL"
+>text</TT
+>です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OIDS</TT
+></DT
+><DD
+><P
+>各行のOIDをコピーするよう指定します
+（OIDを持たないテーブルに<TT
+CLASS="LITERAL"
+>OIDS</TT
+>を指定する場合、または、<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>コピーの場合、エラーが発生します）。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DELIMITER</TT
+></DT
+><DD
+><P
+>ファイルの各行（ライン）内の列を区切る文字を指定します。
+テキスト書式でのデフォルトはタブ文字、<TT
+CLASS="LITERAL"
+>CSV</TT
+>書式ではカンマです。
+これは単一の1バイト文字でなければなりません。
+このオプションは<TT
+CLASS="LITERAL"
+>binary</TT
+>書式を使用する場合は許されません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NULL</TT
+></DT
+><DD
+><P
+>NULL値を表す文字列を指定します。
+デフォルトは、テキスト書式では<TT
+CLASS="LITERAL"
+>\N</TT
+>（バックスラッシュN）、<TT
+CLASS="LITERAL"
+>CSV</TT
+>書式では引用符のない空文字です。
+NULL値と空文字列を区別する必要がない場合は、テキスト書式であっても空文字列を使用した方が良いかもしれません。
+このオプションは<TT
+CLASS="LITERAL"
+>binary</TT
+>書式を使用する場合は許されません。
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>の場合、この文字列と一致するデータ要素はNULL値として格納されます。
+<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>実行時に使用した同じ文字列を使用しているかどうか確認してください。
+      </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>HEADER</TT
+></DT
+><DD
+><P
+>ヘッダ行を含むファイルを指定します。
+このファイルには各列の名前が記載されています。
+出力では、先頭行にテーブルの列名が入り、入力では先頭行は無視されます。
+このオプションは<TT
+CLASS="LITERAL"
+>CSV</TT
+>書式を使用する場合のみで許されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>QUOTE</TT
+></DT
+><DD
+><P
+>データ値を引用符付けする際に使用される引用符用文字を指定します。
+デフォルトは二重引用符です。
+これは単一の1バイト文字でなければなりません。
+このオプションは<TT
+CLASS="LITERAL"
+>CSV</TT
+>書式を使用する場合のみで許されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ESCAPE</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>QUOTE</TT
+>の値がデータ内の文字と一致した場合に、その前に現れなければならない文字を指定します。
+デフォルトは<TT
+CLASS="LITERAL"
+>QUOTE</TT
+>の値です（このためデータ内に引用符用文字があれば二重になります）。
+これは単一の1バイト文字でなければなりません。
+このオプションは<TT
+CLASS="LITERAL"
+>CSV</TT
+>書式を使用する場合のみ許されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FORCE_QUOTE</TT
+></DT
+><DD
+><P
+>指定された各列内にある全ての非<TT
+CLASS="LITERAL"
+>NULL</TT
+>値を強制的に引用符で囲みます。
+<TT
+CLASS="LITERAL"
+>NULL</TT
+>出力は引用符で囲まれません。
+<TT
+CLASS="LITERAL"
+>*</TT
+>が指定された場合、非<TT
+CLASS="LITERAL"
+>NULL</TT
+>値はすべての列で引用符付けされます。
+このオプションは<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>において、かつ、<TT
+CLASS="LITERAL"
+>CSV</TT
+>書式を使用する場合のみで許されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FORCE_NOT_NULL</TT
+></DT
+><DD
+><P
+>指定された列の値をNULL文字列に対して比較しません。
+NULL文字列が空であるデフォルトでは、空の値は引用符付けされていなくてもNULLではなく長さが0の文字列として読み取られることを意味します。
+このオプションは<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>において、かつ、<TT
+CLASS="LITERAL"
+>CSV</TT
+>書式を使用する場合のみで許されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ENCODING</TT
+></DT
+><DD
+><P
+>ファイルが<TT
+CLASS="REPLACEABLE"
+><I
+>encoding_name</I
+></TT
+>で符号化されていることを指定します。
+このオプションが省略された場合、現在のクライアント符号化方式が使用されます。
+後述の注意を参照してください。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63954"
+></A
+><H2
+>出力</H2
+><P
+>正常に完了した場合、<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドは以下の形式のコマンドタグを返します。
+</P><PRE
+CLASS="SCREEN"
+>COPY <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>はコピーされた行数です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN63961"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>は通常のテーブルに対してのみ使用することができます。 
+ビューに対して使用することはできません。
+しかし、<TT
+CLASS="LITERAL"
+>COPY (SELECT * FROM <TT
+CLASS="REPLACEABLE"
+><I
+>viewname</I
+></TT
+>) TO ...</TT
+>と記述することができます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>は指定された特定のテーブルのみを扱います。
+つまり子テーブルへまたは子テーブルからのデータのコピーは行いません。
+したがって例えば、<TT
+CLASS="LITERAL"
+>COPY <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> TO</TT
+>は<TT
+CLASS="LITERAL"
+>SELECT * FROM ONLY <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+></TT
+>と同じデータを示します。
+しかし<TT
+CLASS="LITERAL"
+>COPY (SELECT * FROM <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>) TO ...</TT
+>を使用して、継承階層内のすべてのデータをダンプすることができます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY TO</TT
+>の場合は値を読み込むテーブルに対するSELECT権限が、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>の場合は値を挿入するテーブルに対するINSERT権限が必要です。
+コマンド内で列挙された列に対する列権限を持つことで十分です。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドで指定するファイルは、クライアントアプリケーションではなく、サーバが直接読み込み/書き込みを行います。
+したがって、それらのファイルは、クライアントではなく、データベースサーバマシン上に存在するか、または、データベースサーバマシンからアクセス可能である必要があります。
+さらに、クライアントではなく、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザ（サーバを実行しているユーザID）が、アクセス権限と読み書き権限を持っている必要があります。
+ファイル名を指定した<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドの実行は、データベースのスーパーユーザのみに許可されています。このコマンドによって、サーバがアクセス権限を持つ全てのファイルの読み込み、書き込みが可能になってしまうためです。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>は<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="COMMAND"
+>\copy</TT
+>とは異なるものであることに注意してください。
+<TT
+CLASS="COMMAND"
+>\copy</TT
+>は<TT
+CLASS="COMMAND"
+>COPY FROM STDIN</TT
+>や<TT
+CLASS="COMMAND"
+>COPY TO STDOUT</TT
+>を呼び出し、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>クライアントからアクセスできるファイルにデータの書き込み/読み込みを行います。
+したがって、<TT
+CLASS="COMMAND"
+>\copy</TT
+>コマンドでは、ファイルへのアクセスが可能かどうかと、ファイルに対するアクセス権限の有無は、サーバではなくクライアント側に依存します。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>でファイル名を指定する時は、常に絶対パスで記述することをお勧めします。
+<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>コマンドの場合はサーバによって強制的に絶対パス指定にさせられますが、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>コマンドでは相対パスで指定されたファイルを読み込むことも可能となっています。
+後者では、クライアントの作業ディレクトリではなく、サーバプロセスの作業ディレクトリ（通常はクラスタのデータディレクトリ）からの相対的なディレクトリとして解釈されます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>は、宛先テーブル上で任意のトリガと検査制約を呼び出しますが、ルールは呼び出しません。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>の入出力は<TT
+CLASS="VARNAME"
+>DateStyle</TT
+>の影響を受けます。
+デフォルト以外の<TT
+CLASS="VARNAME"
+>DateStyle</TT
+>が設定された可能性がある<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>インストレーションとの移植を確実に行いたい場合は、<TT
+CLASS="COMMAND"
+>COPY</TT
+>を使う前に<TT
+CLASS="VARNAME"
+>DateStyle</TT
+>を<TT
+CLASS="LITERAL"
+>ISO</TT
+>に設定しなければなりません。
+また、<TT
+CLASS="VARNAME"
+>IntervalStyle</TT
+>を<TT
+CLASS="LITERAL"
+>sql_standard</TT
+>としてデータをダンプすることは避けることを勧めます。
+負の時間間隔値が別の<TT
+CLASS="VARNAME"
+>IntervalStyle</TT
+>設定を持つサーバで誤解釈される可能性があるためです。
+   </P
+><P
+>たとえデータがクライアント経由ではなくサーバにより直接ファイルから読み書きされるとしても、入力データは<TT
+CLASS="LITERAL"
+>ENCODING</TT
+>オプションまたは現在のクライアント符号化方式にしたがって解釈され、出力データは<TT
+CLASS="LITERAL"
+>ENCODING</TT
+>オプションまたは現在のクライアント符号化方式で符号化されます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>では、エラーが発生するとすぐに処理を停止します。
+<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>コマンドの実行では何ら問題ありませんが、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>の場合は、対象となるテーブルは初めの方の行を既に受け取っています。
+これらの行は不可視となり、アクセスすることもできませんが、ディスク領域を占有します。
+したがって、大きなコピー処理に何度も失敗した場合には、無視できないほど無駄なディスク領域が増えてしまいます。
+この無駄な領域を取り戻すには、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>を行う必要があります。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64016"
+></A
+><H2
+>ファイルの形式</H2
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN64018"
+></A
+><H3
+>テキスト形式</H3
+><P
+><TT
+CLASS="LITERAL"
+>text</TT
+>書式を使用する場合、読み書きされるデータはテーブルの1つの行を1行で表したテキストファイルとなります。
+行内の列は区切り文字で区切られます。
+属性値自体は、その属性のデータ型の出力関数で生成された、または、その入力関数で受け付け可能な文字列です。
+値がNULLの列では、代わりに指定されたNULL値を表す文字列が使用されます。
+入力ファイルのいずれかの行にある列数が予期された数と違う場合、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>はエラーを発生します。
+<TT
+CLASS="LITERAL"
+>OIDS</TT
+>が指定された場合、OIDは、ユーザデータの列の前にある、1番目の列として読み書きされます。
+   </P
+><P
+>データの終了は、バックスラッシュとピリオド（<TT
+CLASS="LITERAL"
+>\.</TT
+>）のみから構成される1行で表されます。
+EOF（ファイルの終了）を使えば同じことが実現できるので、ファイルからの読み込みの場合はデータ終了マークは不要です。 
+しかし、3.0以前のクライアントプロトコルを使用したクライアントアプリケーションとデータのコピーを行う場合だけは、読み込み、書き込みを問わず、終了マークが必要です。
+   </P
+><P
+>バックスラッシュ文字（<TT
+CLASS="LITERAL"
+>\</TT
+>）は、<TT
+CLASS="COMMAND"
+>COPY</TT
+>対象データ内で、行や列の区切り文字と判定される可能性があるデータ文字列の引用符付けに使用します。
+特に、バックスラッシュ自体、改行、使用中の区切り文字などの文字が列の値に含まれている場合は、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必ず</I
+></SPAN
+>前にバックスラッシュを付けなければなりません。
+
+   </P
+><P
+>指定されたNULL文字列はバックスラッシュを付けずに<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>に送られます。
+一方、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>では、バックスラッシュを削除する前にNULL文字列と入力が比較されます。
+したがって、<TT
+CLASS="LITERAL"
+>\N</TT
+>といったNULL文字列が実際の<TT
+CLASS="LITERAL"
+>\N</TT
+>というデータ値と混乱することはあり得ません。
+（これは<TT
+CLASS="LITERAL"
+>\\N</TT
+>として表現されます。）
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>は、バックスラッシュで始まる次のような文字の並びを識別します。
+
+   <DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><A
+NAME="AEN64038"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>文字の並び</TH
+><TH
+>表現</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>\b</TT
+></TD
+><TD
+>バックスペース（ASCII 8）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>\f</TT
+></TD
+><TD
+>改ページ（ASCII 12）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>\n</TT
+></TD
+><TD
+>改行（ASCII 10）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>\r</TT
+></TD
+><TD
+>復帰（ASCII 13）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>\t</TT
+></TD
+><TD
+>タブ（ASCII 9）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>\v</TT
+></TD
+><TD
+>垂直タブ（ASCII 11）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>\</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>数字</I
+></TT
+></TD
+><TD
+>バックスラッシュに続き1から3個の8進数の数字をコード番号として指定すると、そのコードが表す文字を指定できます。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>\x</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>digits</I
+></TT
+></TD
+><TD
+>バックスラッシュ、<TT
+CLASS="LITERAL"
+>x</TT
+> という並びに続き1から2個の16進数の数字をコード番号として指定すると、そのコードが表す文字を指定できます。</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+
+現在、<TT
+CLASS="COMMAND"
+>COPY TO</TT
+>は、バックスラッシュの後ろに8進数や16進数を付けた形式で文字を出力することはありませんが、上記一覧に存在しない制御文字が含まれている場合は、この形式を使用します。
+   </P
+><P
+>上表で記載されていないバックスラッシュ付きの文字はすべて、そのまま解釈されます。
+しかし、不要なバックスラッシュの追加には注意してください。
+偶然にデータを終わりを示す印（<TT
+CLASS="LITERAL"
+>\.</TT
+>）やヌル文字列（デフォルトでは<TT
+CLASS="LITERAL"
+>\N</TT
+>）と合致する文字列を生成してしまうかもしれないためです。
+これらの文字列は他のバックスラッシュの処理を行う前に解釈されます。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>データを生成するアプリケーションは、データ内の改行と復帰をそれぞれ、<TT
+CLASS="LITERAL"
+>\n</TT
+>と<TT
+CLASS="LITERAL"
+>\r</TT
+>に変換することを強く推奨されています。
+現在のところ、バックスラッシュと復帰文字でデータ内の復帰を表したり、バックスラッシュと改行文字でデータ内の改行を表すことが可能です。
+しかし、こういった表現は今後のリリースでは、受け付けられなくなる可能性があります。
+また、<TT
+CLASS="COMMAND"
+>COPY</TT
+>ファイルが異なるマシンをまたがって転送される場合、破損するおそれがかなりあります
+（例えば、UnixからWindowsあるいはその逆）。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>COPY TO</TT
+>は各行の行末にUnix形式の改行（<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>\n</TT
+>"</SPAN
+>）を出力します。
+なお、Microsoft Windowsで稼働するサーバの場合は、サーバ上のファイルへの<TT
+CLASS="COMMAND"
+>COPY</TT
+>の場合にのみ復帰/改行（<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>\r\n</TT
+>"</SPAN
+>）を出力します。
+プラットフォームをまたがる一貫性のために、サーバのプラットフォームにかかわらず、<TT
+CLASS="COMMAND"
+>COPY TO STDOUT</TT
+>は常に<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>\n</TT
+>"</SPAN
+>を送信します。
+<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>は、改行、復帰、復帰/改行を行末として扱うことができます。
+データを意図したバックスラッシュのない改行や復帰によるエラーの危険性を減らすために、<TT
+CLASS="COMMAND"
+>COPY FROM</TT
+>は、入力行の行末が全て共通でない場合に警告を発します。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN64101"
+></A
+><H3
+>CSV形式</H3
+><P
+>この書式オプションは、スプレッドシートなど他の多くのプログラムで使用されるカンマ区切り値（<TT
+CLASS="LITERAL"
+>CSV</TT
+>）ファイル形式をインポート、エキスポートするために使用されます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の標準テキスト書式で使用されるエスケープ規則の代わりに、一般的なCSVのエスケープ機構を生成、認識します。
+   </P
+><P
+>各レコードの値は<TT
+CLASS="LITERAL"
+>DELIMITER</TT
+>文字で区切られます。
+区切り文字、<TT
+CLASS="LITERAL"
+>QUOTE</TT
+>文字、<TT
+CLASS="LITERAL"
+>NULL</TT
+>文字列、復帰、改行文字を含む値の場合、全体の値の前後に<TT
+CLASS="LITERAL"
+>QUOTE</TT
+>文字が付与されます。値の中で<TT
+CLASS="LITERAL"
+>QUOTE</TT
+>文字や<TT
+CLASS="LITERAL"
+>ESCAPE</TT
+>文字が現れる場合、その前にエスケープ用の文字が付与されます。
+また、<TT
+CLASS="LITERAL"
+>FORCE_QUOTE</TT
+>を使用して、特定列内の非<TT
+CLASS="LITERAL"
+>NULL</TT
+>値を出力する時に強制的に引用符を付与することもできます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>CSV</TT
+>書式には<TT
+CLASS="LITERAL"
+>NULL</TT
+>値と空文字列とを区別する標準的な方法はありません。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のCOPYでは引用符によってこれを区別しています。
+<TT
+CLASS="LITERAL"
+>NULL</TT
+>は<TT
+CLASS="LITERAL"
+>NULL</TT
+>パラメータの文字列として出力され、引用符で囲まれません。
+一方、<TT
+CLASS="LITERAL"
+>NULL</TT
+>パラメータの文字列に一致する非<TT
+CLASS="LITERAL"
+>NULL</TT
+>値は引用符で囲まれます。
+たとえばデフォルトの設定では、<TT
+CLASS="LITERAL"
+>NULL</TT
+>は引用符付けのない空文字列として出力され、空文字列のデータ値は2つの引用符（<TT
+CLASS="LITERAL"
+>""</TT
+>）で出力されます。
+データの読み込みの際も同様の規則に従います。
+<TT
+CLASS="LITERAL"
+>FORCE_NOT_NULL</TT
+>を使用して、特定列に対し<TT
+CLASS="LITERAL"
+>NULL</TT
+>入力の比較を行わないようにすることもできます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>CSV</TT
+>書式ではバックスラッシュは特別な文字ではありませんので、データ終端記号<TT
+CLASS="LITERAL"
+>\.</TT
+>はデータ値として現れることがあります。
+誤った解釈を防ぐために、行内の一項目として<TT
+CLASS="LITERAL"
+>\.</TT
+>というデータ値が現れる場合、出力に自動的に引用符が付けられます。
+また、入力では引用符で括られた場合データ終端記号として解釈されません。
+単一の引用符で括られない列で<TT
+CLASS="LITERAL"
+>\.</TT
+>という値を持つ可能性がある、他のアプリケーションで作成されたファイルをロードしようとする場合、入力ファイル内のこうした値を引用符で括る必要があります。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="LITERAL"
+>CSV</TT
+>書式では文字はすべて意味を持ちます。
+空白文字で括られた単一引用符や<TT
+CLASS="LITERAL"
+>DELIMITER</TT
+>以外の任意の文字がこうした文字に含まれます。
+これにより、固定長にするために<TT
+CLASS="LITERAL"
+>CSV</TT
+>の行に空白文字を埋めるシステムから取り出したデータをインポートする時にエラーが発生する可能性があります。
+このような状況になった場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にデータをインポートする前に、その<TT
+CLASS="LITERAL"
+>CSV</TT
+>ファイルから行末の空白を除去する前処理が必要になります。
+	</P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>CSV書式は、復帰文字や改行文字が埋め込まれ引用符で囲まれた値を含むCSVファイルを認識し、生成します。
+したがって、このファイルでは、テキスト書式のように1つのテーブル行が1行で表されているとは限りません。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>奇妙な（時には間違った）CSVファイルを生成するプログラムは多く存在するので、このファイル書式には標準よりも多くの慣習があります。
+したがって、この機能でインポートできないファイルが存在するかもしれませんし、<TT
+CLASS="COMMAND"
+>COPY</TT
+>が他のプログラムで処理できないファイルを生成するかもしれません。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT2"
+><A
+NAME="AEN64144"
+></A
+><H3
+>バイナリ形式</H3
+><P
+><TT
+CLASS="LITERAL"
+>binary</TT
+>書式オプションにより、すべてのデータはテキストではなくバイナリ書式で書き込み/読み取りされるようになります。
+テキストや<TT
+CLASS="LITERAL"
+>CSV</TT
+>書式よりも多少高速になりますが、バイナリ書式のファイルはマシンアーキテクチャや<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のバージョンをまたがる移植性が落ちます。
+またバイナリ書式はデータ型に非常に依存します。
+たとえば、テキスト書式ではうまく動作したとしても、<TT
+CLASS="TYPE"
+>smallint</TT
+>列からバイナリデータを出力し、それを<TT
+CLASS="TYPE"
+>integer</TT
+>列として読み込むことはできません。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>binary</TT
+>ファイルの書式は、ファイルヘッダ、行データを含む0以上のタプル、ファイルトレーラから構成されます。
+ヘッダとデータはネットワークバイトオーダです。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>7.4以前のリリースの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では異なるバイナリファイル形式を使用していました。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN64157"
+></A
+><H4
+>ファイルヘッダ</H4
+><P
+>ファイルヘッダは15バイトの固定フィールドとその後に続く可変長ヘッダ拡張領域から構成されます。
+固定フィールドは以下の通りです。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>署名</DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>PGCOPY\n\377\r\n\0</TT
+>という11バイトの並びです。
+この署名の必須部分にNULLバイトが含まれていることに注意してください
+（この署名は、8ビットを通過させない転送方式によってファイルが破損した場合、これを容易に識別できるように設計されています。
+署名は、改行コード変換やNULLバイトの削除、上位ビット落ち、パリティの変更などによって変化します）。
+       </P
+></DD
+><DT
+>フラグフィールド</DT
+><DD
+><P
+>このファイル形式の重要な部分となる32ビット整数のビットマスクです。
+ビットには0（<ACRONYM
+CLASS="ACRONYM"
+>LSB</ACRONYM
+>） から31（<ACRONYM
+CLASS="ACRONYM"
+>MSB</ACRONYM
+>）までの番号が付いています。
+このフィールドは、このファイル形式で使用される他の全ての整数フィールドと同様、（最大バイトが最初に現れる）ネットワークバイトオーダで保存されていることに注意してください。
+ファイル形式上の致命的な問題を表すために、16-31ビットは予約されています。
+この範囲に想定外のビットが設定されていることが判明した場合、読み込み先は処理を中断しなければなりません。
+後方互換における形式の問題を通知するために、0-15ビットは予約されています。
+この範囲に想定外のビットが設定されていても、読み込み先は無視すべきです。
+現在、1つのビットだけがフラグビットとして定義されており、残りは0でなければなりません。
+        <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>ビット16</DT
+><DD
+><P
+>1ならば、OIDがデータに含まれています。
+0ならば、含まれていません。
+           </P
+></DD
+></DL
+></DIV
+><P></P
+></DD
+><DT
+>ヘッダ拡張領域長</DT
+><DD
+><P
+>自分自身を除いた、ヘッダの残り部分のバイト長を示す32ビットの整数です。
+現在、これは0となっており、すぐ後に最初のタプルが続きます。
+今後、ヘッダ内に追加データを格納するような形式の変更があるかもしれません。
+読み込み側では、ヘッダ拡張データの扱いがわからない場合、そのデータをスキップしなければなりません。
+       </P
+></DD
+></DL
+></DIV
+><P>
+    </P
+><P
+>ヘッダ拡張領域は、それ自身で認識することができる塊の並びを保持するために用意されています。
+フラグフィールドは読み込み先に拡張領域の内容を知らせるものではありません。
+ヘッダ拡張内容の個々の設計は今後のリリースのために残してあります。
+    </P
+><P
+>この設計によって、後方互換性を維持するヘッダの追加（ヘッダ拡張チャンクの追加や下位フラグビットの設定）と後方互換性のない変更（変更を通知するための高位フラグビットの設定や必要に応じた拡張領域へのサポート情報追加）の両方に対応できます。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN64183"
+></A
+><H4
+>タプル</H4
+><P
+>全てのタプルはタプル内のフィールド数を表す16ビットの整数から始まります（現時点では、テーブル内の全てのタプルは同一のフィールド数を持つことになっていますが、今後、これは変更される可能性があります）。
+その後に、タプル中のそれぞれのフィールドが続きます。これらのフィールドには、先頭にフィールドデータが何バイトあるかを表す32ビット長のワードが付けられています
+（このワードが表す長さには自分自身は含まれません。したがって、0になることもあります）。
+特殊な値としてNULLフィールドを表す-1が用意されています。
+このNULLが指定された場合、値用のバイトはありません。
+    </P
+><P
+>フィールド間には整列用のパッドやその他の余計なデータはありません。
+    </P
+><P
+>現在、バイナリ書式のファイル内の全てのデータ値は、バイナリ形式（形式コード1）であると仮定されています。
+将来の拡張によって、列単位に形式コードを指定するヘッダフィールドが追加されることを予想したものです。
+    </P
+><P
+>実際のタプルデータとして適切なバイナリ形式を決定するためには、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のソース、特に各列のデータ型用の<CODE
+CLASS="FUNCTION"
+>*send</CODE
+> 関数と<CODE
+CLASS="FUNCTION"
+>*recv</CODE
+>関数（通常配布物内の<TT
+CLASS="FILENAME"
+>src/backend/utils/adt</TT
+>ディレクトリにあります）を調べなければなりません。
+    </P
+><P
+>このファイルにOIDが含まれる場合、OIDフィールドがフィールド数ワードの直後に続きます。
+これは、フィールドカウントを持たない点を除いて、通常のフィールドです。
+特に長さワードがあるため、苦労することなく、4バイトのOIDも8バイトのOIDも扱うことができます。
+また、これにより、望ましいと判断されれば、OIDをNULLとして表示することができます。
+    </P
+></DIV
+><DIV
+CLASS="REFSECT3"
+><A
+NAME="AEN64194"
+></A
+><H4
+>ファイルトレーラ</H4
+><P
+>ファイルトレーラは、-1を含んだ、16ビットの整数ワードで構成されます。 
+タプルのフィールドカウントワードを使用すれば、このワードを容易に見分けることができます。
+    </P
+><P
+>読み込み側は、フィールドカウントワードが-1でも、想定した列数でもなかった場合はエラーを報告しなければなりません。
+これにより、何らかの理由でデータとの同期が取れなくなったことを判定する特別な検査を行うことが可能になります。
+    </P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64198"
+></A
+><H2
+>例</H2
+><P
+>次の例では、フィールド区切り文字として縦棒（<TT
+CLASS="LITERAL"
+>|</TT
+>）を使用してテーブルをクライアントにコピーします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>COPY country TO STDOUT (DELIMITER '|');</PRE
+><P>
+  </P
+><P
+>ファイルから<TT
+CLASS="LITERAL"
+>country</TT
+>テーブルにデータをコピーします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>COPY country FROM '/usr1/proj/bray/sql/country_data';</PRE
+><P>
+  </P
+><P
+>名前が'A'から始まる国のみをファイルにコピーします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>COPY (SELECT * FROM country WHERE country_name LIKE 'A%') TO '/usr1/proj/bray/sql/a_list_countries.copy';</PRE
+><P>
+  </P
+><P
+>これは<TT
+CLASS="LITERAL"
+>STDIN</TT
+>からテーブルにコピーするのに適したデータの例です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>AF      AFGHANISTAN
+AL      ALBANIA
+DZ      ALGERIA
+ZM      ZAMBIA
+ZW      ZIMBABWE</PRE
+><P>
+各行の空白文字は実際にはタブ文字であることに注意してください。
+  </P
+><P
+>以下は同一のデータをバイナリ書式で出力したものです。
+データをUnixユーティリティ<TT
+CLASS="COMMAND"
+>od -c</TT
+>を使ってフィルタしたものを示します。
+テーブルには3列あり、最初のデータ型は<TT
+CLASS="TYPE"
+>char(2)</TT
+>、2番目は<TT
+CLASS="TYPE"
+>text</TT
+>、3番目は<TT
+CLASS="TYPE"
+>integer</TT
+>です。
+全ての行の3列目はNULL値です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>0000000   P   G   C   O   P   Y  \n 377  \r  \n  \0  \0  \0  \0  \0  \0
+0000020  \0  \0  \0  \0 003  \0  \0  \0 002   A   F  \0  \0  \0 013   A
+0000040   F   G   H   A   N   I   S   T   A   N 377 377 377 377  \0 003
+0000060  \0  \0  \0 002   A   L  \0  \0  \0 007   A   L   B   A   N   I
+0000100   A 377 377 377 377  \0 003  \0  \0  \0 002   D   Z  \0  \0  \0
+0000120 007   A   L   G   E   R   I   A 377 377 377 377  \0 003  \0  \0
+0000140  \0 002   Z   M  \0  \0  \0 006   Z   A   M   B   I   A 377 377
+0000160 377 377  \0 003  \0  \0  \0 002   Z   W  \0  \0  \0  \b   Z   I
+0000200   M   B   A   B   W   E 377 377 377 377 377 377</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64217"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>COPY</TT
+>文はありません。
+  </P
+><P
+>以下の構文は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>バージョン9.0より前に使用されていたもので、まだサポートされています。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>COPY <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) ]
+    FROM { '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>' | STDIN }
+    [ [ WITH ]
+          [ BINARY ]
+          [ OIDS ]
+          [ DELIMITER [ AS ] '<TT
+CLASS="REPLACEABLE"
+><I
+>delimiter</I
+></TT
+>' ]
+          [ NULL [ AS ] '<TT
+CLASS="REPLACEABLE"
+><I
+>null string</I
+></TT
+>' ]
+          [ CSV [ HEADER ]
+                [ QUOTE [ AS ] '<TT
+CLASS="REPLACEABLE"
+><I
+>quote</I
+></TT
+>' ]
+                [ ESCAPE [ AS ] '<TT
+CLASS="REPLACEABLE"
+><I
+>escape</I
+></TT
+>' ]
+                [ FORCE NOT NULL <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ] ] ]
+
+COPY { <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [ ( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) ] | ( <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> ) }
+    TO { '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>' | STDOUT }
+    [ [ WITH ]
+          [ BINARY ]
+          [ OIDS ]
+          [ DELIMITER [ AS ] '<TT
+CLASS="REPLACEABLE"
+><I
+>delimiter</I
+></TT
+>' ]
+          [ NULL [ AS ] '<TT
+CLASS="REPLACEABLE"
+><I
+>null string</I
+></TT
+>' ]
+          [ CSV [ HEADER ]
+                [ QUOTE [ AS ] '<TT
+CLASS="REPLACEABLE"
+><I
+>quote</I
+></TT
+>' ]
+                [ ESCAPE [ AS ] '<TT
+CLASS="REPLACEABLE"
+><I
+>escape</I
+></TT
+>' ]
+                [ FORCE QUOTE { <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] | * } ] ] ]</PRE
+><P>
+
+この構文では、<TT
+CLASS="LITERAL"
+>BINARY</TT
+>と<TT
+CLASS="LITERAL"
+>CSV</TT
+>が<TT
+CLASS="LITERAL"
+>FORMAT</TT
+>オプションの引数ではなく、独立したキーワードとして扱われることに注意してください。
+  </P
+><P
+>以下の構文は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>バージョン7.3より前に使用されていたもので、まだサポートされています。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>COPY [ BINARY ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [ WITH OIDS ]
+    FROM { '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>' | STDIN }
+    [ [USING] DELIMITERS '<TT
+CLASS="REPLACEABLE"
+><I
+>delimiter</I
+></TT
+>' ]
+    [ WITH NULL AS '<TT
+CLASS="REPLACEABLE"
+><I
+>null string</I
+></TT
+>' ]
+
+COPY [ BINARY ] <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+> [ WITH OIDS ]
+    TO { '<TT
+CLASS="REPLACEABLE"
+><I
+>filename</I
+></TT
+>' | STDOUT }
+    [ [USING] DELIMITERS '<TT
+CLASS="REPLACEABLE"
+><I
+>delimiter</I
+></TT
+>' ]
+    [ WITH NULL AS '<TT
+CLASS="REPLACEABLE"
+><I
+>null string</I
+></TT
+>' ]</PRE
+><P></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-commit-prepared.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createaggregate.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>COMMIT PREPARED</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE AGGREGATE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

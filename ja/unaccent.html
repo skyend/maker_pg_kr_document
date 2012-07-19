@@ -1,0 +1,424 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>unaccent</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="tsearch2"
+HREF="tsearch2.html"><LINK
+REL="NEXT"
+TITLE="uuid-ossp"
+HREF="uuid-ossp.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="tsearch2"
+HREF="tsearch2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="uuid-ossp"
+HREF="uuid-ossp.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="UNACCENT"
+>F.44. unaccent</A
+></H1
+><P
+> 
+  <TT
+CLASS="FILENAME"
+>unaccent</TT
+>は語彙素からアクセント(発音区分記号)を取り除く全文検索用の辞書です。これはフィルタ処理を行う辞書、つまり、標準の動作と異なり、その出力が常に次の辞書（もしあれば）に渡されるものです。これにより全文検索においてアクセントを無視した処理を行うことができます。
+ </P
+><P
+> 
+  現在の<TT
+CLASS="FILENAME"
+>unaccent</TT
+>の実装では<TT
+CLASS="FILENAME"
+>thesaurus</TT
+>辞書向けの正規化用辞書として使用することはできません。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138608"
+>F.44.1. 設定</A
+></H2
+><P
+>  
+  <TT
+CLASS="LITERAL"
+>unaccent</TT
+>辞書は以下のオプションを受け付けます。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+>    
+     このファイルは<TT
+CLASS="FILENAME"
+>$SHAREDIR/tsearch_data/</TT
+>内に格納しなければなりません。（ここで<TT
+CLASS="LITERAL"
+>$SHAREDIR</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>インストレーションの共有データディレクトリを意味します。）この名前は<TT
+CLASS="LITERAL"
+>.rules</TT
+>で終わらなければなりません。（<TT
+CLASS="LITERAL"
+>.rules</TT
+>は<TT
+CLASS="LITERAL"
+>RULES</TT
+>パラメータには含まれません。）
+    </P
+></LI
+></UL
+><P
+>  
+   rulesファイルの書式は以下の通りです。
+  </P
+><P
+></P
+><UL
+><LI
+><P
+>    
+     各行は、アクセント付き文字とその後にアクセントを取り除いた文字から構成される組み合わせを表します。一つ目が二つ目に変換されます。以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>&Agrave;        A
+&Aacute;        A
+&Acirc;        A
+&Atilde;        A
+&Auml;        A
+&Aring;        A
+&AElig;        A</PRE
+><P>
+    </P
+></LI
+></UL
+><P
+>  
+   <TT
+CLASS="FILENAME"
+>unaccent.rules</TT
+>は、ほとんどの欧州圏の言語で直接使用できる、より複雑な例です。これは<TT
+CLASS="FILENAME"
+>unaccent</TT
+>モジュールをインストールした時に<TT
+CLASS="FILENAME"
+>$SHAREDIR/tsearch_data/</TT
+>にインストールされます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138630"
+>F.44.2. 使用方法</A
+></H2
+><P
+>  
+   <TT
+CLASS="LITERAL"
+>unaccent</TT
+>拡張をインストールすることで、<TT
+CLASS="LITERAL"
+>unaccent</TT
+>全文検索テンプレートとそれに基づくデフォルトのパラメータを持つ<TT
+CLASS="LITERAL"
+>unaccent</TT
+>辞書が生成されます。<TT
+CLASS="LITERAL"
+>unaccent</TT
+>は<TT
+CLASS="LITERAL"
+>RULES='unaccent'</TT
+>というデフォルトパラメータ設定を持ちます。これは標準の<TT
+CLASS="FILENAME"
+>unaccent.rules</TT
+>ファイルを即座に使用可能にします。次の例のようにパラメータを変更することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mydb=# ALTER TEXT SEARCH DICTIONARY unaccent (RULES='my_rules');</PRE
+><P>
+
+  
+   また、このテンプレートに基づいた辞書を新規に作成することができます。
+  </P
+><P
+>  
+   以下を行うことで、辞書の動作を確認することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mydb=# select ts_lexize('unaccent','H&ocirc;tel');
+ ts_lexize
+-----------
+ {Hotel}
+(1 row)</PRE
+><P>
+  </P
+><P
+>  
+   全文検索設定に<TT
+CLASS="FILENAME"
+>unaccent</TT
+>辞書を組み込む方法を示す例を以下に示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mydb=# CREATE TEXT SEARCH CONFIGURATION fr ( COPY = french );
+mydb=# ALTER TEXT SEARCH CONFIGURATION fr
+        ALTER MAPPING FOR hword, hword_part, word
+        WITH unaccent, french_stem;
+mydb=# select to_tsvector('fr','H&ocirc;tels de la Mer');
+    to_tsvector
+-------------------
+ 'hotel':1 'mer':4
+(1 row)
+
+mydb=# select to_tsvector('fr','H&ocirc;tel de la Mer') @@ to_tsquery('fr','Hotels');
+ ?column?
+----------
+ t
+(1 row)
+
+mydb=# select ts_headline('fr','H&ocirc;tel de la Mer',to_tsquery('fr','Hotels'));
+      ts_headline
+------------------------
+ &lt;b&gt;H&ocirc;tel&lt;/b&gt; de la Mer
+(1 row)</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138645"
+>F.44.3. 関数</A
+></H2
+><P
+> 
+  <CODE
+CLASS="FUNCTION"
+>unaccent</CODE
+>関数は与えられた文字列からアクセント（発音区別符号）を取り除きます。基本的にこれは<TT
+CLASS="FILENAME"
+>unaccent</TT
+>辞書のラッパです。しかし通常の全文検索以外の文脈で使用することができます。
+ </P
+><PRE
+CLASS="SYNOPSIS"
+>unaccent([<SPAN
+CLASS="OPTIONAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>dictionary</I
+></TT
+>, </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>) returns <TT
+CLASS="TYPE"
+>text</TT
+></PRE
+><P
+> 
+  下記は使用例です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT unaccent('unaccent', 'H&ocirc;tel');
+SELECT unaccent('H&ocirc;tel');</PRE
+><P>
+ </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tsearch2.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="uuid-ossp.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>tsearch2</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>uuid-ossp</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

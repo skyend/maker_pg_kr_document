@@ -1,0 +1,340 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース 8.0.10</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース 8.0.11"
+HREF="release-8-0-11.html"><LINK
+REL="NEXT"
+TITLE="リリース8.0.9"
+HREF="release-8-0-9.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース 8.0.11"
+HREF="release-8-0-11.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.0.9"
+HREF="release-8-0-9.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-0-10"
+>E.112. リリース 8.0.10</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2007-01-08</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは8.0.9の各種不具合を修正したものです。
+8.0メジャーリリースにおける新機能については<A
+HREF="release-8-0.html"
+>&#38917;E.122</A
+>を参照してください。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN123703"
+>E.112.1. バージョン8.0.10への移行</A
+></H2
+><P
+>8.0.Xからの移行ではダンプ/リストアは不要です。
+しかし、8.0.6より前のバージョンからアップグレードする場合は、8.0.6のリリースノートを参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN123706"
+>E.112.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>AIXにおける<CODE
+CLASS="FUNCTION"
+>getaddrinfo()</CODE
+>の扱いを改良しました。(Tom)
+      </P
+><P
+>これは、特に統計情報コレクタの起動に関する問題を修正するものです。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM</TT
+>における<SPAN
+CLASS="QUOTE"
+>"親キーの再検索に失敗する"</SPAN
+>エラーを修正しました。(Tom)
+       </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM</TT
+>によるギガバイト境界を跨る大規模なリレーションの切り詰めにおける競合状態を修正しました。(Tom)
+       </P
+></LI
+><LI
+><P
+>数ギガバイトのハッシュインデックスに影響する不具合を修正しました。(Tom)
+       </P
+></LI
+><LI
+><P
+>Windowsのシグナル処理におけるデッドロックの可能性を修正しました。(Teodor)
+      </P
+></LI
+><LI
+><P
+>複数の空要素からなる<TT
+CLASS="LITERAL"
+>ARRAY[]</TT
+>生成時の不具合を修正しました。(Tom)
+      </P
+></LI
+><LI
+><P
+>ECPGにおける接続時のメモリリークを修正しました。(Michael)
+      </P
+></LI
+><LI
+><P
+>新しく<SPAN
+CLASS="APPLICATION"
+>initdb</SPAN
+>を行ったインストレーションでは、<CODE
+CLASS="FUNCTION"
+>to_number()</CODE
+>と<CODE
+CLASS="FUNCTION"
+>to_char(numeric)</CODE
+>が<TT
+CLASS="LITERAL"
+>IMMUTABLE</TT
+>ではなく<TT
+CLASS="LITERAL"
+>STABLE</TT
+>になりました。(Tom)
+      </P
+><P
+>これは、<TT
+CLASS="VARNAME"
+>lc_numeric</TT
+>がこれらの関数の出力を変更する可能性があるためです。
+      </P
+></LI
+><LI
+><P
+>括弧を使用した正規表現を使用するインデックスを改良しました。(Tom)
+      </P
+><P
+>この改良により、<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+> <TT
+CLASS="LITERAL"
+>\d</TT
+>の性能も向上しました。
+      </P
+></LI
+><LI
+><P
+>時間帯データベースを更新しました。
+      </P
+><P
+>具体的にはこれは、オーストラリアおよびカナダの夏時間規則に影響します。
+      </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-0-11.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-0-9.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース 8.0.11</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.0.9</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

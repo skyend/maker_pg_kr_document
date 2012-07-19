@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>SQLの構文</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQL言語"
+HREF="sql.html"><LINK
+REL="PREVIOUS"
+TITLE="SQL言語"
+HREF="sql.html"><LINK
+REL="NEXT"
+TITLE="語彙の構成"
+HREF="sql-syntax-lexical.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQL言語"
+HREF="sql.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE=""
+HREF="sql.html#AEN1134"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="語彙の構成"
+HREF="sql-syntax-lexical.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="SQL-SYNTAX"
+></A
+>&#31532; 4&#31456;SQLの構文</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>4.1. <A
+HREF="sql-syntax-lexical.html"
+>語彙の構成</A
+></DT
+><DD
+><DL
+><DT
+>4.1.1. <A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS"
+>識別子とキーワード</A
+></DT
+><DT
+>4.1.2. <A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS"
+>定数</A
+></DT
+><DT
+>4.1.3. <A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-OPERATORS"
+>演算子</A
+></DT
+><DT
+>4.1.4. <A
+HREF="sql-syntax-lexical.html#AEN1566"
+>特殊文字</A
+></DT
+><DT
+>4.1.5. <A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-COMMENTS"
+>コメント</A
+></DT
+><DT
+>4.1.6. <A
+HREF="sql-syntax-lexical.html#SQL-PRECEDENCE"
+>演算子の優先順位</A
+></DT
+></DL
+></DD
+><DT
+>4.2. <A
+HREF="sql-expressions.html"
+>評価式</A
+></DT
+><DD
+><DL
+><DT
+>4.2.1. <A
+HREF="sql-expressions.html#AEN1811"
+>列の参照</A
+></DT
+><DT
+>4.2.2. <A
+HREF="sql-expressions.html#AEN1823"
+>位置パラメータ</A
+></DT
+><DT
+>4.2.3. <A
+HREF="sql-expressions.html#AEN1837"
+>添字</A
+></DT
+><DT
+>4.2.4. <A
+HREF="sql-expressions.html#FIELD-SELECTION"
+>フィールド選択</A
+></DT
+><DT
+>4.2.5. <A
+HREF="sql-expressions.html#AEN1874"
+>演算子の呼び出し</A
+></DT
+><DT
+>4.2.6. <A
+HREF="sql-expressions.html#AEN1903"
+>関数呼び出し</A
+></DT
+><DT
+>4.2.7. <A
+HREF="sql-expressions.html#SYNTAX-AGGREGATES"
+>集約式</A
+></DT
+><DT
+>4.2.8. <A
+HREF="sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS"
+>ウィンドウ関数呼び出し</A
+></DT
+><DT
+>4.2.9. <A
+HREF="sql-expressions.html#SQL-SYNTAX-TYPE-CASTS"
+>型キャスト</A
+></DT
+><DT
+>4.2.10. <A
+HREF="sql-expressions.html#SQL-SYNTAX-COLLATE-EXPRS"
+>照合順序式</A
+></DT
+><DT
+>4.2.11. <A
+HREF="sql-expressions.html#SQL-SYNTAX-SCALAR-SUBQUERIES"
+>スカラ副問い合わせ</A
+></DT
+><DT
+>4.2.12. <A
+HREF="sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS"
+>配列コンストラクタ</A
+></DT
+><DT
+>4.2.13. <A
+HREF="sql-expressions.html#SQL-SYNTAX-ROW-CONSTRUCTORS"
+>行コンストラクタ</A
+></DT
+><DT
+>4.2.14. <A
+HREF="sql-expressions.html#SYNTAX-EXPRESS-EVAL"
+>式の評価規則</A
+></DT
+></DL
+></DD
+><DT
+>4.3. <A
+HREF="sql-syntax-calling-funcs.html"
+>関数呼び出し</A
+></DT
+><DD
+><DL
+><DT
+>4.3.1. <A
+HREF="sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-POSITIONAL"
+>位置表記の使用</A
+></DT
+><DT
+>4.3.2. <A
+HREF="sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-NAMED"
+>名前付け表記の使用</A
+></DT
+><DT
+>4.3.3. <A
+HREF="sql-syntax-calling-funcs.html#SQL-SYNTAX-CALLING-FUNCS-MIXED"
+>混在表記の利用</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+><P
+>本章ではSQLの構文について説明します。
+本章の内容は、データの定義や変更のためにSQLコマンドを適用する方法について詳しく説明する以後の章を理解する上での基礎となります。
+ </P
+><P
+>この章はSQLデータベース間で異なって実装されたり、または<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に固有な幾つかの規則と概念を含んでいるので、SQLについて熟知しているユーザも本章を注意深く読むことをお勧めします。
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-syntax-lexical.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>SQL言語</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>語彙の構成</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

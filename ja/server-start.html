@@ -1,0 +1,641 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データベースサーバの起動</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの準備と運用"
+HREF="runtime.html"><LINK
+REL="PREVIOUS"
+TITLE="データベースクラスタの作成"
+HREF="creating-cluster.html"><LINK
+REL="NEXT"
+TITLE="カーネルリソースの管理"
+HREF="kernel-resources.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベースクラスタの作成"
+HREF="creating-cluster.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 17&#31456;サーバの準備と運用</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの準備と運用"
+HREF="runtime.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="カーネルリソースの管理"
+HREF="kernel-resources.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SERVER-START"
+>17.3. データベースサーバの起動</A
+></H1
+><P
+>データベースにアクセスするためには、まずデータベースサーバを起動しなくてはいけません。
+データベースサーバプログラムは<I
+CLASS="FIRSTTERM"
+>postgres</I
+>という名前です。
+
+<TT
+CLASS="COMMAND"
+>postgres</TT
+>プログラムは自分が使用するデータがどこにあるのかを知っている必要があります。
+これは<TT
+CLASS="OPTION"
+>-D</TT
+>オプションで指定されます。
+したがって、サーバを起動する一番簡単な方法は、以下のようなコマンドとなります。
+</P><PRE
+CLASS="SCREEN"
+>$ <KBD
+CLASS="USERINPUT"
+>postgres -D /usr/local/pgsql/data</KBD
+></PRE
+><P>
+上記のコマンドはサーバをフォアグラウンドで実行させます。
+これは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウントにログインして実行されなくてはいけません。 
+<TT
+CLASS="OPTION"
+>-D</TT
+>オプションが指定されていない場合、サーバは<TT
+CLASS="ENVAR"
+>PGDATA</TT
+>環境変数で指定されたデータディレクトリを使用しようと試みます。 
+どちらの変数も指定されていなければ失敗します。
+  </P
+><P
+>通常はバックグラウンドで<TT
+CLASS="COMMAND"
+>postgres</TT
+>を起動することをお勧めします。
+そのためには以下のように通常のUnixシェルの構文を使います。
+</P><PRE
+CLASS="SCREEN"
+>$ <KBD
+CLASS="USERINPUT"
+>postgres -D /usr/local/pgsql/data &gt;logfile 2&gt;&amp;1 &amp;</KBD
+></PRE
+><P>
+この例のように、サーバの<SPAN
+CLASS="SYSTEMITEM"
+>標準出力</SPAN
+>と<SPAN
+CLASS="SYSTEMITEM"
+>標準エラー</SPAN
+>出力をどこかに保管しておくことが重要です。 
+これは追跡記録的な目的と問題の原因究明に役立ちます。
+（ログファイルの取り扱いについての全体的な説明については<A
+HREF="logfile-maintenance.html"
+>&#38917;23.3</A
+>を参照してください。）
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>postgres</TT
+>プログラムには、この他にも多くのコマンドラインオプションを指定することができます。
+詳細は<A
+HREF="app-postgres.html"
+><SPAN
+CLASS="APPLICATION"
+>postgres</SPAN
+></A
+>マニュアルページと後述の<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+  </P
+><P
+>こうしたシェル構文は長くなりがちです。
+そのため、<TT
+CLASS="COMMAND"
+>pg_ctl</TT
+>ラッパプログラムが提供されていて、いくつかのタスクを単純化しています。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>pg_ctl start -l logfile</PRE
+><P>
+これは、サーバをバックグラウンドで起動し、出力を指定されたログファイルに書き出します。 
+<TT
+CLASS="OPTION"
+>-D</TT
+>オプションは、ここでも<TT
+CLASS="COMMAND"
+>postgres</TT
+>の場合と同じ意味を持ちます。
+<TT
+CLASS="COMMAND"
+>pg_ctl</TT
+>によってサーバを停止させることもできます。
+  </P
+><P
+>通常、コンピュータが起動された時にデータベースサーバも一緒に起動したい場合が多いと思われます。 
+
+自動起動スクリプトはオペレーティングシステム固有のものです。
+いくつかは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の<TT
+CLASS="FILENAME"
+>/contrib/start-scripts</TT
+>ディレクトリに同梱されています。
+このインストールにはおそらくroot権限が必要となります。
+  </P
+><P
+>起動時にデーモンを開始する方法はシステムによって異なります。
+多くのシステムには<TT
+CLASS="FILENAME"
+>/etc/rc.local</TT
+>ファイルや<TT
+CLASS="FILENAME"
+>/etc/rc.d/rc.local</TT
+>ファイルがあります。
+他のシステムでは<TT
+CLASS="FILENAME"
+>init.d</TT
+>や<TT
+CLASS="FILENAME"
+>rc.d</TT
+>ディレクトリが使用されます。
+何を実行するにしても、サーバは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザアカウントで起動させなければなりません。
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>rootであってはいけません</I
+></SPAN
+>し、他のユーザでもいけません。
+したがって、<TT
+CLASS="LITERAL"
+>su -c '...' postgres</TT
+>を使用してコマンドを実行しなければならないでしょう。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>su -c 'pg_ctl start -D /usr/local/pgsql/data -l serverlog' postgres</PRE
+><P>
+  </P
+><P
+>さらにいくつかのオペレーティングシステム固有の提案を挙げます。
+（ここでは一般的な値で説明していますので、各項目において適切なインストールディレクトリとユーザ名に置き換えて読んでください。）
+
+   <P
+></P
+></P><UL
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>FreeBSD</SPAN
+>では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で配布されるソースの中にある<TT
+CLASS="FILENAME"
+>contrib/start-scripts/freebsd</TT
+>ファイルを参照してください。
+
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>OpenBSD</SPAN
+>では、以下の数行を<TT
+CLASS="FILENAME"
+>/etc/rc.local</TT
+>ファイルに追加してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>if [ -x /usr/local/pgsql/bin/pg_ctl -a -x /usr/local/pgsql/bin/postgres ]; then
+    su - -c '/usr/local/pgsql/bin/pg_ctl start -l /var/postgresql/log -s' postgres
+    echo -n ' postgresql'
+fi</PRE
+><P>
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Linux</SPAN
+>システムでは、
+
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/usr/local/pgsql/bin/pg_ctl start -l logfile -D /usr/local/pgsql/data</PRE
+><P>
+を<TT
+CLASS="FILENAME"
+>/etc/rc.d/rc.local</TT
+>や<TT
+CLASS="FILENAME"
+>/etc/rc.local</TT
+>に追加してください。
+または、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で配布されるソースの中にある<TT
+CLASS="FILENAME"
+>contrib/start-scripts/linux</TT
+>ファイルを参照してください。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>NetBSD</SPAN
+>では、<SPAN
+CLASS="PRODUCTNAME"
+>FreeBSD</SPAN
+>か<SPAN
+CLASS="PRODUCTNAME"
+>Linux</SPAN
+>の好きな方の起動スクリプトを使用してください。
+
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Solaris</SPAN
+>では、<TT
+CLASS="FILENAME"
+>/etc/init.d/postgresql</TT
+>というファイルを作成し、そこに以下の1行を記述してください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>su - postgres -c "/usr/local/pgsql/bin/pg_ctl start -l logfile -D /usr/local/pgsql/data"</PRE
+><P>
+そして、<TT
+CLASS="FILENAME"
+>/etc/rc3.d</TT
+>以下に<TT
+CLASS="LITERAL"
+>S99postgresql</TT
+>としてそのファイルに対するシンボリックリンクを作成してください。
+     </P
+></LI
+></UL
+><P>
+
+  </P
+><P
+>サーバが実行している間は、その<ACRONYM
+CLASS="ACRONYM"
+>PID</ACRONYM
+>はデータディレクトリの中の<TT
+CLASS="FILENAME"
+>postmaster.pid</TT
+>ファイルに記述されています。
+これは同じデータディレクトリで複数のサーバインスタンスが実行されるのを防止し、また、サーバの停止にも使うことができます。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SERVER-START-FAILURES"
+>17.3.1. サーバ起動の失敗</A
+></H2
+><P
+>サーバの起動が失敗する理由として代表的なものがいくつかあります。
+サーバのログファイルを点検するか、（標準出力や標準エラーをリダイレクトせずに）手動で起動して、どのようなエラーメッセージが出ているか確認してください。
+以下に、よく発生するエラーメッセージのいくつかをより詳細に説明します。
+    </P
+><P
+></P><PRE
+CLASS="SCREEN"
+>LOG:  could not bind IPv4 socket: Address already in use
+HINT:  Is another postmaster already running on port 5432? If not, wait a few seconds and retry.
+FATAL:  could not create TCP/IP listen socket</PRE
+><P>
+これはたいていの場合メッセージが示す通りの意味です。
+既にサーバが動いているポートで別の<TT
+CLASS="COMMAND"
+>postmaster</TT
+>を起動しようとしたことを示しています。
+しかし、カーネルエラーメッセージが<SAMP
+CLASS="COMPUTEROUTPUT"
+>Address already in use</SAMP
+>やそれに類似したものではない場合は、別の問題の可能性もあります。
+例えば、予約済みのポート番号でサーバを起動しようとすると下記のようなメッセージが出るかもしれません。
+</P><PRE
+CLASS="SCREEN"
+>$ <KBD
+CLASS="USERINPUT"
+>postgres -p 666</KBD
+>
+LOG:  could not bind IPv4 socket: Permission denied
+HINT:  Is another postmaster already running on port 666? If not, wait a few seconds and retry.
+FATAL:  could not create TCP/IP listen socket</PRE
+><P>
+    </P
+><P
+>次のようなメッセージが表示された場合、
+</P><PRE
+CLASS="SCREEN"
+>FATAL:  could not create shared memory segment: Invalid argument
+DETAIL:  Failed system call was shmget(key=5440001, size=4011376640, 03600).</PRE
+><P>
+これは、おそらくカーネルによる共有メモリのサイズの上限が<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が作ろうとしている作業領域（この例では4011376640バイト）よりも小さい可能性があります。
+または、System V方式の共有メモリサポートがカーネルにまったく設定されていない可能性もあります。
+一時的な策として、（<A
+HREF="runtime-config-resource.html#GUC-SHARED-BUFFERS"
+>shared_buffers</A
+>を使用して）サーバを通常よりも少ないバッファ数で起動することもできます。
+しかし最終的には、カーネルを再設定し、使用可能な共有メモリサイズを増やした方が良いでしょう。
+このメッセージは、同じマシン上で複数のサーバを起動しようとした時に、要求された領域の合計がカーネルの上限を超えた場合にも表示されます。
+    </P
+><P
+>下記のようなエラーはディスクの空き容量がなくなったということを示しているわけでは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ありません</I
+></SPAN
+>。
+</P><PRE
+CLASS="SCREEN"
+>FATAL:  could not create semaphores: No space left on device
+DETAIL:  Failed system call was semget(5440126, 17, 03600).</PRE
+><P>
+これはカーネルの<SPAN
+CLASS="SYSTEMITEM"
+>System V</SPAN
+>セマフォの上限が、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が作成しようとしている数よりも小さいということを意味しています。 
+上記のように、許可される接続の数を減らして（<A
+HREF="runtime-config-connection.html#GUC-MAX-CONNECTIONS"
+>max_connections</A
+>を使用して）サーバを起動させることで問題は回避できるかもしれませんが、最終的にはカーネルの設定を変えてセマフォの上限を増やした方が良いでしょう。
+    </P
+><P
+><SPAN
+CLASS="QUOTE"
+>"illegal system call"</SPAN
+>というエラーが表示された場合は、使用しているカーネルでは共有メモリやセマフォがまったくサポートされていない可能性があります。
+その場合、これらの機能を使えるようにカーネルを設定し直すことが唯一の選択肢となります。
+    </P
+><P
+><SPAN
+CLASS="SYSTEMITEM"
+>System V</SPAN
+> <ACRONYM
+CLASS="ACRONYM"
+>IPC</ACRONYM
+>設備の設定についての詳細は<A
+HREF="kernel-resources.html#SYSVIPC"
+>&#38917;17.4.1</A
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CLIENT-CONNECTION-PROBLEMS"
+>17.3.2. クライアント接続の問題</A
+></H2
+><P
+>クライアント側で起こり得るエラー状態はきわめて多様で、アプリケーションに依存します。 
+その中のいくつかはサーバが起動された方法と直接関係するかもしれません。
+以下で説明する以外の状態については各々のクライアントアプリケーションの資料を参照してください。
+    </P
+><P
+></P><PRE
+CLASS="SCREEN"
+>psql: could not connect to server: Connection refused
+        Is the server running on host "server.joe.com" and accepting
+        TCP/IP connections on port 5432?</PRE
+><P>
+これは一般的な<SPAN
+CLASS="QUOTE"
+>"接続するサーバが見つけられませんでした"</SPAN
+>という失敗です。
+TCP/IP通信を試みた時に上記のように表示されます。
+よくある間違いはサーバにTCP/IPを許可する設定を忘れていることです。
+    </P
+><P
+>代わりに、ローカルのサーバにUnixソケット通信を試みると下記のような表示が出ます。
+</P><PRE
+CLASS="SCREEN"
+>psql: could not connect to server: No such file or directory
+        Is the server running locally and accepting
+        connections on Unix domain socket "/tmp/.s.PGSQL.5432"?</PRE
+><P>
+    </P
+><P
+>最後の行は、クライアントが正しいところに接続しようとしていることを実証するのに役立ちます。
+もしそこに動いているサーバがない場合、典型的なカーネルエラーメッセージは、表示されているように<SAMP
+CLASS="COMPUTEROUTPUT"
+>Connection refused</SAMP
+>もしくは<SAMP
+CLASS="COMPUTEROUTPUT"
+>No such file or directory</SAMP
+>となります。
+（この場合の<SAMP
+CLASS="COMPUTEROUTPUT"
+>Connection refused</SAMP
+>はサーバが接続要求を受け付けた後に拒否したわけでは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ない</I
+></SPAN
+>ということを理解しておくことが大切です。 
+もしそうだった場合は<A
+HREF="client-authentication-problems.html"
+>&#38917;19.4</A
+>で示されるような別のメッセージが表示されます。）
+<SAMP
+CLASS="COMPUTEROUTPUT"
+>Connection timed out</SAMP
+>のような他のメッセージは、例えばネットワーク接続の欠如のようなもっと根本的な問題を表しています。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="creating-cluster.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="kernel-resources.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データベースクラスタの作成</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>カーネルリソースの管理</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

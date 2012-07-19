@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>スタイルガイド</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="ドキュメント作成"
+HREF="docguide.html"><LINK
+REL="PREVIOUS"
+TITLE="文書の起草"
+HREF="docguide-authoring.html"><LINK
+REL="NEXT"
+TITLE="頭字語"
+HREF="acronyms.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="文書の起草"
+HREF="docguide-authoring.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ドキュメント作成"
+HREF="docguide.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; I. ドキュメント作成</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ドキュメント作成"
+HREF="docguide.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="頭字語"
+HREF="acronyms.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DOCGUIDE-STYLE"
+>I.5. スタイルガイド</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN139767"
+>I.5.1. リファレンスページ</A
+></H2
+><P
+>リファレンスページは標準のレイアウトに従う必要があります。  
+このことにより、ユーザが必要な情報を素早く見つけられるようになり、同時にあるコマンドに関連する全ての特徴を文書化する書き手を励ましてもいます。
+一貫性は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の各リファレンスページ間だけでなく、オペレーティングシステムや他のパッケージソフトのリファレンスページとの関係でも求められるものです。
+そのために、以下のガイドラインが作成されました。
+このガイドラインのほとんどの部分は、様々なオペレーティングシステムで定められている同様のガイドラインと一貫性を持つものです。
+
+   </P
+><P
+>実行可能なコマンドを説明するリファレンスページには、以下の節がこの順序で含まれる必要があります。 
+該当しない節は除外しても構いません。
+これらと同レベルの節は特殊な状況でのみ追加すべきです。
+そのような情報は多くの場合、<SPAN
+CLASS="QUOTE"
+>"使用法"</SPAN
+>節に入れることができます。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>名前</DT
+><DD
+><P
+>この節は自動的に生成されます。ここには、コマンドの名前および機能の簡単な概要が入ります。
+       </P
+></DD
+><DT
+>概要</DT
+><DD
+><P
+>この節にはコマンドの構文図が入ります。
+この概要には、通常、各コマンドラインオプションを記載しません（それらは、以下の節に記載されます）。
+その代わり、入出力ファイルの宛先などのコマンドラインの主要なコンポーネントを記載します。
+       </P
+></DD
+><DT
+>説明</DT
+><DD
+><P
+>コマンドによって何が行われるかを説明する文章です。
+       </P
+></DD
+><DT
+>オプション</DT
+><DD
+><P
+>各コマンドラインオプションについて説明するリストです。
+オプションが数多くある場合、副節を使用することができます。
+       </P
+></DD
+><DT
+>終了ステータス</DT
+><DD
+><P
+>成功の場合はゼロを使用し、失敗の場合には非ゼロを使用するプログラムでは、この節を記載する必要はありません。
+複数の非ゼロの終了コードに異なる意味があれば、ここに記載します。
+       </P
+></DD
+><DT
+>使用法</DT
+><DD
+><P
+>プログラムの副言語またはランタイムインタフェースを全て記載します。 
+プログラムが対話型でない場合、通常はこの節を除外されます。
+それ以外の場合、この節は実行時の特徴のすべてを記載するために使用されます。
+必要に応じて副節を作成してください。
+       </P
+></DD
+><DT
+>環境</DT
+><DD
+><P
+>プログラムが使用する可能性のある全ての環境変数を列挙します。 
+なるべく完全なリストを作成してください。
+<TT
+CLASS="ENVAR"
+>SHELL</TT
+>のような些細に見える変数でも、ユーザに必要なことがあります。
+       </P
+></DD
+><DT
+>ファイル</DT
+><DD
+><P
+>プログラムが暗黙的にアクセスする可能性のある全てのファイルを列挙します。
+つまり、コマンドラインで指定された入出力ファイルではなく、設定ファイルなどを列挙するということです。
+       </P
+></DD
+><DT
+>診断</DT
+><DD
+><P
+>プログラムが作成する可能性のある全ての異常な出力についての説明を記載します。
+全てのエラーメッセージを列挙することは避けてください。
+作業が大変な割に、実際にはほとんど役に立たないからです。
+ただし、エラーメッセージにユーザが解析できる標準のフォーマットがあれば、ここに記載してください。
+       </P
+></DD
+><DT
+>備考</DT
+><DD
+><P
+>特定の不具合、実装の問題点、セキュリティの考慮事項、互換性の問題など、他の節に該当しない全てのものを記載します。
+       </P
+></DD
+><DT
+>例</DT
+><DD
+><P
+>例を記載します。
+       </P
+></DD
+><DT
+>更新履歴</DT
+><DD
+><P
+>プログラムの更新履歴に主要な変更点があった場合、ここに列挙します。
+通常この節は省くことができます。
+       </P
+></DD
+><DT
+>関連項目</DT
+><DD
+><P
+>次の順序で列挙されるクロスリファレンスです。
+他の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>コマンドのリファレンスページ、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のSQLコマンドのリファレンスページ、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>マニュアルの引用、他のリファレンスページ（オペレーティングシステム、他のパッケージソフトなど）、その他の文書。同一グループに属するものは、アルファベット順に列挙します。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+>SQLコマンドを説明するリファレンスページには、次の節を含める必要があります。
+名前、概要、説明、パラメータ、使用法、診断、備考、例、互換性、更新履歴、関連項目。
+パラメータ節はオプション節と似ていますが、リストに加えることのできるコマンドの句についてより自由度が高いものです。
+互換性節では、このコマンドがどの程度まで標準SQLに準拠しているか、または、他のどのデータベースシステムに対して互換性があるかを説明します。
+SQLコマンドの関連項目節では、プログラムへのクロスリファレンスよりも前にSQLコマンドを記載する必要があります。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="docguide-authoring.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="acronyms.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>文書の起草</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="docguide.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>頭字語</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

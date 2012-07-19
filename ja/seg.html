@@ -1,0 +1,962 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>seg</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="pg_upgrade"
+HREF="pgupgrade.html"><LINK
+REL="NEXT"
+TITLE="sepgsql"
+HREF="sepgsql.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pg_upgrade"
+HREF="pgupgrade.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="sepgsql"
+HREF="sepgsql.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SEG"
+>F.37. seg</A
+></H1
+><P
+>本モジュールは線分、浮動小数点区間を表現する<TT
+CLASS="TYPE"
+>seg</TT
+>データ型を実装します。
+<TT
+CLASS="TYPE"
+>seg</TT
+>は区間の終端内の不確定性を表すことができ、特に実験計測の表現に有用です。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137539"
+>F.37.1. 原理</A
+></H2
+><P
+>計測の幾何は数値の連続におけるものより通常より複雑です。
+計測は通常、多少あいまいな制限を持つ連続の部分部分となります。
+不確実性と不規則性のため、さらに、タンパク質を安定させる温度範囲など計測される値は本質的に何らかの状態を示す区間となる可能性があるため、計測は区間として表れます。
+  </P
+><P
+>一般的な見方を使うと、こうしたデータは値の組合せではなく区間としてデータを格納する方が便利なようです。
+実際、ほとんどのアプリケーションでより効率的であると判明してさえいます。
+  </P
+><P
+>一般的な見方をさらに進めると、制限の曖昧さは、伝統的な数値データ型を使用することで情報がある程度損失してしまうことを暗示しています。
+これを考えてみましょう。
+計測機器で6.50と読み取り、読み取ったデータをデータベースに格納します。
+それを取り出す時にどうなるでしょう。
+見てみましょう。
+
+</P><PRE
+CLASS="SCREEN"
+>test=&#62; select 6.50 :: float8 as "pH";
+ pH
+---
+6.5
+(1 row)</PRE
+><P>
+
+計測という世界では6.50は6.5と同じではありません。
+時としてこれが致命的な違いになる場合があります。
+実験者は信頼する桁を書き出し（公開し）ます。
+6.50は実質それ以上の値を含むあいまいな区間であり、（おそらく）その分布におけるもっとも特徴的なものを中央値として持つ6.5という区間よりもあいまいです。
+私達は厳密にこうした異なるデータ項目が同じものとして現れることを好みません。
+  </P
+><P
+>まとめ？
+任意の可変精度を持つ区間の制限を記録できる特別なデータ型を持つことは素晴らしいことでしょう。
+変数はある意味、各データ要素が独自の精度を持ちます。
+  </P
+><P
+>以下を見てください。
+
+</P><PRE
+CLASS="SCREEN"
+>test=&#62; select '6.25 .. 6.50'::seg as "pH";
+          pH
+------------
+6.25 .. 6.50
+(1 row)</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137548"
+>F.37.2. 構文</A
+></H2
+><P
+>区間の外部表現は、1つまたは2つの浮動小数点値を範囲演算子（<TT
+CLASS="LITERAL"
+>..</TT
+>または<TT
+CLASS="LITERAL"
+>...</TT
+>）で結び付けた形になります。
+他にも、中央値と正負の偏差として指定することも可能です。
+省略可能な確実性指示子（<TT
+CLASS="LITERAL"
+>&lt;</TT
+>、<TT
+CLASS="LITERAL"
+>&gt;</TT
+>、<TT
+CLASS="LITERAL"
+>~</TT
+>）を格納することもできます。
+（しかし、確実性指示子はすべての組込みの演算子で無視されます。）
+<A
+HREF="seg.html#SEG-REPR-TABLE"
+>&#34920;F-24</A
+>に許される表現についての概要を、<A
+HREF="seg.html#SEG-INPUT-EXAMPLES"
+>&#34920;F-25</A
+>にいくつか例を示します。
+  </P
+><P
+><A
+HREF="seg.html#SEG-REPR-TABLE"
+>&#34920;F-24</A
+>では、<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>delta</I
+></TT
+>は浮動小数点数値を表します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>delta</I
+></TT
+>以外の<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>の前に確実性指示子を付与することができます。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="SEG-REPR-TABLE"
+></A
+><P
+><B
+>&#34920; F-24. <TT
+CLASS="TYPE"
+>seg</TT
+>外部表現</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+></TT
+></TD
+><TD
+>単一値（幅0の区間）
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> .. <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+></TT
+></TD
+><TD
+><TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>から<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>までの区間
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> (+-) <TT
+CLASS="REPLACEABLE"
+><I
+>delta</I
+></TT
+></TT
+></TD
+><TD
+><TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> - <TT
+CLASS="REPLACEABLE"
+><I
+>delta</I
+></TT
+>から<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> + <TT
+CLASS="REPLACEABLE"
+><I
+>delta</I
+></TT
+>までの区間
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> ..</TT
+></TD
+><TD
+>下限値<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>を持つ閉じていない区間
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>.. <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+></TT
+></TD
+><TD
+>上限値<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>を持つ閉じていない区間
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="SEG-INPUT-EXAMPLES"
+></A
+><P
+><B
+>&#34920; F-25. 有効な<TT
+CLASS="TYPE"
+>SEG</TT
+>入力の例</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>5.0</TT
+></TD
+><TD
+>幅0のセグメントを作成します（こうすると点になります）。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>~5.0</TT
+></TD
+><TD
+>幅0のセグメントを作成し、データ内に<TT
+CLASS="LITERAL"
+>~</TT
+>を記録します。
+<TT
+CLASS="LITERAL"
+>~</TT
+>は<TT
+CLASS="TYPE"
+>seg</TT
+>型の演算では無視されますが、コメントとして保持されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>&lt;5.0</TT
+></TD
+><TD
+>5.0という点を作成します。
+<TT
+CLASS="LITERAL"
+>&lt;</TT
+>は無視されますが、コメントとして保持されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>&gt;5.0</TT
+></TD
+><TD
+>5.0という点を作成します。
+<TT
+CLASS="LITERAL"
+>&gt;</TT
+>は無視されますが、コメントとして保持されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>5(+-)0.3</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>4.7 .. 5.3</TT
+>という区間を作成します。
+<TT
+CLASS="LITERAL"
+>(+-)</TT
+>という記述は保持されないことに注意してください。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>50 .. </TT
+></TD
+><TD
+> 50以上のすべて</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>.. 0</TT
+></TD
+><TD
+>0以下のすべて</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>1.5e-2 .. 2E-2 </TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>0.015 .. 0.02</TT
+>という区間を作成します</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>1 ... 2</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>1...2</TT
+>、<TT
+CLASS="LITERAL"
+>1 .. 2</TT
+>、<TT
+CLASS="LITERAL"
+>1..2</TT
+>と同じです（範囲演算子前後の空白は無視されます）。
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>データソースで<TT
+CLASS="LITERAL"
+>...</TT
+>が広く使用されるため、<TT
+CLASS="LITERAL"
+>..</TT
+>の代わりの綴りとして許可されています。
+残念なことにこれにより解析上の曖昧性が生じました。
+<TT
+CLASS="LITERAL"
+>0...23</TT
+>の上限が<TT
+CLASS="LITERAL"
+>23</TT
+>なのか<TT
+CLASS="LITERAL"
+>0.23</TT
+>なのかが明確ではありません。
+これは、<TT
+CLASS="TYPE"
+>seg</TT
+>の入力において、少なくとも1つの桁を数値内の小数点の前に書くことを要求することで解決されます。
+  </P
+><P
+>健全性検査として<TT
+CLASS="TYPE"
+>seg</TT
+>は、<TT
+CLASS="LITERAL"
+>5 .. 2</TT
+>のような、下限値が上限値より大きな区間を拒絶します。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137668"
+>F.37.3. 精度</A
+></H2
+><P
+>内部的に<TT
+CLASS="TYPE"
+>seg</TT
+>値には32ビット浮動小数点数値の組合せが格納されます。
+これは7桁以上の有効桁を持つ数値が切り詰められることを意味します。
+
+  </P
+><P
+>有効桁が正確に7桁、または7桁未満の数値は元の精度が保たれます。
+つまり、問い合わせが0.00を返す場合、最後の0が書式付けのための誤差にならないことが確実です。
+これは元のデータの精度を反映します。
+最初から続く0は精度の影響を受けません。
+0.0067は2有効桁のみを持つものと考えられます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137673"
+>F.37.4. 使用方法</A
+></H2
+><P
+><TT
+CLASS="FILENAME"
+>seg</TT
+>モジュールには<TT
+CLASS="TYPE"
+>seg</TT
+>値用のGiSTインデックス演算子クラスが含まれます。
+GiST演算子クラスでサポートされる演算子を<A
+HREF="seg.html#SEG-GIST-OPERATORS"
+>&#34920;F-26</A
+>に示します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="SEG-GIST-OPERATORS"
+></A
+><P
+><B
+>&#34920; F-26. Seg GiST演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &lt;&lt; [c, d]</TT
+></TD
+><TD
+>[a, b]が完全に[c, d]の左側に存在します。
+つまり、b &lt;cならば[a, b] &lt;&lt; [c, d]は真です。
+さもなくば偽です。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &gt;&gt; [c, d]</TT
+></TD
+><TD
+>[a, b]が完全に [c, d]の右側に存在します。
+つまり、a &gt; dならば[a, b] &gt;&gt; [c, d]は真、さもなくば偽です。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &amp;&lt; [c, d]</TT
+></TD
+><TD
+>重なるまたは左側。
+これは<SPAN
+CLASS="QUOTE"
+>"右側にはみださない"</SPAN
+>ととらえた方がいいかもしれません。
+b &lt;= dならば真です。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &amp;&gt; [c, d]</TT
+></TD
+><TD
+>重なるか右側。
+これは<SPAN
+CLASS="QUOTE"
+>"左側にはみださない"</SPAN
+>ととらえた方がいいかもしれません。
+a &gt;= cならば真です。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] = [c, d]</TT
+></TD
+><TD
+>同一。
+セグメント[a, b]と [c, d]が同一、つまり、a == bかつc == dです。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &amp;&amp; [c, d]</TT
+></TD
+><TD
+>セグメント[a, b]と[c, d]に重なりがあります。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] @&gt; [c, d]</TT
+></TD
+><TD
+>セグメント[a, b]はセグメント[c, d]を含有します。つまり、a &lt;= cかつb &gt;= dです。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &lt;@ [c, d]</TT
+></TD
+><TD
+>セグメント[a, b]はセグメント[c, d]に含有されます。つまり、a &gt;= cかつb &lt;= dです。
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>（PostgreSQL 8.2以前では、含有演算子<TT
+CLASS="LITERAL"
+>@&gt;</TT
+>および<TT
+CLASS="LITERAL"
+>&lt;@</TT
+>はそれぞれ<TT
+CLASS="LITERAL"
+>@</TT
+>および<TT
+CLASS="LITERAL"
+>~</TT
+>という名前でした。
+以前の名前もまだ利用できますが、廃止予定であり、いずれなくなります。
+以前の名前は、コアの幾何データ型で以前従っていた規約と反対であることに注意してください。）
+  </P
+><P
+>以下の例のように、標準B-Tree演算子も提供されます。
+  <DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><A
+NAME="AEN137727"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &lt; [c, d]</TT
+></TD
+><TD
+>より小さい</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &gt; [c, d]</TT
+></TD
+><TD
+>より大きい</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+
+これらの演算子はソート以外の実用的な目的に対して大きな意味を持ちません。
+これらの演算子はまず(a)と(c)を比べ、等しければ(b)と(d)を比べます。
+論理的にはほとんどの場合優れたソート処理と思えます。
+こうした型をORDER BYで使用したい場合に有用です。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137742"
+>F.37.5. 注釈</A
+></H2
+><P
+>使用方法の例はリグレッション試験の<TT
+CLASS="FILENAME"
+>sql/seg.sql</TT
+>を参照してください。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>(+-)</TT
+>を通常の範囲に変換する機構は、境界で有効な桁数を決定するという点で完全に正確ではありません。
+例えば以下のように、結果の区間に10の冪乗が含まれる場合、下限値に余計な桁を追加します。
+
+</P><PRE
+CLASS="SCREEN"
+>postgres=&#62; select '10(+-)1'::seg as seg;
+      seg
+---------
+9.0 .. 11             -- should be: 9 .. 11</PRE
+><P>
+  </P
+><P
+>R-Treeインデックスの性能は入力値の初期の順序に大きく依存する可能性があります。
+<TT
+CLASS="TYPE"
+>seg</TT
+>列で入力テーブルをソートすることは非常に役に立つでしょう。
+例として<TT
+CLASS="FILENAME"
+>sort-segments.pl</TT
+>スクリプトを参照してください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137752"
+>F.37.6. クレジット</A
+></H2
+><P
+>原作者：Gene Selkov, Jr. <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:selkovjr@mcs.anl.gov"
+>selkovjr@mcs.anl.gov</A
+>&#62;</CODE
+>,
+   Mathematics and Computer Science Division, Argonne National Laboratory.
+  </P
+><P
+>GiST (<A
+HREF="http://gist.cs.berkeley.edu/"
+TARGET="_top"
+>http://gist.cs.berkeley.edu/</A
+>)の要旨（gist）を説明していただいたJoe Hellerstein博士（<A
+HREF="http://db.cs.berkeley.edu/jmh/"
+TARGET="_top"
+>http://db.cs.berkeley.edu/jmh/</A
+>）に感謝します。
+また、自分の世界を作成できるようにし、静かに生活できるようにしてもらった、過去から現在までのすべてのpostgres開発者に感謝します。
+データベース研究に長年誠実にサポートしてくれたArgonne LabとU.S. Department of Energyにも感謝します。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="pgupgrade.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sepgsql.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>pg_upgrade</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>sepgsql</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

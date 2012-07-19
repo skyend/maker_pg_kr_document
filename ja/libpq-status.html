@@ -1,0 +1,936 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>接続状態関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="PREVIOUS"
+TITLE="データベース接続制御関数"
+HREF="libpq-connect.html"><LINK
+REL="NEXT"
+TITLE="コマンド実行関数"
+HREF="libpq-exec.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベース接続制御関数"
+HREF="libpq-connect.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 31&#31456;<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="コマンド実行関数"
+HREF="libpq-exec.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LIBPQ-STATUS"
+>31.2. 接続状態関数</A
+></H1
+><P
+>これらの関数を使用して、既存のデータベース接続オブジェクトの状態を調べることができます。
+  </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>    
+    
+<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>アプリケーションのプログラマは注意して<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>という抽象化を維持してください。
+<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>の内容は以下に挙げるアクセス用関数を使って取り出してください。
+<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>構造体中のフィールドは将来予告なく変更されることがありますので、<TT
+CLASS="FILENAME"
+>libpq-int.h</TT
+>を使用したフィールドの参照は避けてください。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>以下の関数は、接続で確立したパラメータの値を返します。
+これらの値は<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>の存続期間中で固定されます。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQDB"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQdb</CODE
+>
+      </DT
+><DD
+><P
+>接続したデータベース名を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQdb(const PGconn *conn);</PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQUSER"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQuser</CODE
+>
+      </DT
+><DD
+><P
+>接続したユーザ名を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQuser(const PGconn *conn);</PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQPASS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQpass</CODE
+>
+      </DT
+><DD
+><P
+>接続したパスワードを返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQpass(const PGconn *conn);</PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQHOST"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQhost</CODE
+>
+      </DT
+><DD
+><P
+>接続したサーバホスト名を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQhost(const PGconn *conn);</PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQPORT"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQport</CODE
+>
+      </DT
+><DD
+><P
+>接続したポートを返します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQport(const PGconn *conn);</PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQTTY"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQtty</CODE
+>
+      </DT
+><DD
+><P
+>接続のデバッグ用<ACRONYM
+CLASS="ACRONYM"
+>TTY</ACRONYM
+>を返します。
+(これは廃れたものです。サーバはもはや<ACRONYM
+CLASS="ACRONYM"
+>TTY</ACRONYM
+>設定を参照しません。
+後方互換性のためにこの関数が残っています。)
+
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQtty(const PGconn *conn);</PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQOPTIONS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQoptions</CODE
+>
+      </DT
+><DD
+><P
+>接続要求時に渡されたコマンドラインオプションを返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQoptions(const PGconn *conn);</PRE
+><P>
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>以下の関数は、<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>オブジェクトに対して操作を行うことで変更可能な状態データを返します。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQSTATUS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQstatus</CODE
+>
+      </DT
+><DD
+><P
+>接続の状態を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>ConnStatusType PQstatus(const PGconn *conn);</PRE
+><P>
+      </P
+><P
+>この状態は多くの値の中の１つとなるはずです。
+しかし非同期接続手順の外部からは、その中でたった２つ、<TT
+CLASS="LITERAL"
+>CONNECTION_OK</TT
+>と<TT
+CLASS="LITERAL"
+>CONNECTION_BAD</TT
+>だけが現れます。
+データベースへの接続に問題がなければ、<TT
+CLASS="LITERAL"
+>CONNECTION_OK</TT
+>状態になります。
+接続に失敗している場合は<TT
+CLASS="LITERAL"
+>CONNECTION_BAD</TT
+>状態となります。
+通常、OK状態は<CODE
+CLASS="FUNCTION"
+>PQfinish</CODE
+>まで維持されますが、通信失敗のために早まって<TT
+CLASS="LITERAL"
+>CONNECTION_BAD</TT
+>になることもあります。
+その場合、アプリケーションは<CODE
+CLASS="FUNCTION"
+>PQreset</CODE
+>を呼び出して修復を試みることができます。
+      </P
+><P
+>返される可能性があるその他の状態コードについては<CODE
+CLASS="FUNCTION"
+>PQconnectStartParams</CODE
+>、<CODE
+CLASS="FUNCTION"
+>PQconnectStart</CODE
+>および<CODE
+CLASS="FUNCTION"
+>PQconnectPoll</CODE
+>の項目を参照してください。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQTRANSACTIONSTATUS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQtransactionStatus</CODE
+>
+      </DT
+><DD
+><P
+>サーバの現在のトランザクション内部状態を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>PGTransactionStatusType PQtransactionStatus(const PGconn *conn);</PRE
+><P>
+
+この状態は、<TT
+CLASS="LITERAL"
+>PQTRANS_IDLE</TT
+> (現在待機中)、<TT
+CLASS="LITERAL"
+>PQTRANS_ACTIVE</TT
+> (コマンド実行中)、<TT
+CLASS="LITERAL"
+>PQTRANS_INTRANS</TT
+> (有効なトランザクションブロック内で待機中)、<TT
+CLASS="LITERAL"
+>PQTRANS_INERROR</TT
+> (無効なトランザクションブロック内で待機中)となり得ます。
+接続に問題がある場合のみ<TT
+CLASS="LITERAL"
+>PQTRANS_UNKNOWN</TT
+>が報告されます。
+サーバへ問い合わせが送信されたが、まだ完了していない場合のみ<TT
+CLASS="LITERAL"
+>PQTRANS_ACTIVE</TT
+>が報告されます。
+      </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="90%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+><TT
+CLASS="LITERAL"
+>autocommit</TT
+>パラメータを無効にした<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 7.3サーバを使用する場合、<CODE
+CLASS="FUNCTION"
+>PQtransactionStatus</CODE
+>は間違った結果を返します。
+サーバサイドでの自動コミットは廃止され、その後のバージョンのサーバでは存在しません。
+       </P
+></TD
+></TR
+></TABLE
+></DIV
+></DD
+><DT
+><A
+NAME="LIBPQ-PQPARAMETERSTATUS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQparameterStatus</CODE
+>
+      </DT
+><DD
+><P
+>サーバの現在のパラメータ設定を検索します。
+</P><PRE
+CLASS="SYNOPSIS"
+>const char *PQparameterStatus(const PGconn *conn, const char *paramName);</PRE
+><P>
+
+あるパラメータ値は、接続開始時にサーバによって自動的に、もしくは、その値が変更された時は常に報告されます。
+<CODE
+CLASS="FUNCTION"
+>PQparameterStatus</CODE
+>はそれらの設定の調査に役立ちます。
+パラメータの現在値がわかればその値を、わからない場合は<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を返します。
+      </P
+><P
+>現在のリリースで報告されるパラメータには、<TT
+CLASS="VARNAME"
+>server_version</TT
+>、<TT
+CLASS="VARNAME"
+>server_encoding</TT
+>、<TT
+CLASS="VARNAME"
+>client_encoding</TT
+>、<TT
+CLASS="VARNAME"
+>application_name</TT
+>、<TT
+CLASS="VARNAME"
+>is_superuser</TT
+>、<TT
+CLASS="VARNAME"
+>session_authorization</TT
+>、<TT
+CLASS="VARNAME"
+>DateStyle</TT
+>、<TT
+CLASS="VARNAME"
+>IntervalStyle</TT
+>、<TT
+CLASS="VARNAME"
+>TimeZone</TT
+>、<TT
+CLASS="VARNAME"
+>integer_datetimes</TT
+>および<TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>があります。
+（8.0より前では<TT
+CLASS="VARNAME"
+>server_encoding</TT
+>、<TT
+CLASS="VARNAME"
+>TimeZone</TT
+>および<TT
+CLASS="VARNAME"
+>integer_datetimes</TT
+>が、8.1より前では<TT
+CLASS="LITERAL"
+>standard_conforming_strings</TT
+>が、そして8.4より前では<TT
+CLASS="VARNAME"
+>IntervalStyle</TT
+>が、9.0より前では<TT
+CLASS="VARNAME"
+>application_name</TT
+>が報告されませんでした。 ）
+<TT
+CLASS="VARNAME"
+>server_version</TT
+>、<TT
+CLASS="VARNAME"
+>server_encoding</TT
+>および<TT
+CLASS="VARNAME"
+>integer_datetimes</TT
+>は起動後変更することができないことに注意してください。
+      </P
+><P
+>プロトコル3.0より前のサーバはパラメータ設定を報告しません。
+しかし、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>には<TT
+CLASS="VARNAME"
+>server_version</TT
+>と<TT
+CLASS="VARNAME"
+>client_encoding</TT
+>の値を取り出す仕組みがとりあえずあります。
+アプリケーションは、<I
+CLASS="FOREIGNPHRASE"
+>付け焼き刃な</I
+>コードでこれらの値を決定するのではなく、<CODE
+CLASS="FUNCTION"
+>PQparameterStatus</CODE
+>を使用することが求められています。
+(しかし、3.0より前の接続では、接続開始後に<TT
+CLASS="COMMAND"
+>SET</TT
+>による<TT
+CLASS="VARNAME"
+>client_encoding</TT
+>の変更は<CODE
+CLASS="FUNCTION"
+>PQparameterStatus</CODE
+>に反映されないことに注意してください。)
+<TT
+CLASS="VARNAME"
+>server_version</TT
+>については、この情報をより比較し易い数値形式で返す<CODE
+CLASS="FUNCTION"
+>PQserverVersion</CODE
+>も参照してください。
+      </P
+><P
+><TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>の値がないと報告された場合、アプリケーションは<TT
+CLASS="LITERAL"
+>off</TT
+>と推測することができます。
+つまり、バックスラッシュは文字リテラル中のエスケープ文字として扱います。
+また、このパラメータが存在すると、エスケープ文字構文(<TT
+CLASS="LITERAL"
+>E'...'</TT
+>)が受付けられることを意味するものと取られます。
+      </P
+><P
+>返されるポインタは<TT
+CLASS="LITERAL"
+>const</TT
+>と宣言されていますが、実際には<TT
+CLASS="LITERAL"
+>PGconn</TT
+>構造体に関連付けされた変化する領域を指し示します。
+このポインタが諸問い合わせに渡って有効なままであるとは考えないでください。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQPROTOCOLVERSION"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQprotocolVersion</CODE
+>
+      </DT
+><DD
+><P
+>使用されるフロントエンド/バックエンドプロトコルを調査します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQprotocolVersion(const PGconn *conn);</PRE
+><P>
+ある機能がサポートされているかどうかを決定するために、アプリケーションはこの関数を使用することができます。
+現在、取り得る値は2(2.0プロトコル)、3(3.0プロトコル)、あるいは0(接続不良)です。
+このプロトコルバージョンは接続の開始が完了した後で変更することはできません。
+しかし、理論的には接続のリセット時に変更可能です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 7.4以降での通信時、通常3.0プロトコルが使用されます。
+7.4より前のサーバでは2.0プロトコルのみをサポートします。
+(1.0プロトコルは廃止され、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>ではサポートされていません。)
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQSERVERVERSION"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQserverVersion</CODE
+>
+      </DT
+><DD
+><P
+>バックエンドのバージョンの整数表現を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQserverVersion(const PGconn *conn);</PRE
+><P>
+この関数を使用してアプリケーションは接続したデータベースサーバのバージョンを決定することができます。
+この数値の形式は、メジャー、マイナー、リビジョン番号を2桁の10進数に変換し、連結させたものです。
+例えば、バージョン8.1.5では80105を返し、バージョン8.2では80200を返します。
+（先頭の0は現れません。）
+接続不良の場合は0が返されます。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQERRORMESSAGE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQerrorMessage</CODE
+>
+      </DT
+><DD
+><P
+>&#13;       
+接続における操作において、最も最近に生成されたエラーメッセージを返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQerrorMessage(const PGconn *conn);</PRE
+><P>
+
+      </P
+><P
+>ほとんどすべての<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>関数は、失敗時に<CODE
+CLASS="FUNCTION"
+>PQerrorMessage</CODE
+>用のメッセージを設定します。
+<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>での決まりとして、空でない<CODE
+CLASS="FUNCTION"
+>PQerrorMessage</CODE
+>の結果は複数行に渡ることも可能で、最後に改行が含まれることがある点に注意してください。
+呼び出し元はこの結果を直接解放してはいけません。
+関連する<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>ハンドルが<CODE
+CLASS="FUNCTION"
+>PQfinish</CODE
+>に渡された時にこれは解放されます。
+<TT
+CLASS="LITERAL"
+>PGconn</TT
+>構造体への操作を跨って、この結果文字列が同一であると想定してはいけません。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQSOCKET"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQsocket</CODE
+></DT
+><DD
+><P
+>サーバとの接続ソケットに対するファイル記述子番号を得ます。   
+有効な記述子なら値は0以上です。 
+-1の場合は、サーバとの接続がまだ開いていないことを示します。
+(これは通常の操作では変更することはできません。
+接続設定中やリセット中に変更されます。)
+
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQsocket(const PGconn *conn);</PRE
+><P>
+
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQBACKENDPID"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQbackendPID</CODE
+></DT
+><DD
+><P
+>接続を処理するバックエンドのプロセス<ACRONYM
+CLASS="ACRONYM"
+>ID</ACRONYM
+>(PID)を返します。
+
+
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQbackendPID(const PGconn *conn);</PRE
+><P>
+      </P
+><P
+>バックエンドの<ACRONYM
+CLASS="ACRONYM"
+>PID</ACRONYM
+>は、デバッグする場合や<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>メッセージ（これは通知を発行したバックエンドプロセスの<ACRONYM
+CLASS="ACRONYM"
+>PID</ACRONYM
+>を含んでいます）の比較に便利です。
+この<ACRONYM
+CLASS="ACRONYM"
+>PID</ACRONYM
+>はデータベースサーバホスト上で実行されているプロセスのものであり、ローカルホスト側のものではありません！ 
+注意してください。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQCONNECTIONNEEDSPASSWORD"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQconnectionNeedsPassword</CODE
+></DT
+><DD
+><P
+>接続認証方式がパスワードを要求し、利用可能なパスワードがない場合真（1）を返します。
+さもなくば偽（0）を返します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQconnectionNeedsPassword(const PGconn *conn);</PRE
+><P>
+
+      </P
+><P
+>この関数を、接続試行に失敗した後でユーザにパスワード入力を促すかどうかを決定するために適用することができます。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQCONNECTIONUSEDPASSWORD"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQconnectionUsedPassword</CODE
+></DT
+><DD
+><P
+>接続認証方式でパスワードを使用する場合は真（1）、さもなくば偽（0）を返します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQconnectionUsedPassword(const PGconn *conn);</PRE
+><P>
+
+      </P
+><P
+>この関数は、接続の試みが失敗したか成功したかの後に、サーバがパスワードを要求したかどうかを検出するために適用できます。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQGETSSL"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQgetssl</CODE
+></DT
+><DD
+><P
+>       
+接続で使用されているSSL構造体を返します。 
+SSLが使用されていない場合はヌルを返します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>SSL *PQgetssl(const PGconn *conn);</PRE
+><P>
+      </P
+><P
+>この構造体は暗号化レベルの検証やサーバ証明書の検査などに役立ちます。
+この構造体については<SPAN
+CLASS="PRODUCTNAME"
+>OpenSSL</SPAN
+>の文書を参照してください。
+      </P
+><P
+>この関数の正しいプロトタイプを得るには、<TT
+CLASS="LITERAL"
+>USE_SSL</TT
+>を定義する必要があります。
+こうすると、<SPAN
+CLASS="PRODUCTNAME"
+>OpenSSL</SPAN
+>の<TT
+CLASS="FILENAME"
+>ssl.h</TT
+>も自動的にインクルードされます。
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libpq-connect.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libpq-exec.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>データベース接続制御関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>コマンド実行関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

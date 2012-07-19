@@ -1,0 +1,731 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE AGGREGATE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="COPY"
+HREF="sql-copy.html"><LINK
+REL="NEXT"
+TITLE="CREATE CAST"
+HREF="sql-createcast.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="COPY"
+HREF="sql-copy.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="COPY"
+HREF="sql-copy.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE CAST"
+HREF="sql-createcast.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE CAST"
+HREF="sql-createcast.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATEAGGREGATE"
+></A
+>CREATE AGGREGATE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN64260"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE AGGREGATE&nbsp;--&nbsp;新しい集約関数を定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN64265"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE AGGREGATE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> ( <TT
+CLASS="REPLACEABLE"
+><I
+>input_data_type</I
+></TT
+> [ , ... ] ) (
+    SFUNC = <TT
+CLASS="REPLACEABLE"
+><I
+>sfunc</I
+></TT
+>,
+    STYPE = <TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+>
+    [ , FINALFUNC = <TT
+CLASS="REPLACEABLE"
+><I
+>ffunc</I
+></TT
+> ]
+    [ , INITCOND = <TT
+CLASS="REPLACEABLE"
+><I
+>initial_condition</I
+></TT
+> ]
+    [ , SORTOP = <TT
+CLASS="REPLACEABLE"
+><I
+>sort_operator</I
+></TT
+> ]
+)
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>または以下の旧構文</SPAN
+></SPAN
+>
+
+CREATE AGGREGATE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> (
+    BASETYPE = <TT
+CLASS="REPLACEABLE"
+><I
+>base_type</I
+></TT
+>,
+    SFUNC = <TT
+CLASS="REPLACEABLE"
+><I
+>sfunc</I
+></TT
+>,
+    STYPE = <TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+>
+    [ , FINALFUNC = <TT
+CLASS="REPLACEABLE"
+><I
+>ffunc</I
+></TT
+> ]
+    [ , INITCOND = <TT
+CLASS="REPLACEABLE"
+><I
+>initial_condition</I
+></TT
+> ]
+    [ , SORTOP = <TT
+CLASS="REPLACEABLE"
+><I
+>sort_operator</I
+></TT
+> ]
+)</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64282"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE AGGREGATE</TT
+>は、新しい集約関数を定義します。
+配布物には基本的、かつ、よく使用される集約関数がいくつか含まれています。これらの集約関数については、<A
+HREF="functions-aggregate.html"
+>&#38917;9.18</A
+>に文書化されています。
+新しい型を定義する場合、またはまだ提供されていない集約関数が必要な場合、必要な機能を実現するために<TT
+CLASS="COMMAND"
+>CREATE AGGREGATE</TT
+>を使うことができます。
+  </P
+><P
+>スキーマ名が付けられている場合（例えば、<TT
+CLASS="LITERAL"
+>CREATE AGGREGATE myschema.myagg ...</TT
+>）、集約関数は指定されたスキーマで作成されます。
+スキーマ名がなければ、集約関数は現在のスキーマで作成されます。
+  </P
+><P
+>集約関数は名前と入力データ型(複数可)の組み合わせによって識別されます。
+演算の対象となる入力データ型が異なっていれば、同じスキーマ内に同じ名前の集約関数があっても構いません。
+1つのスキーマ内では、集約関数の名前と入力データ型(複数可)は、通常の関数の名前と入力データ型と異なる必要があります。
+  </P
+><P
+>集約関数は1つか2つの通常の関数から作られます。
+状態遷移関数<TT
+CLASS="REPLACEABLE"
+><I
+>sfunc</I
+></TT
+>と省略可能な最終計算関数<TT
+CLASS="REPLACEABLE"
+><I
+>ffunc</I
+></TT
+>です。
+これらは以下のように使われます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+><TT
+CLASS="REPLACEABLE"
+><I
+>sfunc</I
+></TT
+>( 内部状態, 次のデータ値 ) ---&#62; 次の内部状態
+<TT
+CLASS="REPLACEABLE"
+><I
+>ffunc</I
+></TT
+>( 内部状態 ) ---&#62; 集約の結果</PRE
+><P>
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、集約の現在の内部状態を保持する<TT
+CLASS="REPLACEABLE"
+><I
+>stype</I
+></TT
+>データ型の一時変数を作成します。
+それぞれの入力行に対して、集約引数の値が計算され、現在の状態値と新しい引数値で新しい内部状態変数を計算するために状態遷移関数が呼び出されます。
+全ての行が処理されると、集約の出力値を計算するために最終関数が1回呼び出されます。
+最終関数がない場合は、終了時の状態値がそのまま返されます。
+
+  </P
+><P
+>集約関数は、内部状態の初期値として初期状態を提供することができます。
+これは<TT
+CLASS="TYPE"
+>text</TT
+>型の値としてデータベースに格納されますが、状態値データ型の定数として有効な外部表現でなければいけません。
+初期状態が与えられていない場合、状態値はNULLから始まります。
+  </P
+><P
+>状態遷移関数が<SPAN
+CLASS="QUOTE"
+>"厳格（strict）"</SPAN
+>と宣言されている場合、NULLを入力値にして呼び出すことはできません。
+そのような遷移関数では、集約は次のように実行されます。
+NULL入力値を持つ行は無視されます。
+（関数は呼び出されず、前回の状態値が保持されます。）
+初期状態値がNULLである場合、初めて入力行がすべて非NULL入力値であった時にその引数の値で状態値を置き換え、次に入力行がすべて非NULL入力値を持つ時から遷移関数の呼び出しが始まります。
+このような動作は、<CODE
+CLASS="FUNCTION"
+>max</CODE
+>のような集約を実装するには便利です。
+ただし、<TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+>が最初の<TT
+CLASS="REPLACEABLE"
+><I
+>input_data_type</I
+></TT
+>と同じ時にのみ有効であることに注意してください。
+これらの型が異なる時は、非NULL初期値を供給するか、厳格でない遷移関数を使わなければいけません。
+  </P
+><P
+>状態遷移関数が厳格（strict）でない場合は、それぞれの入力行に対してその関数が無条件に呼び出されるので、NULL入力とNULL遷移値を自分で処理しなければいけません。
+これは、関数の作成者が、集約関数におけるNULL値の扱いを完全に制御できることを意味します。
+  </P
+><P
+>最終関数が<SPAN
+CLASS="QUOTE"
+>"厳格（strict）"</SPAN
+>と宣言されていると、終了状態値がNULLの時は、最終関数が呼び出されません。
+その場合、NULLという結果が自動的に出力されます
+（もちろんこれは、厳格な関数の一般的な動作に過ぎません）。
+どのような場合でも、最終関数はNULLを返すことができます。
+例えば、<CODE
+CLASS="FUNCTION"
+>avg</CODE
+>の最終関数は、入力が0行だとわかるとNULLを返します。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>MIN</CODE
+>や<CODE
+CLASS="FUNCTION"
+>MAX</CODE
+>のような振舞いをする集約では、すべての入力行を走査せずにインデックスを検索することで最適化できることがあります。
+このように最適化される集約の場合、<I
+CLASS="FIRSTTERM"
+>ソート演算子</I
+>を指定することで明示してください。
+その演算子で生成されるソート順で集約の最初の要素が生成されなければならないということが基本的な必要条件です。
+言い換えると、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT agg(col) FROM tab;</PRE
+><P>
+が
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT col FROM tab ORDER BY col USING sortop LIMIT 1;</PRE
+><P>
+と同じでなければならないということです。
+更に、集約がNULL入力を無視すること、および、NULL以外の入力がまったくなかった時にのみNULLという結果を返すことも前提となります。
+通常、データ型の<TT
+CLASS="LITERAL"
+>&lt;</TT
+>演算子は<CODE
+CLASS="FUNCTION"
+>MIN</CODE
+>のソート演算子として、また、<TT
+CLASS="LITERAL"
+>&gt;</TT
+>演算子は<CODE
+CLASS="FUNCTION"
+>MAX</CODE
+>のソート演算子として適切です。
+指定した演算子がB-treeインデックス演算子クラスの<SPAN
+CLASS="QUOTE"
+>"より小さい"</SPAN
+>ストラテジか<SPAN
+CLASS="QUOTE"
+>"より大きい"</SPAN
+>ストラテジのメンバでない限り、最適化が実際には効果がないことに注意してください。
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64323"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>      作成する集約関数の名前です（スキーマ修飾名も可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>input_data_type</I
+></TT
+></DT
+><DD
+><P
+>集約関数が演算する入力データ型です。 
+引数が存在しない集約関数を作成するには、入力データ型のリストに<TT
+CLASS="LITERAL"
+>*</TT
+>と記載してください
+（例えば <CODE
+CLASS="FUNCTION"
+>count(*)</CODE
+>などの集約です）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>base_type</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>CREATE AGGREGATE</TT
+>の旧構文では、入力データ型は集約名称の次に記載されたものではなく<TT
+CLASS="LITERAL"
+>basetype</TT
+>パラメータにより指定されます。
+この構文では１つの入力パラメータしか指定できないことに注意してください。
+引数を持たない集約を定義するためには、<TT
+CLASS="LITERAL"
+>basetype</TT
+>を<TT
+CLASS="LITERAL"
+>"ANY"</TT
+> （<TT
+CLASS="LITERAL"
+>*</TT
+>ではありません）と指定してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>sfunc</I
+></TT
+></DT
+><DD
+><P
+>それぞれの入力行に対して呼び出される状態遷移関数の名前です。
+<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>引数を持つ集約関数では、<TT
+CLASS="REPLACEABLE"
+><I
+>sfunc</I
+></TT
+>は<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>+1個の引数を取らなければなりません。
+最初の引数は<TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+>型で、残りはその集約の入力データ型として宣言したものと一致していなければなりません。
+この関数は<TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+>型の値を返さなければなりません。
+この関数は、現在の状態値と現在の入力データ値を受け取り、次の状態値を返します。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+></DT
+><DD
+><P
+>集約の状態値のデータ型です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>ffunc</I
+></TT
+></DT
+><DD
+><P
+>最終関数の名前です。最終関数は、全ての入力行に対する処理が終わった後、集約の結果を計算するために呼び出されます。
+この関数は<TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+>型の引数を1つ取らなければなりません。
+集約の出力データ型はこの関数の返り値として定義されます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>ffunc</I
+></TT
+>が指定されない場合には、集約の結果として終了時の状態値が使われます。出力型は<TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+>になります。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>initial_condition</I
+></TT
+></DT
+><DD
+><P
+>状態値の初期設定です。
+データ型<TT
+CLASS="REPLACEABLE"
+><I
+>state_data_type</I
+></TT
+>として受け取り可能な文字列定数でなければいけません。
+このパラメータが指定されない場合、状態値はNULLから始まります。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>sort_operator</I
+></TT
+></DT
+><DD
+><P
+><CODE
+CLASS="FUNCTION"
+>MIN</CODE
+>または<CODE
+CLASS="FUNCTION"
+>MAX</CODE
+>のような集約に対して関連付いたソート演算子です。
+これは単なる演算子の名前です（スキーマで修飾可能）。
+この演算子は集約（これは単一引数の集約でなければなりません）と同じ入力データ型を持つと前提されています。
+     </P
+></DD
+></DL
+></DIV
+><P
+><TT
+CLASS="COMMAND"
+>CREATE AGGREGATE</TT
+>のパラメータは、任意の順番で記述することができます。上記の順番で記述する必要はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64386"
+></A
+><H2
+>例</H2
+><P
+><A
+HREF="xaggr.html"
+>&#38917;35.10</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64390"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE AGGREGATE</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の言語拡張です。
+標準SQLには、ユーザ定義の集約関数を使用する機能はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64395"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-alteraggregate.html"
+>ALTER AGGREGATE</A
+>, <A
+HREF="sql-dropaggregate.html"
+>DROP AGGREGATE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-copy.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createcast.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>COPY</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE CAST</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

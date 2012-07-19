@@ -1,0 +1,2928 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>コマンド実行関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="PREVIOUS"
+TITLE="接続状態関数"
+HREF="libpq-status.html"><LINK
+REL="NEXT"
+TITLE="非同期コマンドの処理"
+HREF="libpq-async.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="接続状態関数"
+HREF="libpq-status.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 31&#31456;<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="非同期コマンドの処理"
+HREF="libpq-async.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LIBPQ-EXEC"
+>31.3. コマンド実行関数</A
+></H1
+><P
+>いったんデータベースサーバへの接続の確立が成功すれば、本節で説明する関数を使ってSQLの問い合わせやコマンドを実行します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LIBPQ-EXEC-MAIN"
+>31.3.1. 主要な関数</A
+></H2
+><P
+>    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQEXEC"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>
+       </DT
+><DD
+><P
+>コマンドをサーバに送信し、結果を待機します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQexec(PGconn *conn, const char *command);</PRE
+><P>
+       </P
+><P
+>戻り値は<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>へのポインタ、場合によってはヌルポインタです。
+メモリ不足の状態、あるいはサーバへのコマンド送信が不可能といった深刻なエラーの場合を除けば、通常非ヌルのポインタが返ります。
+<CODE
+CLASS="FUNCTION"
+>PQresultStatus</CODE
+>関数を呼び出して、何かエラー（ヌルポインタ値を含むエラー。この場合は<TT
+CLASS="SYMBOL"
+>PGRES_FATAL_ERROR</TT
+>が返されます）がないか戻り値を検査しなければなりません。
+こうしたエラーの詳しい情報は<CODE
+CLASS="FUNCTION"
+>PQerrorMessage</CODE
+>で得ることができます。
+       </P
+></DD
+></DL
+></DIV
+><P>
+
+コマンド文字列には(セミコロンで区切った)複数のSQLコマンドを含めることができます。
+単一の<CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>呼び出しで送信された複数の問い合わせは、単一トランザクションで処理されます。
+ただし、問い合わせ文字列内に明示的な<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>/<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>がある場合は、複数のトランザクションに分離されます。
+しかし、返される<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>構造体はその文字列内で最後に実行されたコマンドの結果のみが含まれることに注意してください。
+そのコマンドの1つが失敗したとすると、文字列の処理はそこで中断し、エラー条件が含まれる<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>が返されます。
+   </P
+><P
+>    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQEXECPARAMS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQexecParams</CODE
+>
+       </DT
+><DD
+><P
+>サーバにコマンドを送信し、結果を待ちます。
+ただし、SQLコマンドテキストとは別にパラメータを渡すことができます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQexecParams(PGconn *conn,
+                       const char *command,
+                       int nParams,
+                       const Oid *paramTypes,
+                       const char * const *paramValues,
+                       const int *paramLengths,
+                       const int *paramFormats,
+                       int resultFormat);</PRE
+><P>
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQexecParams</CODE
+>と<CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>は似ていますが、前者は次の機能が追加されています。
+パラメータ値をコマンド文字列とは別に適切に指定することができ、また、問い合わせの結果をテキスト書式としてでもバイナリ書式としてでも要求できます。
+<CODE
+CLASS="FUNCTION"
+>PQexecParams</CODE
+>はプロトコル3.0以降でのみサポートされ、プロトコル2.0で使用した場合は失敗します。
+       </P
+><P
+>この関数の引数を以下に示します。
+
+        <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="PARAMETER"
+>conn</TT
+></DT
+><DD
+><P
+>接続オブジェクトです。これを通してコマンドを送信します。
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>command</TT
+></DT
+><DD
+><P
+>実行させるSQLコマンド文字列です。
+パラメータが使用される場合は、コマンド文字列内で<TT
+CLASS="LITERAL"
+>$1</TT
+>、<TT
+CLASS="LITERAL"
+>$2</TT
+>などのように参照されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>nParams</TT
+></DT
+><DD
+><P
+>提供されるパラメータ数です。
+これは配列<TT
+CLASS="PARAMETER"
+>paramTypes[]</TT
+>、<TT
+CLASS="PARAMETER"
+>paramValues[]</TT
+>、<TT
+CLASS="PARAMETER"
+>paramLengths[]</TT
+>、<TT
+CLASS="PARAMETER"
+>paramFormats[]</TT
+>の要素数です。
+（この配列ポインタは、<TT
+CLASS="PARAMETER"
+>nParams</TT
+>が0の場合、<TT
+CLASS="SYMBOL"
+>NULL</TT
+>とすることができます。）
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>paramTypes[]</TT
+></DT
+><DD
+><P
+>パラメータシンボルに代入されるデータ型をOIDで指定したものです。
+<TT
+CLASS="PARAMETER"
+>paramTypes</TT
+>が<TT
+CLASS="SYMBOL"
+>NULL</TT
+>、または、ある配列要素が0の場合、サーバは、型指定のないリテラル文字列に対して行う推定方法と同じ方法を使用して、パラメータシンボルのデータ型を推定します。
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>paramValues[]</TT
+></DT
+><DD
+><P
+>パラメータの実際の値を指定します。
+配列内のヌルポインタは対応するパラメータがNULLであることを意味します。
+さもなくば、このポインタはゼロ終端のテキスト文字列（テキスト書式）、または、サーバで想定している書式によるバイナリデータ（バイナリ書式）を指し示します。
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>paramLengths[]</TT
+></DT
+><DD
+><P
+>バイナリ書式のパラメータの実データ長を指定します。
+NULLパラメータおよびテキスト書式のパラメータでは無視されます。
+バイナリパラメータが存在しない場合、この配列ポインタはヌルとしてもかまいません。
+      </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>paramFormats[]</TT
+></DT
+><DD
+><P
+>パラメータがテキスト（パラメータに対応する配列要素に0を設定）か、バイナリ（パラメータに対応する配列要素に1を設定）かを指定します。
+この配列ポインタがヌルの場合、すべてのパラメータはテキスト文字列であると仮定されます。
+      </P
+><P
+>      
+バイナリ書式で渡された値は、バックエンドが想定する内部表現の知識を必要とします。
+例えば、整数はネットワークバイト順に渡されなければなりません。
+<TT
+CLASS="TYPE"
+>numeric</TT
+>による値は、<TT
+CLASS="FILENAME"
+>src/backend/utils/adt/numeric.c::numeric_send()</TT
+>および<TT
+CLASS="FILENAME"
+>src/backend/utils/adt/numeric.c::numeric_recv()</TT
+>で実装されたようにサーバストレージ書式の知識を必要とします。
+       </P
+></DD
+><DT
+><TT
+CLASS="PARAMETER"
+>resultFormat</TT
+></DT
+><DD
+><P
+>結果をテキスト書式で取り出したい場合は0を、バイナリ書式で取り出したい場合は1を指定します。
+（現時点では、プロトコル内部では実現可能ですが、結果の列ごとに異なる書式を指定して取り出す機構は存在しません。）
+      </P
+></DD
+></DL
+></DIV
+><P>
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>に対する<CODE
+CLASS="FUNCTION"
+>PQexecParams</CODE
+>の主要な利点は、コマンド文字列とパラメータ値を分離することができることです。
+これにより、面倒でエラーを招きやすい引用符付けやエスケープ処理を行なう必要がなくなります。
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>と異なり、<CODE
+CLASS="FUNCTION"
+>PQexecParams</CODE
+>は、文字列内に最大でも1つのSQLコマンドを入れることができます。
+（セミコロンを入れることはできますが、空でないコマンドを1つ以上入れることはできません。）
+これは、プロトコル自体の制限ですが、SQLインジェクション攻撃に対する追加の防御となりますので、多少役に立ちます。
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>OID経由のパラメータ型の指定は、特にプログラムの中で特定のOID値がソースに直接書き込まれることを好まない場合には退屈です。
+しかしながら、パラメータの型をサーバ自身で決定できない場合や、望む型と異なる型を選択する場合であっても、これを避けることができます。
+SQLコマンドテキストでどのデータ型を送信するかを示すためにパラメータシンボルに明示的なキャストをつけてください。
+以下が例です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM mytable WHERE x = $1::bigint;</PRE
+><P>
+デフォルトではパラメータ<TT
+CLASS="LITERAL"
+>$1</TT
+>の型は<TT
+CLASS="LITERAL"
+>x</TT
+>と同じデータ型に割り当てられますが、これにより強制的に<TT
+CLASS="TYPE"
+>bigint</TT
+>として扱われます。
+この方法または型のOIDを数字で指定する方法で、パラメータの型を強制的に決定することがバイナリ書式においてパラメータ値を送る時に強く推奨されます。
+これは、バイナリ書式はテキスト書式より情報が少なく、そのために、サーバが型の不一致という問題を検出する機会が少なくなるためです。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQPREPARE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQprepare</CODE
+>
+       </DT
+><DD
+><P
+>指定パラメータを持つプリペアド文の作成要求を送信し、その完了を待ちます。
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQprepare(PGconn *conn,
+                    const char *stmtName,
+                    const char *query,
+                    int nParams,
+                    const Oid *paramTypes);</PRE
+><P>
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQprepare</CODE
+>は、後で<CODE
+CLASS="FUNCTION"
+>PQexecPrepared</CODE
+>を使用して実行するプリペアド文を作成します。
+この機能を使用して、繰り返し使用されるコマンドの解析と計画作成を実行時に毎回行うのではなく、一回のみ行うようにすることができます。
+<CODE
+CLASS="FUNCTION"
+>PQprepare</CODE
+>はプロトコル3.0以降でのみサポートされ、プロトコル2.0を使用している場合は失敗します。
+       </P
+><P
+>この関数は<TT
+CLASS="PARAMETER"
+>query</TT
+>文字列から<TT
+CLASS="PARAMETER"
+>stmtName</TT
+>という名前のプリペアド文を作成します。
+<TT
+CLASS="PARAMETER"
+>query</TT
+>は単一のSQLコマンドでなければなりません。
+<TT
+CLASS="PARAMETER"
+>stmtName</TT
+>を<TT
+CLASS="LITERAL"
+>""</TT
+>にして、無名の文を作成することができます。
+もし、無名の文が既に存在していた場合は自動的に置き換えられます。
+その他の場合、文の名前が現在のセッションで既に存在するとエラーになります。
+何らかのパラメータが使用される場合、問い合わせ内では<TT
+CLASS="LITERAL"
+>$1</TT
+>、<TT
+CLASS="LITERAL"
+>$2</TT
+>などで参照します。
+<TT
+CLASS="PARAMETER"
+>nParams</TT
+>はパラメータ数です。
+その型については事前に<TT
+CLASS="PARAMETER"
+>paramTypes[]</TT
+>配列で指定されています。
+(<TT
+CLASS="PARAMETER"
+>nParams</TT
+>がゼロの場合、この配列ポインタは<TT
+CLASS="SYMBOL"
+>NULL</TT
+>にすることができます。)
+<TT
+CLASS="PARAMETER"
+>paramTypes[]</TT
+>は、OIDによりパラメータシンボルに割り当てるデータ型を指定します。
+<TT
+CLASS="PARAMETER"
+>paramTypes</TT
+>が<TT
+CLASS="SYMBOL"
+>NULL</TT
+>の場合、もしくは、配列内の特定要素がゼロの場合、サーバはそのパラメータシンボルに対して、型指定の無いリテラル文字列に対する処理と同等の方法でデータ型を割り当てます。
+また、問い合わせでは<TT
+CLASS="PARAMETER"
+>nParams</TT
+>より多くのパラメータシンボルを使用することができます。
+これらのシンボルに対するデータ型も同様に推測されます。
+（どのようなデータ型が推測されるかを検出する手法については<CODE
+CLASS="FUNCTION"
+>PQdescribePrepared</CODE
+>を参照してください。）
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>同様、結果は通常<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトで、その内容でサーバ側の成功や失敗を示します。
+ヌルという結果はメモリ不足や全くコマンドを送信することができなかったことを示します。
+こうしたエラーの詳細情報を入手するには<CODE
+CLASS="FUNCTION"
+>PQerrorMessage</CODE
+>を使用してください。
+       </P
+></DD
+></DL
+></DIV
+><P>
+
+<CODE
+CLASS="FUNCTION"
+>PQexecPrepared</CODE
+>で使用するためのプリペアド文は、<A
+HREF="sql-prepare.html"
+>PREPARE</A
+> SQL文を実行することでも作成可能です。
+また、プリペアド文を削除する<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>関数はありませんが、この目的のために<A
+HREF="sql-deallocate.html"
+>DEALLOCATE</A
+>SQL文を使用することができます。
+   </P
+><P
+>    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQEXECPREPARED"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQexecPrepared</CODE
+>
+       </DT
+><DD
+><P
+>指定パラメータによるプリペアド文の実行要求を送信し、結果を待ちます。
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQexecPrepared(PGconn *conn,
+                         const char *stmtName,
+                         int nParams,
+                         const char * const *paramValues,
+                         const int *paramLengths,
+                         const int *paramFormats,
+                         int resultFormat);</PRE
+><P>
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQexecPrepared</CODE
+>と<CODE
+CLASS="FUNCTION"
+>PQexecParams</CODE
+>は似ていますが、前者では実行されるコマンドは、問い合わせ文字列を与えるのではなく、事前にプリペアド文を指名することで指定されます。
+この機能により、繰り返し使用する予定のコマンドを実行する度にではなく、一度だけ解析、計画作成を行うことができます。
+この文は現在のセッションで事前に準備されていなければなりません。
+<CODE
+CLASS="FUNCTION"
+>PQexecPrepared</CODE
+>は、プロトコル3.0以降の接続でのみサポートされます。
+プロトコル2.0で使用した場合は失敗します。
+       </P
+><P
+>パラメータは、問い合わせ文字列ではなく指定されたプリペアド文の名前を与える点を除き、<CODE
+CLASS="FUNCTION"
+>PQexecParams</CODE
+>と同じです。
+また、<TT
+CLASS="PARAMETER"
+>paramTypes[]</TT
+>パラメータは存在しません。
+(プリペアド文のパラメータ型はその作成時点で決定されているため、これは不要です。)
+       </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQDESCRIBEPREPARED"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQdescribePrepared</CODE
+>
+       </DT
+><DD
+><P
+>指定したプリペアド文に関する情報入手要求を送り、入手完了まで待機します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQdescribePrepared(PGconn *conn, const char *stmtName);</PRE
+><P>
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQdescribePrepared</CODE
+>により、アプリケーションは事前にプリペアド文に関する情報を入手できます。
+<CODE
+CLASS="FUNCTION"
+>PQdescribePrepared</CODE
+>はプロトコル3.0以降の接続でのみサポートされます。
+プロトコル2.0で使用すると失敗します。
+       </P
+><P
+><TT
+CLASS="PARAMETER"
+>stmtName</TT
+>を<TT
+CLASS="LITERAL"
+>""</TT
+>または<TT
+CLASS="SYMBOL"
+>NULL</TT
+>とすることで、無名の文を参照することができます。
+これ以外では、存在するプリペアド文の名前でなければなりません。
+成功すると、<TT
+CLASS="LITERAL"
+>PGRES_COMMAND_OK</TT
+>というステータスの<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>が返されます。
+<CODE
+CLASS="FUNCTION"
+>PQnparams</CODE
+>および<CODE
+CLASS="FUNCTION"
+>PQparamtype</CODE
+>関数をこの<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>に適用して、プリペアド文のパラメータに関する情報を得ることができます。
+また、<CODE
+CLASS="FUNCTION"
+>PQnfields</CODE
+>、<CODE
+CLASS="FUNCTION"
+>PQfname</CODE
+>、<CODE
+CLASS="FUNCTION"
+>PQftype</CODE
+>関数などを使用して、文の結果列（もしあれば）に関する情報を提供できます。
+       </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQDESCRIBEPORTAL"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQdescribePortal</CODE
+>
+       </DT
+><DD
+><P
+>指定したポータルに関する情報入手要求を送信し、完了まで待機します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQdescribePortal(PGconn *conn, const char *portalName);</PRE
+><P>
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQdescribePortal</CODE
+>により、アプリケーションは事前に作成されたポータルの情報を入手することができます。
+（<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>はポータルへの直接アクセスする方法を提供していませんが、この関数を使用して<TT
+CLASS="COMMAND"
+>DECLARE CURSOR</TT
+> SQLコマンドで作成したカーソルの属性を確認することができます。）
+<CODE
+CLASS="FUNCTION"
+>PQdescribePortal</CODE
+>はプロトコル3.0以降の接続でのみサポートされます。
+プロトコル2.0で使用すると失敗します。
+       </P
+><P
+><TT
+CLASS="PARAMETER"
+>portalName</TT
+>に<TT
+CLASS="LITERAL"
+>""</TT
+>または<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を指定して、無名のポータルを参照することができます。
+これ以外では、既存のポータルの名前でなければなりません。
+成功すると、<TT
+CLASS="LITERAL"
+>PGRES_COMMAND_OK</TT
+>というステータスの<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>が返されます。
+<CODE
+CLASS="FUNCTION"
+>PQnfields</CODE
+>、<CODE
+CLASS="FUNCTION"
+>PQfname</CODE
+>、<CODE
+CLASS="FUNCTION"
+>PQftype</CODE
+>関数などをこの<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>に適用して、ポータルの結果列（もしあれば）に関する情報を得ることができます。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>構造体はサーバから返された結果をカプセル化します。
+
+<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>アプリケーションのプログラマは注意して<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>という抽象化を維持してください。
+以下のアクセス用関数を使用して、<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>の内容を取り出してください。
+将来の変更に影響されますので、<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>構造体のフィールドを直接参照することは避けてください。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQRESULTSTATUS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQresultStatus</CODE
+>
+       </DT
+><DD
+><P
+>コマンドの結果状態を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>ExecStatusType PQresultStatus(const PGresult *res);</PRE
+><P>
+       </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQresultStatus</CODE
+>は以下のいずれかの値を返します。
+
+        <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PGRES-EMPTY-QUERY"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_EMPTY_QUERY</TT
+></DT
+><DD
+><P
+>サーバに送信された文字列が空でした。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PGRES-COMMAND-OK"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_COMMAND_OK</TT
+></DT
+><DD
+><P
+>データを返さないコマンドが正常終了しました。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PGRES-TUPLES-OK"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_TUPLES_OK</TT
+></DT
+><DD
+><P
+>データを返すコマンド(<TT
+CLASS="COMMAND"
+>SELECT</TT
+>や<TT
+CLASS="COMMAND"
+>SHOW</TT
+>など)が正常終了しました。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PGRES-COPY-OUT"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_COPY_OUT</TT
+></DT
+><DD
+><P
+>(サーバからの)コピーアウトデータ転送が始まりました。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PGRES-COPY-IN"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_COPY_IN</TT
+></DT
+><DD
+><P
+>(サーバへの)コピーインデータ転送が始まりました。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PGRES-BAD-RESPONSE"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_BAD_RESPONSE</TT
+></DT
+><DD
+><P
+>サーバが不明な応答を返しました。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PGRES-NONFATAL-ERROR"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_NONFATAL_ERROR</TT
+></DT
+><DD
+><P
+>致命的ではない(注意喚起もしくは警告)エラーが発生しました。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PGRES-FATAL-ERROR"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_FATAL_ERROR</TT
+></DT
+><DD
+><P
+>致命的なエラーが発生しました。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PGRES-COPY-BOTH"
+></A
+><TT
+CLASS="LITERAL"
+>PGRES_COPY_BOTH</TT
+></DT
+><DD
+><P
+>（サーバからおよびサーバへの）コピーボーズデータ転送が始まりました。
+現在こればストリーミングレプリケーションのみで使用されます。
+           </P
+></DD
+></DL
+></DIV
+><P>
+
+結果状態が<TT
+CLASS="LITERAL"
+>PGRES_TUPLES_OK</TT
+>であれば、以下で説明する関数を使って問い合わせが返した行を取り出すことができます。  
+ただし、たまたま<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドが返す行が0個だったような場合でも<TT
+CLASS="LITERAL"
+>PGRES_TUPLES_OK</TT
+>となることに注意してください。
+<TT
+CLASS="LITERAL"
+>PGRES_COMMAND_OK</TT
+>は、行を全く返さない(<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>などの)コマンド用です。
+<TT
+CLASS="LITERAL"
+>PGRES_EMPTY_QUERY</TT
+>という応答はクライアントソフトウェアの不具合を示しているかもしれません。
+       </P
+><P
+><TT
+CLASS="SYMBOL"
+>PGRES_NONFATAL_ERROR</TT
+>状態の場合、結果は<CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>や他の問い合わせ実行関数によって直接返されません。
+その代わりに、この種の結果は注意喚起プロセッサ(<A
+HREF="libpq-notice-processing.html"
+>&#38917;31.11</A
+>参照)に渡されます。
+       </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQRESSTATUS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQresStatus</CODE
+>
+ </DT
+><DD
+><P
+><CODE
+CLASS="FUNCTION"
+>PQresultStatus</CODE
+>が返す列挙型から状態コードを説明する文字列定数に変換します。
+呼び出し元はこの結果を解放してはいけません。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQresStatus(ExecStatusType status);</PRE
+><P>
+       </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQRESULTERRORMESSAGE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQresultErrorMessage</CODE
+>
+       </DT
+><DD
+><P
+>コマンドに関するエラーメッセージを返します。 
+エラーが何もなければ、空の文字列を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQresultErrorMessage(const PGresult *res);</PRE
+><P>
+エラーがあった場合、返される文字列の最後には改行が含まれます。
+呼び出し元はこの結果を直接解放してはいけません。
+関連する<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>ハンドルが<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>に渡された時にこれは解放されます。
+       </P
+><P
+>（接続に対する）<CODE
+CLASS="FUNCTION"
+>PQerrorMessage</CODE
+>も、<CODE
+CLASS="FUNCTION"
+>PQexec</CODE
+>または<CODE
+CLASS="FUNCTION"
+>PQgetResult</CODE
+>呼び出しの直後なら（結果に対する）<CODE
+CLASS="FUNCTION"
+>PQresultErrorMessage</CODE
+>と同じ文字列を返します。  
+しかし、接続に対するエラーメッセージは続いて操作を行うと変化してしまうのに対し、<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>は自身が破棄されるまでそのエラーメッセージを維持し続けます。  
+この<CODE
+CLASS="FUNCTION"
+>PQresultErrorMessage</CODE
+>は個々の<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>に結び付けられた状態を確認する時に、そして<CODE
+CLASS="FUNCTION"
+>PQerrorMessage</CODE
+>は接続における最後の操作の状態を確認する時に使用してください。
+       </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQRESULTERRORFIELD"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQresultErrorField</CODE
+></DT
+><DD
+><P
+>エラー報告の個々のフィールドを返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQresultErrorField(const PGresult *res, int fieldcode);</PRE
+><P>
+<TT
+CLASS="PARAMETER"
+>fieldcode</TT
+>はエラーフィールド識別子です。
+以下に示すシンボルを参照してください。
+<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>がエラーではない、もしくは、警告付きの結果である場合や指定したフィールドを含まない場合、<TT
+CLASS="SYMBOL"
+>NULL</TT
+>が返されます。
+通常フィールド値には改行が含まれません。
+フィールド値は関連する<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>ハンドルが<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>に渡された時に解放されます。
+       </P
+><P
+>以下のフィールドコードが使用できます。
+        <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-SEVERITY"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_SEVERITY</TT
+></DT
+><DD
+><P
+>深刻度。
+このフィールドの内容は(エラーメッセージの場合)<TT
+CLASS="LITERAL"
+>ERROR</TT
+>、<TT
+CLASS="LITERAL"
+>FATAL</TT
+>、もしくは、<TT
+CLASS="LITERAL"
+>PANIC</TT
+>、(注意喚起メッセージの場合)<TT
+CLASS="LITERAL"
+>WARNING</TT
+>、<TT
+CLASS="LITERAL"
+>NOTICE</TT
+>、<TT
+CLASS="LITERAL"
+>DEBUG</TT
+>、<TT
+CLASS="LITERAL"
+>INFO</TT
+>、もしくは、<TT
+CLASS="LITERAL"
+>LOG</TT
+>です。
+これらは、多言語化により翻訳されている可能性があります。
+常に存在します。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-SQLSTATE"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_SQLSTATE</TT
+></DT
+><DD
+><P
+>エラーのSQLSTATEコードです。
+SQLSTATEコードは発生したエラーの種類を識別します。
+フロントエンドアプリケーションにより、特定のデータベースエラーに対して所定の操作（エラー処理など）を行うために使用できます。
+起こり得るSQLSTATEコードの一覧については<A
+HREF="errcodes-appendix.html"
+>&#20184;&#37682;A</A
+>を参照してください。
+このフィールドは多言語化されず、また、常に存在します。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-MESSAGE-PRIMARY"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_MESSAGE_PRIMARY</TT
+></DT
+><DD
+><P
+>可読性を高めた主要エラーメッセージです。
+(通常は1行です。)
+常に存在します。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-MESSAGE-DETAIL"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_MESSAGE_DETAIL</TT
+></DT
+><DD
+><P
+>詳細です。
+問題に関するより詳細を表す補助的なエラーメッセージです。
+複数行に跨る可能性があります。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-MESSAGE-HINT"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_MESSAGE_HINT</TT
+></DT
+><DD
+><P
+>ヒントです。
+問題の対応方法についての補助的な提言です。
+これは、詳細(detail)とは異なり、問題の事象ではなく、(適切でない可能性がありますが)アドバイスを提供することを目的としています。
+複数行に跨る可能性があります。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-STATEMENT-POSITION"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_STATEMENT_POSITION</TT
+></DT
+><DD
+><P
+>元の問い合わせ文字列のインデックスとなる、エラーが発生したカーソル位置を示す10進整数を持つ文字列です。
+先頭文字がインデックス1となり、また、バイトではなく、文字数で数えた位置です。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-INTERNAL-POSITION"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_INTERNAL_POSITION</TT
+></DT
+><DD
+><P
+>この定義は<TT
+CLASS="SYMBOL"
+>PG_DIAG_STATEMENT_POSITION</TT
+>フィールドと同じです。
+しかし、これは、クライアントが発行したコマンドではなく、カーソル位置が内部生成コマンドを参照する場合に使用されます。
+このフィールドが存在する時は常に<TT
+CLASS="SYMBOL"
+>PG_DIAG_INTERNAL_QUERY</TT
+>フィールドが存在します。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-INTERNAL-QUERY"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_INTERNAL_QUERY</TT
+></DT
+><DD
+><P
+>失敗した内部生成コマンドのテキストです。
+これは、例えば、PL/pgSQL関数で発行されたSQL問い合わせになります。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-CONTEXT"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_CONTEXT</TT
+></DT
+><DD
+><P
+>エラーが発生した文脈を示すものです。
+今の所、これは活動中の手続き言語関数や内部生成問い合わせの呼び出しスタックの追跡情報が含まれます。
+この追跡は行単位で1項目であり、その順番は呼び出し順の反対になります。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-SOURCE-FILE"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_SOURCE_FILE</TT
+></DT
+><DD
+><P
+>エラーが報告された場所のソースコードのファイル名です。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-SOURCE-LINE"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_SOURCE_LINE</TT
+></DT
+><DD
+><P
+>エラーが報告された場所のソースコードにおける行番号です。
+           </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PG-DIAG-SOURCE-FUNCTION"
+></A
+><TT
+CLASS="SYMBOL"
+>PG_DIAG_SOURCE_FUNCTION</TT
+></DT
+><DD
+><P
+>エラーを報告した、ソースコードにおける関数名です。
+           </P
+></DD
+></DL
+></DIV
+><P>
+       </P
+><P
+>表示情報の必要に応じた整形はクライアントの責任です。
+具体的には、必要に応じて長い行を分割しなければなりません。
+エラーメッセージフィールド内の改行文字は、改行としてではなく段落として分かれたものとして取扱うべきです。
+       </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>で内部的に生成されたエラーは、深刻度と主要メッセージを持ちますが、通常は他のフィールドを持ちません。
+3.0より前のプロトコルのサーバで返されるエラーは、深刻度と主要メッセージ、場合によって詳細メッセージを持ちますが、他のフィールドを持ちません。
+       </P
+><P
+>エラーフィールドは<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>からのみ利用でき、<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>からは利用できません。
+<CODE
+CLASS="FUNCTION"
+>PQerrorField</CODE
+>という関数はありません。
+       </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQCLEAR"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+></DT
+><DD
+><P
+><TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>に割り当てられた記憶領域を解放します。
+個々の問い合わせ結果は、必要なくなった時に<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>で解放するべきです。
+</P><PRE
+CLASS="SYNOPSIS"
+>void PQclear(PGresult *res);</PRE
+><P>
+       </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトは必要な間保持することができます。 
+新しい問い合わせを発行する場合でも、接続を閉じてしまうまでは<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>は消えません。  
+<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>を解放するには、<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>を呼び出さなくてはいけません。  
+その操作に失敗してしまうと、アプリケーションのメモリリークを引き起こしてしまいます。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LIBPQ-EXEC-SELECT-INFO"
+>31.3.2. 問い合わせ結果の情報の取り出し</A
+></H2
+><P
+>これらの関数を使用して、正常終了した問い合わせ結果を示す(つまり、その状態が<TT
+CLASS="LITERAL"
+>PGRES_TUPLES_OK</TT
+>となっている)<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトから情報を抽出することができます。
+また、成功したDescribe操作から情報を抽出することもできます。
+Describeの結果はすべて、実際に問い合わせを実行した時に提供されるものと同じ列情報を持ちますが、行はありません。
+他の状態値を持つオブジェクトでは、これらの関数は、結果が0行0列であるものと同様に動作します。
+   </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQNTUPLES"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQntuples</CODE
+>
+      </DT
+><DD
+><P
+>問い合わせ結果内の行(タプル)数を返します。
+これは整数を結果として返しますので、32ビットオペレーティングシステムでは、大規模な結果セットの戻り値はオーバーフローする可能性があります。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQntuples(const PGresult *res);</PRE
+><P>
+
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQNFIELDS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQnfields</CODE
+>
+      </DT
+><DD
+><P
+>問い合わせ結果の各行の列(フィールド)の数を返します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQnfields(const PGresult *res);</PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFNAME"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQfname</CODE
+>
+      </DT
+><DD
+><P
+>指定した列番号に対応する列の名前を返します。
+列番号は0から始まります。
+呼び出し元はこの結果を直接解放してはいけません。
+関連する<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>ハンドルが<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>に渡された時にこれは解放されます。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQfname(const PGresult *res,
+              int column_number);</PRE
+><P>
+      </P
+><P
+>列番号が範囲外であった場合、<TT
+CLASS="SYMBOL"
+>NULL</TT
+>が返ります。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFNUMBER"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQfnumber</CODE
+>
+      </DT
+><DD
+><P
+>指定した列名に関連する列番号を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQfnumber(const PGresult *res,
+              const char *column_name);</PRE
+><P>
+      </P
+><P
+>指定した名前に一致する列がなければ、-1が返ります。
+    </P
+><P
+>指定した名前はSQLコマンドの識別子同様に扱われます。
+つまり、二重引用符でくくられていない限り、小文字化されます。
+例えば、以下のSQLで生成された問い合わせ結果を考えます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 1 AS FOO, 2 AS "BAR";</PRE
+><P>
+以下により、結果を取り出すことができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PQfname(res, 0)              <I
+CLASS="LINEANNOTATION"
+>foo</I
+>
+PQfname(res, 1)              <I
+CLASS="LINEANNOTATION"
+>BAR</I
+>
+PQfnumber(res, "FOO")        <I
+CLASS="LINEANNOTATION"
+>0</I
+>
+PQfnumber(res, "foo")        <I
+CLASS="LINEANNOTATION"
+>0</I
+>
+PQfnumber(res, "BAR")        <I
+CLASS="LINEANNOTATION"
+>-1</I
+>
+PQfnumber(res, "\"BAR\"")    <I
+CLASS="LINEANNOTATION"
+>1</I
+></PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFTABLE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQftable</CODE
+>
+      </DT
+><DD
+><P
+>指定した列の抽出元であるテーブルのOIDを返します。
+列番号は0から始まります。
+</P><PRE
+CLASS="SYNOPSIS"
+>Oid PQftable(const PGresult *res,
+             int column_number);</PRE
+><P>
+      </P
+><P
+>列番号が範囲外の場合や指定した列がテーブル列への単純な参照でない場合、3.0より前のプロトコルを使用している場合は、<TT
+CLASS="LITERAL"
+>InvalidOid</TT
+>が返されます。
+<TT
+CLASS="LITERAL"
+>pg_class</TT
+>システムテーブルに問い合わせ、どのテーブルが参照されているのかを正確に求めることができます。
+      </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>ヘッダファイルをインクルードすると、<TT
+CLASS="TYPE"
+>Oid</TT
+>型と<TT
+CLASS="LITERAL"
+>InvalidOid</TT
+>定数が定義されます。
+これらは両方とも何らかの整数型です。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFTABLECOL"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQftablecol</CODE
+>
+      </DT
+><DD
+><P
+>指定した問い合わせ結果の列を作成した列の(それが属するテーブル内での)列番号を返します。
+問い合わせ結果の列番号は0から始まります。
+テーブル列には0以外の番号が付けられています。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQftablecol(const PGresult *res,
+                int column_number);</PRE
+><P>
+      </P
+><P
+>列番号が範囲外の場合や指定した列がテーブル列への単純な参照でなかった場合、3.0より前のプロトコルを使用している場合は、ゼロが返されます。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFFORMAT"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQfformat</CODE
+>
+      </DT
+><DD
+><P
+>指定した列の書式を示す書式コードを返します。
+列番号は0から始まります。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQfformat(const PGresult *res,
+              int column_number);</PRE
+><P>
+      </P
+><P
+>ゼロという書式コードはテキストデータ表現を示し、1という書式コードはバイナリ表現を示します。
+(他のコードは将来の定義のために予約されています。)
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFTYPE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQftype</CODE
+>
+      </DT
+><DD
+><P
+>指定した列番号に関連したデータ型を返します。
+返された整数はその型の内部的なOID番号です。
+列番号は0から始まります。
+</P><PRE
+CLASS="SYNOPSIS"
+>Oid PQftype(const PGresult *res,
+            int column_number);</PRE
+><P>
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>pg_type</TT
+>システムテーブルに問い合わせて、各種データ型の名前や属性を得ることができます。
+組み込みデータ型の<ACRONYM
+CLASS="ACRONYM"
+>OID</ACRONYM
+>は、ソースツリー内の<TT
+CLASS="FILENAME"
+>src/include/catalog/pg_type.h</TT
+>ファイル内で定義されています。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFMOD"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQfmod</CODE
+>
+      </DT
+><DD
+><P
+>指定した列番号に関連した列の型修飾子を返します。
+列番号は0から始まります。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQfmod(const PGresult *res,
+           int column_number);</PRE
+><P>
+      </P
+><P
+>修飾子の値の解釈は型に固有なものです。
+通常これらは精度やサイズの制限を示します。
+-1という値は<SPAN
+CLASS="QUOTE"
+>"使用できる情報がない"</SPAN
+>ことを示します。
+ほとんどのデータ型は修飾子を使用しません。
+この場合は常に-1という値になります。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFSIZE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQfsize</CODE
+>
+      </DT
+><DD
+><P
+>指定した列番号に関連した列のバイト単位のサイズを返します。
+列番号は0から始まります。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQfsize(const PGresult *res,
+            int column_number);</PRE
+><P>
+      </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQfsize</CODE
+>はデータベース行内でその列用に割り当てられる領域を返します。
+言い替えると、そのデータ型についてのサーバでの内部表現のサイズです。
+(従って、実際にはクライアントから見るとあまり役には立ちません。)
+負の値は可変長データ型を示します。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQBINARYTUPLES"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQbinaryTuples</CODE
+>
+      </DT
+><DD
+><P
+><TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>がバイナリデータを持つ場合は1を、テキストデータを持つ場合は0を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQbinaryTuples(const PGresult *res);</PRE
+><P>
+      </P
+><P
+>この関数は廃れたものです。
+(<TT
+CLASS="COMMAND"
+>COPY</TT
+>を行う接続での使用を除きます。)
+単一の<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>で、ある列はテキストデータを持ち、他の列ではバイナリデータを持つことが可能であるためです。
+<CODE
+CLASS="FUNCTION"
+>PQfformat</CODE
+>の利用が推奨されます。
+結果のすべての列がバイナリ(書式1)の場合のみ<CODE
+CLASS="FUNCTION"
+>PQbinaryTuples</CODE
+>は1を返します。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQGETVALUE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQgetvalue</CODE
+>
+       </DT
+><DD
+><P
+><TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>の1行における単一フィールドの値を返します。
+行番号と列番号は0から始まります。
+呼び出し元はこの結果を直接解放してはいけません。
+関連する<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>ハンドルが<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>に渡された時に、これは解放されます。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQgetvalue(const PGresult *res,
+                 int row_number,
+                 int column_number);</PRE
+><P>
+      </P
+><P
+>テキスト書式のデータでは、<CODE
+CLASS="FUNCTION"
+>PQgetvalue</CODE
+>で返される値はフィールド値をヌル終端の文字列表現となります。
+バイナリ書式のデータでは、この値はデータ型の<CODE
+CLASS="FUNCTION"
+>typsend</CODE
+>関数と<CODE
+CLASS="FUNCTION"
+>typreceive</CODE
+>関数で決まるバイナリ表現となります。
+(実際にはこの場合でも値の終わりにゼロというバイトが付与されます。
+しかし、この値の内部には大抵の場合ヌルが埋め込まれていますので、通常このバイトは有用ではありません。)
+      </P
+><P
+>フィールド値がNULLの場合、空文字列が返されます。
+NULL値と空文字列という値とを区別する方法は<CODE
+CLASS="FUNCTION"
+>PQgetisnull</CODE
+>を参照してください。
+      </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQgetvalue</CODE
+>によって返されるポインタは<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>構造体の一部の格納領域を指し示します。
+このポインタが指し示すデータを変更すべきではありません。
+また、<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>構造体を解放した後も使用し続ける場合は、データを別の格納領域に明示的にコピーしなければなりません。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQGETISNULL"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQgetisnull</CODE
+>
+      
+      </DT
+><DD
+><P
+>フィールドがNULL値かどうか検査します。
+行番号と列番号は0から始まります。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQgetisnull(const PGresult *res,
+                int row_number,
+                int column_number);</PRE
+><P>
+      </P
+><P
+>この関数は、フィールドがNULLの場合に1を、フィールドが非NULL値を持つ場合は0を返します。
+(<CODE
+CLASS="FUNCTION"
+>PQgetvalue</CODE
+>では、NULLフィールドはヌルポインタではなく空文字列を返すことに注意してください。)
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQGETLENGTH"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQgetlength</CODE
+>
+     </DT
+><DD
+><P
+>実際のフィールド値の長さをバイト単位で返します。
+行番号と列番号は0から始まります。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQgetlength(const PGresult *res,
+                int row_number,
+                int column_number);</PRE
+><P>
+      </P
+><P
+>これは特定のデータ値についての実際のデータ長です。
+つまり、<CODE
+CLASS="FUNCTION"
+>PQgetvalue</CODE
+>によって指し示されるオブジェクトのサイズです。
+テキストデータ書式では<CODE
+CLASS="FUNCTION"
+>strlen()</CODE
+>と同一です。
+バイナリ書式ではこれは重要な情報です。
+実際のデータ長を取り出すために<CODE
+CLASS="FUNCTION"
+>PQfsize</CODE
+>を信用しては<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>なりません</I
+></SPAN
+>。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQNPARAMS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQnparams</CODE
+>
+      </DT
+><DD
+><P
+>プリペアド文のパラメータ数を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQnparams(const PGresult *res);</PRE
+><P>
+      </P
+><P
+>この関数は<CODE
+CLASS="FUNCTION"
+>PQdescribePrepared</CODE
+>の結果を確認する時にのみ有用です。
+他の種類の問い合わせではゼロを返します。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQPARAMTYPE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQparamtype</CODE
+>
+      </DT
+><DD
+><P
+>指定された文パラメータのデータ型を返します。
+パラメータ番号は0から始まります。
+</P><PRE
+CLASS="SYNOPSIS"
+>Oid PQparamtype(const PGresult *res, int param_number);</PRE
+><P>
+      </P
+><P
+>この関数は、<CODE
+CLASS="FUNCTION"
+>PQdescribePrepared</CODE
+>の結果を確認する時にのみ有用です。
+他の種類の問い合わせではゼロを返します。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQPRINT"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQprint</CODE
+>
+      </DT
+><DD
+><P
+>すべての行と列名(省略可能)を指定した出力ストリームに表示します。
+</P><PRE
+CLASS="SYNOPSIS"
+>void PQprint(FILE *fout,      /* 出力ストリーム */
+             const PGresult *res,
+             const PQprintOpt *po);
+
+typedef struct
+{
+    pqbool  header;      /* フィールドヘッダ情報と行数の表示出力 */
+    pqbool  align;       /* 位置揃えのためのフィールドへの埋め込み */
+    pqbool  standard;    /* 古い、無くなりそうな書式 */
+    pqbool  html3;       /* HTML表出力 */
+    pqbool  expanded;    /* 拡張テーブル */
+    pqbool  pager;       /* 必要に応じたページャの使用 */
+    char    *fieldSep;   /* フィールド区切り文字 */
+    char    *tableOpt;   /* HTML表要素の属性 */
+    char    *caption;    /* HTML 表の表題 */
+    char    **fieldName; /* フィールド名を置き換えるNULL終端の配列 */
+} PQprintOpt;</PRE
+><P>
+      </P
+><P
+>この関数は以前に問い合わせ結果を表示するために<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>で使用されていましたが、今ではもう使用されていません。
+これはすべてのデータがテキスト書式であるという前提で動作することに注意してください。
+      </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LIBPQ-EXEC-NONSELECT"
+>31.3.3. 他の結果情報の取り出し</A
+></H2
+><P
+>これらの関数は<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトからその他の情報を取り出すために使用されます。
+   </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQCMDSTATUS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQcmdStatus</CODE
+>
+      </DT
+><DD
+><P
+><TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>を生成したSQLコマンドのコマンド状態タグを返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQcmdStatus(PGresult *res);</PRE
+><P>
+      </P
+><P
+>これは通常単なるコマンド名ですが、処理行数など追加情報が含まれる場合もあります。
+呼び出し元はこの戻り値を直接解放してはいけません。
+関連する<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>ハンドルが<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>に渡された時にこれは解放されます。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQCMDTUPLES"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQcmdTuples</CODE
+>
+      </DT
+><DD
+><P
+>SQLコマンドにより影響を受けた行数を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQcmdTuples(PGresult *res);</PRE
+><P>
+      </P
+><P
+>この関数は<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>を生成した<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドにより影響を受けた行数を持つ文字列を返します。
+この関数は<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、<TT
+CLASS="COMMAND"
+>MOVE</TT
+>、<TT
+CLASS="COMMAND"
+>FETCH</TT
+>、<TT
+CLASS="COMMAND"
+>COPY</TT
+>文の実行、あるいは、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>を含むプリペアド問い合わせの<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>文の後でのみ使用することができます。
+<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>を生成したコマンドが他のコマンドであった場合、<CODE
+CLASS="FUNCTION"
+>PQcmdTuples</CODE
+>は空文字列を返します。
+呼び出し元はこの戻り値を直接解放してはいけません。
+関連する<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>ハンドルが<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>に渡された時にこれは解放されます。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQOIDVALUE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQoidValue</CODE
+>
+      </DT
+><DD
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドが、OIDを持つテーブル内に1行のみを挿入する<TT
+CLASS="COMMAND"
+>INSERT</TT
+>だった場合、あるいは、適切な<TT
+CLASS="COMMAND"
+>INSERT</TT
+>を持つプリペアド問い合わせの<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>だった場合に、挿入された行のOIDを返します。
+さもなくば<TT
+CLASS="LITERAL"
+>InvalidOid</TT
+>を返します。
+また、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>文の影響を受けたテーブルがOIDを持たなかった場合、この関数は<TT
+CLASS="LITERAL"
+>InvalidOid</TT
+>を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>Oid PQoidValue(const PGresult *res);</PRE
+><P>
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQOIDSTATUS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQoidStatus</CODE
+>
+      </DT
+><DD
+><P
+>この関数は<CODE
+CLASS="FUNCTION"
+>PQoidValue</CODE
+>のため廃止予定になりました。
+またこれはスレッドセーフではありません。
+これは挿入された行のOIDを文字列として返します。
+一方<CODE
+CLASS="FUNCTION"
+>PQoidValue</CODE
+>はOID値を返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char *PQoidStatus(const PGresult *res);</PRE
+><P>
+      </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LIBPQ-EXEC-ESCAPE-STRING"
+>31.3.4. SQLコマンドに含めるための文字列のエスケープ処理</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQESCAPELITERAL"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQescapeLiteral</CODE
+>
+      </DT
+><DD
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>char *PQescapeLiteral(PGconn *conn, const char *str, size_t length);</PRE
+><P>
+     </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeLiteral</CODE
+>は、SQLコマンド内で使用するために文字列をエスケープします。
+これは、SQLコマンド内のリテラル定数としてデータ値を挿入する時に有用です。
+特定の文字(引用符やバックスラッシュ)は、SQLパーサによって特殊な解釈がなされないようにエスケープされなければなりません。
+<CODE
+CLASS="FUNCTION"
+>PQescapeLiteral</CODE
+>はこの操作を行います。
+     </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeLiteral</CODE
+>は<TT
+CLASS="PARAMETER"
+>str</TT
+>パラメータをエスケープしたものを<CODE
+CLASS="FUNCTION"
+>malloc()</CODE
+>で割り当てたメモリ内に返します。
+その結果が不要になったら、そのメモリを<CODE
+CLASS="FUNCTION"
+>PQfreemem()</CODE
+>を使用して解放しなければなりません。
+ゼロバイト終端は必要なく、<TT
+CLASS="PARAMETER"
+>length</TT
+>に含めて数えてはいけません。
+(<TT
+CLASS="PARAMETER"
+>length</TT
+>バイトを処理する前にゼロバイト終端が見つかると、<CODE
+CLASS="FUNCTION"
+>PQescapeLiteral</CODE
+>はそのゼロで終了します。
+この動作は<CODE
+CLASS="FUNCTION"
+>strncpy</CODE
+>と似ています。)
+返される文字列では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>文字列リテラルパーサで適切に処理することができるように、すべての特殊文字は置換されます。
+ゼロバイト終端も追加されます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の文字列リテラルでは前後に必要となる単一引用符も、その結果文字列には含まれています。
+     </P
+><P
+>エラー時、<CODE
+CLASS="FUNCTION"
+>PQescapeLiteral</CODE
+>は<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を返し、<TT
+CLASS="PARAMETER"
+>conn</TT
+>オブジェクト内に適切なメッセージを残します。
+     </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>信用できない入力元から受けとった文字列を扱う場合に適切なエスケープ処理を行なうことは非常に重要です。
+さもなくば、セキュリティ上の危険性が発生します。
+<SPAN
+CLASS="QUOTE"
+>"SQLインジェクション"</SPAN
+>攻撃という弱点となり、好ましくないSQLコマンドがデータベースに流れてしまいます。
+      </P
+></BLOCKQUOTE
+></DIV
+><P
+>データが<CODE
+CLASS="FUNCTION"
+>PQexecParams</CODE
+>または同義のルーチン内で別のパラメータとしてデータ値が渡される場合は、エスケープする必要も修正することもないことに注意してください。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQESCAPEIDENTIFIER"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQescapeIdentifier</CODE
+>
+      </DT
+><DD
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>char *PQescapeIdentifier(PGconn *conn, const char *str, size_t length);</PRE
+><P>
+     </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeIdentifier</CODE
+>は、テーブル、列、関数名などのSQL識別子として使用できるように文字列をエスケープします。
+これはユーザが提供した識別子に、そのままではSQLパーサで識別子として解釈されない特殊な文字が含まれる可能性がある場合、または、大文字小文字の違いを維持しなければならない状況で識別子に大文字が含まれる可能性がある場合に有用です。
+     </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeIdentifier</CODE
+>は<TT
+CLASS="PARAMETER"
+>str</TT
+>パラメータをSQL識別子としてエスケープしたものを<CODE
+CLASS="FUNCTION"
+>malloc()</CODE
+>で割り当てたメモリ内に返します。
+その結果が不要になったら、そのメモリを<CODE
+CLASS="FUNCTION"
+>PQfreemem()</CODE
+>を使用して解放しなければなりません。
+ゼロバイト終端は必要なく、<TT
+CLASS="PARAMETER"
+>length</TT
+>に含めて数えてはいけません。
+(<TT
+CLASS="PARAMETER"
+>length</TT
+>バイトを処理する前にゼロバイト終端が見つかると、<CODE
+CLASS="FUNCTION"
+>PQescapeIdentifier</CODE
+>はそのゼロで終了します。
+この動作は<CODE
+CLASS="FUNCTION"
+>strncpy</CODE
+>と似ています。)
+返される文字列では、SQL識別子として適切に処理することができるように、すべての特殊文字は置換されます。
+ゼロバイト終端も追加されます。
+その結果文字列の前後には二重引用符が付与されます。
+     </P
+><P
+>エラー時、<CODE
+CLASS="FUNCTION"
+>PQescapeIdentifier</CODE
+>は<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を返し、<TT
+CLASS="PARAMETER"
+>conn</TT
+>オブジェクト内に適切なメッセージを残します。
+     </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>文字列リテラルと同様、SQLインジェクション攻撃を防ぐために、信頼できない入力元から受けとる場合にはSQL識別子をエスケープしなければなりません。
+      </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="LIBPQ-PQESCAPESTRINGCONN"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>
+      </DT
+><DD
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>size_t PQescapeStringConn(PGconn *conn,
+                          char *to, const char *from, size_t length,
+                          int *error);</PRE
+><P>
+     </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>は、<CODE
+CLASS="FUNCTION"
+>PQescapeLiteral</CODE
+>とほぼ同様に文字列リテラルをエスケープします。
+<CODE
+CLASS="FUNCTION"
+>PQescapeLiteral</CODE
+>とは異なり、呼び出し元が適切な大きさのバッファを提供することに責任を持ちます。
+さらに<CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の文字リテラルとして囲まれなければならない単一引用符を生成しません。
+これは、結果をSQLコマンドに挿入するときに付与しなければなりません。
+<TT
+CLASS="PARAMETER"
+>from</TT
+>パラメータはエスケープ対象の文字列の先頭を指すポインタです。
+<TT
+CLASS="PARAMETER"
+>length</TT
+>パラメータはこの文字列のバイト数を示します。
+ゼロバイト終端は必要なく、また、<TT
+CLASS="PARAMETER"
+>lenth</TT
+>ではこれを数えてはなりません。
+(もし<TT
+CLASS="PARAMETER"
+>length</TT
+>バイト処理する前にゼロバイト終端が存在すると、<CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>はそのゼロで終了します。
+この動作は<CODE
+CLASS="FUNCTION"
+>strncpy</CODE
+>と同様です。)
+<TT
+CLASS="PARAMETER"
+>to</TT
+>は、最低でも<TT
+CLASS="PARAMETER"
+>length</TT
+>の2倍よりも1バイト多い文字を保持可能なバッファへのポインタにしなければなりません。
+さもないと、動作は不定になります。
+<TT
+CLASS="PARAMETER"
+>to</TT
+>と<TT
+CLASS="PARAMETER"
+>from</TT
+>文字領域が重なる場合の動作も不定です。
+     </P
+><P
+><TT
+CLASS="PARAMETER"
+>error</TT
+>パラメータが<TT
+CLASS="SYMBOL"
+>NULL</TT
+>でなければ、<TT
+CLASS="LITERAL"
+>*error</TT
+>には成功の0か、エラーの0以外が設定されます。
+現時点であり得る唯一のエラー条件は、元文字列に無効なマルチバイト符号が含まれている場合です。
+出力文字列はエラーであっても生成されますが、サーバが不整合として却下することが想定できます。
+エラーの際、適切なメッセージは<TT
+CLASS="PARAMETER"
+>error</TT
+>が<TT
+CLASS="SYMBOL"
+>NULL</TT
+>かどうかにかかわらず<TT
+CLASS="PARAMETER"
+>conn</TT
+>オブジェクト内に格納されます。
+     </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>は<TT
+CLASS="PARAMETER"
+>to</TT
+>に書き出したバイト数を返します。
+ただし、文字数にはゼロバイト終端は含まれません。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQESCAPESTRING"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQescapeString</CODE
+>
+      </DT
+><DD
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeString</CODE
+>は<CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>の推奨されない古いものです。
+</P><PRE
+CLASS="SYNOPSIS"
+>size_t PQescapeString (char *to, const char *from, size_t length);</PRE
+><P>
+     </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>との唯一の違いは、<CODE
+CLASS="FUNCTION"
+>PQescapeString</CODE
+>は<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>や<TT
+CLASS="PARAMETER"
+>error</TT
+>パラメータを取らないことです。
+このため(文字符号化方式のような)接続属性に依存する振舞いを調整できません。
+その結果<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>間違った結果を返す可能性があります</I
+></SPAN
+>。
+また、エラー状態を通知する機能がありません。
+     </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeString</CODE
+>は、一度に1つの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>接続のみで動作するクライアントプログラムでは安全に利用できます。
+(この場合知らなければならない<SPAN
+CLASS="QUOTE"
+>"裏側に隠された情報"</SPAN
+>を知ることができるからです。)
+他の場合には、セキュリティ要因であり<CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>を利用することで避けなければなりません。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQESCAPEBYTEACONN"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn</CODE
+>
+      </DT
+><DD
+><P
+><TT
+CLASS="TYPE"
+>bytea</TT
+>型としてSQLコマンド内で使用するバイナリデータをエスケープします。
+<CODE
+CLASS="FUNCTION"
+>PQescapeStringConn</CODE
+>と同様、これは、SQLコマンド文字列にデータを直接含める場合にのみに使用されます。
+</P><PRE
+CLASS="SYNOPSIS"
+>unsigned char *PQescapeByteaConn(PGconn *conn,
+                                 const unsigned char *from,
+                                 size_t from_length,
+                                 size_t *to_length);</PRE
+><P>
+      </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>文内の<TT
+CLASS="TYPE"
+>bytea</TT
+>リテラルの一部として使用する場合、特定のバイト値はエスケープされなければなりません。
+<CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn</CODE
+>は16進数符号化またはバックスラッシュエスケープ処理を使用してバイトをエスケープします。
+詳しくは<A
+HREF="datatype-binary.html"
+>&#38917;8.4</A
+>を参照してください。
+      </P
+><P
+><TT
+CLASS="PARAMETER"
+>from</TT
+>パラメータはエスケープ対象の文字列の先頭バイトを指し示すポインタです。
+<TT
+CLASS="PARAMETER"
+>from_length</TT
+>パラメータは、このバイナリ列内のバイト数を指定します。
+(ゼロバイト終端は不要、かつ、数えられません。)
+<TT
+CLASS="PARAMETER"
+>to_length</TT
+>パラメータは結果となるエスケープされた文字列の長さを保持する変数へのポインタです。
+この結果文字列長は、結果内のゼロバイト終端を含みます。
+      </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn</CODE
+>は、<TT
+CLASS="PARAMETER"
+>from</TT
+>パラメータが示すバイナリ文字列をエスケープしたものを<CODE
+CLASS="FUNCTION"
+>malloc()</CODE
+>で確保したメモリ内に返します。
+その結果が不要になったら、このメモリを<CODE
+CLASS="FUNCTION"
+>PQfreemem</CODE
+>を使用して解放しなければなりません。
+返される文字列では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リテラル文字列パーサと<TT
+CLASS="TYPE"
+>bytea</TT
+>入力関数によって適切に処理できるように、全ての特殊な文字が置換されています。
+ゼロバイト終端も追加されます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のリテラル文字列をくくる単一引用符は結果文字列には含まれません。
+      </P
+><P
+>エラー時、ヌルポインタを返し適切なエラーメッセージを<TT
+CLASS="PARAMETER"
+>conn</TT
+>オブジェクトに格納します。
+現在、唯一あり得るエラーは結果文字列のメモリ不足です。
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQESCAPEBYTEA"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQescapeBytea</CODE
+>
+      </DT
+><DD
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeBytea</CODE
+>は、<CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn</CODE
+>の推奨されない古いものです。
+</P><PRE
+CLASS="SYNOPSIS"
+>unsigned char *PQescapeBytea(const unsigned char *from,
+                             size_t from_length,
+                             size_t *to_length);</PRE
+><P>
+      </P
+><P
+><CODE
+CLASS="FUNCTION"
+>PQescapeBytea</CODE
+>の<CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn</CODE
+>との唯一の違いは、<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>パラメータです。
+このため<CODE
+CLASS="FUNCTION"
+>PQescapeBytea</CODE
+>は、一度に１つの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>接続を使用するクライアントプログラムのみで安全に利用することができます。
+(この場合知らなければならない<SPAN
+CLASS="QUOTE"
+>"裏側に隠された情報"</SPAN
+>を知ることができるからです。)
+複数のデータベース接続を使用するプログラムでは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>間違った結果を返す可能性があります</I
+></SPAN
+>。
+（このような場合は<CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn</CODE
+>を使用してください。）
+      </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQUNESCAPEBYTEA"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQunescapeBytea</CODE
+>
+      </DT
+><DD
+><P
+>バイナリデータの文字列表現をバイナリデータに変換します。
+つまり、<CODE
+CLASS="FUNCTION"
+>PQescapeBytea</CODE
+>の逆です。
+これは、<TT
+CLASS="TYPE"
+>bytea</TT
+>データをテキスト書式で受けとった場合に必要とされます。
+しかし、バイナリ書式で受けとった場合は不要です。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>unsigned char *PQunescapeBytea(const unsigned char *from, size_t *to_length);</PRE
+><P>
+      </P
+><P
+><TT
+CLASS="PARAMETER"
+>from</TT
+>パラメータは、例えば、<TT
+CLASS="TYPE"
+>bytea</TT
+>列に<CODE
+CLASS="FUNCTION"
+>PQgetvalue</CODE
+>を行なった場合に返される可能性がある、文字列を指し示すポインタです。
+<CODE
+CLASS="FUNCTION"
+>PQunescapeBytea</CODE
+>は、この文字列表現をバイナリ表現に変換します。
+<CODE
+CLASS="FUNCTION"
+>malloc()</CODE
+>で確保したバッファへのポインタを返します。
+エラー時は<TT
+CLASS="SYMBOL"
+>NULL</TT
+>です。
+また、このバッファのサイズを<TT
+CLASS="PARAMETER"
+>to_length</TT
+>に格納します。
+不要になったら、この結果を<CODE
+CLASS="FUNCTION"
+>PQfreemem</CODE
+>を使用して解放しなければなりません。
+      </P
+><P
+>この変換は、<CODE
+CLASS="FUNCTION"
+>PQescapeBytea</CODE
+>の逆ではありません。
+文字列は<CODE
+CLASS="FUNCTION"
+>PQgetvalue</CODE
+>から受け取る場合<SPAN
+CLASS="QUOTE"
+>"エスケープされた"</SPAN
+>ことを予想しないためです。
+特にこれは、文字列の引用符付けを意識する必要がなく、そのため<TT
+CLASS="STRUCTNAME"
+>PGconn</TT
+>パラメータを持つ必要がないことを意味します。
+      </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libpq-status.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libpq-async.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>接続状態関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>非同期コマンドの処理</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

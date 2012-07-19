@@ -1,0 +1,1182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>関連するオブジェクトを拡張としてパッケージ化</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLの拡張"
+HREF="extend.html"><LINK
+REL="PREVIOUS"
+TITLE="インデックス拡張機能へのインタフェース"
+HREF="xindex.html"><LINK
+REL="NEXT"
+TITLE="拡張構築基盤"
+HREF="extend-pgxs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックス拡張機能へのインタフェース"
+HREF="xindex.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 35&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の拡張</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="拡張構築基盤"
+HREF="extend-pgxs.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="EXTEND-EXTENSIONS"
+>35.15. 関連するオブジェクトを拡張としてパッケージ化</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>への有用な拡張は通常、複数のSQLオブジェクトを含んでいます。
+例えば、新しいデータ型は新しい関数、新しい演算子、おそらく新しいインデックス演算子クラスを必要とします。
+これらのオブジェクトをすべて単一のパッケージとしてまとめることは、データベース管理を単純化するために役に立ちます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではこうしたパッケージを<I
+CLASS="FIRSTTERM"
+>拡張</I
+>とよびます。
+拡張を定義するためには、少なくとも、拡張のオブジェクトを作成するための<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドを含む<I
+CLASS="FIRSTTERM"
+>スクリプトファイル</I
+>、拡張自身の数個の基本属性を指定する<I
+CLASS="FIRSTTERM"
+>制御ファイル</I
+>が必要です。
+また拡張がCコードを含む場合、通常Cコードで構築された共有ライブラリが存在します。
+これらのファイルがあれば、単純な<A
+HREF="sql-createextension.html"
+>CREATE EXTENSION</A
+>コマンドがそのオブジェクトをデータベース内に読み込みます。
+   </P
+><P
+>拡張を使用する主な利点は、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>スクリプトを実行するだけでデータベースに<SPAN
+CLASS="QUOTE"
+>"粗な"</SPAN
+>なオブジェクトの群をロードできることではなく、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が拡張のオブジェクトをまとまったものと理解できることです。
+単一の<A
+HREF="sql-dropextension.html"
+>DROP EXTENSION</A
+>コマンドでオブジェクトすべてを削除することができます（個々の<SPAN
+CLASS="QUOTE"
+>"アンインストール"</SPAN
+>スクリプトを保守する必要はありません）。
+もっと有用なことは、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>が拡張の個々のメンバオブジェクトを削除してはならないことを把握していることです。
+代わりにダンプ内には<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>コマンドだけが含まれます。
+これは、古いバージョンよりも多くのまたは異なるオブジェクトを含む可能性がある、拡張の新しいバージョンへの移行を大きく単純化します。
+しかし、こうしたダンプを新しいデータベースにロードする際には、拡張の制御ファイル、スクリプトファイル、その他のファイルが利用できるようにしておく必要があります。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はユーザに、拡張全体を削除させる以外に、拡張内に含まれる個々のオブジェクトを削除させません。
+また、拡張のメンバオブジェクトの定義を変更する（例えば関数では<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>を介して変更する）ことはできますが、変更した定義は<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>によりダンプされないことに留意してください。
+こうした変更は通常、同時に拡張のスクリプトファイルにも同じ変更を行った場合のみ認識することができます。
+（しかし後述するように設定データを持つテーブルに対しては特殊な準備があります。）
+   </P
+><P
+>また拡張機構は、拡張に含まれるSQLオブジェクトの定義を調整するパッケージ調整スクリプトを準備しています。
+例えば、拡張のバージョン1.1でバージョン1.0と比べて１つの関数を追加し、他の関数本体を変更する場合、拡張の作成者はこれらの２つの変更のみを行う<I
+CLASS="FIRSTTERM"
+>更新スクリプト</I
+>を提供することができます。
+そして<TT
+CLASS="COMMAND"
+>ALTER EXTENSION UPDATE</TT
+>コマンドを使用して、これらの変更を適用し、指定されたデータベース内に実際にインストールされた拡張のバージョンが何かを記録します。
+   </P
+><P
+>拡張のメンバとなり得るSQLオブジェクトの種類を<A
+HREF="sql-alterextension.html"
+>ALTER EXTENSION</A
+>で説明します。
+拡張は１つのデータベースの中でのみ認識されますので、データベース、ロール、テーブル空間などデータベースクラスタ全体のオブジェクトは拡張のメンバにすることができないことに注意してください。
+（拡張のスクリプトでこうしたオブジェクトを生成することは禁止されていませんが、作成したとしても、拡張の一部として記録されません。）
+また、テーブルは拡張のメンバになることができますが、インデックスなどそれに付随するオブジェクトは拡張の直接的なメンバとはみなされません。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN51796"
+>35.15.1. 拡張のファイル</A
+></H2
+><P
+><A
+HREF="sql-createextension.html"
+>CREATE EXTENSION</A
+>コマンドは各拡張に関して、拡張と同じ名前に<TT
+CLASS="LITERAL"
+>.control</TT
+>という拡張子を持つファイル名である必要がある、制御ファイルに依存します。
+また、このファイルはインストレーションの<TT
+CLASS="LITERAL"
+>SHAREDIR/extension</TT
+>ディレクトリ内に存在しなければなりません。
+また少なくとも１つの、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>extension</I
+></TT
+>--<TT
+CLASS="REPLACEABLE"
+><I
+>version</I
+></TT
+>.sql</TT
+>という命名規約（例えば<TT
+CLASS="LITERAL"
+>foo</TT
+>拡張のバージョン<TT
+CLASS="LITERAL"
+>1.0</TT
+>では<TT
+CLASS="LITERAL"
+>foo--1.0.sql</TT
+>）に従った<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>スクリプトファイルが存在しなければなりません。
+デフォルトでは、このスクリプトファイルも<TT
+CLASS="LITERAL"
+>SHAREDIR/extension</TT
+>ディレクトリに格納されますが、制御ファイルでスクリプトファイルを別のディレクトリに指定することができます。
+
+    </P
+><P
+>拡張の制御ファイルのファイル書式は<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイルと同じです。
+すなわち、<TT
+CLASS="REPLACEABLE"
+><I
+>parameter_name</I
+></TT
+> <TT
+CLASS="LITERAL"
+>=</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>という代入を１行当たり１つ記述します。
+空行および<TT
+CLASS="LITERAL"
+>#</TT
+>から始まるコメントが許されます。
+単一の単語または数字ではない値にはすべて引用符で確実にくくってください。
+    </P
+><P
+>制御ファイルは以下のパラメータを設定することができます。
+    </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="VARNAME"
+>directory</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>拡張の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>スクリプトファイルを含むディレクトリです。
+絶対パスで指定されていない限り、この名前はインストレーションの<TT
+CLASS="LITERAL"
+>SHAREDIR</TT
+>ディレクトリからの相対バスになります。
+デフォルトの動作は<TT
+CLASS="LITERAL"
+>directory = 'extension'</TT
+>と指定した場合と同じです。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>default_version</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>拡張のデフォルトのバージョン（<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>でバージョン指定がない場合にインストールされるバージョン）です。
+これは省略することができますが、その場合<TT
+CLASS="LITERAL"
+>VERSION</TT
+>オプションがない<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>は失敗します。
+ですので通常省略しようとは思わないでしょう。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>comment</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>拡張に関するコメント（任意の文字列）です。
+この他の方法として、スクリプトファイル内で<A
+HREF="sql-comment.html"
+>COMMENT</A
+>コマンドを使用してコメントを設定することができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>encoding</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>スクリプトファイルで使用される文字セット符号化方式です。
+スクリプトファイルに何らかの非ASCII文字が含まれる場合に指定しなければなりません。
+指定がなければ、ファイルはデータベース符号化方式であると仮定されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>module_pathname</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>このパラメータの値でスクリプトファイル内の<TT
+CLASS="LITERAL"
+>MODULE_PATHNAME</TT
+>の出現箇所が置換されます。
+設定されていない場合は置換は行われません。
+通常これは、スクリプトファイル内で共有ライブラリの名前を直接書き込む必要がなくなるように<TT
+CLASS="LITERAL"
+>$libdir/<TT
+CLASS="REPLACEABLE"
+><I
+>shared_library_name</I
+></TT
+></TT
+>に設定され、C言語関数では<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンド中で<TT
+CLASS="LITERAL"
+>MODULE_PATHNAME</TT
+>を使用します。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>requires</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>拡張が依存する拡張の名前のリストです。
+例えば<TT
+CLASS="LITERAL"
+>requires = 'foo, bar'</TT
+>です。
+対象の拡張がインストールできるようになる前に、これらの拡張がインストールされていなければなりません。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>superuser</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>このパラメータが<TT
+CLASS="LITERAL"
+>true</TT
+>（デフォルト）の場合、スーパーユーザのみが拡張を作成または新しいバージョンに更新することができます。
+<TT
+CLASS="LITERAL"
+>false</TT
+>に設定されている場合は、インストレーション内でコマンドを実行するまたはスクリプトを更新するために必要な権限のみが必要とされます。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>relocatable</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>拡張を最初に作成した後に拡張により含まれるオブジェクトを別のスキーマに移動することができる場合、拡張は<I
+CLASS="FIRSTTERM"
+>再配置可能</I
+>です。
+デフォルトは<TT
+CLASS="LITERAL"
+>false</TT
+>、つまり、拡張は再配置可能ではありません。
+詳しくは後で説明します。
+       </P
+></DD
+><DT
+><TT
+CLASS="VARNAME"
+>schema</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>このパラメータは再配置可能ではない拡張に対してのみ設定することができます。
+拡張が指名したスキーマのみにロードされ、他にはロードされないことを強制します。
+詳しくは後で説明します。
+       </P
+></DD
+></DL
+></DIV
+><P
+>主制御ファイル<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>extension</I
+></TT
+>.control</TT
+>に加え、拡張は<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>extension</I
+></TT
+>--<TT
+CLASS="REPLACEABLE"
+><I
+>version</I
+></TT
+>.control</TT
+>という形の名前の副制御ファイルを持つことができます。
+これらを提供する場合は、スクリプトファイルディレクトリに格納しなければなりません。
+副制御ファイルは主制御ファイルと同じ書式に従います。
+拡張の対応するバージョンをインストールまたは更新する時、副制御ファイル内で設定されるパラメータはいずれも、主制御ファイルを上書きします。
+しかし<TT
+CLASS="VARNAME"
+>directory</TT
+>および<TT
+CLASS="VARNAME"
+>default_version</TT
+>パラメータは副制御ファイルで設定することはできません。
+    </P
+><P
+>拡張の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>スクリプトファイルにはトランザクション制御コマンド（<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>、<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>など）およびトランザクションブロックの内側で実行することができないコマンド（<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>など）を除く任意のSQLコマンドを含めることができます。
+スクリプトファイルが暗黙的にトランザクションブロック内で実行されるためです。
+    </P
+><P
+>拡張の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>スクリプトファイルには、<TT
+CLASS="LITERAL"
+>\echo</TT
+>から始まる行を含めることができます。
+この行は拡張の機構では無視されます（コメントとして扱われます）。
+これは、このスクリプトが<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>（後述のスクリプト例を参照）ではなく<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>に渡された場合にエラーを発生するために一般的に使用するために用意されたものです。
+これがないと、ユーザは間違って拡張としてではなく、<SPAN
+CLASS="QUOTE"
+>"まとまっていまい"</SPAN
+>オブジェクトとして拡張の内容をロードしてしまい、復旧が多少困難な状態になる可能性があります。
+    </P
+><P
+>スクリプトファイルは指定した符号化方式で認められる任意の文字を含めることができますが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が制御ファイルの符号化方式が何かを把握する方法がありませんので、制御ファイルにはASCII文字のみを含めなければなりません。
+実際には、拡張のコメントに非ASCII文字を含めたい場合にのみ、これが問題になります。
+このような場合には、制御ファイルの<TT
+CLASS="VARNAME"
+>comment</TT
+>を使用せず、代わりにコメントを設定するためにスクリプトファイル内で<TT
+CLASS="COMMAND"
+>COMMENT ON EXTENSION</TT
+>を使用することを勧めます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN51914"
+>35.15.2. 拡張の再配置性</A
+></H2
+><P
+>ユーザは拡張に含まれるオブジェクトを拡張の作成者が考えていたスキーマとは別のスキーマにロードしたいとよく考えます。
+再配置性に関して３つのレベルがサポートされます。
+    </P
+><P
+></P
+><UL
+><LI
+><P
+>完全な再配置可能な拡張は、いつでも、データベースにロードされた後であっても、他のスキーマに移動させることができます。
+これは、自動的にすべてのメンバオブジェクトを新しいスキーマに名前を変更する、<TT
+CLASS="COMMAND"
+>ALTER EXTENSION SET SCHEMA</TT
+>を用いて行います。
+通常これは、拡張がオブジェクトが含まれるスキーマが何かに関して内部的な仮定を持たない場合のみ可能です。
+また、拡張のオブジェクト（手続き言語など何らかのスキーマに属さないオブジェクトは無視して）はすべて最初に１つのスキーマ内に存在しなければなりません。
+制御ファイル内で<TT
+CLASS="LITERAL"
+>relocatable = true</TT
+>と設定することで、完全な再配置可能と印付けます。
+      </P
+></LI
+><LI
+><P
+>拡張はインストール処理の間再配置可能ですが、その後再配置することはできません。
+通常これは、拡張のスクリプトファイルが、SQL関数用の<TT
+CLASS="LITERAL"
+>search_path</TT
+>属性の設定など、対象のスキーマを明示的に参照する必要がある場合です。
+こうした拡張では、制御ファイルで<TT
+CLASS="LITERAL"
+>relocatable = false</TT
+>と設定し、スクリプトファイル内で対象のスキーマを参照するために<TT
+CLASS="LITERAL"
+>@extschema@</TT
+>を設定してください。
+この文字列の出現箇所はすべて、スクリプトが実行される前に、実際の対象のスキーマ名に置換されます。
+ユーザは<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>の<TT
+CLASS="LITERAL"
+>SCHEMA</TT
+>オプションを使用して対象のスキーマを設定することができます。
+      </P
+></LI
+><LI
+><P
+>拡張が再配置をまったくサポートしない場合、制御ファイルで<TT
+CLASS="LITERAL"
+>relocatable = false</TT
+>を設定し、かつ、<TT
+CLASS="LITERAL"
+>schema</TT
+>を意図している対象スキーマの名前に設定してください。
+これは、制御ファイル内で指定されたスキーマと同じ名前が指定されていない限り、<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>の<TT
+CLASS="LITERAL"
+>SCHEMA</TT
+>オプションの指定を阻止します。
+この選択は通常、拡張が<TT
+CLASS="LITERAL"
+>@extschema@</TT
+>を使用して置き換えることができないスキーマ名について内部的な仮定を持つ場合に必要です。
+<TT
+CLASS="LITERAL"
+>@extschema@</TT
+>置換機構はこの場合でも使用することができますが、スキーマ名が制御ファイルによって決定されますので、用途は限定されます。
+      </P
+></LI
+></UL
+><P
+>すべての場合において、スクリプトファイルは対象のスキーマを指し示すようにあらかじめ設定した<A
+HREF="runtime-config-client.html#GUC-SEARCH-PATH"
+>search_path</A
+>を用いて実行されます。
+つまり<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>は以下と同じことを行います。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SET LOCAL search_path TO @extschema@;</PRE
+><P>
+これによりスクリプトファイルで作成されるオブジェクトを対象のスキーマ内に格納することができます。
+スクリプトファイルは要望に応じて<TT
+CLASS="VARNAME"
+>search_path</TT
+>を変更することができますが、一般的には望まれません。
+<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>の実行後、<TT
+CLASS="VARNAME"
+>search_path</TT
+>は以前の設定に戻されます。
+    </P
+><P
+>対象のスキーマは制御ファイル内の<TT
+CLASS="VARNAME"
+>schema</TT
+>パラメータがあればこのパラメータにより決定されます。
+このパラメータがなければ、<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>の<TT
+CLASS="LITERAL"
+>SCHEMA</TT
+>があればこの値で決まり、これ以外の場合は現在のデフォルトのオブジェクト生成用スキーマ（呼び出し元の<TT
+CLASS="VARNAME"
+>search_path</TT
+>の最初のもの）になります。
+制御ファイルの<TT
+CLASS="VARNAME"
+>schema</TT
+>パラメータが使用される時、対象のスキーマが存在しない場合は作成されますが、これ以外の２つの場合ではすでに存在しなければなりません。
+    </P
+><P
+>何らかの事前に必要な拡張が制御ファイル内の<TT
+CLASS="VARNAME"
+>requires</TT
+>に列挙されていた場合、それらの対象スキーマが<TT
+CLASS="VARNAME"
+>search_path</TT
+>の初期設定に追加されます。
+これにより新しい拡張のスクリプトファイルからそれらのオブジェクトが可視になります。
+    </P
+><P
+>再配置不可能な拡張は複数スキーマにまたがるオブジェクトを含めることができますが、通常、外部使用を意図したオブジェクトはすべて単一スキーマに格納することが望まれます。
+この単一スキーマが拡張の対象のスキーマとみなされます。
+こうした調整は依存する拡張を作成する間、デフォルトの<TT
+CLASS="VARNAME"
+>search_path</TT
+>設定を都合に合わせて扱います。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN51955"
+>35.15.3. 拡張設定テーブル</A
+></H2
+><P
+>一部の拡張は、拡張をインストールした後でユーザにより追加または変更される可能性があるデータを持つ設定テーブルを含みます。
+通常、テーブルが拡張の一部である場合、テーブル定義もその内容も<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>によりダンプされません。
+しかしこの振舞いは設定テーブルの場合望まれません。
+ユーザによってなされたデータ変更はダンプ内に含まれなければなりません。
+さもないとダンプしリストアした後で拡張の動作が変わってしまいます。
+    </P
+><P
+>この問題を解消するために、拡張のスクリプトファイルでは設定テーブルとして作成されるテーブルに印を付け、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>にテーブルの内容をダンプに含める（定義は含まれません）ようにさせることができます。
+このためには、以下の例のようにテーブルを作成した後に<CODE
+CLASS="FUNCTION"
+>pg_extension_config_dump(regclass, text)</CODE
+>関数を呼び出してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE my_config (key text, value text);
+
+SELECT pg_catalog.pg_extension_config_dump('my_config', '');</PRE
+><P>
+任意数のテーブルをこの方法で印付けることができます。
+    </P
+><P
+><CODE
+CLASS="FUNCTION"
+>pg_extension_config_dump</CODE
+>の第２引数が空文字列である場合、テーブルのすべての内容が<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>によりダンプされます。
+これは、拡張のスクリプトによって作成された初期段階においてテーブルが空である場合のみ正しいものです。
+テーブルの中で初期データとユーザが提供したデータが混在する場合、<CODE
+CLASS="FUNCTION"
+>pg_extension_config_dump</CODE
+>の第２引数においてダンプすべきデータを選択する<TT
+CLASS="LITERAL"
+>WHERE</TT
+>条件を提供します。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE my_config (key text, value text, standard_entry boolean);
+
+SELECT pg_catalog.pg_extension_config_dump('my_config', 'WHERE NOT standard_entry');</PRE
+><P>
+このようにした後、拡張のスクリプトで作成される行のみで<TT
+CLASS="STRUCTFIELD"
+>standard_entry</TT
+>が確実に真になるようにします。
+    </P
+><P
+>初期状態で提供される行がユーザによって変更されるようなもっと複雑な状況では、設定テーブルに対するトリガを作成して、変更された行が正しく印付けられることを確実にするように取り扱うことができます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN51971"
+>35.15.4. 拡張の更新</A
+></H2
+><P
+>拡張機構の１つの利点は、拡張のオブジェクトを定義するSQLコマンドの更新を簡便に管理する方法を提供していることです。
+これは、拡張のインストール用スクリプトのリリース版それぞれにバージョン名称またはバージョン番号を関連付けることで行われます。
+さらに、ユーザにあるバージョンから次のバージョンへ動的にデータベースを更新させることができるようにしたい場合、あるバージョンから次のバージョンまでの間に行われる必要な変更を行う<I
+CLASS="FIRSTTERM"
+>更新スクリプト</I
+>を提供しなければなりません。
+更新スクリプトは<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>extension</I
+></TT
+>--<TT
+CLASS="REPLACEABLE"
+><I
+>oldversion</I
+></TT
+>--<TT
+CLASS="REPLACEABLE"
+><I
+>newversion</I
+></TT
+>.sql</TT
+>というパターンに従った名前（例えば、<TT
+CLASS="LITERAL"
+>foo--1.0--1.1.sql</TT
+>は<TT
+CLASS="LITERAL"
+>foo</TT
+>拡張のバージョン<TT
+CLASS="LITERAL"
+>1.0</TT
+>からバージョン<TT
+CLASS="LITERAL"
+>1.1</TT
+>に変更するコマンドを含みます。）を持たなければなりません。
+    </P
+><P
+>適切な更新スクリプトが利用可能である場合、<TT
+CLASS="COMMAND"
+>ALTER EXTENSION UPDATE</TT
+>コマンドはインストール済みの拡張を指定した新しいバージョンへ更新します。
+更新スクリプトは、<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>がインストール用スクリプト向けに提供する環境と同じ環境で実行されます。
+具体的には<TT
+CLASS="VARNAME"
+>search_path</TT
+>は同じ方法で設定され、スクリプトにより作成される新しいオブジェクトはすべて自動的に拡張に追加されます。
+    </P
+><P
+>拡張が副制御ファイルを持つ場合、更新スクリプトで使用される制御パラメータは、スクリプトの対象の（新しい）バージョンに関連付けされたものになります。
+    </P
+><P
+>更新機構を使用して、オブジェクトの<SPAN
+CLASS="QUOTE"
+>"粗"</SPAN
+>集合から拡張に変換するという、特別かつ重大な状況を解消することができます。
+拡張機構が<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に（9.1で）追加されるようになる前では、パッケージ化されずに単に詰めあわされたオブジェクトを作成する拡張モジュールを多くのユーザが作成していました。
+こうしたオブジェクトを持つデータベースが存在する場合、どのようにすればこれらのオブジェクトを適切にパッケージ化された拡張に変換できるでしょうか？
+削除した後で普通に<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>を行うことも１つの方法ですが、オブジェクトに依存関係がある（例えば拡張により作成されたデータ型のテーブル列が存在する場合など）場合は好まれません。
+こうした状況を解消する方法は、空の拡張を作成し、<TT
+CLASS="COMMAND"
+>ALTER EXTENSION ADD</TT
+>を使用して、既存のオブジェクトそれぞれを拡張に関連づけ、最後にパッケージ化されていないリリースに存在しないが現在のバージョンの拡張には存在する新しいオブジェクトを作成するという方法です。
+<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>は<TT
+CLASS="LITERAL"
+>FROM</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>old_version</I
+></TT
+>オプションでこの状況をサポートします。
+この場合、通常のインストール用スクリプトは実行されず、代わりに<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>extension</I
+></TT
+>--<TT
+CLASS="REPLACEABLE"
+><I
+>old_version</I
+></TT
+>--<TT
+CLASS="REPLACEABLE"
+><I
+>target_version</I
+></TT
+>.sql</TT
+>という名前の更新スクリプトが実行されるようになります。
+<TT
+CLASS="REPLACEABLE"
+><I
+>old_version</I
+></TT
+>として使用するダミーのバージョン名の選択は拡張の作成者に任せられていますが、<TT
+CLASS="LITERAL"
+>unpackaged</TT
+>がよく使われる規約です。
+拡張形式に更新できるようにしたい過去のバージョンが複数存在する場合、それらを識別できるように複数のダミーバージョン番号を使用していください。
+    </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER EXTENSION</TT
+>は、要求される更新を実現するために更新スクリプトを連続して実行することができます。
+例えば<TT
+CLASS="LITERAL"
+>foo--1.0--1.1.sql</TT
+>と<TT
+CLASS="LITERAL"
+>foo--1.1--2.0.sql</TT
+>のみが利用可能であるとすると、現在<TT
+CLASS="LITERAL"
+>1.0</TT
+>がインストールされている時にバージョン<TT
+CLASS="LITERAL"
+>2.0</TT
+>への更新が要求された場合、<TT
+CLASS="COMMAND"
+>ALTER EXTENSION</TT
+>はこれらを順番に適用します。
+    </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はバージョン名称の特性についてまったく仮定を行いません。
+例えば<TT
+CLASS="LITERAL"
+>1.0</TT
+>の次が<TT
+CLASS="LITERAL"
+>1.1</TT
+>であるかどうかを把握しません。
+これは利用可能なバージョン名をかみ合わせ、もっとも少ない数の更新スクリプトを適用するために必要な経路を続けるだけです。
+（バージョン名には、<TT
+CLASS="LITERAL"
+>--</TT
+>を含まず先頭または最後に<TT
+CLASS="LITERAL"
+>-</TT
+>が付かなければ、任意の文字を取ることができます。）
+    </P
+><P
+><SPAN
+CLASS="QUOTE"
+>"ダウングレード"</SPAN
+>スクリプトを提供することが便利な場合があります。
+例えば<TT
+CLASS="LITERAL"
+>foo--1.1--1.0.sql</TT
+>は、バージョン<TT
+CLASS="LITERAL"
+>1.1</TT
+>に関連した変更を基に戻すことができます。
+この場合、ダウングレードスクリプトがより短いパスを生成するために、予期せず適用されてしまう可能性に注意してください。
+複数のバージョンをまたがって更新する<SPAN
+CLASS="QUOTE"
+>"近道"</SPAN
+>更新スクリプトと近道の開始バージョンへのダウングレードスクリプトが存在する場合に危険性があります。
+ダウングレードしてから近道となる更新スクリプトを実行する方が、バージョンを１つずつ進めるよりも少ない処理で済んでしまうかもしれません。
+ダウングレードスクリプトが取り返しがつかないオブジェクトを何か削除してしまう場合、望まない結果になってしまいます。
+    </P
+><P
+>想定外の更新経路かどうかを検査するためには、以下のコマンドを使用してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM pg_extension_update_paths('<TT
+CLASS="REPLACEABLE"
+><I
+>extension_name</I
+></TT
+>');</PRE
+><P>
+これは指定した拡張の個々の既知のバージョン名の組み合わせをそれぞれ、元のバージョンから対象のバージョンへ進む時に取られる更新経路順、またはもし利用できる更新経路がなければ<TT
+CLASS="LITERAL"
+>NULL</TT
+>を付けて、表示します。
+経路は<TT
+CLASS="LITERAL"
+>--</TT
+>を区切り文字として使用したテキスト形式で表示されます。
+配列形式の方が良ければ<TT
+CLASS="LITERAL"
+>regexp_split_to_array(path,'--')</TT
+>を使用することができます。
+
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN52026"
+>35.15.5. 拡張の例</A
+></H2
+><P
+>ここでは、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>のみの拡張の完全な例を示します。
+<SPAN
+CLASS="QUOTE"
+>"k"</SPAN
+>と<SPAN
+CLASS="QUOTE"
+>"v"</SPAN
+>という名称の２つの要素からなる複合型であり、そのスロットには任意の型の値を格納することができるものです。
+格納の際テキスト以外の値は自動的にテキストに変換されます。
+    </P
+><P
+><TT
+CLASS="FILENAME"
+>pair--1.0.sql</TT
+>スクリプトファイルは以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>-- complain if script is sourced in psql, rather than via CREATE EXTENSION
+\echo Use "CREATE EXTENSION pair" to load this file. \quit
+
+CREATE TYPE pair AS ( k text, v text );
+
+CREATE OR REPLACE FUNCTION pair(anyelement, text)
+RETURNS pair LANGUAGE SQL AS 'SELECT ROW($1, $2)::pair';
+
+CREATE OR REPLACE FUNCTION pair(text, anyelement)
+RETURNS pair LANGUAGE SQL AS 'SELECT ROW($1, $2)::pair';
+
+CREATE OR REPLACE FUNCTION pair(anyelement, anyelement)
+RETURNS pair LANGUAGE SQL AS 'SELECT ROW($1, $2)::pair';
+
+CREATE OR REPLACE FUNCTION pair(text, text)
+RETURNS pair LANGUAGE SQL AS 'SELECT ROW($1, $2)::pair;';
+
+CREATE OPERATOR ~&#62; (LEFTARG = text, RIGHTARG = anyelement, PROCEDURE = pair);
+CREATE OPERATOR ~&#62; (LEFTARG = anyelement, RIGHTARG = text, PROCEDURE = pair);
+CREATE OPERATOR ~&#62; (LEFTARG = anyelement, RIGHTARG = anyelement, PROCEDURE = pair);
+CREATE OPERATOR ~&#62; (LEFTARG = text, RIGHTARG = text, PROCEDURE = pair);</PRE
+><P>
+    </P
+><P
+><TT
+CLASS="FILENAME"
+>pair.control</TT
+>制御ファイルは以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+># pair extension
+comment = 'A key/value pair data type'
+default_version = '1.0'
+relocatable = true</PRE
+><P>
+    </P
+><P
+>これらの２つのファイルを正しいディレクトリにインストールするためにメークファイルを作成する必要はほとんどありませんが、以下を含む<TT
+CLASS="FILENAME"
+>Makefile</TT
+>を使用することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXTENSION = pair
+DATA = pair--1.0.sql
+
+PG_CONFIG = pg_config
+PGXS := $(shell $(PG_CONFIG) --pgxs)
+include $(PGXS)</PRE
+><P>
+
+このメークファイルは<A
+HREF="extend-pgxs.html"
+>&#38917;35.16</A
+>で説明する<ACRONYM
+CLASS="ACRONYM"
+>PGXS</ACRONYM
+>に依存します。
+<TT
+CLASS="LITERAL"
+>make install</TT
+>コマンドは制御ファイルとスクリプトファイルを<SPAN
+CLASS="APPLICATION"
+>pg_config</SPAN
+>で報告される正しいディレクトリにインストールします。
+    </P
+><P
+>ファイルがインストールされた後、<A
+HREF="sql-createextension.html"
+>CREATE EXTENSION</A
+>コマンドを使用してオブジェクトを任意の特定のデータベースにロードしてください。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="xindex.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="extend-pgxs.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インデックス拡張機能へのインタフェース</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="extend.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>拡張構築基盤</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

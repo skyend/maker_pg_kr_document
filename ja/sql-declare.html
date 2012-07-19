@@ -1,0 +1,788 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>DECLARE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="DEALLOCATE"
+HREF="sql-deallocate.html"><LINK
+REL="NEXT"
+TITLE="DELETE"
+HREF="sql-delete.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="DEALLOCATE"
+HREF="sql-deallocate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="DEALLOCATE"
+HREF="sql-deallocate.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DELETE"
+HREF="sql-delete.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="DELETE"
+HREF="sql-delete.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-DECLARE"
+></A
+>DECLARE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN69553"
+></A
+><H2
+>&#21517;&#21069;</H2
+>DECLARE&nbsp;--&nbsp;カーソルを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN69561"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>DECLARE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ BINARY ] [ INSENSITIVE ] [ [ NO ] SCROLL ]
+    CURSOR [ { WITH | WITHOUT } HOLD ] FOR <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69565"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>DECLARE</TT
+>を使うと、巨大な問い合わせの結果から一度に少数の行を取り出す機能であるカーソルが使用できるようになります。
+カーソルを作成した後、<A
+HREF="sql-fetch.html"
+>FETCH</A
+>を使用して行を取り出します。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>このマニュアルページではSQLコマンドレベルでのカーソルの使用方法について説明します。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>内でカーソルを使用するつもりであれば、規則が異なりますので、<A
+HREF="plpgsql-cursors.html"
+>&#38917;39.7</A
+>を参照してください。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69574"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>作成されるカーソルの名前です。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>BINARY</TT
+></DT
+><DD
+><P
+>カーソルによるデータの取得が、テキスト形式ではなくバイナリ形式になります。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>INSENSITIVE</TT
+></DT
+><DD
+><P
+>カーソルから取り出されたデータが、カーソルを作成した後に行われた背後にあるテーブルの更新の影響を受けないことを示します。
+しかし、これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のデフォルトの動作です。
+したがって、このキーワードを使用しても効果はなく、このキーワードは標準SQLとの互換性を保持するために存在しています。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SCROLL</TT
+><BR><TT
+CLASS="LITERAL"
+>NO SCROLL</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>SCROLL</TT
+>は、そのカーソルから通常の順序通りでない方法で（例えば後方から）行を取り出可能であることを指定します。
+問い合わせの実行計画が複雑になると、<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>の指定によって問い合わせの実行時間が増大する可能性があります。
+<TT
+CLASS="LITERAL"
+>NO SCROLL</TT
+>は、そのカーソルから順序通りでない方法では行を取り出せないことを指定します。
+デフォルトでは、いくつかの場合でスクロール可能です。
+これは<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>の指定と同じではありません。
+詳細は<A
+HREF="sql-declare.html#SQL-DECLARE-NOTES"
+><I
+>注釈</I
+></A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+><BR><TT
+CLASS="LITERAL"
+>WITHOUT HOLD</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>は、カーソルを生成したトランザクションが正常にコミット処理を行った後も、そのカーソルの使用を続けられることを指定します。
+<TT
+CLASS="LITERAL"
+>WITHOUT HOLD</TT
+>は、カーソルを生成したトランザクションの外部では、そのカーソルを使用できないことを指定します。
+<TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>も<TT
+CLASS="LITERAL"
+>WITHOUT HOLD</TT
+>も指定されない場合、<TT
+CLASS="LITERAL"
+>WITHOUT HOLD</TT
+>がデフォルトとなります。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+></DT
+><DD
+><P
+>カーソルによって返される行を提供する<A
+HREF="sql-select.html"
+>SELECT</A
+>または<A
+HREF="sql-values.html"
+>VALUES</A
+>コマンドです。
+     </P
+></DD
+></DL
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>BINARY</TT
+>、<TT
+CLASS="LITERAL"
+>INSENSITIVE</TT
+>、<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>キーワードは任意の順番で指定することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-DECLARE-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+>通常のカーソルは、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の出力と同じテキスト形式でデータを返します。
+<TT
+CLASS="LITERAL"
+>BINARY</TT
+>は、カーソルがバイナリ形式でデータを返さなければならないことを示します。
+これによりサーバ、クライアントの両方で変換に関する作業を省くことができますが、プラットフォームに依存するバイナリデータ書式を扱うためのプログラマの作業が大きくなります。
+例えば、問い合わせが整数の列から値として1を返す場合、デフォルトのカーソルからは<TT
+CLASS="LITERAL"
+>1</TT
+>という文字列を取得することになりますが、バイナリ形式のカーソルからは、内部表現を使った4バイトの値を取得することになります（バイトオーダはビッグエンディアン）。
+  </P
+><P
+>バイナリ形式のカーソルは注意して使わなければなりません。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>などの多くのアプリケーションは、データはテキスト形式で返されるものとみなしており、バイナリ形式のカーソルを扱うことができません。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>クライアントアプリケーションが<SPAN
+CLASS="QUOTE"
+>"拡張問い合わせ"</SPAN
+>プロトコルを使用して<TT
+CLASS="COMMAND"
+>FETCH</TT
+>コマンドを発行する場合、テキスト形式とバイナリ形式のどちらでデータを受け取るのかは、バインドプロトコルメッセージで指定します。
+この選択は、カーソル定義での指定を上書きします。
+全てのカーソルをテキスト形式/バイナリ形式のどちらでも扱うことができる拡張問い合わせプロトコルでは、バイナリカーソルという概念は旧式なものです。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>が指定されなければ、このコマンドで生成されるカーソルは現在のトランザクションの中でのみ使用することができます。
+したがって、<TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>のない<TT
+CLASS="COMMAND"
+>DECLARE</TT
+>はトランザクションブロックの外側では意味がありません。
+その場合、カーソルはこの文が完了するまでのみ有効です。
+そのため、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はトランザクションブロックの外部でこうしたコマンドが使用された場合エラーを報告します。
+トランザクションブロックを定義するには、<A
+HREF="sql-begin.html"
+>BEGIN</A
+>と<A
+HREF="sql-commit.html"
+>COMMIT</A
+>（または<A
+HREF="sql-rollback.html"
+>ROLLBACK</A
+>）を使用してください。
+
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>が指定された場合、カーソルを作成したトランザクションのコミットに成功していても、同一セッション内のその後のトランザクションからそのカーソルにアクセスすることができます
+（ただし、トランザクションがアボートされた場合、そのカーソルは削除されます）。
+<TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>付きで作成されたカーソルは、そのカーソルに対して明示的な<TT
+CLASS="COMMAND"
+>CLOSE</TT
+>が発行された場合やセッションが終了した時に閉じられます。
+現在の実装では、保持されたカーソルを使って表される行は、その後のトランザクションでも利用できるように、一時ファイルかメモリ領域にコピーされます。
+   </P
+><P
+>問い合わせが<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>を含む場合、<TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>を指定することはできません。
+   </P
+><P
+>カーソルから逆方向にデータを取り出す時には、<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>オプションを指定しなければなりません。
+これは標準SQLでは必須となっています。
+しかし、以前のバージョンとの互換性を保持するために、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、カーソルの問い合わせ計画が単純であり、そのサポートに余計なオーバーヘッドが必要ない場合、 <TT
+CLASS="LITERAL"
+>SCROLL</TT
+>なしでも逆方向にデータを取り出すことができます。
+しかし、<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>を付けなくても逆方向にデータが取り出せることを利用してアプリケーションを開発するのはお勧めしません。
+<TT
+CLASS="LITERAL"
+>NO SCROLL</TT
+>を指定した場合は、どのような場合でも逆方向に取り出すことはできません。
+   </P
+><P
+>また、問い合わせが<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>を含む場合は、逆方向の取り出しは許されません。
+このためこの場合は<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>を指定することはできません。
+   </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>スクロール可能な<TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>カーソルが揮発関数（<A
+HREF="xfunc-volatility.html"
+>&#38917;35.6</A
+>参照）を含む場合、想定しない結果をもたらす可能性があります。
+これまで取り出した行を再度取り出した時、関数は再実行される可能性があり、この場合おそらく初回と異なる結果をもたらします。
+こうした問題の回避方法の1つとして、カーソルを<TT
+CLASS="LITERAL"
+>WITH HOLD</TT
+>と宣言し、そこから何か行を読み取る前にトランザクションをコミットすることがあります。
+これにより強制的にカーソルの出力全体が一時領域に具現化され、揮発関数は各行に対して1度しか実行されなくなります。
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>問い合わせが<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>を含む場合、通常のこのオプションを持つ<A
+HREF="sql-select.html"
+>SELECT</A
+>コマンドと同様、返される行は取り出した時点でロックされます。
+さらに、返される行はもっとも最新のバージョンになります。
+したがって、このオプションは、標準SQLで<SPAN
+CLASS="QUOTE"
+>"センシティブカーソル"</SPAN
+>と呼ばれるものと同じ機能を提供します。
+（<TT
+CLASS="LITERAL"
+>INSENSITIVE</TT
+>を<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>または<TT
+CLASS="LITERAL"
+>FOR SHARE</TT
+>といっしょに指定するとエラーになります。）
+   </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>カーソルを<TT
+CLASS="COMMAND"
+>UPDATE ... WHERE CURRENT OF</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE ... WHERE CURRENT OF</TT
+>で使用するつもりならば、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>の使用を通常勧めます。
+<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>を使用することで、取り出し中および更新中に他のセッションが行を変更することを防止します。
+<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>がなければ、カーソル作成後に行が変更された場合に後に行う<TT
+CLASS="LITERAL"
+>WHERE CURRENT OF</TT
+>コマンドは効果がなくなります。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>を使用する他の理由は、<SPAN
+CLASS="QUOTE"
+>"簡単に更新可能"</SPAN
+>にするためにカーソル問い合わせが標準SQLに合わない場合（具体的にはカーソルは1つのテーブルのみを参照しなければならず、また、グループ化や<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を使用してはならない）、これがないと後に実行される<TT
+CLASS="LITERAL"
+>WHERE CURRENT OF</TT
+>が失敗するかもしれないことです。
+計画選択の詳細によっては、簡単に更新可能でないカーソルは動作するかもしれませんし、動作しないかもしれません。
+このため最悪の場合、アプリケーションは試験時に動作するが、運用時に失敗するかもしれません。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>を<TT
+CLASS="LITERAL"
+>WHERE CURRENT OF</TT
+>といっしょに使用しない大きな理由は、カーソルをスクロール可能にする必要がある、または後の更新の影響を受けないようにする（つまり古いデータを表示し続けるようにする）必要がある場合のためです。
+これが必要ならば、上記の警告に十分注意してください。
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><P
+>標準SQLでは、組み込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>におけるカーソルのみが規定されています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバはカーソル用の<TT
+CLASS="COMMAND"
+>OPEN</TT
+>文を実装していません。
+カーソルは宣言された時に開いたものとみなされています。
+しかし、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>用の埋め込みSQLプリプロセッサである<SPAN
+CLASS="APPLICATION"
+>ECPG</SPAN
+>では、<TT
+CLASS="COMMAND"
+>DECLARE</TT
+>と<TT
+CLASS="COMMAND"
+>OPEN</TT
+>文などを含め、標準SQLのカーソル規定をサポートしています。
+   </P
+><P
+><A
+HREF="view-pg-cursors.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_cursors</TT
+></A
+>システムビューを問い合わせることで、利用可能なすべてのカーソルを確認することができます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69706"
+></A
+><H2
+>例</H2
+><P
+>カーソルを宣言します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>DECLARE liahona CURSOR FOR SELECT * FROM films;</PRE
+><P>
+カーソル使用のより多くの例については<A
+HREF="sql-fetch.html"
+>FETCH</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69711"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLでは、デフォルトでカーソルが背後にあるデータの同時実行更新を気づかなければならないかどうかは実装依存であると述べています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のカーソルはデフォルトでは気づかず、<TT
+CLASS="LITERAL"
+>FOR UPDATE</TT
+>を指定することで気づくことができます。
+他の製品では異なる動作をするかもしれません。
+  </P
+><P
+>標準SQLでは、カーソルを埋め込み<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>内とモジュール内でのみ使用できます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では、対話式にカーソルを使うことができます。
+  </P
+><P
+>バイナリカーソルは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN69721"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-close.html"
+>CLOSE</A
+>, <A
+HREF="sql-fetch.html"
+>FETCH</A
+>, <A
+HREF="sql-move.html"
+>MOVE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-deallocate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-delete.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>DEALLOCATE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>DELETE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

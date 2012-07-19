@@ -1,0 +1,781 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>データ値</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/Python関数"
+HREF="plpython-funcs.html"><LINK
+REL="NEXT"
+TITLE="データの共有"
+HREF="plpython-sharing.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Python関数"
+HREF="plpython-funcs.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 42&#31456;PL/Python - Python手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Python - Python手続き言語"
+HREF="plpython.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データの共有"
+HREF="plpython-sharing.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPYTHON-DATA"
+>42.3. データ値</A
+></H1
+><P
+>一般的にいって、PL/Pythonの目標はPostgreSQLとPythonの世界の間で<SPAN
+CLASS="QUOTE"
+>"自然な"</SPAN
+>対応付けを提供することです。
+これは以下のようなデータの対応付けを形成します。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN56660"
+>42.3.1. データ型の対応付け</A
+></H2
+><P
+>関数引数は、以下のようにPostgreSQLの型から対応するPython型に変換されます。
+    <P
+></P
+></P><UL
+><LI
+><P
+>PostgreSQLの<TT
+CLASS="TYPE"
+>boolean</TT
+>はPythonの<TT
+CLASS="TYPE"
+>bool</TT
+>に変換されます。
+      </P
+></LI
+><LI
+><P
+>PostgreSQLの<TT
+CLASS="TYPE"
+>smallint</TT
+>および<TT
+CLASS="TYPE"
+>int</TT
+>はPythonの<TT
+CLASS="TYPE"
+>int</TT
+>に変換されます。
+PostgreSQLの<TT
+CLASS="TYPE"
+>bigint</TT
+>は、Python 2では<TT
+CLASS="TYPE"
+>long</TT
+>に、Python 3では<TT
+CLASS="TYPE"
+>int</TT
+>に変換されます。
+      </P
+></LI
+><LI
+><P
+>PostgreSQLの<TT
+CLASS="TYPE"
+>real</TT
+>、<TT
+CLASS="TYPE"
+>double</TT
+>および<TT
+CLASS="TYPE"
+>numeric</TT
+>はPythonの<TT
+CLASS="TYPE"
+>float</TT
+>に変換されます。
+<TT
+CLASS="TYPE"
+>numeric</TT
+>では情報が失われ、間違った結果をもたらす可能性があることに注意してください。
+将来のリリースでこれは修正されるかもしれません。
+      </P
+></LI
+><LI
+><P
+>PostgreSQLの<TT
+CLASS="TYPE"
+>bytea</TT
+>は、Python 2では<TT
+CLASS="TYPE"
+>str</TT
+>に、Python 3では<TT
+CLASS="TYPE"
+>bytes</TT
+>に変換されます。
+Python 2では文字列は文字符号化方式を持たないバイト列として扱われるはずです。
+      </P
+></LI
+><LI
+><P
+>PostgreSQLの文字列型を含む、上記以外のデータ型はすべてPythonの<TT
+CLASS="TYPE"
+>str</TT
+>に変換されます。
+Python 2ではこの文字列はPostgreSQLのサーバ符号化方式で表されます。
+Python 3ではすべての文字列と同様にUnicode文字列となります。
+      </P
+></LI
+><LI
+><P
+>スカラ型以外については後述します。
+      </P
+></LI
+></UL
+><P>
+   </P
+><P
+>関数の戻り値は、以下のようにPostgreSQLの宣言された戻り値データ型に変換されます。
+    <P
+></P
+></P><UL
+><LI
+><P
+>PostgreSQLの戻り値の型が<TT
+CLASS="TYPE"
+>boolean</TT
+>の場合、戻り値は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Python</I
+></SPAN
+>の規約に従った真に対して評価されます。
+つまり、0や空文字列は偽です。
+<TT
+CLASS="LITERAL"
+>'f'</TT
+>が真となることには注意してください。
+      </P
+></LI
+><LI
+><P
+>PostgreSQLの戻り値の型が<TT
+CLASS="TYPE"
+>bytea</TT
+>の場合、戻り値は文字列(Python 2)またはbytes(Python 3)に、それぞれ対応するPythonのビルトインを使用して変換され、その結果が<TT
+CLASS="TYPE"
+>bytea</TT
+>に変換されます。
+      </P
+></LI
+><LI
+><P
+>この他のPostgreSQLの戻り値型では、返されるPythonの値はPythonのビルトイン<TT
+CLASS="LITERAL"
+>str</TT
+>を使用して文字列に変換され、その結果がPostgreSQLデータ型の入力関数に渡されます。
+      </P
+><P
+>Python 2における文字列はPostgreSQLに渡される時にPostgreSQLサーバの符号化方式でなければなりません。
+現在のサーバ符号化方式で無効な文字列はエラーとなりますが、符号化方式の不一致がすべて検知されることはありません。
+このため正確に行われなかった場合にはゴミデータという結果になります。
+Unicode文字列は自動的に正しい符号化方式に変換されます。
+このためこれを使用することがより安全でより便利です。
+Python 3における文字列はすべてUnicode文字列です。
+      </P
+></LI
+><LI
+><P
+>スカラデータ型以外については後述します。
+      </P
+></LI
+></UL
+><P>
+
+宣言されたPostgreSQLの戻り値型と実際に返されるオブジェクトのPythonデータ型との間の論理的な不整合が伝わらないことに注意してください。
+値はいかなる場合でも変換されます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN56710"
+>42.3.2. NullとNone</A
+></H2
+><P
+>SQLのNULL値が関数に渡されると、その引数値はPython.では<TT
+CLASS="SYMBOL"
+>None</TT
+>となります。
+
+例えば、<A
+HREF="plpython-funcs.html"
+>&#38917;42.2</A
+>に示された<CODE
+CLASS="FUNCTION"
+>pymax</CODE
+>関数の定義では、NULL入力に対して間違った結果が返されます。
+関数定義に<TT
+CLASS="LITERAL"
+>STRICT</TT
+>を付与して<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を、NULL値が渡された場合にその関数を呼び出さず、自動的に単にNULL結果を返すという、より理想的に動作させることができます。
+他に、関数本体でNULL入力を検査することもできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION pymax (a integer, b integer)
+  RETURNS integer
+AS $$
+  if (a is None) or (b is None):
+    return None
+  if a &gt; b:
+    return a
+  return b
+$$ LANGUAGE plpythonu;</PRE
+><P>
+
+上で示したように、PL/Python関数からSQL NULL値を返すには、<TT
+CLASS="SYMBOL"
+>None</TT
+>という値を返してください。
+関数を厳密とした場合でも厳密としない場合でも、これを行うことができます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPYTHON-ARRAYS"
+>42.3.3. 配列、リスト</A
+></H2
+><P
+>SQL配列値はPythonのリストとしてPL/Pythonに渡されます。
+PL/Python関数の外部にSQL配列値を返すためには、Pythonのシーケンス、例えばリストかタプルを返します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION return_arr()
+  RETURNS int[]
+AS $$
+return (1, 2, 3, 4, 5)
+$$ LANGUAGE plpythonu;
+
+SELECT return_arr();
+ return_arr  
+-------------
+ {1,2,3,4,5}
+(1 row)</PRE
+><P>
+
+Pythonでは、文字列はシーケンスであることに注意してください。
+これは予想できない影響を与えることがありますが、Pythonプログラマには慣れたものでしょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION return_str_arr()
+  RETURNS varchar[]
+AS $$
+return "hello"
+$$ LANGUAGE plpythonu;
+
+SELECT return_str_arr();
+ return_str_arr
+----------------
+ {h,e,l,l,o}
+(1 row)</PRE
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN56728"
+>42.3.4. 複合型</A
+></H2
+><P
+>複合型の引数はPythonのマップとして渡されます。
+マップの要素名は複合型の属性名です。
+渡された行の属性値がNULLの場合、マップ上では<TT
+CLASS="SYMBOL"
+>None</TT
+>という値となります。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE employee (
+  name text,
+  salary integer,
+  age integer
+);
+
+CREATE FUNCTION overpaid (e employee)
+  RETURNS boolean
+AS $$
+  if e["salary"] &gt; 200000:
+    return True
+  if (e["age"] &lt; 30) and (e["salary"] &gt; 100000):
+    return True
+  return False
+$$ LANGUAGE plpythonu;</PRE
+><P>
+  </P
+><P
+>Python関数から行または複合型を返す方法は複数存在します。
+以下の例では
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE named_value AS (
+  name   text,
+  value  integer
+);</PRE
+><P>
+を前提とします。
+
+複合型の結果は以下のように返されます。
+
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>シーケンス型（タプルまたはリスト。ただしインデック付けができないため<TT
+CLASS="LITERAL"
+>set</TT
+> は不可）</DT
+><DD
+><P
+>返されるシーケンスオブジェクトは、結果の複合型が持つフィールドと同じ項目数をもたなければなりません。
+0というインデックスの項目が複合型の最初のフィールド、1が次のフィールド、、、となります。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION make_pair (name text, value integer)
+  RETURNS named_value
+AS $$
+  return [ name, value ]
+  # or alternatively, as tuple: return ( name, value )
+$$ LANGUAGE plpythonu;</PRE
+><P>
+
+任意の列でSQL NULL値を返すには、対応する位置に<TT
+CLASS="SYMBOL"
+>None</TT
+>を挿入します。
+      </P
+></DD
+><DT
+>マップ（辞書）</DT
+><DD
+><P
+>結果型の列の値は、列名をキーとして持つマップから取り出されます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION make_pair (name text, value integer)
+  RETURNS named_value
+AS $$
+  return { "name": name, "value": value }
+$$ LANGUAGE plpythonu;</PRE
+><P>
+
+余計な辞書のキーと値の組み合わせは無視されます。
+存在しないキーはエラーとして扱われます。
+任意の列でSQL NULLを返すためには、対応する列名をキーとして<TT
+CLASS="SYMBOL"
+>None</TT
+>を挿入してください。
+      </P
+></DD
+><DT
+>オブジェクト（<TT
+CLASS="LITERAL"
+>__getattr__</TT
+>メソッドを提供する任意のオブジェクト）</DT
+><DD
+><P
+>これはマップと同じように動作します。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION make_pair (name text, value integer)
+  RETURNS named_value
+AS $$
+  class named_value:
+    def __init__ (self, n, v):
+      self.name = n
+      self.value = v
+  return named_value(name, value)
+
+  # or simply
+  class nv: pass
+  nv.name = name
+  nv.value = value
+  return nv
+$$ LANGUAGE plpythonu;</PRE
+><P>
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータを用いる関数もサポートされています。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION multiout_simple(OUT i integer, OUT j integer) AS $$
+return (1, 2)
+$$ LANGUAGE plpythonu;
+
+SELECT * FROM multiout_simple();</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN56758"
+>42.3.5. 集合を返す関数</A
+></H2
+><P
+>また、<SPAN
+CLASS="APPLICATION"
+>PL/Python</SPAN
+>関数はスカラまたは複合型の集合を返すこともできます。
+返されるオブジェクトは内部的にイテレータに変換されるため、複数の実現方法があります。
+以下の例では、以下の複合型が存在することを仮定します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE greeting AS (
+  how text,
+  who text
+);</PRE
+><P>
+
+集合という結果は以下から返されます。
+   <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>シーケンス型（タプル、リスト、セット）</DT
+><DD
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION greet (how text)
+  RETURNS SETOF greeting
+AS $$
+  # return tuple containing lists as composite types
+  # all other combinations work also
+  return ( [ how, "World" ], [ how, "PostgreSQL" ], [ how, "PL/Python" ] )
+$$ LANGUAGE plpythonu;</PRE
+><P>
+      </P
+></DD
+><DT
+>イテレータ（<TT
+CLASS="SYMBOL"
+>__iter__</TT
+>メソッドと<TT
+CLASS="SYMBOL"
+>next</TT
+>メソッドを提供する任意のオブジェクト）</DT
+><DD
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION greet (how text)
+  RETURNS SETOF greeting
+AS $$
+  class producer:
+    def __init__ (self, how, who):
+      self.how = how
+      self.who = who
+      self.ndx = -1
+
+    def __iter__ (self):
+      return self
+
+    def next (self):
+      self.ndx += 1
+      if self.ndx == len(self.who):
+        raise StopIteration
+      return ( self.how, self.who[self.ndx] )
+
+  return producer(how, [ "World", "PostgreSQL", "PL/Python" ])
+$$ LANGUAGE plpythonu;</PRE
+><P>
+      </P
+></DD
+><DT
+>ジェネレータ(<TT
+CLASS="LITERAL"
+>yield</TT
+>)</DT
+><DD
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION greet (how text)
+  RETURNS SETOF greeting
+AS $$
+  for who in [ "World", "PostgreSQL", "PL/Python" ]:
+    yield ( how, who )
+$$ LANGUAGE plpythonu;</PRE
+><P>
+
+       <DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+BORDER="1"
+WIDTH="90%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#35686;&#21578;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>Pythonの<A
+HREF="http://bugs.python.org/issue1483133"
+TARGET="_top"
+>bug #1483133</A
+>のため、一部のPython 2.4デバッグ版（<TT
+CLASS="LITERAL"
+>--with-pydebug</TT
+>オプション付きで設定/コンパイルされたPython）が、集合結果を返すためにイテレータを使用する場合に<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバをクラッシュさせることがわかっています。
+未パッチのFedora 4にはこの不具合があります。
+Python運用版やパッチ適用済みのFedora 4ではこの問題は起こりません。
+        </P
+></TD
+></TR
+></TABLE
+></DIV
+>
+      </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+>（<TT
+CLASS="LITERAL"
+>RETURNS SETOF record</TT
+>を使用して）<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータを持つ集合を返す関数もサポートされます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION multiout_simple_setof(n integer, OUT integer, OUT integer) RETURNS SETOF record AS $$
+return [(1, 2)] * n
+$$ LANGUAGE plpythonu;
+
+SELECT * FROM multiout_simple_setof(3);</PRE
+><P>
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpython-funcs.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpython-sharing.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PL/Python関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpython.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>データの共有</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

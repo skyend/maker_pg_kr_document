@@ -1,0 +1,554 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="型変換"
+HREF="typeconv.html"><LINK
+REL="PREVIOUS"
+TITLE="演算子"
+HREF="typeconv-oper.html"><LINK
+REL="NEXT"
+TITLE="値の格納"
+HREF="typeconv-query.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="演算子"
+HREF="typeconv-oper.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="型変換"
+HREF="typeconv.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 10&#31456;型変換</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="型変換"
+HREF="typeconv.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="値の格納"
+HREF="typeconv-query.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TYPECONV-FUNC"
+>10.3. 関数</A
+></H1
+><P
+>関数呼び出しによって参照される特定の関数は、以下の手順に従って解決されます。
+  </P
+><DIV
+CLASS="PROCEDURE"
+><P
+><B
+>関数における型の解決</B
+></P
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+><CODE
+CLASS="CLASSNAME"
+>pg_proc</CODE
+>システムカタログから、調査の対象とする関数を選択します。
+スキーマ修飾がされていない関数名が使用される場合、現行の検索パスで可視になっていて、同一の名前と引数の数を持つ関数が調査対象であるとみなされます
+（<A
+HREF="ddl-schemas.html#DDL-SCHEMAS-PATH"
+>&#38917;5.7.3</A
+>を参照してください）。
+修飾された関数名が与えられている場合、指定されたスキーマの関数のみが調査対象とみなされます。</P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>検索パスで、引数のデータ型が同じである複数の関数を検出した場合、そのパスで最初に検出された関数のみを調査対象とみなします。
+引数のデータ型が異なる関数は、検索パス内の位置に関係なく、同じように調べられます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>もし関数が<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+>型の配列パラメータを伴って定義されており、そして<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+>キーワードを用いずに呼ばれた場合は、呼び出しに適合するよう、一つかそれ以上の要素の型に配列のパラメータを置き換えた形で扱われます。
+このような拡張後は、その関数は実際の引数の型を持つので、他の非可変長の引数を持つ関数と同一になるかもしれません。この場合、検索パスで先に見つかった関数が使われます。また、同じスキーマに2つの関数が見つかった場合は非可変長の関数が優先されます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>パラメータにデフォルト値を持つ関数は、デフォルト指定可能なパラメータ位置の0以上の省略されたどのような呼び出しに対しても適合すると見なされます。もし呼び出し時にこのような関数が一つ以上適合した場合、検索パスで先に見つかったものが使用されます。もし、デフォルト指定のない位置に同じパラメータ型を持つ関数(もしそれらが異なるデフォルト指定のあるパラメータのセットを持っていればあり得ます)が同じスキーマに2つ以上あった時は、どの関数を使うべきを決定できず、適合する関数が見つからなかったという<SPAN
+CLASS="QUOTE"
+>"ambiguous function call"</SPAN
+>エラーが結果として返るでしょう。&#13;</P
+></LI
+></OL
+></LI
+><LI
+CLASS="STEP"
+><P
+>正確に入力引数型を受け付ける関数があるかどうか検査します。
+該当する関数があれば（調査される関数の集合内で正確に一致するものは1つしかあり得ません）、それを使用します
+（<TT
+CLASS="TYPE"
+>unknown</TT
+>を含む場合は、この段階で一致するものは決して見つかりません）。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>正確に一致するものが存在しなかった場合、その関数呼び出しが特別な型変換要求であるかどうかを確認します。
+これは、関数呼び出しがただ1つの引数を取り、関数名が何らかのデータ型の（内部的な）名前と同一である場合に発生します。
+さらに、その関数の引数は、unknown型のリテラルか指定されたデータ型へのバイナリ変換可能な型か、型の入出力関数を適用することで指定された型に変換可能な型（つまり、変換が標準文字列型との間の変換である）であるかのいずれかでなければなりません。
+これらの条件に合う場合、関数呼び出しは<TT
+CLASS="LITERAL"
+>CAST</TT
+>仕様の形式と同様に扱われます。
+  <A
+NAME="AEN19992"
+HREF="#FTN.AEN19992"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></P
+></LI
+><LI
+CLASS="STEP"
+><P
+>最適なものを検索します。</P
+><OL
+CLASS="SUBSTEPS"
+TYPE="a"
+><LI
+CLASS="STEP"
+><P
+>関数の候補のうち、入力値のデータ型が一致せず、また、（暗黙的な変換を使用して）一致するように変換できないものを破棄します。
+<TT
+CLASS="TYPE"
+>unknown</TT
+>リテラルは、上記の目的で何にでも変換可能とみなされます。
+1つの侯補しか残らない場合、それを使います。
+それ以外の場合は次の段階に進みます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>全ての侯補を検索し、入力型に最も正確に合うものを残します
+（この時、ドメインはその基本型と同一であるとみなします）。
+正確に合うものが何もなければ全ての侯補を残します。
+1つの侯補しか残らない場合、それを使います。
+それ以外の場合は次の段階に進みます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>全ての侯補を検索し、型変換が必要とされるところで（入力データ型カテゴリの）好ましい型を受け付けるものを残します。
+好ましい型を受け付けるものが何もなければ全ての侯補を残します。
+1つの侯補しか残らない場合、それを使います。
+それ以外の場合は次の段階に進みます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>入力引数で<TT
+CLASS="TYPE"
+>unknown</TT
+>のものがあった場合、それらの残った侯補に引数位置で受け入れられる型カテゴリを検査します。
+各位置で候補が<TT
+CLASS="TYPE"
+>string</TT
+>カテゴリを受け付ける場合は、そのカテゴリを選択します
+（unknown 型のリテラルは文字列のようなものですので、この文字列への重み付けは適切です）。
+そうでなければ、もし残った全ての侯補が同じ型カテゴリを受け入れる場合はそのカテゴリを選択します。
+そうでもなければ、さらに手掛かりがなければ正しい選択が演繹されることができませんので、失敗となります。
+ここで、選択された型カテゴリを受け付けない演算子候補は破棄されます。
+さらに、このカテゴリ内の好ましい型を受け付ける候補が1つでもある場合、その引数の好ましい型ではないものを受け付ける候補は破棄されます。</P
+></LI
+><LI
+CLASS="STEP"
+><P
+>1つの侯補しか残らない場合、それを使います。
+もし侯補がない、もしくは1つより多い侯補が残る場合は失敗します。</P
+></LI
+></OL
+></LI
+></OL
+></DIV
+><P
+>この<SPAN
+CLASS="QUOTE"
+>"最善一致"</SPAN
+>規則は演算子と関数の型解決で同一であることに注意してください。
+以下に例を示します。</P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN20013"
+></A
+><P
+><B
+>&#20363; 10-4. 丸め関数引数の型解決</B
+></P
+><P
+>2つの引数を取る<CODE
+CLASS="FUNCTION"
+>round</CODE
+>関数は1つしかありません
+第1引数として<TT
+CLASS="TYPE"
+>numeric</TT
+>型、第2引数として<TT
+CLASS="TYPE"
+>integer</TT
+>型を取ります。
+ですから、以下の問い合わせは自動的に、<TT
+CLASS="TYPE"
+>integer</TT
+>型の第1引数を<TT
+CLASS="TYPE"
+>numeric</TT
+>に変換します。
+</P><PRE
+CLASS="SCREEN"
+>SELECT round(4, 4);
+
+ round
+--------
+ 4.0000
+(1 row)</PRE
+><P>
+
+問い合わせはパーサによって実質以下のように変形されます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT round(CAST (4 AS numeric), 4);</PRE
+><P></P
+><P
+>小数点を持つ数値定数はまず<TT
+CLASS="TYPE"
+>numeric</TT
+>に割り当てられますので、以下の問い合わせでは型変換が不要です。そのためかなり効率的になる可能性があります。
+</P><PRE
+CLASS="SCREEN"
+>SELECT round(4.0, 4);</PRE
+><P></P
+></DIV
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN20026"
+></A
+><P
+><B
+>&#20363; 10-5. 部分文字列関数の型解決</B
+></P
+><P
+><CODE
+CLASS="FUNCTION"
+>substr</CODE
+>関数は複数存在します。
+その1つは<TT
+CLASS="TYPE"
+>text</TT
+>と<TT
+CLASS="TYPE"
+>integer</TT
+>型を取ります。
+型の指定がない文字列定数で呼び出した場合、システムは好ましいカテゴリ<TT
+CLASS="LITERAL"
+>string</TT
+>（すなわち<TT
+CLASS="TYPE"
+>text</TT
+>型）の引数を受け付ける候補関数を選択します。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT substr('1234', 3);
+
+ substr
+--------
+     34
+(1 row)</PRE
+><P></P
+><P
+>文字列が<TT
+CLASS="TYPE"
+>varchar</TT
+>型と宣言された場合、これはテーブルから取り出した場合が考えられますが、パーサはそれを<TT
+CLASS="TYPE"
+>text</TT
+>になるように変換しようと試みます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT substr(varchar '1234', 3);
+
+ substr
+--------
+     34
+(1 row)</PRE
+><P>
+
+これは以下になるようにパーサによって変換されます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT substr(CAST (varchar '1234' AS text), 3);</PRE
+><P></P
+><P
+></P><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>パーサは<TT
+CLASS="STRUCTNAME"
+>pg_cast</TT
+>カタログから<TT
+CLASS="TYPE"
+>text</TT
+>と<TT
+CLASS="TYPE"
+>varchar</TT
+>がバイナリ互換、つまり、何らかの物理的な変換を行うことなく片方を受け付ける関数にもう片方を渡すことができることを学習します。
+したがって、この場合実際に挿入される型変換呼び出しはありません。&#13;</P
+></BLOCKQUOTE
+></DIV
+><P></P
+><P
+>また、<TT
+CLASS="TYPE"
+>integer</TT
+>型の引数でこの関数が呼び出された場合、パーサはそれを<TT
+CLASS="TYPE"
+>text</TT
+>に変換しようと試みます。
+</P><PRE
+CLASS="SCREEN"
+>SELECT substr(1234, 3);
+ERROR:  function substr(integer, integer) does not exist
+HINT:  No function matches the given name and argument types. You might need
+to add explicit type casts.</PRE
+><P>
+
+<TT
+CLASS="TYPE"
+>integer</TT
+>は<TT
+CLASS="TYPE"
+>text</TT
+>への暗黙的なキャストを持たないため、これは失敗します。
+成功させるには、以下のように明示的なキャストを行います。
+</P><PRE
+CLASS="SCREEN"
+>SELECT substr(CAST (1234 AS text), 3);
+
+ substr
+--------
+     34
+(1 row)</PRE
+><P>&#13;</P
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>&#27880;&#24847;</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN19992"
+HREF="typeconv-func.html#AEN19992"
+><SPAN
+CLASS="footnote"
+>[1]</SPAN
+></A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+>この処理の理由は、実際にはキャスト関数が存在しない状況において、関数形態のキャスト仕様をサポートすることです。
+キャスト関数が存在する場合、慣習的に出力型に因んで名付けられます。
+ですので、特殊な状況を持つ必要はありません。
+詳細な解説については<A
+HREF="sql-createcast.html"
+>CREATE CAST</A
+>を参照してください。
+   </P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="typeconv-oper.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="typeconv-query.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>演算子</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="typeconv.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>値の格納</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,318 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>問い合わせの経路</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PostgreSQL内部の概要"
+HREF="overview.html"><LINK
+REL="PREVIOUS"
+TITLE="PostgreSQL内部の概要"
+HREF="overview.html"><LINK
+REL="NEXT"
+TITLE="接続の確立"
+HREF="connect-estab.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQL内部の概要"
+HREF="overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQL内部の概要"
+HREF="overview.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 44&#31456;PostgreSQL内部の概要</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQL内部の概要"
+HREF="overview.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="接続の確立"
+HREF="connect-estab.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="QUERY-PATH"
+>44.1. 問い合わせの経路</A
+></H1
+><P
+>ここでは、問い合わせが結果を得るためにたどる過程を簡単に説明します。
+   </P
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+>アプリケーションプログラムから<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバに接続が確立されなくてはなりません。
+アプリケーションプログラムはサーバに問い合わせを送り、そしてサーバから送り返される結果を待ちます。
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><I
+CLASS="FIRSTTERM"
+>構文解析過程</I
+>で、アプリケーションプログラムから送られた問い合わせの構文が正しいかをチェックし、<I
+CLASS="FIRSTTERM"
+>問い合わせツリー</I
+>を作成します。
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><I
+CLASS="FIRSTTERM"
+>書き換えシステム</I
+>は構文解析過程で作られた問い合わせツリーを受け取り、<I
+CLASS="FIRSTTERM"
+>問い合わせツリー</I
+>に適用するための（<I
+CLASS="FIRSTTERM"
+>システムカタログ</I
+>に格納されている）<I
+CLASS="FIRSTTERM"
+>ルール</I
+>を探します。
+そして<I
+CLASS="FIRSTTERM"
+>ルール本体</I
+>で与えられた変換を実行します。
+     </P
+><P
+>書き換えシステムの適用例の1つとして<I
+CLASS="FIRSTTERM"
+>ビュー</I
+>の具現化が挙げられます。
+ビュー（すなわち<I
+CLASS="FIRSTTERM"
+>仮想テーブル</I
+>）に対して問い合わせがあると、書き換えシステムが代わってユーザの問い合わせを、<I
+CLASS="FIRSTTERM"
+>ビュー定義</I
+>で与えられた<I
+CLASS="FIRSTTERM"
+>実テーブル</I
+>にアクセスする問い合わせに書き換えます。
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><I
+CLASS="FIRSTTERM"
+>プランナ/オプティマイザ</I
+>は、（書き換えられた）問い合わせツリーを見て、<I
+CLASS="FIRSTTERM"
+>エクゼキュータ</I
+>に渡すための<I
+CLASS="FIRSTTERM"
+>問い合わせ計画</I
+>を作ります。
+     </P
+><P
+>そのためにまず同じ結果をもたらす全ての可能な限りの<I
+CLASS="FIRSTTERM"
+>経路</I
+>を作ります。
+例えば、スキャンの対象となるリレーション上にインデックスがあるとすると2つの経路があります。
+1つは単純なシーケンシャルスキャンで、もう1つはインデックスを使ったスキャンです。
+次にそれぞれの経路を実行するためのコストが見積もられ、一番コストの小さい経路が選ばれます。
+一番コストの小さな経路は、エクゼキュータが実行できるように完全な計画に拡張されます。
+     </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>エクゼキュータは再帰的に<I
+CLASS="FIRSTTERM"
+>計画ツリー</I
+>上を進み、計画で示されている方法で行を抽出します。
+エクゼキュータはリレーションをスキャンする間<I
+CLASS="FIRSTTERM"
+>保存システム</I
+>を利用して<I
+CLASS="FIRSTTERM"
+>ソート</I
+>と<I
+CLASS="FIRSTTERM"
+>結合</I
+>を実行し、<I
+CLASS="FIRSTTERM"
+>検索条件</I
+>の評価を行い、最後に得られた行を返します。
+     </P
+></LI
+></OL
+></DIV
+><P
+>これからの節では、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の内部制御とデータ構造をより良く理解するために、上に記載した事柄をさらに詳しく説明します。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="connect-estab.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PostgreSQL内部の概要</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="overview.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>接続の確立</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

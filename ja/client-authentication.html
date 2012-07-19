@@ -1,0 +1,353 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>クライアント認証</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの管理"
+HREF="admin.html"><LINK
+REL="PREVIOUS"
+TITLE="短いオプション"
+HREF="runtime-config-short.html"><LINK
+REL="NEXT"
+TITLE="pg_hba.confファイル"
+HREF="auth-pg-hba-conf.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="短いオプション"
+HREF="runtime-config-short.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベースロール"
+HREF="user-manag.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pg_hba.confファイル"
+HREF="auth-pg-hba-conf.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="CLIENT-AUTHENTICATION"
+></A
+>&#31532; 19&#31456;クライアント認証</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>19.1. <A
+HREF="auth-pg-hba-conf.html"
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイル</A
+></DT
+><DT
+>19.2. <A
+HREF="auth-username-maps.html"
+>ユーザ名マップ</A
+></DT
+><DT
+>19.3. <A
+HREF="auth-methods.html"
+>認証方式</A
+></DT
+><DD
+><DL
+><DT
+>19.3.1. <A
+HREF="auth-methods.html#AUTH-TRUST"
+>Trust認証</A
+></DT
+><DT
+>19.3.2. <A
+HREF="auth-methods.html#AUTH-PASSWORD"
+>パスワード認証</A
+></DT
+><DT
+>19.3.3. <A
+HREF="auth-methods.html#GSSAPI-AUTH"
+>GSSAPI認証</A
+></DT
+><DT
+>19.3.4. <A
+HREF="auth-methods.html#SSPI-AUTH"
+>SSPI認証</A
+></DT
+><DT
+>19.3.5. <A
+HREF="auth-methods.html#KERBEROS-AUTH"
+>Kerberos認証</A
+></DT
+><DT
+>19.3.6. <A
+HREF="auth-methods.html#AUTH-IDENT"
+>Identを基にした認証</A
+></DT
+><DT
+>19.3.7. <A
+HREF="auth-methods.html#AUTH-PEER"
+>Peer認証</A
+></DT
+><DT
+>19.3.8. <A
+HREF="auth-methods.html#AUTH-LDAP"
+>LDAP認証</A
+></DT
+><DT
+>19.3.9. <A
+HREF="auth-methods.html#AUTH-RADIUS"
+>RADIUS authentication</A
+></DT
+><DT
+>19.3.10. <A
+HREF="auth-methods.html#AUTH-CERT"
+>証明書認証</A
+></DT
+><DT
+>19.3.11. <A
+HREF="auth-methods.html#AUTH-PAM"
+>PAM認証</A
+></DT
+></DL
+></DD
+><DT
+>19.4. <A
+HREF="client-authentication-problems.html"
+>認証における問題点</A
+></DT
+></DL
+></DIV
+><P
+>クライアントアプリケーションがデータベースサーバに接続する時、Unixコンピュータに特定のユーザとしてログインする時と同じように、どの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザ名で接続するかを指定します。 
+SQL 環境の中では存在するユーザ名でデータベースオブジェクトへのアクセス権限が決まります。 
+詳しい情報は<A
+HREF="user-manag.html"
+>&#31532;20&#31456;</A
+>を参照してください。 
+ですから、どのデータベースユーザがデータベースに接続できるかを制限することが基本となります。
+ </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><A
+HREF="user-manag.html"
+>&#31532;20&#31456;</A
+>で説明されていますが、実は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は<SPAN
+CLASS="QUOTE"
+>"roles"</SPAN
+>によって権限の管理を行っています。
+この章では一貫して<I
+CLASS="FIRSTTERM"
+>データベースユーザ</I
+>という呼び方を<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>ログイン</TT
+>権限を持つロール"</SPAN
+>として使用します。
+  </P
+></BLOCKQUOTE
+></DIV
+><P
+><I
+CLASS="FIRSTTERM"
+>認証</I
+>はデータベースサーバがクライアントの身元を識別し、その延長としてクライアントアプリケーション（もしくはクライアントアプリケーションを実行するユーザ）が要求されたデータベースユーザ名で接続することができるかどうかを決定する手順です。
+ </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には異なったクライアント認証方法を複数提供します。
+特定のクライアント接続の認証に使用する方法は、（クライアントの）ホストアドレス、データベース、およびユーザに従って選択できます。
+ </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースユーザ名は稼働しているサーバのオペレーティングシステムのユーザ名とは論理的に分かれています。
+もし特定のサーバの全てのユーザがサーバマシン上にもアカウントを持っている場合、そのオペレーティングシステムのユーザ名に一致するデータベースユーザ名を割り当てることは理にかなっています。
+しかし、リモート接続を受け付けるサーバは、ローカルなオペレーティングシステムのアカウントを持たないデータベースユーザを多く持っている場合もあります。
+そのような時にはデータベースユーザ名とOSのユーザ名との間の関連性は必要ありません。
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-short.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="auth-pg-hba-conf.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>短いオプション</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="admin.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>ファイル</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

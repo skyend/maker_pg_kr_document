@@ -1,0 +1,756 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>エラーメッセージのスタイルガイド</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"><LINK
+REL="PREVIOUS"
+TITLE="サーバ内部からのエラーの報告"
+HREF="error-message-reporting.html"><LINK
+REL="NEXT"
+TITLE="多言語サポート"
+HREF="nls.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバ内部からのエラーの報告"
+HREF="error-message-reporting.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 47&#31456;PostgreSQLコーディング規約</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLコーディング規約"
+HREF="source.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="多言語サポート"
+HREF="nls.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ERROR-STYLE-GUIDE"
+>47.3. エラーメッセージのスタイルガイド</A
+></H1
+><P
+>このスタイルガイドでは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で生成されるすべてのメッセージに対する、一貫性維持、ユーザに親切なスタイルについての希望を説明します。
+   </P
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93272"
+>47.3.1. 何がどこで起こったか</A
+></H2
+><P
+>主メッセージは、簡潔に事実を示すものにすべきです。
+特定の関数名など実装の詳細への参照は止めるべきです。
+<SPAN
+CLASS="QUOTE"
+>"簡潔"</SPAN
+>は<SPAN
+CLASS="QUOTE"
+>"ごく普通の条件下で1行に収まる"</SPAN
+>ことを意味します。
+主メッセージを簡潔にするために必要であれば、また、特定のシステムコールが失敗したなど実装の詳細について記載したいのであれば、詳細メッセージを使用してください。
+主メッセージ、詳細メッセージの両方は事実を示すものにすべきです。
+どうすれば問題を解決できるかに関する提言には、その提言が常に適切とは限らない場合は特に、ヒントメッセージを使用してください。
+   </P
+><P
+>例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>IpcMemoryCreate: shmget(key=%d, size=%u, 0%o) failed: %m
+(plus a long addendum that is basically a hint)</PRE
+><P>
+ではなく、以下のように記述してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>Primary:    could not create shared memory segment: %m
+Detail:     Failed syscall was shmget(key=%d, size=%u, 0%o).
+Hint:       the addendum</PRE
+><P>
+   </P
+><P
+>理論的根拠：
+主メッセージを簡潔にすることは、要点を維持することを助けます。
+そして、クライアントは、エラーメッセージ用に1行分確保すれば十分であるという仮定の下で画面設計を行うことができます。
+詳細メッセージやヒントメッセージを冗長モードに格下げしたり、エラーの詳細を表示するウィンドウをポップアップさせることもできます。
+また、詳細メッセージやヒントメッセージは通常ディスク容量を節約するためにサーバログには出力されません。
+ユーザはどうやってもその詳細を知りませんので、実装の詳細への参照を避けることが最善です。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93281"
+>47.3.2. 整形</A
+></H2
+><P
+>メッセージテキストの整形に関して、特定の前提を行わないでください。
+クライアントやサーバログでは、自身の必要性に合わせて行を改行すると想定してください。
+長めのメッセージでは、改行文字（\n）を推奨する段落の区切りを示すものとして使用することができます。
+メッセージの終わりに改行を付けないでください。
+タブや他の整形用文字を使用しないでください。
+（エラーの内容の表示では、関数呼び出しなどのコンテキストのレベルを区切るために、改行が自動的に追加されます。）
+   </P
+><P
+>理論的根拠：
+メッセージは必ずしも端末型のディスプレイに表示されるとは限りません。
+GUIのディスプレイやブラウザでは、こうした書式指示はうまくいったとしても無視されます。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93285"
+>47.3.3. 引用符</A
+></H2
+><P
+>英文では、引用が適切な場合には二重引用符を使用すべきです。
+他の言語でのテキストは、出版上の慣習や他のプログラムのコンピュータ出力と矛盾しない種類の引用符の1つを一貫して使用してください。
+   </P
+><P
+>理論的根拠：
+二重引用符と単一引用符の選択はどちらかでもよいものですが、推奨する方がよく使われています。
+SQL規約（すなわち文字列には単一引用符、識別子には二重引用符）に従って、オブジェクトの種類に応じて引用符を選択することを推奨する人もいます。
+しかし、これは言語内部の技術的な事項であり、多くのユーザが理解できるものではありません。
+また、他の種類の引用手法には拡張できません。
+他の言語へ翻訳できません。
+ですので、あまり意味がありません。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93289"
+>47.3.4. 引用符の使用</A
+></H2
+><P
+>ファイル名、ユーザ提供の識別子、複数の単語を含む変数を区切るために引用符を使用してください。
+複数の単語を含まない変数（例えば演算子名）には引用符を使用しないでください。
+   </P
+><P
+>バックエンドには必要に応じて出力に二重引用符を付与する関数(例えば<CODE
+CLASS="FUNCTION"
+>format_type_be()</CODE
+>)があります。
+こうした関数の出力の前後にさらに引用符を追加しないでください。
+   </P
+><P
+>理論的根拠：
+オブジェクトの名前をメッセージ内に埋め込む際に曖昧さが生じることがあります。
+埋め込む名前がどこから始まりどこで終わるかついての表記には一貫性を持たせてください。
+しかし、不必要にメッセージをまとめたり、引用符を二重にすることは止めてください。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93295"
+>47.3.5. 文法と句読点</A
+></H2
+><P
+>この規則は、主エラーメッセージと詳細/ヒントメッセージとで異なります。
+   </P
+><P
+>主エラーメッセージ：
+最初の文字を大文字にしないでください。
+メッセージの最後にピリオドを付けないでください。
+メッセージの終わりに感嘆符を付けようとは考えないでください。
+   </P
+><P
+>詳細メッセージとヒントメッセージ：
+完全な文章を使用し、終わりにピリオドを付けてください。
+文章の最初の単語は大文字にしてください。
+他の文が続く場合はピリオドの後に空白を2つ入れてください（英文の場合です。他の言語では不適切かもしれません）。
+   </P
+><P
+>エラー文脈文字列:
+先頭文字を大文字にせず、また、終わりにはピリオドを付けないでください。
+文脈文字列は通常完全な文章にすべきではありません。
+   </P
+><P
+>理論的根拠：
+句読点の禁止により、クライアントアプリケーションでは、そのメッセージを各種文法的なコンテキストに埋め込みやすくなります。
+主メッセージはしばしば文法的に完全な文章になっていません。
+（そして、1行以上の長さになりそうであれば、主メッセージと詳細メッセージに分割すべきです。）
+しかし、詳細メッセージとヒントメッセージは、より長く、かつ複数の文章を持つ必要があるかもしれません。
+一貫性のため、これらは、たとえ文章が1つだけであっても、完全な文章形式に従うべきです。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93302"
+>47.3.6. 大文字と小文字</A
+></H2
+><P
+>メッセージの言葉使いでは小文字を使用してください。
+主エラーメッセージの場合は先頭文字も含みます。
+SQLコマンドとキーワードがメッセージ内に出現する場合は大文字を使用してください。
+   </P
+><P
+>理論的根拠：
+メッセージは完全な文章かもしれませんし、そうではないかもしれませんので、この方法は、より簡単にすべての見た目の一貫性を向上します。
+
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93306"
+>47.3.7. 受動態の禁止</A
+></H2
+><P
+>能動態を使用してください。
+能動的な主語がある（<SPAN
+CLASS="QUOTE"
+>"AはBを行うことができない"</SPAN
+>）場合は完全な文章を使用してください。
+主語がプログラム自体である場合は、主語を付けずに電報様式を使用してください。
+プログラムに<SPAN
+CLASS="QUOTE"
+>"I（私）"</SPAN
+>を使用しないでください。
+   </P
+><P
+>理論的根拠：
+プログラムは人間ではありません。
+他を真似ないでください。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93312"
+>47.3.8. 現在形と過去形</A
+></H2
+><P
+>試行が失敗したが、次は（何らかの問題を修正した後に）成功するかもしれない場合は過去形を使用してください。
+失敗が永続するようであれば、現在形を使用してください。
+   </P
+><P
+>以下の2つの意味には無視できないほどの違いがあります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>could not open file "%s": %m</PRE
+><P>
+および
+</P><PRE
+CLASS="PROGRAMLISTING"
+>cannot open file "%s"</PRE
+><P>
+最初のものは、ファイルを開くことに失敗したことを意味します。
+メッセージには、<SPAN
+CLASS="QUOTE"
+>"ディスクが一杯"</SPAN
+>や<SPAN
+CLASS="QUOTE"
+>"ファイルが存在しない"</SPAN
+>といった、その理由を付けるべきです。
+次回はディスクに空きがあるかもしれませんし、問題のファイルが存在するかもしれませんので過去形が適切です。
+   </P
+><P
+>2番目の形式は、そのプログラム内の指名されたファイルを開く機能が存在しない、あるいは、概念的に不可能であることを示します。
+この条件は永遠に続きますので現在形が適切です。
+   </P
+><P
+>理論的根拠：
+仮定ですが、一般的なユーザは単なるメッセージの時制から多くの意味を引き出すことはできないでしょう。
+しかし、言語が文法を提供してくれますので、それを正確に使用すべきでしょう。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93322"
+>47.3.9. オブジェクトの種類</A
+></H2
+><P
+>オブジェクトの名前を引用する時、そのオブジェクトの種類を記載してください。
+   </P
+><P
+>理論的根拠：
+さもないと、<SPAN
+CLASS="QUOTE"
+>"foo.bar.baz"</SPAN
+>が何なのか誰もわかりません。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93327"
+>47.3.10. 角括弧</A
+></H2
+><P
+>角括弧は、（1）コマンドの概要にて省略可能な引数を表す、（2）配列の添字を表す、ためだけに使用されます。
+   </P
+><P
+>理論的根拠：
+広く知られる慣習に対応するものがなく、人々を混乱させることになります。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93331"
+>47.3.11. エラーメッセージの組み立て</A
+></H2
+><P
+>メッセージに、他で生成されるテキストを含める場合、以下の様式で埋め込んでください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>could not open file %s: %m</PRE
+><P>
+   </P
+><P
+>理論的根拠：
+すべての起こり得るエラーコードを単一のなめらかな文章に埋め込むことを考えることは困難です。
+ですので、何らかの句読点が必要とされます。
+括弧の中にテキストを埋め込むこともまた推奨されていましたが、よくある埋め込むテキストがそのメッセージの最も重要となる場合は不自然です。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93336"
+>47.3.12. エラーの理由</A
+></H2
+><P
+>メッセージは常にエラーが発生した理由を記述すべきです。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BAD:    could not open file %s
+BETTER: could not open file %s (I/O failure)</PRE
+><P>
+理由がわからない場合はコードを直すべきです。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93340"
+>47.3.13. 関数名</A
+></H2
+><P
+>エラーテキストには、それを報告したルーチンの名前を含めないでください。
+必要に応じて、そのルーチンを見つける他の機構がありますが、ほとんどのユーザにとって役に立つ情報ではありません。
+関数名がないと、エラーメッセージにあまり意味がないのであれば、言葉使いを変えてください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BAD:    pg_atoi: error in "z": cannot parse "z"
+BETTER: invalid input syntax for integer: "z"</PRE
+><P>
+   </P
+><P
+>同時に呼び出した関数名の記述も止めてください。
+代わりにそのコードが何をしようとしたのかを記述してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BAD:    open() failed: %m
+BETTER: could not open file %s: %m</PRE
+><P>
+もし本当に必要であれば、詳細メッセージにそのシステムコールを記載してください
+（詳細メッセージの情報としてシステムコールに実際に渡した値を与えることが適切な場合もあります）。
+   </P
+><P
+>理論的根拠：
+ユーザはその関数が何を行うのかを知りません。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93347"
+>47.3.14. ややこしい単語の防止</A
+></H2
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Unable. </B
+><SPAN
+CLASS="QUOTE"
+>"Unable"</SPAN
+>はほとんど受動態です。
+<SPAN
+CLASS="QUOTE"
+>"cannot"</SPAN
+>または<SPAN
+CLASS="QUOTE"
+>"could not"</SPAN
+>の適切な方を使用してください。
+   </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Bad. </B
+><SPAN
+CLASS="QUOTE"
+>"bad result"</SPAN
+>といったエラーメッセージは、知的に解釈することが非常に困難です。
+結果が<SPAN
+CLASS="QUOTE"
+>"bad"</SPAN
+>である理由、例えば<SPAN
+CLASS="QUOTE"
+>"invalid format"</SPAN
+>を記述してください。
+   </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Illegal. </B
+><SPAN
+CLASS="QUOTE"
+>"Illegal"</SPAN
+>は規則違反を表します。
+他は<SPAN
+CLASS="QUOTE"
+>"invalid"</SPAN
+>です。
+より良くするために、なぜ無効なのかについても記述してください。
+   </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Unknown. </B
+><SPAN
+CLASS="QUOTE"
+>"unknown"</SPAN
+>は極力使用しないでください。
+<SPAN
+CLASS="QUOTE"
+>"error: unknown response"</SPAN
+>について考えてみましょう。
+どんな応答であるかわからなければ、どうやって何がエラーなのかわかるでしょうか。
+<SPAN
+CLASS="QUOTE"
+>"Unrecognized"</SPAN
+>を選んだ方が良い場合がしばしばあります。
+また、その警告の中に値が含まれていることを確認してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BAD:    unknown node type
+BETTER: unrecognized node type: 42</PRE
+><P>
+   </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>Find vs. Exists. </B
+>プログラムがリソースの場所について無視できないアルゴリズム（例えばパスの検索）を使用し、そのアルゴリズムが失敗した場合、プログラムがリソースを<SPAN
+CLASS="QUOTE"
+>"find"</SPAN
+>できなかったと記述すべきでしょう。
+一方、想定したリソースの場所はわかっているが、プログラムがアクセスできなかった場合は、リソースが<SPAN
+CLASS="QUOTE"
+>"exist"</SPAN
+>しなかったと記述してください。
+この場合に<SPAN
+CLASS="QUOTE"
+>"find"</SPAN
+>を使用すると、弱く取られ、問題が混乱します。
+   </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>May、Can、Might. </B
+><SPAN
+CLASS="QUOTE"
+>"May"</SPAN
+>は許可を示し、文書やエラーメッセージではあまり使われません（たとえば、熊手を借りられます）。
+<SPAN
+CLASS="QUOTE"
+>"Can"</SPAN
+>は能力を示し（たとえば、丸太を持ち上げることができます）、<SPAN
+CLASS="QUOTE"
+>"might"</SPAN
+>は可能性を示します（たとえば、雨が降るかもしれません）。
+意味を明確にし、翻訳を補助するために適切に使用してください。
+   </P
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>短縮. </B
+><SPAN
+CLASS="QUOTE"
+>"can't"</SPAN
+>などの短縮は避けてください。
+代わりに<SPAN
+CLASS="QUOTE"
+>"cannot"</SPAN
+>を使用してください。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93390"
+>47.3.15. 適切なスペル</A
+></H2
+><P
+>単語の完全なスペルを使用してください。
+例えば、以下は止めてください。
+  <P
+></P
+></P><UL
+><LI
+><P
+>     spec
+    </P
+></LI
+><LI
+><P
+>     stats
+    </P
+></LI
+><LI
+><P
+>     parens
+    </P
+></LI
+><LI
+><P
+>     auth
+    </P
+></LI
+><LI
+><P
+>     xact
+    </P
+></LI
+></UL
+><P>
+   </P
+><P
+>理論的根拠：
+これは一貫性を向上します。
+   </P
+></DIV
+><DIV
+CLASS="SIMPLESECT"
+><H2
+CLASS="SIMPLESECT"
+><A
+NAME="AEN93405"
+>47.3.16. 地域化</A
+></H2
+><P
+>エラーメッセージは他の言語に翻訳される必要があることを忘れないでください。
+<A
+HREF="nls-programmer.html#NLS-GUIDELINES"
+>&#38917;48.2.2</A
+>のガイドラインに従い、翻訳者に苦労を強いることを防いでください。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="error-message-reporting.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="nls.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>サーバ内部からのエラーの報告</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="source.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>多言語サポート</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

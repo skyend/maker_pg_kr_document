@@ -1,0 +1,953 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>FETCH</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="EXPLAIN"
+HREF="sql-explain.html"><LINK
+REL="NEXT"
+TITLE="GRANT"
+HREF="sql-grant.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="EXPLAIN"
+HREF="sql-explain.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="EXPLAIN"
+HREF="sql-explain.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="GRANT"
+HREF="sql-grant.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="GRANT"
+HREF="sql-grant.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-FETCH"
+></A
+>FETCH</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN72227"
+></A
+><H2
+>&#21517;&#21069;</H2
+>FETCH&nbsp;--&nbsp;カーソルを使用してテーブルから行を抽出する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN72235"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>FETCH [ <TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+> [ FROM | IN ] ] <TT
+CLASS="REPLACEABLE"
+><I
+>cursor_name</I
+></TT
+>
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>は空にするか、次のいずれかを指定します。</SPAN
+></SPAN
+>
+    NEXT
+    PRIOR
+    FIRST
+    LAST
+    ABSOLUTE <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>
+    RELATIVE <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>
+    <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>
+    ALL
+    FORWARD
+    FORWARD <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>
+    FORWARD ALL
+    BACKWARD
+    BACKWARD <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>
+    BACKWARD ALL</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72246"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>FETCH</TT
+>は事前に作成されたカーソルを使用して行を取り出します。
+  </P
+><P
+>カーソルはそれぞれ位置情報を持っており、<TT
+CLASS="COMMAND"
+>FETCH</TT
+>はこれを使用します。
+カーソル位置として取ることができるのは、問い合わせの結果の先頭行の前、結果内の任意の特定の行、結果の最終行の後のいずれかです。
+カーソルの生成時は、カーソル位置は先頭行の前にあります。
+行を取り出した後は、カーソル位置は最後に取り出した行にあります。
+<TT
+CLASS="COMMAND"
+>FETCH</TT
+>が利用可能な行の終わりまで達すると、カーソル位置は最終行の後にあります（後方抽出の場合は先頭行の前になります）。
+<TT
+CLASS="COMMAND"
+>FETCH ALL</TT
+>もしくは<TT
+CLASS="COMMAND"
+>FETCH BACKWARD ALL</TT
+>では、カーソルの位置は常に最終行の後か、先頭行の前になります。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>NEXT</TT
+>、<TT
+CLASS="LITERAL"
+>PRIOR</TT
+>、<TT
+CLASS="LITERAL"
+>FIRST</TT
+>、<TT
+CLASS="LITERAL"
+>LAST</TT
+>、<TT
+CLASS="LITERAL"
+>ABSOLUTE</TT
+>、<TT
+CLASS="LITERAL"
+>RELATIVE</TT
+>形式では、カーソルを適切に移動した後、行を1つ取り出します。
+行が存在しない場合、空の結果が返され、カーソル位置はそのまま先頭行の前か最終行の後に留まります。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>FORWARD</TT
+>および<TT
+CLASS="LITERAL"
+>BACKWARD</TT
+>を使用した構文では、指定数の行を前方もしくは後方方向に取り出します。この時、最後に取り出した行がカーソル位置となります
+（<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>が利用可能な行数を超えた場合は、全行の後/前になります）。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>RELATIVE 0</TT
+>、<TT
+CLASS="LITERAL"
+>FORWARD 0</TT
+>、および<TT
+CLASS="LITERAL"
+>BACKWARD 0</TT
+>は全て、カーソルを移動することなく現在の行を取り出します。
+つまり、一番最後に取り出した行を再度取り出すことになります。
+カーソルが先頭行の前や最終行の後になければ、これらのコマンドは成功します。
+先頭行の前や最終行の後にあれば、行は返されません。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>このマニュアルページではSQLコマンドレベルでのカーソルの使用方法について説明します。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>内でカーソルを使用するつもりであれば、規則が異なりますので、<A
+HREF="plpgsql-cursors.html"
+>&#38917;39.7</A
+>を参照してください。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72274"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>は、取り出す方向と取り出す行数を定義します。
+以下のいずれかを指定できます。
+
+      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>NEXT</TT
+></DT
+><DD
+><P
+>次の行を取り出します。
+これは、<TT
+CLASS="REPLACEABLE"
+><I
+>direction</I
+></TT
+>が省略された時のデフォルトです。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>PRIOR</TT
+></DT
+><DD
+><P
+>1つ前の行を取り出します。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FIRST</TT
+></DT
+><DD
+><P
+>問い合わせの先頭行を取り出します
+（<TT
+CLASS="LITERAL"
+>ABSOLUTE 1</TT
+>と同じです）。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>LAST</TT
+></DT
+><DD
+><P
+>問い合わせの最終行を取り出します
+（<TT
+CLASS="LITERAL"
+>ABSOLUTE -1</TT
+>と同じです）。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ABSOLUTE <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></TT
+></DT
+><DD
+><P
+>問い合わせの<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>番目の行を取り出します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>が負ならば、終わりから<TT
+CLASS="LITERAL"
+>abs(<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>)</TT
+>番目の行を取り出します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>が範囲外の場合、カーソル位置は先頭行の前か最終行の後になります。
+特に、<TT
+CLASS="LITERAL"
+>ABSOLUTE 0</TT
+>と指定すると、先頭行の前になります。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RELATIVE <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></TT
+></DT
+><DD
+><P
+>カーソルの現在位置から<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>番目の行を取り出します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>が負の場合、現在位置より<TT
+CLASS="LITERAL"
+>abs(<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>)</TT
+>行分前の行を取り出します。
+<TT
+CLASS="LITERAL"
+>RELATIVE 0</TT
+>と指定すると、現在の行があれば、その行を再度取り出します。
+         </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></DT
+><DD
+><P
+>次の<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>行を取り出します
+（<TT
+CLASS="LITERAL"
+>FORWARD <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></TT
+>と同じです）。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ALL</TT
+></DT
+><DD
+><P
+>残っている行を全て取り出します
+（<TT
+CLASS="LITERAL"
+>FORWARD ALL</TT
+>と同じです）。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FORWARD</TT
+></DT
+><DD
+><P
+>1つ次の行を取り出します
+（<TT
+CLASS="LITERAL"
+>NEXT</TT
+>と同じです）。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FORWARD <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></TT
+></DT
+><DD
+><P
+>次の<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>行分の行を取り出します。
+<TT
+CLASS="LITERAL"
+>FORWARD 0</TT
+>と指定すると、現在の行を再度取り出します。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FORWARD ALL</TT
+></DT
+><DD
+><P
+>残っている行を全て取り出します。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>BACKWARD</TT
+></DT
+><DD
+><P
+>1つ前の行を取り出します
+（<TT
+CLASS="LITERAL"
+>PRIOR</TT
+>と同じです）。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>BACKWARD <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></TT
+></DT
+><DD
+><P
+>前の<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>行分の行を（逆方向に走査して）取り出します。
+<TT
+CLASS="LITERAL"
+>BACKWARD 0</TT
+>と指定すると、現在の行を再度取り出します。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>BACKWARD ALL</TT
+></DT
+><DD
+><P
+>現在位置より前の行を（逆方向に走査して）全て取り出します。
+         </P
+></DD
+></DL
+></DIV
+><P></P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></DT
+><DD
+><P
+>取り出す位置や行数を決定する<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>は、整数定数で、符号を付けることができます。
+<TT
+CLASS="LITERAL"
+>FORWARD</TT
+>と<TT
+CLASS="LITERAL"
+>BACKWARD</TT
+>において、<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>に負の値を指定すると、<TT
+CLASS="LITERAL"
+>FORWARD</TT
+>と<TT
+CLASS="LITERAL"
+>BACKWARD</TT
+>の意味が入れ替わると考えることができます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>cursor_name</I
+></TT
+></DT
+><DD
+><P
+>開いているカーソルの名前を指定します。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72398"
+></A
+><H2
+>出力</H2
+><P
+>正常に終了すると、<TT
+CLASS="COMMAND"
+>FETCH</TT
+>コマンドは以下の形式のコマンドタグを返します。
+</P><PRE
+CLASS="SCREEN"
+>FETCH <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></PRE
+><P>
+<TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+>は取り出した行数です（0の可能性もあります）。
+<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>では取り出した行数を別途表示するため、このコマンドタグは実際には表示されないことに注意してください。
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72406"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="COMMAND"
+>FETCH</TT
+>コマンドとして、<TT
+CLASS="COMMAND"
+>FETCH NEXT</TT
+>もしくは<TT
+CLASS="COMMAND"
+>FETCH FORWARD</TT
+>以外を使用する場合、カーソルを<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>オプション付きで宣言しなければなりません。
+単純な問い合わせでは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>により、カーソルが<TT
+CLASS="LITERAL"
+>SCROLL</TT
+>付きで宣言されていなくても後方向の取り出しを行うことができますが、この動作に依存すべきではありません。
+カーソルが<TT
+CLASS="LITERAL"
+>NO SCROLL</TT
+>付きで宣言された場合は、後方向の取り出しを行うことができません。
+  </P
+><P
+>相対的な指定による指定行への移動に比べると、<TT
+CLASS="LITERAL"
+>ABSOLUTE</TT
+>による取り出しは高速ではありません。
+内部的な実装では、必ず中間の行を全て経由しているからです。
+絶対指定で負の値を指定した場合、速度はさらに悪化します。
+まず、最終行を見つけるために最後まで問い合わせを読み取って、その後に最終行から後方に移動するためです。
+ただし、（<TT
+CLASS="LITERAL"
+>FETCH ABSOLUTE 0</TT
+>を使用して）問い合わせの先頭へ戻る時は高速です。
+  </P
+><P
+><A
+HREF="sql-declare.html"
+>DECLARE</A
+>を使用してカーソルを定義します。
+データを取り出さずにカーソル位置を変更する場合は<A
+HREF="sql-move.html"
+>MOVE</A
+>を使用してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72422"
+></A
+><H2
+>例</H2
+><P
+>次の例では、カーソルを使用してテーブル内を行き来しています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN WORK;
+
+-- カーソルを設定します。
+DECLARE liahona SCROLL CURSOR FOR SELECT * FROM films;
+
+-- liahonaカーソルから最初の5行を取り出します。
+
+FETCH FORWARD 5 FROM liahona;
+
+ code  |          title          | did | date_prod  |   kind   |  len
+-------+-------------------------+-----+------------+----------+-------
+ BL101 | The Third Man           | 101 | 1949-12-23 | Drama    | 01:44
+ BL102 | The African Queen       | 101 | 1951-08-11 | Romantic | 01:43
+ JL201 | Une Femme est une Femme | 102 | 1961-03-12 | Romantic | 01:25
+ P_301 | Vertigo                 | 103 | 1958-11-14 | Action   | 02:08
+ P_302 | Becket                  | 103 | 1964-02-03 | Drama    | 02:28
+
+-- 1つ前の行を取り出します。
+FETCH PRIOR FROM liahona;
+
+ code  |  title  | did | date_prod  |  kind  |  len
+-------+---------+-----+------------+--------+-------
+ P_301 | Vertigo | 103 | 1958-11-14 | Action | 02:08
+
+-- カーソルを閉じ、トランザクションを終了します。
+CLOSE liahona;
+COMMIT WORK;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72426"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLでは、埋め込みSQLにおける<TT
+CLASS="COMMAND"
+>FETCH</TT
+>のみが定義されています。
+上記で説明した各種の<TT
+CLASS="COMMAND"
+>FETCH</TT
+>は、ホスト変数への代入ではなく、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の結果であるかのようにデータを返します。
+この点を除き、<TT
+CLASS="COMMAND"
+>FETCH</TT
+>は完全に標準SQLと上位互換性を持ちます。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>FORWARD</TT
+>と<TT
+CLASS="LITERAL"
+>BACKWARD</TT
+>を持つ<TT
+CLASS="COMMAND"
+>FETCH</TT
+>の形式や、暗黙的な<TT
+CLASS="LITERAL"
+>FORWARD</TT
+>を持つ<TT
+CLASS="LITERAL"
+>FETCH <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></TT
+>と<TT
+CLASS="LITERAL"
+>FETCH ALL</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+><P
+>標準SQLでは、カーソル名の前に付けられるのは<TT
+CLASS="LITERAL"
+>FROM</TT
+>のみです。
+<TT
+CLASS="LITERAL"
+>IN</TT
+>を使用するオプション、または、どちらも省略することは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN72446"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-close.html"
+>CLOSE</A
+>, <A
+HREF="sql-declare.html"
+>DECLARE</A
+>, <A
+HREF="sql-move.html"
+>MOVE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-explain.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-grant.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>EXPLAIN</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>GRANT</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

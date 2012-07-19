@@ -1,0 +1,1347 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>メッセージの流れ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="フロントエンド/バックエンドプロトコル"
+HREF="protocol.html"><LINK
+REL="PREVIOUS"
+TITLE="概要"
+HREF="protocol-overview.html"><LINK
+REL="NEXT"
+TITLE="ストリーミングレプリケーションプロトコル"
+HREF="protocol-replication.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="概要"
+HREF="protocol-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="フロントエンド/バックエンドプロトコル"
+HREF="protocol.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 46&#31456;フロントエンド/バックエンドプロトコル</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="フロントエンド/バックエンドプロトコル"
+HREF="protocol.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ストリーミングレプリケーションプロトコル"
+HREF="protocol-replication.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PROTOCOL-FLOW"
+>46.2. メッセージの流れ</A
+></H1
+><P
+>本節では、メッセージの流れと各メッセージ種類のセマンティックスを説明します。
+（各メッセージの正確な表現の詳細については<A
+HREF="protocol-message-formats.html"
+>&#38917;46.5</A
+>で説明します。）
+開始、問い合わせ、関数呼び出し、<TT
+CLASS="COMMAND"
+>COPY</TT
+>、終了といった接続状態に応じて、複数の異なるサブプロトコルがあります。
+また、開始段階の後の任意の時点で発生する可能性がある、非同期操作（通知応答やコマンドのキャンセルを含む）用の特別な準備もあります。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN91419"
+>46.2.1. 開始</A
+></H2
+><P
+>セッションを開始するために、フロントエンドはサーバへの接続を開き、開始メッセージを送信します。
+このメッセージには、ユーザ名と接続を希望するデータベース名が含まれます。
+これはまた、使用する特定のプロトコルバージョンを識別します。
+（オプションとして、開始メッセージに、実行時パラメータの追加設定を含めることもできます。）
+サーバはその後、この情報と設定ファイル（<TT
+CLASS="FILENAME"
+>pg_hba.conf</TT
+>など）の内容を使用して、接続が暫定的に受け付けられるかどうか、そして（もしあれば）どのような追加認証が必要かを決定します。
+   </P
+><P
+>サーバはその後、適切な認証要求メッセージを送信します。
+フロントエンドはこれに適切な認証応答メッセージ（パスワードなど）で答えなければなりません。
+GSSAPIとSSPIを除くすべての認証方式では、多くても１つの要求と１つの応答が存在します。
+認証方式の中には、フロントエンドからの応答をまったく必要としないものもあり、その場合、認証要求も発生しません。
+GSSAPIとSSPIでは認証を完了するために複数のパケットの交換が必要となるかもしれません。
+   </P
+><P
+>認証サイクルは、サーバによって接続要求を拒絶する（ErrorResponse）か、あるいはAuthenticationOkを送信することで終わります。
+   </P
+><P
+>この段階でサーバから送信される可能性があるメッセージを以下に示します。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>ErrorResponse</DT
+><DD
+><P
+>接続試行が拒絶されました。
+サーバはその後即座に接続を閉ざします。
+       </P
+></DD
+><DT
+>AuthenticationOk</DT
+><DD
+><P
+>認証情報の交換が正常に完了しました。
+       </P
+></DD
+><DT
+>AuthenticationKerberosV5</DT
+><DD
+><P
+>フロントエンドはここでサーバとのKerberos V5認証ダイアログ（ここでは説明しません。Kerberos仕様の一部）に参加する必要があります。
+これが成功すれば、サーバはAuthenticationOk応答を行います。
+失敗すれば、ErrorResponse応答を行います。
+       </P
+></DD
+><DT
+>AuthenticationCleartextPassword</DT
+><DD
+><P
+>フロントエンドはここで平文形式のパスワードを含むPasswordMessageを送信する必要があります。
+これが正しいパスワードであればサーバはAuthenticationOk応答を行います。
+さもなくば、ErrorResponse応答を行います。
+       </P
+></DD
+><DT
+>AuthenticationMD5Password</DT
+><DD
+><P
+>フロントエンドはここでAuthenticationMD5Passwordメッセージで指定された4文字をソルトに使用するMD5で暗号化されたパスワードを含むPasswordMessageを送信する必要があります。
+これが正しいパスワードであればサーバはAuthenticationOk応答を行います。
+さもなくば、ErrorResponse応答を行います。
+       </P
+></DD
+><DT
+>AuthenticationSCMCredential</DT
+><DD
+><P
+>この応答はSCM資格証明メッセージをサポートするプラットフォーム上のローカルなUnixドメイン接続でのみあり得ます。
+フロントエンドはSCM資格証明メッセージを発行し、その後単一のデータバイトを送信する必要があります。
+（データバイトの内容には意味はありません。
+これはサーバが資格証明メッセージの受信にどれだけ待機すればよいのかを確実にするためだけに使用されます。）
+資格証明が受け付け可能であれば、サーバはAuthenticationOk応答を行います。
+さもなくば、ErrorResponse応答を行います。
+（この種類のメッセージは9.1より前のサーバでのみ発行されます。
+最終的にはプロトコル仕様から削除されるかもしれません。）
+       </P
+></DD
+><DT
+>AuthenticationGSS</DT
+><DD
+><P
+>ここでフロントエンドはGSSAPIの調停を開始しなければなりません。
+これに対する応答におけるGSSAPIデータストリームの最初の部分で、フロントエンドはPasswordMessageを送信します。
+さらにメッセージが必要となる場合、サーバはAuthenticationGSSContinueで応答します。
+       </P
+></DD
+><DT
+>AuthenticationSSPI</DT
+><DD
+><P
+>ここでフロントエンドはSSPI調停を開始しなければなりません。
+これに対する応答におけるSSPIデータストリームの最初の部分で、フロントエンドはPasswordMessageを送信します。
+さらにメッセージが必要となる場合、サーバはAuthenticationGSSContinueで応答します。
+       </P
+></DD
+><DT
+>AuthenticationGSSContinue</DT
+><DD
+><P
+>このメッセージには、GSSAPIまたはSSPI調停の直前の段階（AuthenticationGSS、AuthenticationSSPIまたは前回のAuthenticationGSSContinue）についての応答データが含まれます。
+このメッセージ内のGSSAPIまたはSSPIデータが認証を完結させるため、更なる追加データが必要であることを指示している場合、フロントエンドは他のPasswordMessageとしてデータを送信しなければなりません。
+このメッセージでGSSAPIまたはSSPI認証が完了すれば、次にサーバはAuthenticationOkを送信して認証が成功したことを示すか、あるいはErrorResponseを送信して失敗したことを示します。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+>サーバが要求した認証方式をフロントエンドがサポートしていない場合、フロントエンドは即座に接続を閉ざします。
+   </P
+><P
+>AuthenticationOkを受け取った後、フロントエンドはさらにサーバからのメッセージを待機する必要があります。
+この段階で、バックエンドプロセスが起動し、このフロントエンドは単なる関心を有する第三者となります。
+開始試行が失敗（ErrorResponse）する可能性がまだありますが、通常、バックエンドは何らかのParameterStatusメッセージ、BackendKeyData、そして最後にReadyForQueryを送信します。
+   </P
+><P
+>この段階の期間中、バックエンドは開始メッセージで与えられた任意の実行時パラメータの追加設定を適用しようとします。
+成功した場合は、これらの値はセッションのデフォルトになります。
+エラーが発生した場合はErrorResponseを行い、終了します。
+   </P
+><P
+>この段階でバックエンドから送信される可能性があるメッセージを以下に示します。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>BackendKeyData</DT
+><DD
+><P
+>このメッセージは、フロントエンドがキャンセル要求を後で送信できるようにしたい場合に保存しなければならない、秘密キーデータを用意します。
+フロントエンドはこのメッセージに応答してはいけませんが、ReadyForQueryメッセージの監視を続けなくてはなりません。
+       </P
+></DD
+><DT
+>ParameterStatus</DT
+><DD
+><P
+>このメッセージは、フロントエンドに現在（初期）の<A
+HREF="runtime-config-client.html#GUC-CLIENT-ENCODING"
+>client_encoding</A
+>や<A
+HREF="runtime-config-client.html#GUC-DATESTYLE"
+>DateStyle</A
+>などのバックエンドパラメータの設定情報を通知します。
+フロントエンドはこのメッセージを無視しても、将来の使用に備えてその設定を記録しても構いません。
+詳細は<A
+HREF="protocol-flow.html#PROTOCOL-ASYNC"
+>&#38917;46.2.6</A
+>を参照してください。
+フロントエンドはこのメッセージに応答してはいけませんが、ReadyForQueryメッセージの監視を続けなくてはなりません。
+       </P
+></DD
+><DT
+>ReadyForQuery</DT
+><DD
+><P
+>開始処理が完了しました。
+フロントエンドはここでコマンドを発行することができます。
+       </P
+></DD
+><DT
+>ErrorResponse</DT
+><DD
+><P
+>開始処理が失敗しました。
+接続はこのメッセージの送信後に閉ざされます。
+       </P
+></DD
+><DT
+>NoticeResponse</DT
+><DD
+><P
+>警告メッセージが発行されました。
+フロントエンドはこのメッセージを表示し、ReadyForQueryもしくはErrorResponseメッセージの監視を続けなければなりません。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+>ReadyForQueryメッセージは各コマンドサイクルの後にバックエンドが発行するものと同じものです。
+フロントエンドのコーディングにおいて必要であれば、ReadyForQueryをコマンドサイクルの開始とみなしても構いませんし、ReadyForQueryを開始段階とその後の各コマンドサイクルの終端とみなしても構いません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN91492"
+>46.2.2. 簡易問い合わせ</A
+></H2
+><P
+>フロントエンドがQueryメッセージをバックエンドに送信することで、簡易問い合わせサイクルが開始されます。
+このメッセージには、テキスト文字列で表現されたSQLコマンド（またはコマンド）が含まれます。
+そうすると、バックエンドは、問い合わせコマンド文字列の内容に応じて1つ以上の応答を送信し、最終的にReadyForQueryを応答します。
+ReadyForQueryは、新しいコマンドを安全に送信できることをフロントエンドに知らせます。
+（実際には、フロントエンドが他のコマンドを発行する前にReadyForQueryを待機することは不要です。
+しかし、フロントエンドは、前のコマンドが失敗し、発行済みの後のコマンドが成功した場合に何が起きるかを了解する責任を持たなければなりません。）
+   </P
+><P
+>バックエンドから送信される可能性がある応答メッセージを以下に示します。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>CommandComplete</DT
+><DD
+><P
+>SQLコマンドが正常に終了しました。
+       </P
+></DD
+><DT
+>CopyInResponse</DT
+><DD
+><P
+>バックエンドがフロントエンドからのデータをテーブルにコピーする準備ができました。
+<A
+HREF="protocol-flow.html#PROTOCOL-COPY"
+>&#38917;46.2.5</A
+>を参照してください。
+       </P
+></DD
+><DT
+>CopyOutResponse</DT
+><DD
+><P
+>バックエンドがデータをテーブルからフロントエンドにコピーする準備ができました。
+<A
+HREF="protocol-flow.html#PROTOCOL-COPY"
+>&#38917;46.2.5</A
+>を参照してください。
+       </P
+></DD
+><DT
+>RowDescription</DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>や<TT
+CLASS="COMMAND"
+>FETCH</TT
+>などの問い合わせの応答の行がまさに返されようとしていることを示します。
+このメッセージには、行の列レイアウトに関する説明が含まれます。
+このメッセージの後に、フロントエンドに返される各行に対するDataRowメッセージが続きます。
+       </P
+></DD
+><DT
+>DataRow</DT
+><DD
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>や<TT
+CLASS="COMMAND"
+>FETCH</TT
+>などの問い合わせで返される行の集合の1つです。
+       </P
+></DD
+><DT
+>EmptyQueryResponse</DT
+><DD
+><P
+>空の問い合わせ文字列が検知されました。
+       </P
+></DD
+><DT
+>ErrorResponse</DT
+><DD
+><P
+>エラーが起こりました。
+       </P
+></DD
+><DT
+>ReadyForQuery</DT
+><DD
+><P
+>問い合わせ文字列の処理が終了しました。
+問い合わせ文字列は複数のSQLコマンドが含まれる場合があるため、このことを通知するために分離したメッセージが送出されます。
+（CommandCompleteは文字列全体ではなく、1つのSQLコマンドの処理の終了を明らかにします。）
+処理が成功またはエラーで終了したかどうかにかかわらずReadyForQueryは常に送出されます。
+       </P
+></DD
+><DT
+>NoticeResponse</DT
+><DD
+><P
+>問い合わせに関して警告メッセージが発行されました。
+警告メッセージは他の応答に対する追加のメッセージです。 
+したがって、バックエンドはそのコマンドの処理を続行します。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせ（あるいは、<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>や<TT
+CLASS="COMMAND"
+>SHOW</TT
+>などの行集合を返す他の問い合わせ）に対する応答は、通常、RowDescription、0個以上のDataRowメッセージ、そしてその後のCommandCompleteから構成されます。
+フロントエンドへの<TT
+CLASS="COMMAND"
+>COPY</TT
+>もしくはフロントエンドからの<TT
+CLASS="COMMAND"
+>COPY</TT
+>は<A
+HREF="protocol-flow.html#PROTOCOL-COPY"
+>&#38917;46.2.5</A
+>で説明する特別なプロトコルを呼び出します。
+他の種類の問い合わせは通常CommandCompleteメッセージのみを生成します。
+   </P
+><P
+>問い合わせ文字列には（セミコロンで区切られた）複数の問い合わせが含まれることがありますので、バックエンドが問い合わせ文字列の処理を完了する前に、こうした応答シーケンスが複数発生する可能性があります。
+ReadyForQueryは、文字列全体が処理され、バックエンドが新しい問い合わせ文字列を受け付ける準備が整った時点で発行されます。
+   </P
+><P
+>完全に空の（空白文字以外の文字がない）問い合わせ文字列を受け取った場合、その応答は、EmptyQueryResponse、続いて、ReadyForQueryとなります。
+   </P
+><P
+>エラーが発生した場合、ErrorResponse、続いて、ReadyForQueryが発行されます。
+その問い合わせ文字列に対する以降の処理は（複数の問い合わせが残っていたとしても）すべて、ErrorResponseによって中断されます。
+これは、個々の問い合わせで生成されるメッセージの並びの途中で発生する可能性があることに注意してください。
+   </P
+><P
+>簡易問い合わせモードでは、読み出される値の書式は常にテキストです。
+ただし、与えられたコマンドが<TT
+CLASS="LITERAL"
+>BINARY</TT
+>オプション付きで宣言されたカーソルからの<TT
+CLASS="COMMAND"
+>FETCH</TT
+>であった場合は例外です。
+この場合は、読み出される値はバイナリ書式になります。
+RowDescriptionメッセージ内で与えられる書式コードは、どの書式が使用されているかを通知します。
+   </P
+><P
+>他の種類のメッセージの受信を待機している時、フロントエンドは常にErrorResponseとNoticeResponseメッセージを受け取る準備ができていなければなりません。
+また、外部イベントのためにバックエンドが生成する可能性があるメッセージの扱いについては<A
+HREF="protocol-flow.html#PROTOCOL-ASYNC"
+>&#38917;46.2.6</A
+>を参照してください。
+   </P
+><P
+>メッセージの正しい並びを前提としてコーディングするのではなく、任意のメッセージ種類を、そのメッセージが意味を持つ任意の時点で受け付ける状態マシン形式でフロントエンドのコーディングを行うことを推奨します。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PROTOCOL-FLOW-EXT-QUERY"
+>46.2.3. 拡張問い合わせ</A
+></H2
+><P
+>拡張問い合わせプロトコルは、上述の簡易問い合わせプロトコルを複数段階に分解します。
+予備段階の結果は複数回再利用できますので、効率が上がります。
+さらに、問い合わせ文字列に直接埋め込むのではなく、データ値をパラメータとして分離して提供できる機能など、利用できる追加機能があります。
+   </P
+><P
+>拡張プロトコルでは、フロントエンドはまず、テキストの問い合わせ文字列とオプションとしてパラメータプレースホルダのデータ型情報やプリペアド文のオブジェクトの宛先名（空文字列は無名のプリペアド文を選択）を含む、Parseメッセージを送信します。
+この応答はParseCompleteまたはErrorResponseです。
+パラメータデータ型はそのOIDで指定することができます。
+指定がなければ、パーサは型指定のないリテラル文字列定数に対する方法と同じ方法でデータ型を推定します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>パラメータデータ型をゼロと設定する、または、問い合わせ文字列内で使用されているパラメータ記号（<TT
+CLASS="LITERAL"
+>$</TT
+><TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>）の数より短くパラメータ型のOIDの配列を作成することで、指定しないまま残すことができます。
+他にも、パラメータの型を<TT
+CLASS="TYPE"
+>void</TT
+>（つまり<TT
+CLASS="TYPE"
+>void</TT
+>仮想型のOID）と指定するという特別な場合があります。
+これは、パラメータ記号を、実際のOUTパラメータである関数パラメータとして使用することができることを意味します。
+通常では、<TT
+CLASS="TYPE"
+>void</TT
+>パラメータが使用される文脈はありませんが、関数パラメータリストにこうしたパラメータ記号があると、実質的には無視されます。
+例えば、<TT
+CLASS="LITERAL"
+>$3</TT
+>と<TT
+CLASS="LITERAL"
+>$4</TT
+>が<TT
+CLASS="TYPE"
+>void</TT
+>型を持つと指定された場合、<TT
+CLASS="LITERAL"
+>foo($1,$2,$3,$4)</TT
+>といった関数呼び出しは、2つのINと2つのOUT引数を持つ関数に一致します。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>Parseメッセージ内の問い合わせ文字列には、複数のSQL文を含めることはできません。
+さもないと、構文エラーが報告されます。
+この制限は簡易問い合わせプロトコルにはありませんが、複数のコマンドを持つプリペアド文やポータルを許すと、プロトコルが複雑になり過ぎるため、拡張プロトコルではこの制限があります。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>作成に成功すると、名前付きプリペアド文オブジェクトは明示的に破棄されない限り現在のセッションが終わるまで残ります。
+無名のプリペアド文オブジェクトは、次に無名のプリペアド文を宛先に指定したParse文が発行されるまでの間のみに残ります。
+（単なるQueryメッセージでも無名のプリペアド文オブジェクトは破壊されることに注意してください。）
+名前付きプリペアド文は、Parseメッセージで再定義する前に明示的に閉じなければなりません。
+しかし、これは無名のプリペアド文では必要ありません。
+名前付きプリペアド文はまた、SQLコマンドレベルで<TT
+CLASS="COMMAND"
+>PREPARE</TT
+>と<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>を使用して作成しアクセスすることができます。
+   </P
+><P
+>プリペアド文が存在すると、Bindメッセージを使用してそれを実行可能状態にすることができます。
+Bindメッセージは、元となるプリペアド文（空文字列は無名のプリペアド文を表します）の名前、宛先となるポータル（空文字列は無名ポータルを表します）の名前、およびプリペアド文内のパラメータプレースホルダに使用する値を与えます。
+与えられたパラメータ集合はプリペアド文で必要とするものと一致しなければなりません。
+（Parseメッセージ内で<TT
+CLASS="TYPE"
+>void</TT
+>パラメータを1つでも宣言した場合、BindメッセージではそれらにはNULLを渡します。）
+また、Bindは問い合わせで返されるデータに使用する書式を指定します。
+書式は全体に対して指定することも、列単位で指定することも可能です。
+応答はBindCompleteもしくはErrorResponseです。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>テキスト出力とバイナリ出力との選択は、含まれるSQLコマンドに関係なく、Bindで与えられた書式コードで決定されます。
+拡張問い合わせプロトコルを使用する場合、カーソル宣言の<TT
+CLASS="LITERAL"
+>BINARY</TT
+>属性は役に立ちません。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>名前付きプリペアド文オブジェクト用の問い合わせ計画はParseメッセージが処理された時に作成されます。
+異なるパラメータで問い合わせが繰り返し実行される場合、単一のパラメータ化された問い合わせを持つParseメッセージを送信し、その後に複数のBindメッセージとExecuteメッセージを送信することは有利かもしれません。
+これはまた、問い合わせを実行する度に計画を再作成することを防ぎます。
+   </P
+><P
+>無名のプリペアド文は、Parseメッセージがパラメータを持たない場合は同様に、Parse処理中に計画が作成されます。
+しかし、パラメータがあると、問い合わせ計画の作成はBindパラメータが与えられる度に起こります。
+これにより、プランナは、一般的な推定値ではなく各Bindメッセージで提供されたパラメータの実際の値を使用することができるようになります。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>パラメータ化された問い合わせにより生成される問い合わせ計画は、実際のパラメータが埋め込まれた、等価な問い合わせから生成される問い合わせ計画よりも非効率的になるかもしれません。
+問い合わせプランナは、名前付きプリペアド文として割り当てられたパラメータ化問い合わせの計画を作成する時に、実際のパラメータ値に基づいた決定（例えばインデックスの選択性）を行うことができません。
+実際のパラメータ値がわかるようになるまで計画が生成されませんので、このペナルティは無名の文を使用する場合には発生しません。
+問い合わせが同じであっても、こうした計画作成のコストはBind毎に発生します。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>作成に成功すると、名前付きポータルオブジェクトは明示的に破棄されない限り現在のセッションが終わるまで残ります。
+無名ポータルは、トランザクションの終わり、もしくは、次に無名ポータルを宛先に指定したParse文が発行されるまでの間のみに残ります。
+（単なるQueryメッセージでも無名ポータルは破壊されることに注意してください。）
+名前付きポータルは、Bindメッセージで再定義する前に明示的に閉じなければなりません。
+しかし、これは無名ポータルでは必要ありません。
+名前付きポータルはまた、SQLコマンドレベルで<TT
+CLASS="COMMAND"
+>DECLARE CURSOR</TT
+>と<TT
+CLASS="COMMAND"
+>FETCH</TT
+>を使用して作成しアクセスすることができます。
+
+   </P
+><P
+>ポータルが存在すると、Executeメッセージを使用してそれを実行することができます。
+Executeメッセージは、ポータル名（空文字列は無名ポータルを表します）と結果行数の最大値（ゼロは<SPAN
+CLASS="QUOTE"
+>"fetch all rows"</SPAN
+>を意味します）を指定します。
+結果行数は、ポータルが行集合を返すコマンドを含む場合のみ意味があります。
+その他の場合では、コマンドは常に終わりまで実行され、行数は無視されます。
+Executeで起こり得る応答は、ExecuteではReadyForQueryやRowDescriptionが発行されない点を除き、上述の簡易問い合わせプロトコル経由で発行された問い合わせの場合と同じです。
+   </P
+><P
+>Executeがポータルの実行を完了する前に（非ゼロの結果行数に達したために）終了した場合、PortalSuspendedを送信します。
+このメッセージの出現は、フロントエンドに操作を完了させるためには同一のポータルに対して、別のExecuteを発行しなければならないことを通知します。
+元となったSQLコマンドが完了したことを示すCommandCompleteメッセージはポータルが完了するまで送信されません。
+したがって、Execute段階は常にCommandComplete、EmptyQueryResponse（空の問い合わせ文字列からポータルが作成された場合）、ErrorResponse、またはPortalSuspendedの中の、正確にどれかが出現することによって常に終了します。
+   </P
+><P
+>拡張問い合わせメッセージの一連の流れのそれぞれの終了時、フロントエンドはSyncメッセージを発行しなければなりません。
+このパラメータのないメッセージにより、もし<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>/<TT
+CLASS="COMMAND"
+>COMMIT</TT
+>トランザクションブロックの内部でなければ、バックエンドは現在のトランザクションを閉ざします
+（<SPAN
+CLASS="QUOTE"
+>"閉ざす"</SPAN
+>とは、エラーがなければコミット、エラーがあればロールバックすることを意味します）。
+そして、ReadyForQuery応答が発行されます。
+Syncの目的は、エラーからの復旧用の再同期を行う時点を提供することです。
+拡張問い合わせメッセージの処理中にエラーが検出されると、バックエンドはErrorResponseを発行し、Syncが届くまでメッセージを読み、それを破棄します。
+その後、ReadyForQueryを発行し、通常のメッセージ処理に戻ります。
+（しかし、Sync処理<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>中に</I
+></SPAN
+>エラーが検出された場合に処理が飛ばされないことに注意してください。
+これにより、各Syncに対してReadyForQueryが1つのみであることを保証します。）
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>Syncによって、<TT
+CLASS="COMMAND"
+>BEGIN</TT
+>で開かれたトランザクションブロックが閉ざされることはありません。
+ReadyForQueryメッセージにはトランザクションの状態情報が含まれていますので、この状況を検出することができます。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>これらの基本的な必要操作に加え、拡張問い合わせプロトコルで使用することができる、複数の省略可能な操作があります。
+   </P
+><P
+>Describeメッセージ（ポータルの亜種）は、既存のポータルの名前（もしくは、無名ポータル用の空文字）を指定します。
+応答は、実行中のポータルで返される予定の行を記述するRowDescriptionメッセージです。
+ポータルが行を返す問い合わせを含まない場合はNoDataメッセージです。
+指定したポータルが存在しない場合はErrorResponseです。
+   </P
+><P
+>Describeメッセージ（ステートメントの亜種）は、既存のプリペアド文の名前（もしくは無名のプリペアド文用の空文字）を指定します。
+応答は、文で必要とされるパラメータを記述するParameterDescriptionメッセージ、続いて、文が実行された場合に返される予定の行を記述するRowDescriptionメッセージ（もしくは文が行を返さない場合のNoDataメッセージ）です。
+指定したプリペアド文が存在しない場合はErrorResponseが発行されます。
+Bindがまだ発行されていませんので、返される列の書式はまだバックエンドでは不明であることに注意してください。
+RowDescriptionメッセージ内の書式コードフィールドはこの場合はゼロになります。
+   </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>ほとんどの状況では、フロントエンドはExecuteを発行する前に、返ってくる結果を解釈する方法を確実に判断できるように、Describeもしくはその亜種を実行すべきです。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>Closeメッセージは、既存のプリペアド文、もしくはポータルを閉ざし、リソースを解放します。
+存在しない文やポータルに対してCloseを発行してもエラーになりません。
+応答は通常CloseCompleteですが、リソースの解放に何らかの問題が発生した場合はErrorResponseになります。
+プリペアド文を閉じると、そこから構築され、開いたポータルが暗黙的に閉ざされることに注意してください。
+   </P
+><P
+>Flushメッセージにより特定の出力が生成されることはありません。
+しかし、バックエンドに対して、出力バッファ内で待機しているデータを強制的に配送させます。
+フロントエンドが他のコマンドを発行する前にコマンドの結果を検証したい場合に、FlushはSync以外の拡張問い合わせコマンドの後に送信される必要があります。
+Flushを行わないと、バックエンドで返されるメッセージは、ネットワークオーバーヘッドを最小化する、最小限のパケット数にまとめられます。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>簡易問い合わせメッセージは、おおよそ、無名のプリペアド文とポータルオブジェクトを使用したパラメータなしのParse、Bind、ポータル用Describe、Execute、Close、Syncの流れと同一です。
+違いは、問い合わせ文字列内に複数のSQL文を受け付けられ、bind/describe/executeという流れがそれぞれが成功すれば自動的に行われる点です。
+他の違いとして、ParseCompleteやBindComplete、CloseComplete、NoDataメッセージが返されない点があります。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN91607"
+>46.2.4. 関数呼び出し</A
+></H2
+><P
+>関数呼び出しサブプロトコルにより、クライアントはデータベースの<TT
+CLASS="STRUCTNAME"
+>pg_proc</TT
+>システムカタログに存在する任意の関数を直接呼び出す要求を行うことができます。
+クライアントはその関数を実行する権限を持たなければなりません。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>関数呼び出しサブプロトコルは、おそらく新しく作成するコードでは使用すべきではない古い機能です。
+同様の結果は、<TT
+CLASS="LITERAL"
+>SELECT function($1, ...)</TT
+>を行うプリペアド文を設定することで得ることができます。
+そして、この関数呼び出しサイクルをBind/Executeで置き換えることができます。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>関数呼び出しサイクルはフロントエンドがFunctionCallメッセージをバックエンドに送ることで起動されます。
+バックエンドは1つまたは複数の応答メッセージを関数呼び出しの結果に基づいて送り、最終的にReadyForQueryメッセージを送出します。
+ReadyForQueryはフロントエンドに対し新規の問い合わせまたは関数呼び出しを行っても安全確実であることを通知します。
+   </P
+><P
+>バックエンドから送信される可能性がある応答メッセージを以下に示します。
+
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>ErrorResponse</DT
+><DD
+><P
+>エラーが起こりました。
+       </P
+></DD
+><DT
+>FunctionCallResponse</DT
+><DD
+><P
+>関数呼び出しが完了し、メッセージで与えられた結果が返されました。
+（関数呼び出しプロトコルは単一のスカラ結果のみを扱うことができます。行型や結果集合を扱うことはできません。）
+       </P
+></DD
+><DT
+>ReadyForQuery</DT
+><DD
+><P
+>関数呼び出しの処理が終了しました。
+処理が成功またはエラーで終了したかどうかにかかわらずReadyForQueryは常に送出されます。
+       </P
+></DD
+><DT
+>NoticeResponse</DT
+><DD
+><P
+>関数呼び出しに関して警告メッセージが出されました。
+警告メッセージは他の応答に対する追加のメッセージです。 
+したがって、バックエンドはそのコマンドの処理を続行します。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PROTOCOL-COPY"
+>46.2.5. COPY操作</A
+></H2
+><P
+><TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドにより、サーバとの間で高速な大量データ転送を行うことができます。
+コピーインとコピーアウト操作はそれぞれ接続を別のサブプロトコルに切り替えます。
+これは操作が完了するまで残ります。
+   </P
+><P
+>コピーインモード（サーバへのデータ転送）は、バックエンドが<TT
+CLASS="COMMAND"
+>COPY FROM STDIN</TT
+> SQL文を実行した時に起動されます。
+バックエンドはフロントエンドにCopyInResponseメッセージを送信します。
+フロントエンドはその後、ゼロ個以上のCopyDataメッセージを送信し、入力データのストリームを形成します。
+（このメッセージの境界は行の境界に何かしら合わせる必要ありませんが、往々にしてそれが合理的な選択となります。）
+フロントエンドは、CopyDoneメッセージ（正常に終了させる）、もしくは、CopyFailメッセージ（<TT
+CLASS="COMMAND"
+>COPY</TT
+> SQL文をエラーで失敗させる）を送信することで、コピーインモードを終了させることができます。
+そして、バックエンドは、<TT
+CLASS="COMMAND"
+>COPY</TT
+>が始まる前の、簡易もしくは拡張問い合わせプロトコルを使用するコマンド処理モードに戻ります。
+そして次に、CommandComplete（成功時）またはErrorResponse（失敗時）のどちらかを送信します。
+   </P
+><P
+>コピーインモードの期間中にバックエンドがエラー（CopyFailメッセージの受信を含む）を検知すると、バックエンドはErrorResponseメッセージを発行します。
+拡張問い合わせメッセージ経由で<TT
+CLASS="COMMAND"
+>COPY</TT
+>コマンドが発行された場合、バックエンドはSyncメッセージを受け取るまでフロントエンドのメッセージを破棄するようになります。
+Syncメッセージを受け取ると、ReadyForQueryを発行し、通常処理に戻ります。
+簡易問い合わせメッセージで<TT
+CLASS="COMMAND"
+>COPY</TT
+>が発行された場合、メッセージの残りは破棄され、ReadyForQueryメッセージを発行します。
+どちらの場合でも、その後にフロントエンドによって発行されたCopyData、CopyDone、CopyFailは単に削除されます。
+   </P
+><P
+>バックエンドは、コピーインモード期間中、FlushとSyncメッセージを無視します。
+その他の種類の非コピーメッセージを受け取ると、エラーになり、上述のようにコピーイン状態を中断します
+（クライアントライブラリがExecuteメッセージの後に、実行したコマンドが<TT
+CLASS="COMMAND"
+>COPY FROM STDIN</TT
+>かどうかを検査することなく、常にFlushまたはSyncを送信できる、という便利さのためにFlushとSyncは例外です）。
+   </P
+><P
+>コピーアウトモード（サーバからのデータ転送）は、バックエンドが<TT
+CLASS="COMMAND"
+>COPY TO STDOUT</TT
+> SQL文を実行した時に起動します。
+バックエンドはCopyOutResponseメッセージをフロントエンドに送信し、その後、ゼロ個以上のCopyDataメッセージ（常に行ごとに1つ）を、そして、CopyDoneを送信します。
+その後、バックエンドは<TT
+CLASS="COMMAND"
+>COPY</TT
+>が始まる前のコマンド処理モードに戻り、CommandCompleteを送信します。
+フロントエンドは（接続の切断やCancel要求の発行は例外ですが）転送を中断することはできません。
+しかし、不要なCopyDataとCopyDoneメッセージを破棄することは可能です。
+   </P
+><P
+>コピーアウトモード期間中バックエンドはエラーを検知すると、ErrorResponseメッセージを発行し、通常処理に戻ります。
+フロントエンドはErrorResponseの受信をコピーアウトモードの終了として扱うべきです。
+   </P
+><P
+>NoticeResponseおよびParameterStatusメッセージがCopyDataメッセージ間に散在することがあります。
+フロントエンドはこのような場合も扱わなければなりません。
+また、他の種類の非同期メッセージ（<A
+HREF="protocol-flow.html#PROTOCOL-ASYNC"
+>&#38917;46.2.6</A
+>を参照）も同様に準備すべきです。
+さもなくば、CopyDataまたはCopyDone以外の種類のメッセージがコピーアウトモードの終了として扱われてしまう可能性があります。
+   </P
+><P
+>他にも、サーバへ、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>および</I
+></SPAN
+>サーバからの高速な一括データ転送を行うことができるコピーボーズというコピーに関連したモードがあります。
+コピーボーズモードは、walsenderモードのバックエンドが<TT
+CLASS="COMMAND"
+>START_REPLICATION</TT
+>文を実行した時に初期化されます。
+バックエンドはCopyBothResponseメッセージをフロントエンドに送信します。
+この後バックエンドとフロントエンドの両方が、接続が終了するまでの間にCopyDataメッセージを送信できるようになります。
+<A
+HREF="protocol-replication.html"
+>&#38917;46.3</A
+>を参照してください。
+   </P
+><P
+>CopyInResponse、CopyOutResponse、CopyBothResponseメッセージには、フロントエンドに1行当たりの列数と各列で使用する書式コードを通知するためのフィールドが含まれています。
+（現在の実装では、<TT
+CLASS="COMMAND"
+>COPY</TT
+>操作で与えられるすべての列は同一の書式を使用します。
+しかし、メッセージ設計においては、これを前提としていません。）
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PROTOCOL-ASYNC"
+>46.2.6. 非同期操作</A
+></H2
+><P
+>バックエンドが、フロントエンドのコマンドストリームで特に依頼されていないメッセージを送信する場合が複数あります。
+フロントエンドは、問い合わせ作業を行っていない時であっても常に、これらのメッセージを扱う準備をしなければなりません。
+少なくとも、問い合わせの応答の読み込みを始める前にこれらを検査すべきです。
+   </P
+><P
+>外部の活動によって、NoticeResponseメッセージが生成されることがあり得ます。
+例えば、データベース管理者が<SPAN
+CLASS="QUOTE"
+>"高速"</SPAN
+>データベース停止コマンドを実行した場合、バックエンドは接続を閉ざす前にこれを通知するためにNoticeResponseを送信します。
+したがって、たとえ接続が名目上待機状態であったとしても、フロントエンドは常にNoticeResponseメッセージを受け付け、表示する準備をすべきです。
+   </P
+><P
+>ParameterStatusメッセージは、任意のパラメータの実際の値が変更され、それをバックエンドがフロントエンドに通知するべきであるとみなした場合は常に生成されます。
+ほとんどの場合、これはフロントエンドによる<TT
+CLASS="COMMAND"
+>SET</TT
+> SQLコマンド実行に対する応答の中で起こります。
+これは実質的には同期していますが、管理者が設定ファイルを変更し、<SPAN
+CLASS="SYSTEMITEM"
+>SIGHUP</SPAN
+>シグナルをサーバに送った場合にも、パラメータ状態の変更が発生することがあります。
+また、<TT
+CLASS="COMMAND"
+>SET</TT
+>コマンドがロールバックされた場合、現在の有効値を報告するために適切なParameterStatusメッセージが生成されます。
+   </P
+><P
+>現時点では、ParameterStatusを生成するパラメータ群は固定されています。
+それらは<TT
+CLASS="VARNAME"
+>server_version</TT
+>、<TT
+CLASS="VARNAME"
+>server_encoding</TT
+>、<TT
+CLASS="VARNAME"
+>client_encoding</TT
+>、<TT
+CLASS="VARNAME"
+>application_name</TT
+>、<TT
+CLASS="VARNAME"
+>is_superuser</TT
+>、<TT
+CLASS="VARNAME"
+>session_authorization</TT
+>、<TT
+CLASS="VARNAME"
+>DateStyle</TT
+>、<TT
+CLASS="VARNAME"
+>IntervalStyle</TT
+>、<TT
+CLASS="VARNAME"
+>TimeZone</TT
+>、<TT
+CLASS="VARNAME"
+>integer_datetimes</TT
+>、および<TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>です。
+（8.0より前までのリリースでは、<TT
+CLASS="VARNAME"
+>server_encoding</TT
+>、<TT
+CLASS="VARNAME"
+>TimeZone</TT
+>および<TT
+CLASS="VARNAME"
+>integer_datetimes</TT
+>は送信されませんでした。
+8.1より前までのリリースでは、<TT
+CLASS="VARNAME"
+>standard_conforming_strings</TT
+>は送信されませんでした。
+8.4より前のリリースでは、<TT
+CLASS="VARNAME"
+>IntervalStyle</TT
+>は送信されませんでした。
+9.0より前のリリースでは、<TT
+CLASS="VARNAME"
+>application_name</TT
+>は送信されませんでした。）
+<TT
+CLASS="VARNAME"
+>server_version</TT
+>、<TT
+CLASS="VARNAME"
+>server_encoding</TT
+>および<TT
+CLASS="VARNAME"
+>integer_datetimes</TT
+>は仮想的なパラメータであり、起動後に変更することができないことに注意してください。
+これは今後変更される、あるいは設定変更可能になる可能性があります。
+したがって、フロントエンドは未知または注目していないParameterStatusを単に無視すべきです。
+   </P
+><P
+>フロントエンドが<TT
+CLASS="COMMAND"
+>LISTEN</TT
+>コマンドを発行した場合、同じチャネル名に対し<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>コマンドが実行された時にバックエンドはNotificationResponseメッセージ（NoticeResponseと間違えないように！）を送出します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>現在、NotificationResponseをトランザクションの外部でのみ送信することができます。
+このため、これはコマンド応答の流れの途中では起こりませんが、ReadyForQueryの直前に発生する可能性があります。
+しかし、これを前提にフロントエンドのロジックを設計することは避けてください。
+プロトコル内の任意の時点でNotificationResponseを受け付けられるようにすることを勧めます。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN91693"
+>46.2.7. 処理中のリクエストの取り消し</A
+></H2
+><P
+>問い合わせの処理中に、フロントエンドが問い合わせを取り消す可能性があります。
+取り消し要求は、効率を高めるために、接続を開いたバックエンドに対して直接送信されません。
+その問い合わせを処理中のバックエンドが、フロントエンドからの新しい入力があるかどうかを定期的に確認することは好ましくありません。
+取り消し要求はたいていの場合、頻繁には起こらないので、通常の状態においての負担を避けるため、多少扱いにくくなっています。
+   </P
+><P
+>取り消し要求を出す場合、フロントエンドは通常の新規接続の時に送出されるStartupMessageメッセージではなくCancelRequestメッセージをサーバに送り、新規接続を開始します。
+サーバはこの要求を処理し、接続を切断します。
+セキュリティ上の理由から、取り消し要求メッセージに対し直接の回答はありません。
+   </P
+><P
+>CancelRequestメッセージは、接続開始段階でフロントエンドに送られたものと同一の鍵データ（PIDと秘密鍵）を含んでいない場合は無視されます。
+現在バックエンドが実行中の処理に対するPIDと秘密鍵が要求と一致した場合、その現在の問い合わせ処理は中断されます。
+（現状では、これは、その問い合わせを処理しているバックエンドプロセスに対し特別なシグナルを送ることで実装されています。）
+   </P
+><P
+>この取り消しシグナルは何の効果も生まないことがあります。
+例えば、バックエンドが問い合わせの処理を完了した後に届いた場合、効果がありません。
+もし取り消し処理が有効であれば、エラーメッセージとともに、現在のコマンドは終了されます。
+   </P
+><P
+>セキュリティと効率上の理由による上述の実装の結果、フロントエンドは取り消し要求が成功したかどうかを直接判断することはできません。
+フロントエンドはバックエンドからの問い合わせの回答を待ち続けなければいけません。
+取り消しを要求することは単に現在の問い合わせを早めに終わらせ、成功ではなくエラーメッセージを出して不成功とする可能性を単に高める程度のものです。
+   </P
+><P
+>取り消し要求は、通常のフロントエンドとバックエンドの通信接続を通してではなく新規のサーバとの接続に送られるため、取り消される問い合わせを実行したフロントエンドだけでなく、任意のプロセスによっても送信することができます。
+このことはマルチプロセスアプリケーションを作るに当たって柔軟性を提供します。
+同時に、権限のない者が問い合わせを取り消そうとするといったセキュリティ上のリスクも持ち込みます。
+このセキュリティ上のリスクは、取り消し要求内に動的に生成される秘密キーを供給することを必須とすることで回避されます。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN91701"
+>46.2.8. 終了</A
+></H2
+><P
+>通常の洗練された終了手順はフロントエンドがTerminateメッセージを出し、すぐに接続を閉じることです。
+このメッセージを受け取るとすぐにバックエンドは接続を閉じ終了します。
+   </P
+><P
+>まれに（管理者によるデータベース停止コマンドなど）、バックエンドはフロントエンドからの要求なしに切断することがあります。
+こうした場合、バックエンドは、接続を閉ざす前に切断理由を通知するエラーまたは警報メッセージの送信を試みます。
+   </P
+><P
+>他にも、どちらかの側のコアダンプ、通信リンクの消失、メッセージ境界の同期の消失など各種失敗によって終了する状況があります。
+フロントエンドかバックエンドいずれかが予期しない接続の中断を検知した場合、後始末を行い終了しなければいけません。
+フロントエンドはもし自身が終了を望まない場合、サーバに再交信し新規のバックエンドを立ち上げる選択権を持っています。
+解釈できないメッセージ種類を受け取った時、おそらくメッセージ境界の同期が消失したことを示しますので、接続を閉ざすことを勧めます。
+   </P
+><P
+>通常の終了、異常な終了のどちらの場合でも、開いているトランザクションはすべてコミットされずにロールバックされます。
+しかし、フロントエンドが<TT
+CLASS="COMMAND"
+>SELECT</TT
+>以外の問い合わせを処理中に切断した場合、バックエンドはおそらく切断に気付く前にその問い合わせを完了させてしまうでしょう。
+その問い合わせがトランザクションブロック（<TT
+CLASS="COMMAND"
+>BEGIN</TT
+> ... <TT
+CLASS="COMMAND"
+>COMMIT</TT
+>の並び）外部であった場合、切断に気付く前にその結果はコミットされる可能性があります。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN91710"
+>46.2.9. <ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>セッション暗号化</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>サポート付きで構築された場合、フロントエンドとバックエンド間の通信を<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>で暗号化することができます。
+攻撃者がセッショントラフィックをキャプチャできるような環境における通信を安全にすることができます。
+<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>を使用した<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>セッションの暗号化に関する詳細は<A
+HREF="ssl-tcp.html"
+>&#38917;17.9</A
+>を参照してください。
+   </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>暗号化接続を開始するには、フロントエンドはまず、StartupMessageではなくSSLRequestを送信します。
+その後サーバはそれぞれ<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>の実行を行うか行わないかを示す<TT
+CLASS="LITERAL"
+>S</TT
+>か<TT
+CLASS="LITERAL"
+>N</TT
+>かを持つ1バイトの応答を返します。
+フロントエンドはその応答に満足できなければ、この時点で接続を切断することができます。
+<TT
+CLASS="LITERAL"
+>S</TT
+>の後に継続するのであれば、サーバと間で<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>起動ハンドシェーク（ここでは<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>の仕様に関しては説明しません）を行います。
+これが成功した場合、続いて通常のStartupMessageの送信を行います。
+この場合、StartupMessageおよびその後のデータは<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>により暗号化されます。
+<TT
+CLASS="LITERAL"
+>N</TT
+>の後に、通常のStartupMessageを送信することで暗号化なしで進みます。
+   </P
+><P
+>また、フロントエンドはサーバからのSSLRequestに対するErrorMessage応答を取り扱うための用意もすべきです。
+これは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>サポートが追加される前のサーバの場合のみで発生します。
+この場合接続を切断しなければなりませんが、フロントエンドは<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>要求なしで新しく接続を開き、処理を進めることもできます。
+   </P
+><P
+>最初のSSLRequestはCancelRequestメッセージを送信するために開いた接続で使用することもできます。
+   </P
+><P
+>プロトコル自体には、サーバに<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>暗号化を強制する方法は用意されていませんが、管理者は認証検査の一方法として、暗号化されていないセッションを拒否するようにサーバを設定することができます。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="protocol-overview.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="protocol-replication.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>概要</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="protocol.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ストリーミングレプリケーションプロトコル</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

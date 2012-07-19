@@ -1,0 +1,473 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>インストール後の設定作業</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="  ソースコードからインストール"
+HREF="installation.html"><LINK
+REL="PREVIOUS"
+TITLE="インストール手順"
+HREF="install-procedure.html"><LINK
+REL="NEXT"
+TITLE="サポートされるプラットフォーム"
+HREF="supported-platforms.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インストール手順"
+HREF="install-procedure.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="  ソースコードからインストール"
+HREF="installation.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 15&#31456;ソースコードからインストール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="  ソースコードからインストール"
+HREF="installation.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サポートされるプラットフォーム"
+HREF="supported-platforms.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INSTALL-POST"
+>15.5. インストール後の設定作業</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN24127"
+>15.5.1. 共有ライブラリ</A
+></H2
+><P
+>共有ライブラリを持つ何らかのシステムの中には、新しくインストールされた共有ライブラリを探す場所をシステムに通知する必要があるものがあります。
+これが必要では<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ない</I
+></SPAN
+>システムは <SPAN
+CLASS="SYSTEMITEM"
+>BSD/OS</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>FreeBSD</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>HP-UX</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>IRIX</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>Linux</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>NetBSD</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>OpenBSD</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>Tru64 UNIX</SPAN
+>（以前は<SPAN
+CLASS="SYSTEMITEM"
+>Digital UNIX</SPAN
+>）、および<SPAN
+CLASS="SYSTEMITEM"
+>Solaris</SPAN
+>です。
+   </P
+><P
+>共有ライブラリの検索パスを設定する方法は、プラットフォームによって異なります。
+しかし、最もよく使用される方法は<TT
+CLASS="ENVAR"
+>LD_LIBRARY_PATH</TT
+>といった環境変数を以下のように設定することです。
+Bourne シェル系（<TT
+CLASS="COMMAND"
+>sh</TT
+>、<TT
+CLASS="COMMAND"
+>ksh</TT
+>、<TT
+CLASS="COMMAND"
+>bash</TT
+>、<TT
+CLASS="COMMAND"
+>zsh</TT
+>）では、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>LD_LIBRARY_PATH=/usr/local/pgsql/lib
+export LD_LIBRARY_PATH</PRE
+><P>
+<TT
+CLASS="COMMAND"
+>csh</TT
+>または<TT
+CLASS="COMMAND"
+>tcsh</TT
+>では、以下のように設定します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>setenv LD_LIBRARY_PATH /usr/local/pgsql/lib</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>/usr/local/pgsql/lib</TT
+>は<A
+HREF="install-procedure.html#CONFIGURE"
+>&#12473;&#12486;&#12483;&#12503;1</A
+>で<TT
+CLASS="OPTION"
+><TT
+CLASS="LITERAL"
+>--libdir</TT
+></TT
+>に設定したものに置き換えてください。
+<TT
+CLASS="FILENAME"
+>/etc/profile</TT
+>や<TT
+CLASS="FILENAME"
+>~/.bash_profile</TT
+>といったシェルの起動ファイルにこれらのコマンドを追加してください。
+この方法に関する警告についての優れた情報が<A
+HREF="http://xahlee.org/UnixResource_dir/_/ldpath.html"
+TARGET="_top"
+>http://xahlee.org/UnixResource_dir/_/ldpath.html</A
+>にあります。
+   </P
+><P
+>システムによっては、構築作業の<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>前</I
+></SPAN
+>に<TT
+CLASS="ENVAR"
+>LD_RUN_PATH</TT
+>環境変数を設定した方が良い場合があります。
+   </P
+><P
+><SPAN
+CLASS="SYSTEMITEM"
+>Cygwin</SPAN
+>では、ライブラリディレクトリを<TT
+CLASS="ENVAR"
+>PATH</TT
+>に追加するか、<TT
+CLASS="FILENAME"
+>.dll</TT
+>ファイルを<TT
+CLASS="FILENAME"
+>bin/</TT
+>ディレクトリに移動します。
+   </P
+><P
+>もし確信が持てない場合は、システムのマニュアルページ（おそらく<TT
+CLASS="COMMAND"
+>ld.so</TT
+>か<TT
+CLASS="COMMAND"
+>rld</TT
+>）を参照してください。
+もし後に下記のようなメッセージが出たら、このステップが必要だったということです。
+</P><PRE
+CLASS="SCREEN"
+>psql: error in loading shared libraries
+libpq.so.2.1: cannot open shared object file: No such file or directory</PRE
+><P>
+この場合は処置を行ってください。
+   </P
+><P
+>    
+<SPAN
+CLASS="SYSTEMITEM"
+>BSD/OS</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>Linux</SPAN
+>または<SPAN
+CLASS="SYSTEMITEM"
+>SunOS 4</SPAN
+>を使用していて、root権限があれば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/sbin/ldconfig /usr/local/pgsql/lib</PRE
+><P>
+（または同等のディレクトリ）をインストール後に実行して、実行時リンカが共有ライブラリを素早く検索できるようにできます。
+より詳細については<TT
+CLASS="COMMAND"
+>ldconfig</TT
+>のマニュアルページを参照してください。
+<SPAN
+CLASS="SYSTEMITEM"
+>FreeBSD</SPAN
+>、<SPAN
+CLASS="SYSTEMITEM"
+>NetBSD</SPAN
+>および<SPAN
+CLASS="SYSTEMITEM"
+>OpenBSD</SPAN
+>の場合のコマンドは以下の通りです。 
+</P><PRE
+CLASS="PROGRAMLISTING"
+>/sbin/ldconfig -m /usr/local/pgsql/lib</PRE
+><P>
+同様なコマンドを持つ他のシステムは知られていません。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN24184"
+>15.5.2. 環境変数</A
+></H2
+><P
+>もし<TT
+CLASS="FILENAME"
+>/usr/local/pgsql</TT
+>か、もしくはデフォルトでプログラムが検索されない場所にインストールした場合、<TT
+CLASS="FILENAME"
+>/usr/local/pgsql/bin</TT
+>（もしくは<A
+HREF="install-procedure.html#CONFIGURE"
+>&#12473;&#12486;&#12483;&#12503;1</A
+>で<TT
+CLASS="OPTION"
+><TT
+CLASS="LITERAL"
+>--bindir</TT
+></TT
+>に設定した場所）を<TT
+CLASS="ENVAR"
+>PATH</TT
+>に追加する必要があります。  
+厳密に言えば、これは必要ではありません。
+しかし、これによって<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の使用がずっと便利になります。
+   </P
+><P
+>これを行うためには、以下を<TT
+CLASS="FILENAME"
+>~/.bash_profile</TT
+>（もしくは、もし全てのユーザに反映したい場合は<TT
+CLASS="FILENAME"
+>/etc/profile</TT
+>）のようなシェルの起動ファイルに追加してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PATH=/usr/local/pgsql/bin:$PATH
+export PATH</PRE
+><P>
+<TT
+CLASS="COMMAND"
+>csh</TT
+>や<TT
+CLASS="COMMAND"
+>tcsh</TT
+>を使用している場合は、以下のコマンドを使用してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>set path = ( /usr/local/pgsql/bin $path )</PRE
+><P>
+   </P
+><P
+>    
+デフォルトで検索される場所にインストールした場合を除き、システムが<SPAN
+CLASS="APPLICATION"
+>man</SPAN
+>ドキュメントを検索できるようにするためには、以下の行をシェルの起動ファイルに追加する必要があります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>MANPATH=/usr/local/pgsql/man:$MANPATH
+export MANPATH</PRE
+><P>
+   </P
+><P
+>環境変数<TT
+CLASS="ENVAR"
+>PGHOST</TT
+>と<TT
+CLASS="ENVAR"
+>PGPORT</TT
+>は、クライアントアプリケーションにデータベースサーバのホストとポートを指定し、コンパイル時に決定されたデフォルト値を無効にします。
+クライアントアプリケーションをリモートで実行する場合、データベースを使用する予定の全てのユーザが<TT
+CLASS="ENVAR"
+>PGHOST</TT
+>を設定していると便利です。
+しかしこれは必須ではありません。
+この設定は、ほとんどのクライアントプログラムのコマンドラインオプションでも設定することができます。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="install-procedure.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="supported-platforms.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インストール手順</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="installation.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>サポートされるプラットフォーム</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

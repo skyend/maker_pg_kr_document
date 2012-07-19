@@ -1,0 +1,1467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>基本的な文</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="式"
+HREF="plpgsql-expressions.html"><LINK
+REL="NEXT"
+TITLE="制御構造"
+HREF="plpgsql-control-structures.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="式"
+HREF="plpgsql-expressions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="制御構造"
+HREF="plpgsql-control-structures.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-STATEMENTS"
+>39.5. 基本的な文</A
+></H1
+><P
+>本節および次節では、明示的に<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>で解釈される、全ての種類の文について説明します。
+これらの種類の文として認められないものは全て、SQLコマンドであると仮定され、<A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-SQL-NORESULT"
+>&#38917;39.5.2</A
+>および<A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-SQL-ONEROW"
+>&#38917;39.5.3</A
+>において記述したように、メインデータベースエンジンに送信され実行されます。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-STATEMENTS-ASSIGNMENT"
+>39.5.1. 代入</A
+></H2
+><P
+>値を<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数に代入する場合は以下のように記述します。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>variable</I
+></TT
+> := <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>;</PRE
+><P>
+上述した通り、このような文中にある式は、メインデータベースエンジンに送信される<TT
+CLASS="COMMAND"
+>SELECT</TT
+> SQLコマンドによって評価されます。
+式は1つの値を生成しなければなりません
+(変数が行変数またはレコード変数の場合は行値となるかもしれません)。
+対象の変数は単純な変数(ブロック名で修飾可能)、行変数またはレコード変数のフィールド、または単純な変数またはフィールドとなる配列要素とすることができます。
+    </P
+><P
+>式の結果データ型が変数のデータ型に一致しない場合、または、変数が（<TT
+CLASS="TYPE"
+>char(20)</TT
+>のように）特定の大きさ/精度を持つ場合、結果の値は <SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>インタプリタによって、結果の型の出力関数と変数の型の入力関数を使用して暗黙的に変換されます。
+これにより、結果値の文字列形式を入力関数で受け付けることができない場合に、入力関数において実行時エラーが発生する可能性があることに注意してください。
+    </P
+><P
+>例：
+</P><PRE
+CLASS="PROGRAMLISTING"
+>tax := subtotal * 0.06;
+my_record.user_id := 20;</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-STATEMENTS-SQL-NORESULT"
+>39.5.2. 結果を伴わないコマンドの実行</A
+></H2
+><P
+>例えば、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句のない<TT
+CLASS="COMMAND"
+>INSERT</TT
+>のように、行を返さない任意のSQLのコマンドについては、単にそのコマンドを記述することによって<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数の内部でコマンドを実行できます。
+    </P
+><P
+>コマンドテキストに現れる全ての<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数名は、パラメータとして扱われます。
+その後、実行時のパラメータ値として、その時点の変数値が提供されます。
+これは以前に述べた式に関する処理と同じです。
+<A
+HREF="plpgsql-implementation.html#PLPGSQL-VAR-SUBST"
+>&#38917;39.10.1</A
+>を参照してください。
+     </P
+><P
+>SQLコマンドがこのように実行されると、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>はコマンドを一度だけ計画し、データベース接続が切断されるまで、以後の実行でその計画を再利用します。
+これに関する詳細については<A
+HREF="plpgsql-implementation.html#PLPGSQL-PLAN-CACHING"
+>&#38917;39.10.2</A
+>を参照してください。
+    </P
+><P
+>式または<TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせを評価して結果を破棄することが、役に立つ場合があります。
+例えば、関数の呼び出しにおいて、副次的な成果を取得できるが、結果は無用である場合です。
+このような時<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>では、<TT
+CLASS="COMMAND"
+>PERFORM</TT
+>文を使用してください。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>PERFORM <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>;</PRE
+><P>
+
+これは<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>を実行し、その結果を破棄します。
+SQLの<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文と同じ方法で<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>を記述しますが、最初のキーワード<TT
+CLASS="COMMAND"
+>SELECT</TT
+>を<TT
+CLASS="COMMAND"
+>PERFORM</TT
+>に置き換えてください。
+<TT
+CLASS="COMMAND"
+>WITH</TT
+>問い合わせに対しては、<TT
+CLASS="COMMAND"
+>PERFORM</TT
+> を使用して、問い合わせをカッコ内に配置してください。
+（この場合、問い合わせは1行だけ返すことができます。）
+結果を返さないコマンドと同様に、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数は問い合わせ内に置き換えられ、計画は同様にキャッシュされます。
+また、特殊な変数である<TT
+CLASS="LITERAL"
+>FOUND</TT
+>は問い合わせ結果が1行でも生成された場合は真に設定され、生成されない場合は偽に設定されます（<A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-DIAGNOSTICS"
+>&#38917;39.5.5</A
+>を参照してください）。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>直接<TT
+CLASS="COMMAND"
+>SELECT</TT
+>を記述すれば、この結果を得ることができると考えるかもしれませんが、現時点でこれを行う方法は<TT
+CLASS="COMMAND"
+>PERFORM</TT
+>しかありません。
+<TT
+CLASS="COMMAND"
+>SELECT</TT
+>のように行を返すSQLコマンドは、エラーとして拒絶されます。
+なお、<TT
+CLASS="LITERAL"
+>INTO</TT
+>句を有する時は例外であり、次節で説明します。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PERFORM create_mv('cs_session_page_requests_mv', my_query);</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-STATEMENTS-SQL-ONEROW"
+>39.5.3. 1行の結果を返す問い合わせの実行</A
+></H2
+><P
+>（多分、複数列の）1行を返すSQLコマンドの結果は、レコード変数、行型の変数、スカラ変数のリストに代入することができます。
+これは、基本的なSQLコマンドを記述して、それに<TT
+CLASS="LITERAL"
+>INTO</TT
+>句を追加することによって行われます。
+以下に例を示します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>SELECT <TT
+CLASS="REPLACEABLE"
+><I
+>select_expressions</I
+></TT
+> INTO [<SPAN
+CLASS="OPTIONAL"
+>STRICT</SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+> FROM ...;
+INSERT ... RETURNING <TT
+CLASS="REPLACEABLE"
+><I
+>expressions</I
+></TT
+> INTO [<SPAN
+CLASS="OPTIONAL"
+>STRICT</SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+>;
+UPDATE ... RETURNING <TT
+CLASS="REPLACEABLE"
+><I
+>expressions</I
+></TT
+> INTO [<SPAN
+CLASS="OPTIONAL"
+>STRICT</SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+>;
+DELETE ... RETURNING <TT
+CLASS="REPLACEABLE"
+><I
+>expressions</I
+></TT
+> INTO [<SPAN
+CLASS="OPTIONAL"
+>STRICT</SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+>;</PRE
+><P>
+
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+>はレコード変数、行変数、あるいは、単純な変数とレコード/行変数のフィールドをカンマで区切ったリストです。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数により残りの問い合わせが置換され、行を返さないコマンドにおいて述べたように計画がキャッシュされます。
+このように作動するのは、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>を伴った<TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>と<TT
+CLASS="COMMAND"
+>SELECT</TT
+>および行セットの結果を返すユーティリティコマンド（例えば、<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>）です。
+<TT
+CLASS="LITERAL"
+>INTO</TT
+>句以外では、SQLコマンドは<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の外部に記述したものと同じです。
+    </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>通常の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>文では、<TT
+CLASS="LITERAL"
+>INTO</TT
+>の対象は新しく作成されるテーブルです。
+しかし、<TT
+CLASS="LITERAL"
+>INTO</TT
+>を伴った<TT
+CLASS="COMMAND"
+>SELECT</TT
+>では、この解釈が通常と大きく異なることに注意してください。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数内部で<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の結果からテーブルを作成したい場合は、<TT
+CLASS="COMMAND"
+>CREATE TABLE ... AS SELECT</TT
+>構文を使用してください。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>行または変数リストが対象に使用された場合、列数とデータ型において問い合わせの結果と対象の構造が正確に一致しなければなりません。
+さもないと、実行時エラーが発生します。
+レコード変数が対象の場合は、問い合わせ結果の列の行型に自身を自動的に設定します。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>INTO</TT
+>句はSQLコマンドのほとんど任意の場所に記述することができます。
+習慣的には、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文においては<TT
+CLASS="REPLACEABLE"
+><I
+>select_expressions</I
+></TT
+>の直前または直後に、他のコマンドにおいては文の終わりに記述されます。
+将来のバージョンで<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>のパーサがより厳格になる場合に備えて、この習慣に従うことを推奨します。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>INTO</TT
+>句において<TT
+CLASS="LITERAL"
+>STRICT</TT
+>が指定されない場合、<TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+>は問い合わせが返す最初の行となり、行を返さない時はNULLとなります。
+（<SPAN
+CLASS="QUOTE"
+>"最初の行"</SPAN
+>とは<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を使用しないと定義できないことに注意してください。）
+2行目以降の行の結果は、全て破棄されます。
+以下のように、特殊な<TT
+CLASS="LITERAL"
+>FOUND</TT
+>変数（<A
+HREF="plpgsql-statements.html#PLPGSQL-STATEMENTS-DIAGNOSTICS"
+>&#38917;39.5.5</A
+>を参照してください）を調べて、行が返されたかどうかを検査することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * INTO myrec FROM emp WHERE empname = myname;
+IF NOT FOUND THEN
+    RAISE EXCEPTION 'employee % not found', myname;
+END IF;</PRE
+><P>
+
+<TT
+CLASS="LITERAL"
+>STRICT</TT
+>オプションが指定された場合、問い合わせは正確に1行を返さなければなりません。
+さもないと、行がない時は<TT
+CLASS="LITERAL"
+>NO_DATA_FOUND</TT
+>、2行以上が返った時は<TT
+CLASS="LITERAL"
+>TOO_MANY_ROWS</TT
+>という実行時エラーが生じます。
+エラーを捕捉したい時は、例外ブロックを使用できます。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN
+    SELECT * INTO STRICT myrec FROM emp WHERE empname = myname;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            RAISE EXCEPTION 'employee % not found', myname;
+        WHEN TOO_MANY_ROWS THEN
+            RAISE EXCEPTION 'employee % not unique', myname;
+END;</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>STRICT</TT
+>を指定したコマンドが成功すると、<TT
+CLASS="LITERAL"
+>FOUND</TT
+>変数は常に真に設定されます。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>STRICT</TT
+>が指定されない場合でも、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>を伴った<TT
+CLASS="COMMAND"
+>INSERT</TT
+>/<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>/<TT
+CLASS="COMMAND"
+>DELETE</TT
+>が2行以上を返した時は、エラーとなります。
+なぜなら、どの1行を返すか決定する<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>のようなオプションが存在しないからです。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="LITERAL"
+>STRICT</TT
+>オプションは、OracleのPL/SQLの<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>および関連した文に対応します。
+     </P
+></BLOCKQUOTE
+></DIV
+><P
+>SQLの問い合わせが返す複数行の結果を処理したい場合は、<A
+HREF="plpgsql-control-structures.html#PLPGSQL-RECORDS-ITERATING"
+>&#38917;39.6.4</A
+>を参照してください。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-STATEMENTS-EXECUTING-DYN"
+>39.5.4. 動的コマンドの実行</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数の内部で、動的コマンド、つまり実行する度に別のテーブルや別のデータ型を使用するコマンドを生成したいということがよくあるでしょう。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>が通常行うコマンドの計画のキャッシュは（<A
+HREF="plpgsql-implementation.html#PLPGSQL-PLAN-CACHING"
+>&#38917;39.10.2</A
+>で述べたように）このような状況では動作しません。
+この種の問題を扱うために、以下の<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>文が用意されています。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>EXECUTE <TT
+CLASS="REPLACEABLE"
+><I
+>command-string</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> INTO [<SPAN
+CLASS="OPTIONAL"
+>STRICT</SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+> </SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>] </SPAN
+>];</PRE
+><P>
+
+ここで、<TT
+CLASS="REPLACEABLE"
+><I
+>command-string</I
+></TT
+>は実行されるコマンドを含む（<TT
+CLASS="TYPE"
+>text</TT
+>型の）文字列を生成する式です。
+オプションの<TT
+CLASS="REPLACEABLE"
+><I
+>target</I
+></TT
+>はレコード変数、行変数、あるいは、単純な変数とレコード/行変数のフィールドをカンマで区切ったリストで、その中にコマンドの結果が格納されます。
+オプションの<TT
+CLASS="LITERAL"
+>USING</TT
+>式は コマンドに挿入される値を与えます。
+    </P
+><P
+>     
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数は、この演算用のコマンド文字列へ置換されません。
+必要な変数の値はすべてコマンド文字列を作成する時に埋め込まなければなりません。
+もしくは、以下に説明するパラメータを使用することもできます。
+    </P
+><P
+>また、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>を介して実行されるコマンド計画をキャッシュすることはありません。
+代わりに、コマンドは文が実行される時に準備されます。
+したがって、異なるテーブルと列に対する操作を実行できるように、コマンド文字列を関数内部で動的に作成することができます。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>INTO</TT
+>句は、行を返すSQLコマンドの結果を代入するべき場所を指定します。
+行または変数リストが用いられる時、それは問い合わせの結果の構造と正確に一致しなければなりません
+(レコード変数が使用される時、自動的に結果の構造と一致するように自身を構築させます）。
+複数の行が返された時、最初の行だけが<TT
+CLASS="LITERAL"
+>INTO</TT
+>変数に代入されます。
+1行も返されない時、NULL が<TT
+CLASS="LITERAL"
+>INTO</TT
+>変数に代入されます。
+<TT
+CLASS="LITERAL"
+>INTO</TT
+>句が指定されない時、問い合わせの結果は捨てられます。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>STRICT</TT
+>オプションが指定された時、問い合わせの結果が正確に1行の場合を除き、エラーとなります。
+    </P
+><P
+>    
+コマンド文字列はパラメータ値を使用可能で、それらは<TT
+CLASS="LITERAL"
+>$1</TT
+>、<TT
+CLASS="LITERAL"
+>$2</TT
+>等としてコマンドの中で参照されます。
+これらの記号は<TT
+CLASS="LITERAL"
+>USING</TT
+>で与えられる値を参照します。
+この方式はデータの値をテキストとしてコマンド文字列の中に挿入する際、よく好まれます。
+それは値をテキストに変換、そしてその逆を行う場合の実行時オーバーヘッドを防止するとともに、引用符付けするとか、エスケープをする必要がないため、SQLインジェクション攻撃に対してより襲われにくくなります。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXECUTE 'SELECT count(*) FROM mytable WHERE inserted_by = $1 AND inserted &lt;= $2'
+   INTO c
+   USING checked_user, checked_date;</PRE
+><P>
+    </P
+><P
+>パラメータ記号はデータ値のみ使用可能です。
+もし動的に決定されるテーブルや列名を使用したい場合、テキストでコマンド文字列にそれらを挿入する必要があります。
+例えば、先行する問い合わせが、動的に選択されたテーブルに対して処理される必要がある時は、次のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXECUTE 'SELECT count(*) FROM '
+    || tabname::regclass
+    || ' WHERE inserted_by = $1 AND inserted &lt;= $2'
+   INTO c
+   USING checked_user, checked_date;</PRE
+><P>
+他にもパラメータ記号は<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>コマンドでしか動作しない、という制限があります。
+他の種類の文(一般的にユーティリティ文と呼ばれます)では、単なるデータ値であったとしてもテキストの値として埋め込まなければなりません。
+    </P
+><P
+>    
+最初の例のように、単純な定数コマンドと<TT
+CLASS="LITERAL"
+>USING</TT
+>パラメータを使った<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>は、コマンドを直接<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>で書いて、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>変数を自動的に置換したものと機能的に同じです。
+重要な差異として、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>が現在のパラメータ値に特化した計画を生成し、コマンドを実行する度に計画を再作成することです。
+一方、<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>は通常一般的な計画を作成し、再使用に備えキャッシュします。
+最適な計画がパラメータ値に大きく依存する場合、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>は大幅に高速化されますが、計画がパラメータ値に依存しない場合、計画の再作成は無駄になります。
+    </P
+><P
+><TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>は<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>では現在サポートされません。
+代わりに、普通の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドを実行し、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>の一部として<TT
+CLASS="LITERAL"
+>INTO</TT
+>を記述してください。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> <TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>文は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバでサポートされている<A
+HREF="sql-execute.html"
+>EXECUTE</A
+>SQL文とは関連がありません。
+サーバの<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>文は<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数内で使用することはできません（使用する必要もありません）。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="PLPGSQL-QUOTE-LITERAL-EXAMPLE"
+></A
+><P
+><B
+>&#20363; 39-1. 動的問い合わせの中の値の引用符付け</B
+></P
+><P
+>動的コマンドを使用する時、しばしば<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>では単一引用符をエスケープしなければなりません。
+関数本体における固定のテキストを引用符付けする推奨方法は、ドル引用符を使用する方法です。
+（ドル引用符を用いない旧式のコードを保有している場合は、<A
+HREF="plpgsql-development-tips.html#PLPGSQL-QUOTE-TIPS"
+>&#38917;39.11.1</A
+>の概要を参照することが、理解しやすいコードへの変換作業の手助けになります）。
+    </P
+><P
+>作成した問い合わせに挿入すべき動的な値は、それ自身の内部に引用符を含む可能性があるため、注意深い処理が必要です。
+以下に例を示します（ここでは関数にドル引用符を用いる方法を使用すると仮定しているので、引用符を二重化する必要はありません）。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXECUTE 'UPDATE tbl SET '
+        || quote_ident(colname)
+        || ' = '
+        || quote_literal(newvalue)
+        || ' WHERE key = '
+        || quote_literal(keyvalue);</PRE
+><P>
+    </P
+><P
+>     
+この例は、<CODE
+CLASS="FUNCTION"
+>quote_ident</CODE
+>と<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>関数（<A
+HREF="functions-string.html"
+>&#38917;9.4</A
+>を参照）の使用方法を示しています。
+安全のため、列またはテーブル識別子を含む式は動的問い合わせに挿入する前に<CODE
+CLASS="FUNCTION"
+>quote_ident</CODE
+>を介して渡されなくてはなりません。
+組み立てられるコマンドの中のリテラル文字列となるはずの値を含む式は、<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>を介して渡されなければなりません。
+これらの関数は、すべての特殊文字を適切にエスケープして埋め込んだ、二重引用符または単一引用符で囲まれた入力テキストを返すために、適切な手順を踏みます。
+    </P
+><P
+>    
+<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>は<TT
+CLASS="LITERAL"
+>STRICT</TT
+>ラベル付けされているため、NULL引数で呼び出された場合、常にNULLを返します。
+上記の例で、<TT
+CLASS="LITERAL"
+>newvalue</TT
+>または<TT
+CLASS="LITERAL"
+>keyvalue</TT
+>がNULLの場合、動的問合せ文字列全体がNULLとなり、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>からのエラーを導きます。
+<CODE
+CLASS="FUNCTION"
+>quote_nullable</CODE
+>関数を使用することで、この問題を回避することができます。
+その動作は、NULL引数付きで呼び出された場合に文字列<TT
+CLASS="LITERAL"
+>NULL</TT
+>を返すことを除いて<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>と同一です。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXECUTE 'UPDATE tbl SET '
+        || quote_ident(colname)
+        || ' = '
+        || quote_nullable(newvalue)
+        || ' WHERE key = '
+        || quote_nullable(keyvalue);</PRE
+><P>
+     
+NULLの可能性のある値を処理するのであれば、通常<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>の代わりに<CODE
+CLASS="FUNCTION"
+>quote_nullable</CODE
+>を使用しなければなりません。
+    </P
+><P
+>    
+いつものように、問い合わせの中のNULL値は意図しない結果を確実にもたらさないよう配慮をしなければなりません。
+例えば次のような<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の結果はどうなるのでしょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'WHERE key = ' || quote_nullable(keyvalue)</PRE
+><P>
+これは<TT
+CLASS="LITERAL"
+>keyvalue</TT
+>がNULLである限り成功しません。
+その理由は、等価演算子<TT
+CLASS="LITERAL"
+>=</TT
+>をNULLオペランドで使用するとその結果は常にNULLとなるからです。
+NULLを通常のキーの値と同じように動作させたい場合、上記を、以下のように書き換えなければなりません。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'WHERE key IS NOT DISTINCT FROM ' || quote_nullable(keyvalue)</PRE
+><P>
+（現時点では、<TT
+CLASS="LITERAL"
+>IS NOT DISTINCT FROM</TT
+>は<TT
+CLASS="LITERAL"
+>=</TT
+>よりもより効率性が少なく扱われますので、必要に迫られた場合以外は行わないようにしてください。
+NULLと<TT
+CLASS="LITERAL"
+>IS DISTINCT</TT
+>についての更なる情報は<A
+HREF="functions-comparison.html"
+>&#38917;9.2</A
+>を参照してください。）
+    </P
+><P
+>ドル引用符は固定のテキストを引用符付けする場合のみ有用であるということに注意してください。
+この例を次のように記述するのは非常に悪い考えです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXECUTE 'UPDATE tbl SET '
+        || quote_ident(colname)
+        || ' = $$'
+        || newvalue
+        || '$$ WHERE key = '
+        || quote_literal(keyvalue);</PRE
+><P>
+
+なぜなら、<TT
+CLASS="LITERAL"
+>newvalue</TT
+>の内容がたまたま<TT
+CLASS="LITERAL"
+>$$</TT
+>を含む時は、途中で次の処理へ移ってしまうからです。
+同様の不測事態は、ドル引用符の他の区切り文字を選んだ時も起こります。
+したがって、テキストの内容を把握していない時は、安全にテキストを引用符付けするために、<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>、<CODE
+CLASS="FUNCTION"
+>quote_nullable</CODE
+>、または<CODE
+CLASS="FUNCTION"
+>quote_ident</CODE
+>関数を適切に使用<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>しなければなりません</I
+></SPAN
+>。
+    </P
+><P
+>動的 SQL 文は<CODE
+CLASS="FUNCTION"
+>format</CODE
+>関数を使用しても安全に作成できます（<A
+HREF="functions-string.html"
+>&#38917;9.4</A
+>参照）。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXECUTE format('UPDATE tbl SET %I = %L WHERE key = %L', colname, newvalue, keyvalue);</PRE
+><P>
+<CODE
+CLASS="FUNCTION"
+>format</CODE
+>関数は<TT
+CLASS="LITERAL"
+>USING</TT
+>句と共に使用できます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXECUTE format('UPDATE tbl SET %I = $1 WHERE key = $2', colname)
+   USING newvalue, keyvalue;</PRE
+><P>
+この形式はさらに有効です。
+なぜなら、<TT
+CLASS="LITERAL"
+>newvalue</TT
+>と<TT
+CLASS="LITERAL"
+>keyvalue</TT
+>パラメータは、テキスト型に変換されないからです。
+    </P
+></DIV
+><P
+>動的問い合わせと<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>の長大な例は<A
+HREF="plpgsql-porting.html#PLPGSQL-PORTING-EX2"
+>&#20363;39-8</A
+>にあります。
+それは新しい関数を定義するために<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドを組み立て実行するものです。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-STATEMENTS-DIAGNOSTICS"
+>39.5.5. 結果ステータスの取得</A
+></H2
+><P
+>コマンドの効果を判断するにはいくつか方法があります。
+最初の方法は以下のような形式の<TT
+CLASS="COMMAND"
+>GET DIAGNOSTICS</TT
+>を使用する方法です。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>GET DIAGNOSTICS <TT
+CLASS="REPLACEABLE"
+><I
+>variable</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>item</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> , ... </SPAN
+>];</PRE
+><P>
+
+このコマンドによってシステムステータスインジケータを取り出すことができます。
+各<TT
+CLASS="REPLACEABLE"
+><I
+>item</I
+></TT
+>は、指定された変数（これは受け取るために正しいデータ型でなければなりません）に代入される状態値を識別するキーワードです。
+現在使用可能なステータス項目は、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>エンジンに送信された最終<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドにより処理された行数を示す<TT
+CLASS="VARNAME"
+>ROW_COUNT</TT
+>、および、最も最近の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>コマンドにより挿入された最後の行のOIDを示す<TT
+CLASS="VARNAME"
+>RESULT_OID</TT
+>です。
+<TT
+CLASS="VARNAME"
+>RESULT_OID</TT
+>はOIDを保有するテーブルへの<TT
+CLASS="COMMAND"
+>INSERT</TT
+>コマンドの後でのみ有意であることに注意してください。
+    </P
+><P
+>以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>GET DIAGNOSTICS integer_var = ROW_COUNT;</PRE
+><P>
+    </P
+><P
+>コマンドの効果を判断する2番目の方法は、<TT
+CLASS="LITERAL"
+>FOUND</TT
+>という<TT
+CLASS="TYPE"
+>boolean</TT
+>型の特殊な変数を検査することです。
+<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>の各関数呼び出しで使用される際、<TT
+CLASS="LITERAL"
+>FOUND</TT
+>は最初は偽に設定されています。
+以下のように、それぞれの文の種類によって設定が変更されます。
+         <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>文は、行が代入された場合は真、返されなかった場合は偽を<TT
+CLASS="LITERAL"
+>FOUND</TT
+>に設定します。
+           </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>PERFORM</TT
+>文は、1つ以上の行が生成（破棄）された場合は真、まったく生成されなかった場合は偽を<TT
+CLASS="LITERAL"
+>FOUND</TT
+>に設定します。
+           </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、および<TT
+CLASS="COMMAND"
+>DELETE</TT
+>文は、少なくとも1行が影響を受けた場合は真、まったく影響を受けなかった場合は偽を<TT
+CLASS="LITERAL"
+>FOUND</TT
+>に設定します。
+           </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>FETCH</TT
+>文は、行が返された場合は真、まったく返されなかった場合は偽を<TT
+CLASS="LITERAL"
+>FOUND</TT
+>に設定します。
+           </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>MOVE</TT
+>文は、カーソルの移動が成功したが場合は真、失敗した場合は偽を<TT
+CLASS="LITERAL"
+>FOUND</TT
+>に設定します。
+           </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>FOR</TT
+>文または<TT
+CLASS="COMMAND"
+>FOREACH</TT
+>文は、1回以上繰り返しが行われた場合は真、行われなかった場合は偽を<TT
+CLASS="LITERAL"
+>FOUND</TT
+>に設定します。
+<TT
+CLASS="LITERAL"
+>FOUND</TT
+>はループが終了した際、このように設定されます。
+ループ実行中はループ文による<TT
+CLASS="LITERAL"
+>FOUND</TT
+>の変更はありません。
+ただし、ループ本体内の他種類の文を実行することによって、変更されるかもしれません。
+           </P
+></LI
+><LI
+><P
+>	  
+<TT
+CLASS="COMMAND"
+>RETURN QUERY</TT
+>と<TT
+CLASS="COMMAND"
+>RETURN QUERY EXECUTE</TT
+>文は、問い合わせが行を１つでも返せば真、行が返されなければ偽を設定します。
+           </P
+></LI
+></UL
+><P>
+
+他の<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>文は<TT
+CLASS="LITERAL"
+>FOUND</TT
+>の状態を変更しません。
+特に、<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>は<TT
+CLASS="COMMAND"
+>GET DIAGNOSTICS</TT
+>の出力を変更しますが、<TT
+CLASS="LITERAL"
+>FOUND</TT
+>を変更しないことに注意してください。
+    </P
+><P
+><TT
+CLASS="LITERAL"
+>FOUND</TT
+>はそれぞれの<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>関数内部のローカル変数です。
+<TT
+CLASS="LITERAL"
+>FOUND</TT
+>に対して行われた全ての変更は、現在の関数にのみ影響します。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPGSQL-STATEMENTS-NULL"
+>39.5.6. まったく何もしない</A
+></H2
+><P
+>何もしないプレースホルダ文が有用になることがあります。
+例えば、IF/THEN/ELSE文の一部が空文であることを明示したい時です。
+このような目的には<TT
+CLASS="COMMAND"
+>NULL</TT
+>文を使用します。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>NULL;</PRE
+><P>
+    </P
+><P
+>例えば、次の2つのコードは同等です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN
+    y := x / 0;
+EXCEPTION
+    WHEN division_by_zero THEN
+        NULL;  -- 誤りを無視する
+END;
+    END;</PRE
+><P>
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN
+    y := x / 0;
+EXCEPTION
+    WHEN division_by_zero THEN  -- 誤りを無視する
+END;</PRE
+><P>
+
+どちらが望ましいと思うかは、好みの問題です。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>OracleのPL/SQLでは無記述の文は許されませんので、こうした状況では<TT
+CLASS="COMMAND"
+>NULL</TT
+>文が<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必須</I
+></SPAN
+>です。
+しかし<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>では無記述の文が許可されています。
+     </P
+></BLOCKQUOTE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-expressions.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-control-structures.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>式</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>制御構造</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

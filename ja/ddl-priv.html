@@ -1,0 +1,338 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>権限</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ定義"
+HREF="ddl.html"><LINK
+REL="PREVIOUS"
+TITLE="テーブルの変更"
+HREF="ddl-alter.html"><LINK
+REL="NEXT"
+TITLE="スキーマ"
+HREF="ddl-schemas.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="テーブルの変更"
+HREF="ddl-alter.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 5&#31456;データ定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ定義"
+HREF="ddl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="スキーマ"
+HREF="ddl-schemas.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DDL-PRIV"
+>5.6. 権限</A
+></H1
+><P
+>オブジェクトが作成されると、所有者が割り当てられます。通常、所有者は作成する文を実行したロールです。ほとんどの種類のオブジェクトについて、初期状態では所有者(またはスーパーユーザ)だけがそのオブジェクトを使用できます。
+他のユーザがこのオブジェクトを使用するには、<I
+CLASS="FIRSTTERM"
+>権限</I
+>が付与されていなければなりません。
+  </P
+><P
+>権限にはいくつかの種類があります。
+すなわち<TT
+CLASS="LITERAL"
+>SELECT</TT
+>、 <TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>、<TT
+CLASS="LITERAL"
+>TRUNCATE</TT
+>、<TT
+CLASS="LITERAL"
+>REFERENCES</TT
+>、<TT
+CLASS="LITERAL"
+>TRIGGER</TT
+>、<TT
+CLASS="LITERAL"
+>CREATE</TT
+>、<TT
+CLASS="LITERAL"
+>CONNECT</TT
+>、<TT
+CLASS="LITERAL"
+>TEMPORARY</TT
+>、 <TT
+CLASS="LITERAL"
+>EXECUTE</TT
+>、<TT
+CLASS="LITERAL"
+>USAGE</TT
+>です。
+特定のオブジェクトに適用する特権は、オブジェクトの型（テーブル、関数など）により変わります。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がサポートする様々な権限の詳細については<A
+HREF="sql-grant.html"
+>GRANT</A
+>リファレンスページを参照してください。
+以降の節および章でもこれらの権限の使用方法についての説明があります。
+  </P
+><P
+>オブジェクトの変更や削除の権限は常に所有者のみに与えられるものです。
+  </P
+><P
+><A
+HREF="sql-altertable.html"
+>ALTER TABLE</A
+>のような適切な種類の<TT
+CLASS="COMMAND"
+>ALTER</TT
+>コマンドにより、あるオブジェクトに新しい所有者を割り当てることができます。スーパーユーザはいつでも所有者を変更できます。通常のロールは、対象オブジェクトの現在の所有者(または所有者ロールのメンバー)であり、かつ新しい所有者ロールのメンバーである場合に限り、所有者を変更できます。
+  </P
+><P
+>権限を割り当てるには、<TT
+CLASS="COMMAND"
+>GRANT</TT
+>コマンドを使用します。
+例えば、<TT
+CLASS="LITERAL"
+>joe</TT
+>という既存のユーザと<TT
+CLASS="LITERAL"
+>accounts</TT
+>という既存のテーブルがある場合、このテーブルを更新する権限を付与するには以下のようにします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>GRANT UPDATE ON accounts TO joe;</PRE
+><P>
+特定の権限名を指定する代わりに<TT
+CLASS="LITERAL"
+>ALL</TT
+>を指定すると、その種類のオブジェクトに関連する全ての権限が付与されます。
+  </P
+><P
+>システム内の全てのユーザに権限を付与するには、特別な<SPAN
+CLASS="QUOTE"
+>"ユーザ"</SPAN
+>名である<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>を使用することができます。
+また、<SPAN
+CLASS="QUOTE"
+>"グループ"</SPAN
+>ロールを使用すれば、データベース内に多くのユーザが存在する場合に権限の管理が簡単になります。
+詳細は<A
+HREF="user-manag.html"
+>&#31532;20&#31456;</A
+>を参照してください。
+  </P
+><P
+>権限を取り消す(revoke)には、それに相応しい名前の<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>コマンドを使用します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>REVOKE ALL ON accounts FROM PUBLIC;</PRE
+><P>
+オブジェクト所有者の特別の権限（<TT
+CLASS="COMMAND"
+>DROP</TT
+>、<TT
+CLASS="COMMAND"
+>GRANT</TT
+>、<TT
+CLASS="COMMAND"
+>REVOKE</TT
+>を行う権限など）は、所有者であることを前提とした権限なので、付与したり取り消したりすることはできません。
+しかしオブジェクト所有者は、テーブルを他のユーザ同様に自分自身に対しても読み取り専用にしたい時などに、自分の通常の権限を取り消すことができます。
+  </P
+><P
+>普通はオブジェクトの所有者（またはスーパーユーザ）は、オブジェクトにおける権限の付与や剥奪ができます。
+しかし<SPAN
+CLASS="QUOTE"
+>"with grant option"</SPAN
+>を付けることで、権限を与えられたユーザが、所有者と同様に他のユーザに権限を付与することが可能になります。
+もし後になってグラントオプションが剥奪されると、剥奪されたユーザから（直接もしくは権限付与の連鎖により）権限を与えられていたユーザはすべて、その権限が剥奪されます。
+詳細は、<A
+HREF="sql-grant.html"
+>GRANT</A
+>と<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="ddl-alter.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="ddl-schemas.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>テーブルの変更</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="ddl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>スキーマ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

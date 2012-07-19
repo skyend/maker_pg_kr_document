@@ -1,0 +1,786 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>行推定の例</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="プランナが統計情報をどのように使用するか"
+HREF="planner-stats-details.html"><LINK
+REL="PREVIOUS"
+TITLE="プランナが統計情報をどのように使用するか"
+HREF="planner-stats-details.html"><LINK
+REL="NEXT"
+TITLE="付録"
+HREF="appendixes.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="プランナが統計情報をどのように使用するか"
+HREF="planner-stats-details.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="プランナが統計情報をどのように使用するか"
+HREF="planner-stats-details.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 57&#31456;プランナが統計情報をどのように使用するか</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="プランナが統計情報をどのように使用するか"
+HREF="planner-stats-details.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="付録"
+HREF="appendixes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ROW-ESTIMATION-EXAMPLES"
+>57.1. 行推定の例</A
+></H1
+><P
+>以下の例は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>リグレッション試験データベース内のテーブルを使用します。
+表示される出力はバージョン8.3で取得しました。
+以前の（または以降の）バージョンとは動作が変わっているかもしれません。
+また、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>は統計情報を生成する時にランダムなサンプリングを行いますので、結果は<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>を新しく行った後に多少変わることに注意してください。
+  </P
+><P
+>非常に簡単な問い合わせから始めましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXPLAIN SELECT * FROM tenk1;
+
+                         QUERY PLAN
+-------------------------------------------------------------
+ Seq Scan on tenk1  (cost=0.00..458.00 rows=10000 width=244)</PRE
+><P>
+
+プランナがどのように<CODE
+CLASS="CLASSNAME"
+>tenk1</CODE
+>の濃度を決定するかについては<A
+HREF="planner-stats.html"
+>&#38917;14.2</A
+>で説明しました。
+しかし、ここで完全になるように繰り返し説明します。
+ページ数および行数は<CODE
+CLASS="CLASSNAME"
+>pg_class</CODE
+>から検索されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT relpages, reltuples FROM pg_class WHERE relname = 'tenk1';
+
+ relpages | reltuples
+----------+-----------
+      358 |     10000</PRE
+><P>
+
+これらの値は最後にそのテーブルを<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>または<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>を行った時点のものです。
+プランナはその後、テーブル内の実際のページ数を取り出します（これはテーブルスキャンを行わない安価な操作です）。
+<TT
+CLASS="STRUCTFIELD"
+>relpages</TT
+>と異なる場合、<TT
+CLASS="STRUCTFIELD"
+>reltuples</TT
+>は現在の推定行数に達するまで増大されます。
+この場合、推定行は<TT
+CLASS="STRUCTFIELD"
+>reltuples</TT
+>と同じですので、値は正確です。
+  </P
+><P
+>次に<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句に範囲条件を持つ例に進みましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXPLAIN SELECT * FROM tenk1 WHERE unique1 &lt; 1000;
+
+                                   QUERY PLAN
+--------------------------------------------------------------------------------
+ Bitmap Heap Scan on tenk1  (cost=24.06..394.64 rows=1007 width=244)
+   Recheck Cond: (unique1 &lt; 1000)
+   -&gt;  Bitmap Index Scan on tenk1_unique1  (cost=0.00..23.80 rows=1007 width=0)
+         Index Cond: (unique1 &lt; 1000)</PRE
+><P>
+
+プランナは<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の条件を検査し、<TT
+CLASS="STRUCTNAME"
+>pg_operator</TT
+>内の<TT
+CLASS="LITERAL"
+>&lt;</TT
+>演算子用の選択度関数を検索します。
+これは<TT
+CLASS="STRUCTFIELD"
+>oprrest</TT
+>列に保持されます。
+今回の例ではこの項は<CODE
+CLASS="FUNCTION"
+>scalarltsel</CODE
+>です。
+<CODE
+CLASS="FUNCTION"
+>scalarltsel</CODE
+>関数は、<TT
+CLASS="STRUCTNAME"
+>pg_statistics</TT
+>から<TT
+CLASS="STRUCTFIELD"
+>unique1</TT
+>の度数分布を取り出します。
+手作業で問い合わせる場合は、より単純な<TT
+CLASS="STRUCTNAME"
+>pg_stats</TT
+>ビューを検索した方が簡単です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT histogram_bounds FROM pg_stats
+WHERE tablename='tenk1' AND attname='unique1';
+
+                   histogram_bounds
+------------------------------------------------------
+ {0,993,1997,3050,4040,5036,5957,7057,8029,9016,9995}</PRE
+><P>
+
+次に、<SPAN
+CLASS="QUOTE"
+>"&lt; 1000"</SPAN
+>で占められる度数分布率を取り出します。
+これが選択度です。
+この度数分布は、範囲を等頻度のバケットに分割します。
+ですので、行わなければならないことは、値が入るバケットを見つけ、その<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>部分</I
+></SPAN
+>と、その前にあるバケット<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>全体</I
+></SPAN
+>を数えることだけです。
+1000という値は明らかに2番目のバケット（993 - 1997）にあります。
+従って、値が各バケットの中で線形に分布していると仮定すると、選択度を以下のように計算することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>selectivity = (1 + (1000 - bucket[2].min)/(bucket[2].max - bucket[2].min))/num_buckets
+            = (1 + (1000 - 993)/(1997 - 993))/10
+            = 0.100697</PRE
+><P>
+
+つまり、1つのバケット全体に、2番目のバケットとの線形比率を加えたものを、バケット数で割ったものとなります。
+ここで、行の推定値は、選択度と<TT
+CLASS="STRUCTNAME"
+>tenk1</TT
+>の濃度を掛け合わせたものとして計算されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>rows = rel_cardinality * selectivity
+     = 10000 * 0.100697
+     = 1007  (rounding off)</PRE
+><P>
+  </P
+><P
+>次に、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句に等価条件を持つ例を検討してみましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXPLAIN SELECT * FROM tenk1 WHERE stringu1 = 'CRAAAA';
+
+                        QUERY PLAN
+----------------------------------------------------------
+ Seq Scan on tenk1  (cost=0.00..483.00 rows=30 width=244)
+   Filter: (stringu1 = 'CRAAAA'::name)</PRE
+><P>
+
+繰り返しますが、プランナは<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の条件を検査し、<TT
+CLASS="LITERAL"
+>=</TT
+>用の選択度関数、この場合は<CODE
+CLASS="FUNCTION"
+>eqsel</CODE
+>を検索します。
+等価性の推定では、度数分布は役に立ちません。
+代わりに、選択度の決定には<I
+CLASS="FIRSTTERM"
+>最頻値</I
+>（<ACRONYM
+CLASS="ACRONYM"
+>MCV</ACRONYM
+>）のリストが使用されます。
+MCVを見てみましょう。
+後で有用になる列がいくつかあります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT null_frac, n_distinct, most_common_vals, most_common_freqs FROM pg_stats
+WHERE tablename='tenk1' AND attname='stringu1';
+
+null_frac         | 0
+n_distinct        | 676
+most_common_vals  | {EJAAAA,BBAAAA,CRAAAA,FCAAAA,FEAAAA,GSAAAA,JOAAAA,MCAAAA,NAAAAA,WGAAAA}
+most_common_freqs | {0.00333333,0.003,0.003,0.003,0.003,0.003,0.003,0.003,0.003,0.003}&#13;</PRE
+><P>
+
+<TT
+CLASS="LITERAL"
+>CRAAAA</TT
+>がMCVのリスト内にありますので、選択度は単に最頻度（<ACRONYM
+CLASS="ACRONYM"
+>MCF</ACRONYM
+>）のリスト内の対応する項目になります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>selectivity = mcf[3]
+            = 0.003</PRE
+><P>
+
+前と同様、推定される行数は単に前回同様、この値と<TT
+CLASS="STRUCTNAME"
+>tenk1</TT
+>の濃度との積です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>rows = 10000 * 0.003
+     = 30</PRE
+><P>
+  </P
+><P
+>ここで、同じ問い合わせを見てみます。
+ただし、今回は定数が<ACRONYM
+CLASS="ACRONYM"
+>MCV</ACRONYM
+>内にありません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXPLAIN SELECT * FROM tenk1 WHERE stringu1 = 'xxx';
+
+                        QUERY PLAN
+----------------------------------------------------------
+ Seq Scan on tenk1  (cost=0.00..483.00 rows=15 width=244)
+   Filter: (stringu1 = 'xxx'::name)</PRE
+><P>
+
+値が<ACRONYM
+CLASS="ACRONYM"
+>MCV</ACRONYM
+>の一覧に<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ない</I
+></SPAN
+>場合、選択度をどのように推定するかは大きく異なります。
+値が一覧にない場合に使用される方法は、<ACRONYM
+CLASS="ACRONYM"
+>MCV</ACRONYM
+>すべての頻度に関する知識を組み合わせたものです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>selectivity = (1 - sum(mvf))/(num_distinct - num_mcv)
+            = (1 - (0.00333333 + 0.003 + 0.003 + 0.003 + 0.003 + 0.003 +
+                    0.003 + 0.003 + 0.003 + 0.003))/(676 - 10)
+            = 0.0014559</PRE
+><P>
+
+つまり、<ACRONYM
+CLASS="ACRONYM"
+>MCV</ACRONYM
+>の頻度をすべて足し合わせたものを1から差し引き、そして、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>この他の</I
+></SPAN
+>個別値の数で除算します。
+これは、MCV以外の列の割合は、この他の個別値すべてに渡って一様に分布していることを前提としていることになります。
+NULL値が存在しないため、これを考慮する必要がないことに注意してください。
+（さもなくば、分子から同様にNULLの割合を差し引くことになります。）
+推定行数は以下のように普通に計算されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>rows = 10000 * 0.0014559
+     = 15  (rounding off)</PRE
+><P>
+  </P
+><P
+>前述の<TT
+CLASS="LITERAL"
+>unique1 &lt; 1000</TT
+>を使用した例は<CODE
+CLASS="FUNCTION"
+>scalarltsel</CODE
+>が本当は何を行うかについて、単純化しすぎたものでした。
+ここまでで、MCVを使用した例を見てきましたので、多少詳細に補てんすることができます。
+<TT
+CLASS="STRUCTFIELD"
+>unique1</TT
+>は一意な列であるため、MCVが存在しません（ある値が他の値と同じとなることがないことは明確です）ので、例は計算自体は正確なものでした。
+一意ではない列では、通常度数分布とMCVリストの両方が存在します。
+そして、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>度数分布は、MCVで表される列母集団の位置を含みません。</I
+></SPAN
+>
+より正確な推定を行うことができるため、この方法を行います。
+この状況では、<CODE
+CLASS="FUNCTION"
+>scalarltsel</CODE
+>は直接条件（例えば<SPAN
+CLASS="QUOTE"
+>"&lt; 1000"</SPAN
+>）をMCVリストの各値に適用し、条件を満たすMCVの頻度を足し合わせます。
+これがMCVのテーブル部分における正確な推定選択度です。
+その後度数分布が上と同様に使われ、MCV以外のテーブル部分における選択度を推定します。
+そしてこの2つの値を組み合わせて、全体の選択度を推定します。
+例えば、以下を検討します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXPLAIN SELECT * FROM tenk1 WHERE stringu1 &lt; 'IAAAAA';
+
+                         QUERY PLAN
+------------------------------------------------------------
+ Seq Scan on tenk1  (cost=0.00..483.00 rows=3077 width=244)
+   Filter: (stringu1 &lt; 'IAAAAA'::name)</PRE
+><P>
+
+すでに<TT
+CLASS="STRUCTFIELD"
+>stringu1</TT
+>のMCV情報は確認していますので、ここでは度数分布を見てみます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT histogram_bounds FROM pg_stats
+WHERE tablename='tenk1' AND attname='stringu1';
+
+                                histogram_bounds
+--------------------------------------------------------------------------------
+ {AAAAAA,CQAAAA,FRAAAA,IBAAAA,KRAAAA,NFAAAA,PSAAAA,SGAAAA,VAAAAA,XLAAAA,ZZAAAA}</PRE
+><P>
+
+MCVリストを検査すると、<TT
+CLASS="LITERAL"
+>stringu1 &lt; 'IAAAAA'</TT
+>条件は先頭の6項目で満たされ、最後の4項目で満たされないことがわかります。
+ですので、母集団のMCV部分における選択度は以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>selectivity = sum(relevant mvfs)
+            = 0.00333333 + 0.003 + 0.003 + 0.003 + 0.003 + 0.003
+            = 0.01833333</PRE
+><P>
+
+MCFの総和はまた、MCVで表される母集団の合計割合が0.03033333であり、したがって度数分布で表される割合が0.96966667であることがわかります。
+（繰り返しますが、NULLは存在しません。もし存在する場合はここで除外しなければなりません。）
+<TT
+CLASS="LITERAL"
+>IAAAAA</TT
+>という値は3番目のバケットの終端近辺になることを確認することができます。
+異なる文字の頻度について多少安っぽい仮定を使用すると、プランナは<TT
+CLASS="LITERAL"
+>IAAAAA</TT
+>より小さい母集団の度数分布の部分の推定値は0.298387になります。
+そしてMCVと非MCV母集団についての推定値を組み合わせます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>selectivity = mcv_selectivity + histogram_selectivity * histogram_fraction
+            = 0.01833333 + 0.298387 * 0.96966667
+            = 0.307669
+
+rows        = 10000 * 0.307669
+            = 3077  (rounding off)</PRE
+><P>
+
+列の分布がかなり平坦ですので、この特定の例におけるMCVリストによる訂正はかなり小さなものです。
+（これらの特定の値が他より頻出するものと示す統計情報はほとんどサンプリングエラーによります。）
+より一般的な、一部の値が他より非常に多く頻出する場合では、最頻値に対する選択度が正確に検出されますので、この複雑な処理により精度が改良されます。
+  </P
+><P
+>次に<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句に複数の条件を持つ場合を検討しましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXPLAIN SELECT * FROM tenk1 WHERE unique1 &lt; 1000 AND stringu1 = 'xxx';
+
+                                   QUERY PLAN
+--------------------------------------------------------------------------------
+ Bitmap Heap Scan on tenk1  (cost=23.80..396.91 rows=1 width=244)
+   Recheck Cond: (unique1 &lt; 1000)
+   Filter: (stringu1 = 'xxx'::name)
+   -&gt;  Bitmap Index Scan on tenk1_unique1  (cost=0.00..23.80 rows=1007 width=0)
+         Index Cond: (unique1 &lt; 1000)</PRE
+><P>
+
+プランナは2つの条件が独立していると仮定します。
+このため、個々の句の選択度が掛け合わされます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>selectivity = selectivity(unique1 &lt; 1000) * selectivity(stringu1 = 'xxx')
+            = 0.100697 * 0.0014559
+            = 0.0001466
+
+rows        = 10000 * 0.0001466
+            = 1  (rounding off)</PRE
+><P>
+
+ビットマップインデックススキャンにより返されるものと推定される行数は、インデックスで使用される条件のみを反映することに注意してください。
+後続のヒープ取り出しのコスト推定に影響しますので、これは重要です。
+  </P
+><P
+>最後に、結合を含む問い合わせを見てみましょう。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>EXPLAIN SELECT * FROM tenk1 t1, tenk2 t2
+WHERE t1.unique1 &lt; 50 AND t1.unique2 = t2.unique2;
+
+                                      QUERY PLAN
+--------------------------------------------------------------------------------------
+ Nested Loop  (cost=4.64..456.23 rows=50 width=488)
+   -&gt;  Bitmap Heap Scan on tenk1 t1  (cost=4.64..142.17 rows=50 width=244)
+         Recheck Cond: (unique1 &lt; 50)
+         -&gt;  Bitmap Index Scan on tenk1_unique1  (cost=0.00..4.63 rows=50 width=0)
+               Index Cond: (unique1 &lt; 50)
+   -&gt;  Index Scan using tenk2_unique2 on tenk2 t2  (cost=0.00..6.27 rows=1 width=244)
+         Index Cond: (unique2 = t1.unique2)</PRE
+><P>
+
+<TT
+CLASS="STRUCTNAME"
+>tenk1</TT
+> <SPAN
+CLASS="QUOTE"
+>"unique1 &lt; 50"</SPAN
+>に関する制限が、入れ子状ループ結合の前に評価されます。
+これは、前の範囲に関する例と同様に扱われます。
+しかし、今回の値50は<TT
+CLASS="STRUCTFIELD"
+>unique1</TT
+>度数分布の最初のバケットにありますので、以下のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>selectivity = (0 + (50 - bucket[1].min)/(bucket[1].max - bucket[1].min))/num_buckets
+            = (0 + (50 - 0)/(993 - 0))/10
+            = 0.005035
+
+rows        = 10000 * 0.005035
+            = 50  (rounding off)</PRE
+><P>
+
+結合の制限は<TT
+CLASS="LITERAL"
+>t2.unique2 = t1.unique2</TT
+>です。
+演算子はよく使用する単なる<TT
+CLASS="LITERAL"
+>=</TT
+>ですが、選択度関数は<TT
+CLASS="STRUCTNAME"
+>pg_operator</TT
+>の<TT
+CLASS="STRUCTFIELD"
+>oprjoin</TT
+>列から入手され、<CODE
+CLASS="FUNCTION"
+>eqjoinsel</CODE
+>となります。
+<CODE
+CLASS="FUNCTION"
+>eqjoinsel</CODE
+>は<TT
+CLASS="STRUCTNAME"
+>tenk2</TT
+>および<TT
+CLASS="STRUCTNAME"
+>tenk1</TT
+>の両方の統計情報を検索します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT tablename, null_frac,n_distinct, most_common_vals FROM pg_stats
+WHERE tablename IN ('tenk1', 'tenk2') AND attname='unique2';
+
+tablename  | null_frac | n_distinct | most_common_vals
+-----------+-----------+------------+------------------
+ tenk1     |         0 |         -1 |
+ tenk2     |         0 |         -1 |</PRE
+><P>
+
+今回の場合、すべての値が一意であるため、<TT
+CLASS="STRUCTFIELD"
+>unique2</TT
+>に関する<ACRONYM
+CLASS="ACRONYM"
+>MCV</ACRONYM
+>情報がありません。
+ですので、両リレーションの個別値数とNULL値の部分のみに依存したアルゴリズムを使用することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>selectivity = (1 - null_frac1) * (1 - null_frac2) * min(1/num_distinct1, 1/num_distinct2)
+            = (1 - 0) * (1 - 0) / max(10000, 10000)
+            = 0.0001</PRE
+><P>
+
+これは、各リレーションにおいて、1からNULL部分を差し引き、個別値数の最大値で割った値です。
+この結合が生成するはずの行数は、2つの入力のデカルト積の濃度に、この選択度を掛けたものとして計算されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>rows = (outer_cardinality * inner_cardinality) * selectivity
+     = (50 * 10000) * 0.0001
+     = 50</PRE
+><P>
+  </P
+><P
+>2つの列に対するMCVリストがありますので、<CODE
+CLASS="FUNCTION"
+>eqjoinsel</CODE
+>はMCVで表される列母集団部分の結合選択度を決めるために、MCVリストを直接比較します。
+残りの母集団に対する推定はここで示した同じ手法に従います。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>inner_cardinality</TT
+>を10000、つまり<TT
+CLASS="STRUCTNAME"
+>tenk2</TT
+>の変更がないサイズと示していることに注意してください。
+<TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>の出力を検査すると、結合行の推定が50 * 1、つまり、外側の行数と<TT
+CLASS="STRUCTNAME"
+>tenk2</TT
+>上の内側のインデックススキャン毎に得られる推定行数を掛けた数から来ていると思うかもしれません。
+しかし、実際はそうではありません。
+結合リレーションサイズは、具体的な結合計画が検討される前に推定されます。
+もしすべてがうまくいけば、結合サイズを推定する2つの方法は同じ答えを導きます。
+しかし、四捨五入誤差などの要因により多少異なる場合があります。
+  </P
+><P
+>詳細に興味を持った方向けに、テーブル（すべての<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の前にあるもの）のサイズ推定は<TT
+CLASS="FILENAME"
+>src/backend/optimizer/util/plancat.c</TT
+>で行われます。
+句の選択度に関する一般的なロジックについては<TT
+CLASS="FILENAME"
+>src/backend/optimizer/path/clausesel.c</TT
+>にあります。
+演算子固有の選択度関数についてはたいてい<TT
+CLASS="FILENAME"
+>src/backend/utils/adt/selfuncs.c</TT
+>内にあります。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="planner-stats-details.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="appendixes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>プランナが統計情報をどのように使用するか</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="planner-stats-details.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>付録</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

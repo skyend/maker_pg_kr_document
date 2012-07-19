@@ -1,0 +1,424 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ユーザ定義の集約</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLの拡張"
+HREF="extend.html"><LINK
+REL="PREVIOUS"
+TITLE="C言語関数"
+HREF="xfunc-c.html"><LINK
+REL="NEXT"
+TITLE="ユーザ定義の型"
+HREF="xtypes.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="C言語関数"
+HREF="xfunc-c.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 35&#31456;<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の拡張</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="SQLの拡張"
+HREF="extend.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ユーザ定義の型"
+HREF="xtypes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="XAGGR"
+>35.10. ユーザ定義の集約</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>における集約関数は、<I
+CLASS="FIRSTTERM"
+>状態値</I
+>と<I
+CLASS="FIRSTTERM"
+>状態遷移関数</I
+>で表現されています。
+つまり、1つの集約は入力行が処理される度に変更される状態値を使用して演算されます。
+新しい集約関数を定義するためには、状態値のデータ型、状態の初期値、そして状態遷移関数を選択します。
+状態遷移関数はただの普通の関数で、集約以外の文脈でも使うことができます。
+求められる集約の結果が遷移する状態値の中に保持しなければならないデータと違う場合は、<I
+CLASS="FIRSTTERM"
+>最終関数</I
+>も指定することができます。
+  </P
+><P
+>したがって、集約のユーザに見える引数と結果のデータ型に加え、引数と結果の型のどちらとも違う可能性がある内部状態値のデータ型があります。
+  </P
+><P
+>もし最終関数を使わない集約を定義したとすると、それぞれの行の列値で変動する関数で計算された結果の集約ができます。
+<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>はそのような集約の一例です。
+<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>は0から始まり、常に現在の行の値をその時点までの総和に追加します。
+例えば、もし<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>集約を複素数のデータ型で動作するようにしたければ、そのデータ型の加算関数だけが必要になります。
+集約定義は以下のようになります。
+
+</P><PRE
+CLASS="SCREEN"
+>CREATE AGGREGATE sum (complex)
+(
+    sfunc = complex_add,
+    stype = complex,
+    initcond = '(0,0)'
+);
+
+SELECT sum(a) FROM test_complex;
+
+   sum
+-----------
+ (34,53.9)</PRE
+><P>
+
+（関数のオーバーライド機能に依存していることに注意してください。
+<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>という名前の集約関数は複数存在しますが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は列の型<TT
+CLASS="TYPE"
+>complex</TT
+>に適用できるsum関数を見つけ出すことができます。）
+  </P
+><P
+>上記の<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>の定義は、もし非NULLの入力値がなければ0（初期状態）を返します。
+その場合本来は代わりにNULLを返したいのではないかと思いますし、標準SQLでは<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>がそのように動作することを期待しています。
+そうするためには単に<TT
+CLASS="LITERAL"
+>initcond</TT
+>句を省略すれば、初期状態がNULLになります。
+通常はそうすると、<TT
+CLASS="LITERAL"
+>sfunc</TT
+>がNULL状態の入力をチェックしなければいけないということを意味します。
+しかし<CODE
+CLASS="FUNCTION"
+>sum</CODE
+>や、その他<CODE
+CLASS="FUNCTION"
+>max</CODE
+>、<CODE
+CLASS="FUNCTION"
+>min</CODE
+>のような単純な集約にとっては、最初の非NULL入力値を状態変数に挿入し、2番目の非NULL入力値で状態遷移関数を当てはめ始めれば十分です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、もし初期状態がNULLで状態遷移関数が<SPAN
+CLASS="QUOTE"
+>"厳密（strict）"</SPAN
+>と設定されている場合、自動的にそれを実行します（つまりNULL入力では呼び出されないようになります）。
+  </P
+><P
+>もう1つの<SPAN
+CLASS="QUOTE"
+>"厳密"</SPAN
+>な状態遷移関数のデフォルト動作としては、NULL入力値が現れると前の状態値が変わらずに維持されるということがあります。
+したがって、NULL値は無視されます。
+もしNULL入力に対し他の動作が必要な場合は、状態遷移関数を厳密として定義しないで、NULL入力の検査を行うようにコーディングし、必要なことをすればよいのです。
+  </P
+><P
+><CODE
+CLASS="FUNCTION"
+>avg</CODE
+>（平均値計算）はもっと複雑な集約の一例です。
+それには2つの変動する状態が必要になります。入力の合計と入力数のカウントです。
+最終的な結果はこれらの値を割算することによって得られます。
+平均値計算は典型的に配列を状態遷移値として使って実装されます。
+例えば、<CODE
+CLASS="FUNCTION"
+>avg(float8)</CODE
+>の組み込みの実装は以下のようになっています。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE AGGREGATE avg (float8)
+(
+    sfunc = float8_accum,
+    stype = float8[],
+    finalfunc = float8_avg,
+    initcond = '{0,0,0}'
+);</PRE
+><P>
+
+（<CODE
+CLASS="FUNCTION"
+>float8_accum</CODE
+>は、入力の総和と個数だけではなく二乗和も蓄積しますので、２要素ではなく、３要素の配列を必要とします。
+<CODE
+CLASS="FUNCTION"
+>avg</CODE
+>以外の何らかの集約でも使用できるようにするためです。）
+  </P
+><P
+>集約関数は多様状態遷移関数や多様最終関数を使用することができます。
+これにより、同じ関数を使用して複数の集約を実装することができます。
+<A
+HREF="extend-type-system.html#EXTEND-TYPES-POLYMORPHIC"
+>&#38917;35.2.5</A
+>に多様関数の説明があります。
+もう少し細かく言うと、集約関数自身は、単一の集約定義で複数の入力データ型を扱うことができるように、多様入力型と多様状態型を指定することができるということです。
+以下に多様集約の例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE AGGREGATE array_accum (anyelement)
+(
+    sfunc = array_append,
+    stype = anyarray,
+    initcond = '{}'
+);</PRE
+><P>
+
+ここで、集約を行う呼び出し用の実際の状態型は、その実際の入力型がその要素となる、配列型です。
+集約の動作はその型の配列に全ての入力を連結することです。
+（組み込みの集約関数<CODE
+CLASS="FUNCTION"
+>array_agg</CODE
+>は、この定義での動作よりもより良い性能で、類似の機能を提供します。）
+  </P
+><P
+>以下に異なる2つの実データ型を引数として使用した出力例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT attrelid::regclass, array_accum(attname)
+    FROM pg_attribute
+    WHERE attnum &gt; 0 AND attrelid = 'pg_tablespace'::regclass
+    GROUP BY attrelid;
+
+   attrelid    |              array_accum              
+---------------+---------------------------------------
+ pg_tablespace | {spcname,spcowner,spclocation,spcacl}
+(1 row)
+
+SELECT attrelid::regclass, array_accum(atttypid::regtype)
+    FROM pg_attribute
+    WHERE attnum &gt; 0 AND attrelid = 'pg_tablespace'::regclass
+    GROUP BY attrelid;
+
+   attrelid    |        array_accum        
+---------------+---------------------------
+ pg_tablespace | {name,oid,text,aclitem[]}
+(1 row)</PRE
+><P>
+  </P
+><P
+>C言語で作成された関数は、例えば以下のように<CODE
+CLASS="FUNCTION"
+>AggCheckCallContext</CODE
+>を呼び出して、集約の遷移関数または最終関数が呼び出されたかを検出することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>if (AggCheckCallContext(fcinfo, NULL))</PRE
+><P>
+この検査を行う理由の１つとして、遷移関数に対してこれが真の場合、先頭の入力は一時的な遷移中の値であるはずであり、新規に割り当ててコピーを持つことなくそのまま変更しても安全であることが分かることがあります。
+例として<TT
+CLASS="LITERAL"
+>int8inc()</TT
+>を参照してください。
+（これは関数内で参照渡しの入力を安全に変更できる<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>唯一の</I
+></SPAN
+>場合です。
+特に集約最終関数はいかなる場合でもそれらの入力を変更してはなりません。
+と言うのは、時として、同じ最終遷移値上で再実行されることがあるからです。）
+  </P
+><P
+>さらに詳しい情報は、<A
+HREF="sql-createaggregate.html"
+>CREATE AGGREGATE</A
+>コマンドを参照してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="xfunc-c.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="xtypes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>C言語関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="extend.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ユーザ定義の型</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

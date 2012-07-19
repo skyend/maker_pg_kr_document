@@ -1,0 +1,742 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE LANGUAGE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE INDEX"
+HREF="sql-createindex.html"><LINK
+REL="NEXT"
+TITLE="CREATE OPERATOR"
+HREF="sql-createoperator.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE INDEX"
+HREF="sql-createindex.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE INDEX"
+HREF="sql-createindex.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE OPERATOR"
+HREF="sql-createoperator.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE OPERATOR"
+HREF="sql-createoperator.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATELANGUAGE"
+></A
+>CREATE LANGUAGE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN65989"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE LANGUAGE&nbsp;--&nbsp;新しい手続き言語を定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN65994"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE [ OR REPLACE ] [ PROCEDURAL ] LANGUAGE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+CREATE [ OR REPLACE ] [ TRUSTED ] [ PROCEDURAL ] LANGUAGE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    HANDLER <TT
+CLASS="REPLACEABLE"
+><I
+>call_handler</I
+></TT
+> [ INLINE <TT
+CLASS="REPLACEABLE"
+><I
+>inline_handler</I
+></TT
+> ] [ VALIDATOR <TT
+CLASS="REPLACEABLE"
+><I
+>valfunction</I
+></TT
+> ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATELANGUAGE-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>は新しい手続き言語を<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースに登録します。
+これにより、関数とトリガプロシージャを新しい言語で定義できるようになります。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.1から、ほとんどの手続き言語は<SPAN
+CLASS="QUOTE"
+>"拡張"</SPAN
+>としてまとめられました。
+したがって<TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>ではなく<A
+HREF="sql-createextension.html"
+>CREATE EXTENSION</A
+>を使用してインストールすべきです。
+<TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>を直接使用することは拡張インストール用スクリプトに限定されなければなりません。
+おそらくアップグレードの結果<SPAN
+CLASS="QUOTE"
+>"むきだしの"</SPAN
+>言語がデータベース内に存在する場合、<TT
+CLASS="LITERAL"
+>CREATE EXTENSION <TT
+CLASS="REPLACEABLE"
+><I
+>langname</I
+></TT
+> FROM unpackaged</TT
+>を用いて拡張に変換することができます。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>は、言語名とその言語で作成された関数の実行に責任を持つハンドラ関数を、効率的に関連付けます。
+言語ハンドラについての詳細は、<A
+HREF="plhandler.html"
+>&#31532;49&#31456;</A
+>を参照してください。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>コマンドには2種類の形式があります。
+最初の形式は、ユーザは必要な言語の名前のみを単に指定するものです。
+この場合、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバは<A
+HREF="catalog-pg-pltemplate.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+></A
+>システムカタログを参照し、正しいパラメータを決定します。
+2番目の形式では、ユーザは言語名の他に言語のパラメータも入力します。
+この形式で、<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>で定義されていない言語を作成することができますが、この手法は廃棄予定です。
+  </P
+><P
+>指定された言語名に対応する<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>カタログの項目をサーバが見つけると、コマンドに言語のパラメータが含まれていたとしてもカタログのデータを使用します。
+この動作により、古すぎる言語のサポート関数に関する情報を含む、古いダンプファイルからの読み込みが簡単になります。
+  </P
+><P
+>通常、新しい言語を登録するには、ユーザは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のスーパーユーザ権限を持たなければなりません。
+しかし、言語が<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>カタログ内に記載され、データベース所有者による作成可能印（<TT
+CLASS="STRUCTFIELD"
+>tmpldbacreate</TT
+>が真）が付いていれば、データベース所有者はそのデータベース内に新しい言語を登録することができます。
+デフォルトで、信頼された言語はデータベース所有者による作成ができます。
+しかし、これはスーパーユーザによる<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>の変更により調整できます。
+言語作成者が言語の所有者になり、後で削除したり、名前を変えたり、別の所有者を割り当てたりすることができます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE OR REPLACE LANGUAGE</TT
+>は新しい言語を作成、または、既存の定義を置き換えます。
+言語がすでに存在する場合、パラメータは指定された値または<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>から取り出された値にしたがって更新されますが、言語の所有権と権限に関する設定は変更されません。
+また、その言語で作成された既存の関数も以前として有効であるものと仮定されます。
+言語を作成する際に通常要求される権限に加え、ユーザはスーパーユーザまたは既存言語の所有者でなければなりません。
+<TT
+CLASS="LITERAL"
+>REPLACE</TT
+>の場合、主に言語が存在することを確認するために使用することを意味します。
+その言語が<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>項目を持つ場合、<TT
+CLASS="LITERAL"
+>REPLACE</TT
+>は既存の定義を実際にはまったく変更しません。
+ただし、言語が作成されてから<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>項目が変更された通常ではない場合は例外です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATELANGUAGE-PARAMETERS"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>TRUSTED</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>TRUSTED</TT
+>は、他の方法ではユーザがアクセスできないデータに対しては、その言語でのアクセスが許されないことを指定します。
+言語の登録時にこのキーワードを省略すると、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のスーパーユーザ権限を持つユーザのみが、この言語を使って新しい関数を作れるようになります。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>PROCEDURAL</TT
+></DT
+><DD
+><P
+>これはノイズワードです。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>新しい手続き言語の名前です。
+言語名は大文字/小文字の区別がありません。
+この名前はデータベースの言語の中で一意でなければなりません。
+      </P
+><P
+>後方互換を保持するため、この名前を単一引用符で囲むこともできます。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>HANDLER</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>call_handler</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>call_handler</I
+></TT
+>は手続き言語の関数を実行するために呼び出される関数の名前で、事前に登録しておく必要があります。
+このハンドラは、Version-1呼び出し規約に則って、C言語のようなコンパイル言語で書かれている必要があります。また、引数を取らず<TT
+CLASS="TYPE"
+>language_handler</TT
+>型を返す関数として、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に登録されていなければなりません。
+<TT
+CLASS="TYPE"
+>language_handler</TT
+>型は、単に関数を呼び出しハンドラとして識別するのに使用するプレースホルダ型です。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>INLINE</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>inline_handler</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>inline_handler</I
+></TT
+>はこの言語で無名コードブロックを実行（<A
+HREF="sql-do.html"
+>DO</A
+>コマンド）するために呼び出される、事前に登録された関数の名前です。
+<TT
+CLASS="REPLACEABLE"
+><I
+>inline_handler</I
+></TT
+>関数が指定されない場合、その言語では無名コードブロックをサポートしません。
+このハンドラ関数は、<TT
+CLASS="COMMAND"
+>DO</TT
+>コマンドの内部表現となる<TT
+CLASS="TYPE"
+>internal</TT
+>型の引数を1つ取らなければならず、また、通常<TT
+CLASS="TYPE"
+>void</TT
+>を返します。
+ハンドラの戻り値は無視されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>VALIDATOR</TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>valfunction</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>valfunction</I
+></TT
+>は、事前に登録された検証用関数の名前です。新しい関数が当該言語で作成された場合、その関数を検証するために呼び出されます。 
+検証用関数が指定されていない場合、新しい関数は作成時にチェックされません。
+検証用関数は、<TT
+CLASS="TYPE"
+>oid</TT
+>型の引数を1つ取る必要があります。
+この引数は作成される関数のOIDになります。
+また、通常<TT
+CLASS="TYPE"
+>void</TT
+>型を返します。
+      </P
+><P
+>検証用関数は、通常、関数本体が構文上正しいかどうかを検査するために使用されます。
+しかし、それだけでなく、関数のプロパティも検査可能です。例えば、その言語が処理できない特定のデータ型が引数に含まれていないかなどがチェックできます。
+エラーを通知するには、検証用関数で<CODE
+CLASS="FUNCTION"
+>ereport()</CODE
+>関数を使用すべきです。
+関数の戻り値は無視されます。
+      </P
+></DD
+></DL
+></DIV
+><P
+>サーバが指定した言語名に対応する<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>の項目を見つけた場合、<TT
+CLASS="LITERAL"
+>TRUSTED</TT
+>オプションとサポート関数名は無視されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATELANGUAGE-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+><A
+HREF="app-createlang.html"
+><SPAN
+CLASS="APPLICATION"
+>createlang</SPAN
+></A
+>は<TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>に対する簡単なラッパプログラムです。
+これを使用して簡単にシェルコマンドラインから手続き言語をインストールすることができます。
+  </P
+><P
+>手続き言語を削除するには、<A
+HREF="sql-droplanguage.html"
+>DROP LANGUAGE</A
+>、または<A
+HREF="app-droplang.html"
+><SPAN
+CLASS="APPLICATION"
+>droplang</SPAN
+></A
+>を使用してください（後者を勧めます）。
+  </P
+><P
+>システムカタログ<CODE
+CLASS="CLASSNAME"
+>pg_language</CODE
+>（ <A
+HREF="catalog-pg-language.html"
+>&#38917;45.27</A
+>参照）には、現在インストールされている言語に関する情報が記録されています。
+また、<TT
+CLASS="COMMAND"
+>createlang</TT
+>にはインストールされた言語を列挙するオプションがあります。
+  </P
+><P
+>手続き言語で関数を作成するには、ユーザはその言語に対する<TT
+CLASS="LITERAL"
+>USAGE</TT
+>権限を持たなければなりません。
+デフォルトでは、信頼された言語の<TT
+CLASS="LITERAL"
+>USAGE</TT
+>は<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>に（つまり全員に）付与されています。
+これは必要に応じて取り除くことができます。
+  </P
+><P
+>手続き言語は各データベースに局所的です。
+しかし、言語を<TT
+CLASS="LITERAL"
+>template1</TT
+>データベースにインストールすることができます。
+この場合、その後に作成されたすべてのデータベースで自動的にその言語は使用できるようになります。
+  </P
+><P
+>呼び出しハンドラ関数とインラインハンドラ関数（もしあれば）、検証関数（もしあれば）は、サーバが<TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>内にその言語に関する項目を持っていない場合には、存在しなければなりません。
+しかし、その項目があったとしても、関数がすでに存在しているとは限りません。
+データベース内に存在していなければ自動的に定義されます。
+（言語を実装する共有ライブラリがインストレーションで利用できない場合、これにより<TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>が失敗する可能性があります。）
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 7.3より前のバージョンでは、ハンドラ関数が返すプレースホルダ型を<TT
+CLASS="TYPE"
+>language_handler</TT
+>型ではなく<TT
+CLASS="TYPE"
+>opaque</TT
+>型と宣言する必要がありました。
+古いダンプファイルのロードをサポートするために、<TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>は<TT
+CLASS="TYPE"
+>opaque</TT
+>型を返すと宣言された関数を受け入れます。
+しかし、注意を促すメッセージを表示し、宣言された関数の戻り値型を<TT
+CLASS="TYPE"
+>language_handler</TT
+>に変換します。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATELANGUAGE-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+>標準的な手続き言語を作成する推奨方法は単に以下のように行うことです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE LANGUAGE plperl;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="STRUCTNAME"
+>pg_pltemplate</TT
+>カタログ内に存在しない言語では、以下のような処理が必要です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION plsample_call_handler() RETURNS language_handler
+    AS '$libdir/plsample'
+    LANGUAGE C;
+CREATE LANGUAGE plsample
+    HANDLER plsample_call_handler;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATELANGUAGE-COMPAT"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE LANGUAGE</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66136"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-alterlanguage.html"
+>ALTER LANGUAGE</A
+>, <A
+HREF="sql-createfunction.html"
+>CREATE FUNCTION</A
+>, <A
+HREF="sql-droplanguage.html"
+>DROP LANGUAGE</A
+>, <A
+HREF="sql-grant.html"
+>GRANT</A
+>, <A
+HREF="sql-revoke.html"
+>REVOKE</A
+>, <A
+HREF="app-createlang.html"
+><SPAN
+CLASS="APPLICATION"
+>createlang</SPAN
+></A
+>, <A
+HREF="app-droplang.html"
+><SPAN
+CLASS="APPLICATION"
+>droplang</SPAN
+></A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createindex.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createoperator.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE INDEX</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE OPERATOR</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

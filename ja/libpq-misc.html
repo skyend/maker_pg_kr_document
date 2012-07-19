@@ -1,0 +1,719 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>雑多な関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="PREVIOUS"
+TITLE="制御関数"
+HREF="libpq-control.html"><LINK
+REL="NEXT"
+TITLE="警告処理"
+HREF="libpq-notice-processing.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="制御関数"
+HREF="libpq-control.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 31&#31456;<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="警告処理"
+HREF="libpq-notice-processing.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LIBPQ-MISC"
+>31.10. 雑多な関数</A
+></H1
+><P
+>よくあることですが、うまく分類できない関数がいくつか存在します。
+  </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="LIBPQ-PQFREEMEM"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQfreemem</CODE
+>
+     </DT
+><DD
+><P
+>     
+<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>が割り当てたメモリを解放します。
+</P><PRE
+CLASS="SYNOPSIS"
+>void PQfreemem(void *ptr);</PRE
+><P>
+     </P
+><P
+>     
+具体的には<CODE
+CLASS="FUNCTION"
+>PQescapeByteaConn</CODE
+>、<CODE
+CLASS="FUNCTION"
+>PQescapeBytea</CODE
+>、<CODE
+CLASS="FUNCTION"
+>PQunescapeBytea</CODE
+>および<CODE
+CLASS="FUNCTION"
+>PQnotifies</CODE
+>により<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>が割り当てたメモリを解放します。
+Microsoft Windowsにおいて<CODE
+CLASS="FUNCTION"
+>free()</CODE
+>ではなく、この関数を使用することが特に重要です。
+DLLにおけるメモリ割り当てとアプリケーションにおけるその解放が、DLLとアプリケーションとでマルチスレッド/シングルスレッド、リリース用/デバッグ用、静的/動的フラグが同じ場合でのみ動作するためです。
+Microsoft Windowsプラットフォーム以外では、この関数は標準ライブラリの<CODE
+CLASS="FUNCTION"
+>free()</CODE
+>関数と同じです。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQCONNINFOFREE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQconninfoFree</CODE
+>
+     </DT
+><DD
+><P
+>     
+<CODE
+CLASS="FUNCTION"
+>PQconndefaults</CODE
+>もしくは<CODE
+CLASS="FUNCTION"
+>PQconninfoParse</CODE
+>が割り当てたデータ構造を解放します。
+</P><PRE
+CLASS="SYNOPSIS"
+>void PQconninfoFree(PQconninfoOption *connOptions);</PRE
+><P>
+     </P
+><P
+>     
+単純な<CODE
+CLASS="FUNCTION"
+>PQfreemem</CODE
+>は、配列が補助文字列への参照を含んでいることから、このためには作業しません。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQENCRYPTPASSWORD"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQencryptPassword</CODE
+>
+     </DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>パスワードの暗号化された形式を準備します。
+</P><PRE
+CLASS="SYNOPSIS"
+>char * PQencryptPassword(const char *passwd, const char *user);</PRE
+><P>
+この関数は、<TT
+CLASS="LITERAL"
+>ALTER USER joe PASSWORD 'pwd'</TT
+>のようなコマンドを送信したいクライアントアプリケーションで使用されることを意図したものです。
+こうしたコマンドでは、コマンドログが活動の監視などで晒されてしまうため、元々の平文テキストでパスワードを送信しないことが推奨されています。
+その代わりに、この関数を使用して送信前にパスワードを暗号化形式に変換してください。
+引数は平文のパスワードとそのSQL上のユーザ名です。
+戻り値は<CODE
+CLASS="FUNCTION"
+>malloc</CODE
+>で割り当てられた文字列です。
+メモリ不足の場合に<TT
+CLASS="SYMBOL"
+>NULL</TT
+>が返されます。
+呼び出し元は、その文字列にエスケープしなければならない特殊な文字列が含まれていないことを仮定することができます。
+処理が終わった時に<CODE
+CLASS="FUNCTION"
+>PQfreemem</CODE
+>を使用して結果を解放してください。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQMAKEEMPTYPGRESULT"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQmakeEmptyPGresult</CODE
+>
+     </DT
+><DD
+><P
+>  
+与えられたステータスで空の<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトを構築します。
+      
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQmakeEmptyPGresult(PGconn *conn, ExecStatusType status);</PRE
+><P>
+  </P
+><P
+>  
+これは空の<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトを割り当てて、初期化する<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>の内部関数です。
+メモリが割り当てられなかった場合、この関数は<TT
+CLASS="SYMBOL"
+>NULL</TT
+>を返します。
+一部のアプリケーションで結果オブジェクト（特にエラーステータスを伴ったオブジェクト）それ自身を生成することが便利であることが分かりましたので、外部公開されました。
+<TT
+CLASS="PARAMETER"
+>conn</TT
+>が非ヌルで、<TT
+CLASS="PARAMETER"
+>status</TT
+>がエラーを示唆している場合、特定された接続の現在のエラーメッセージは<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>にコピーされます。
+同時に、<TT
+CLASS="PARAMETER"
+>conn</TT
+>が非ヌルの場合、接続で登録された任意のイベントプロシージャは<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>にコピーされます。
+（それらは<TT
+CLASS="LITERAL"
+>PGEVT_RESULTCREATE</TT
+>呼び出しを受けませんが、<CODE
+CLASS="FUNCTION"
+>PQfireResultCreateEvents</CODE
+>を理解します。）
+<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>自身で返された<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>と同様に、最終的にはこのオブジェクトに対して<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>を呼び出さなければならないことに注意してください。
+  </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQFIRERESULTCREATEEVENTS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQfireResultCreateEvents</CODE
+>
+     </DT
+><DD
+><P
+>  
+<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトに登録されたそれぞれのイベントプロシージャに対し、<TT
+CLASS="LITERAL"
+>PGEVT_RESULTCREATE</TT
+>イベント（<A
+HREF="libpq-events.html"
+>&#38917;31.12</A
+>を参照）を発行します。
+イベントプロシージャが成功の場合は非ゼロ、失敗の場合はゼロを返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQfireResultCreateEvents(PGconn *conn, PGresult *res);</PRE
+><P>
+     </P
+><P
+>     
+<TT
+CLASS="LITERAL"
+>conn</TT
+>引数はイベントプロシージャに渡されますが、直接には使用されません。
+イベントプロシージャが使用しない場合は<TT
+CLASS="SYMBOL"
+>NULL</TT
+>です。
+     </P
+><P
+>     
+このオブジェクトに対し、<TT
+CLASS="LITERAL"
+>PGEVT_RESULTCREATE</TT
+>もしくは<TT
+CLASS="LITERAL"
+>PGEVT_RESULTCOPY</TT
+>イベントを過去に受け取ったイベントプロシージャは再び発行されません。
+     </P
+><P
+>     
+この関数が<CODE
+CLASS="FUNCTION"
+>PQmakeEmptyPGResult</CODE
+>と分離されている主たる理由は、多くの場合イベントプロシージャを呼び出す前に<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>を作成し、データを挿入するのが適切であることによります。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQCOPYRESULT"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQcopyResult</CODE
+>
+     </DT
+><DD
+><P
+>     
+<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトのコピーを作ります。
+コピーは元の結果にいかなる方法でもリンクされず、コピーが不要になった時に<CODE
+CLASS="FUNCTION"
+>PQclear</CODE
+>を呼び出されなければなりません。
+関数が失敗すると<TT
+CLASS="SYMBOL"
+>NULL</TT
+>が返されます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>PGresult *PQcopyResult(const PGresult *src, int flags);</PRE
+><P>
+     </P
+><P
+>     
+これは正確なコピーの作成を目的としたものではありません。
+返された結果は常に<TT
+CLASS="LITERAL"
+>PGRES_TUPLES_OK</TT
+>状態の中に置かれ、元の結果におけるエラーメッセージはまったくコピーされません。
+（しかしコマンド状態文字列をコピーします。）
+<TT
+CLASS="PARAMETER"
+>flags</TT
+>引数はその他にコピーするものがないかを決定します。
+それはいくつかのフラグのビット単位のORです。
+<TT
+CLASS="LITERAL"
+>PG_COPYRES_ATTRS</TT
+>は元の結果の属性（列定義）のコピーを指定します。
+<TT
+CLASS="LITERAL"
+>PG_COPYRES_TUPLES</TT
+>は元の結果のタプルのコピーを指定します。
+（これは属性もコピーされることを意味しています。）
+<TT
+CLASS="LITERAL"
+>PG_COPYRES_NOTICEHOOKS</TT
+>は元の結果の警告フックのコピーを指定します。
+<TT
+CLASS="LITERAL"
+>PG_COPYRES_EVENTS</TT
+>は元の結果イベントのコピーを指定します。
+（しかし、元の結果に関連したインスタンスデータはまったくコピーされません。）
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQSETRESULTATTRS"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQsetResultAttrs</CODE
+>
+     </DT
+><DD
+><P
+>     
+<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトの属性を設定します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQsetResultAttrs(PGresult *res, int numAttributes, PGresAttDesc *attDescs);</PRE
+><P>
+     </P
+><P
+>     
+提供された<TT
+CLASS="PARAMETER"
+>attDescs</TT
+>は結果にコピーされます。
+もし<TT
+CLASS="PARAMETER"
+>attDescs</TT
+>ポインタが<TT
+CLASS="SYMBOL"
+>NULL</TT
+>、または<TT
+CLASS="PARAMETER"
+>numAttributes</TT
+>が１未満の場合、要求は無視され、関数は成功します。
+<TT
+CLASS="PARAMETER"
+>res</TT
+>が既に属性を所有している場合、関数は失敗に終わります。
+関数が失敗すると、戻り値はゼロです。
+関数が成功すると戻り値は非ゼロになります。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQSETVALUE"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQsetvalue</CODE
+>
+     </DT
+><DD
+><P
+>     
+<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトのタプルフィールド値を設定します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQsetvalue(PGresult *res, int tup_num, int field_num, char *value, int len);</PRE
+><P>
+     </P
+><P
+>     
+必要に応じて関数は自動的に結果の内部タプル配列を肥大化させます。
+しかし、<TT
+CLASS="PARAMETER"
+>tup_num</TT
+>引数は<CODE
+CLASS="FUNCTION"
+>PQntuples</CODE
+>と同じか、もしくは小さくなければなりません。
+その意味は、この関数は一回にタプル配列を１タプル大きくさせるだけだからです。
+とは言っても、存在するいかなるタプルの任意のフィールドも、順序を問わず変更できます。
+もし<TT
+CLASS="PARAMETER"
+>field_num</TT
+>に値が既に存在すれば、書き換えられます。
+<TT
+CLASS="PARAMETER"
+>len</TT
+>が-1、または<TT
+CLASS="PARAMETER"
+>value</TT
+>が<TT
+CLASS="SYMBOL"
+>NULL</TT
+>であれば、フィールドの値はSQLのNULLに設定されます。
+<TT
+CLASS="PARAMETER"
+>value</TT
+>は結果のプライベート格納領域にコピーされるため、関数が返った後ではもう必要がなくなります。
+関数が失敗すると、戻り値はゼロです。
+関数が成功すると戻り値は非ゼロになります。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQRESULTALLOC"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQresultAlloc</CODE
+>
+     </DT
+><DD
+><P
+>     
+<TT
+CLASS="STRUCTNAME"
+>PGresult</TT
+>オブジェクトに補助ストレージを割り当てます。
+</P><PRE
+CLASS="SYNOPSIS"
+>void *PQresultAlloc(PGresult *res, size_t nBytes);</PRE
+><P>
+     </P
+><P
+>     
+<TT
+CLASS="PARAMETER"
+>res</TT
+>が消去された時、この関数で割り付けられたメモリは解放されます。
+関数が失敗すると戻り値は<TT
+CLASS="SYMBOL"
+>NULL</TT
+>です。
+<CODE
+CLASS="FUNCTION"
+>malloc</CODE
+>と同じように、どのような種類のデータでも結果は適切に整列されることが保証されています。
+     </P
+></DD
+><DT
+><A
+NAME="LIBPQ-PQLIBVERSION"
+></A
+><CODE
+CLASS="FUNCTION"
+>PQlibVersion</CODE
+>
+     </DT
+><DD
+><P
+>使用中の<SPAN
+CLASS="PRODUCTNAME"
+>libpq</SPAN
+>のバージョンを返します。
+</P><PRE
+CLASS="SYNOPSIS"
+>int PQlibVersion(void);</PRE
+><P>
+     </P
+><P
+>この関数の結果を使用して、実行時に現在読み込まれているバージョンのlibpqで特定の機能が利用可能かどうかを決定することができます。
+例えばこの関数を使用して、<CODE
+CLASS="FUNCTION"
+>PQconnectdb</CODE
+>でどの接続オプションが利用できるか、PostgreSQL 9.0で追加された<TT
+CLASS="LITERAL"
+>hex</TT
+> <TT
+CLASS="TYPE"
+>bytea</TT
+>出力をサポートするかを確認することができます。
+     </P
+><P
+>この数値の形式は、メジャー、マイナー、リビジョン番号を2桁の10進数に変換し、連結させたものです。
+例えば、バージョン9.1では90100を返し、バージョン9.1.2では90102を返します。
+（先頭の0は現れません。）
+     </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>この関数は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>バージョン9.1で追加されました。
+このため以前のバージョンにおいて要求される機能を検知するために使用することができません。
+この関数へのリンク処理がバージョン9.1とのリンク依存性を作成するためです。
+      </P
+></BLOCKQUOTE
+></DIV
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libpq-control.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libpq-notice-processing.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>制御関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>警告処理</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

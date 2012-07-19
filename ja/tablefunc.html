@@ -1,0 +1,1464 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>tablefunc</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="sslinfo"
+HREF="sslinfo.html"><LINK
+REL="NEXT"
+TITLE="test_parser"
+HREF="test-parser.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="sslinfo"
+HREF="sslinfo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="test_parser"
+HREF="test-parser.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TABLEFUNC"
+>F.41. tablefunc</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>tablefunc</TT
+>モジュールにはテーブル（つまり複数行）を返す各種関数があります。
+これらの関数は、その独自の目的として、および、複数行を返すC関数の作成方法を示す例として、有用です。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138184"
+>F.41.1. 提供される関数</A
+></H2
+><P
+>  <TT
+CLASS="FILENAME"
+>tablefunc</TT
+>モジュールにより提供される関数を<A
+HREF="tablefunc.html#TABLEFUNC-FUNCTIONS"
+>&#34920;F-27</A
+>に示します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="TABLEFUNC-FUNCTIONS"
+></A
+><P
+><B
+>&#34920; F-27. <TT
+CLASS="FILENAME"
+>tablefunc</TT
+>の関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>normal_rand(int numvals, float8 mean, float8 stddev)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>setof float8</TT
+></TD
+><TD
+>正規分布乱数値の集合を生成します。
+      </TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>crosstab(text sql)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>行の名前と<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>個の値列からなる<SPAN
+CLASS="QUOTE"
+>"ピボット表"</SPAN
+>を生成します。
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>は呼出元の問い合わせで指定される行型で決定します。
+      </TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>crosstab<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>(text sql)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>setof table_crosstab_<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+></TT
+></TD
+><TD
+>行の名前と<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>個の値列からなる<SPAN
+CLASS="QUOTE"
+>"ピボット表"</SPAN
+>を生成します。
+<CODE
+CLASS="FUNCTION"
+>crosstab2</CODE
+>、<CODE
+CLASS="FUNCTION"
+>crosstab3</CODE
+>、<CODE
+CLASS="FUNCTION"
+>crosstab4</CODE
+>が定義されていますが、後述する手順で追加の<CODE
+CLASS="FUNCTION"
+>crosstab<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+></CODE
+>関数を作成することが可能です。
+      </TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>crosstab(text source_sql, text category_sql)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>2番目の問い合わせで指定された値列を持つ<SPAN
+CLASS="QUOTE"
+>"ピボット表"</SPAN
+>を生成します。
+      </TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>crosstab(text sql, int N)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>       <P
+>廃止予定の<CODE
+CLASS="FUNCTION"
+>crosstab(text)</CODE
+>です。
+値列の数は呼び出す問い合わせで常に決まりますので、現在引数Nは無視されます。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+>       <CODE
+CLASS="FUNCTION"
+>        connectby(text relname, text keyid_fld, text parent_keyid_fld
+        [, text orderby_fld ], text start_with, int max_depth
+        [, text branch_delim ])
+       </CODE
+>
+      </TD
+><TD
+><TT
+CLASS="TYPE"
+>setof record</TT
+></TD
+><TD
+>階層ツリー構造表現を生成します。
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN138250"
+>F.41.1.1. <CODE
+CLASS="FUNCTION"
+>normal_rand</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>normal_rand(int numvals, float8 mean, float8 stddev) returns setof float8</PRE
+><P
+><CODE
+CLASS="FUNCTION"
+>normal_rand</CODE
+>は正規乱数値の集合（ガウシアン分布）を生成します。
+    </P
+><P
+>ここで<TT
+CLASS="PARAMETER"
+>numvals</TT
+>はこの関数が返す値の数です。
+<TT
+CLASS="PARAMETER"
+>mean</TT
+>は正規分布の平均値、<TT
+CLASS="PARAMETER"
+>stddev</TT
+>は正規分布値の標準偏差です。
+    </P
+><P
+>例えば、以下の呼出しは、平均5、標準偏差3で1000個の値を要求します。
+    </P
+><PRE
+CLASS="SCREEN"
+>test=# SELECT * FROM normal_rand(1000, 5, 3);
+     normal_rand
+----------------------
+     1.56556322244898
+     9.10040991424657
+     5.36957140345079
+   -0.369151492880995
+    0.283600703686639
+       .
+       .
+       .
+     4.82992125404908
+     9.71308014517282
+     2.49639286969028
+(1000 rows)</PRE
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN138262"
+>F.41.1.2. <CODE
+CLASS="FUNCTION"
+>crosstab(text)</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>crosstab(text sql)
+crosstab(text sql, int N)</PRE
+><P
+><CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>関数は<SPAN
+CLASS="QUOTE"
+>"ピボット"</SPAN
+>表示を生成するために使用されます。
+ここでは、データは下方向にではなくページ横方向に渡って列挙されます。
+例えば、以下のようなデータがあるとします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>row1    val11
+row1    val12
+row1    val13
+...
+row2    val21
+row2    val22
+row2    val23
+...</PRE
+><P>
+これを次のように表示したいとします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>row1    val11   val12   val13   ...
+row2    val21   val22   val23   ...
+...</PRE
+><P>
+<CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>関数は、最初のような書式を持つ生データを生成するSQL問い合わせとなるテキストパラメータを取り、2番目のような書式を持つテーブルを生成します。
+   </P
+><P
+><TT
+CLASS="PARAMETER"
+>sql</TT
+>パラメータは元となるデータ集合を生成するSQL文です。
+この文は<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>列を1つ<TT
+CLASS="STRUCTFIELD"
+>category</TT
+>列を1つ、<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>列を1つ返さなければなりません。
+<TT
+CLASS="PARAMETER"
+>N</TT
+>は廃れたパラメータであり、指定されたとしても無視されます。
+（これまでは、これは出力値列の数と一致する必要がありました。しかし、現在これは呼び出し元の問い合わせにより決まります。）
+   </P
+><P
+>例：指定したSQLは以下のような集合を生成しても構いません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+> row_name    cat    value
+----------+-------+-------
+  row1      cat1    val1
+  row1      cat2    val2
+  row1      cat3    val3
+  row1      cat4    val4
+  row2      cat1    val5
+  row2      cat2    val6
+  row2      cat3    val7
+  row2      cat4    val8</PRE
+><P>
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>関数は<TT
+CLASS="TYPE"
+>setof record</TT
+>を返すものとして宣言されています。
+このため、出力列の実際の名前と型を呼び出し元の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の<TT
+CLASS="LITERAL"
+>FROM</TT
+>内で宣言しなければなりません。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM crosstab('...') AS ct(row_name text, category_1 text, category_2 text);</PRE
+><P>
+
+この例は以下のような集合を生成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>           &lt;== value  columns  ==&gt;
+ row_name   category_1   category_2
+----------+------------+------------
+  row1        val1         val2
+  row2        val5         val6</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句は出力を1つの<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>列（SQL問い合わせの最初の結果列と同一データ型）と続くN個の<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>列（SQL問い合わせの3番目の結果列とすべて同じデータ型）を持つものとして定義しなければなりません。
+必要なだけの個数の値列を出力するように設定することができます。
+出力列の名前は使用者に任されています。
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>関数は、同じ<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>値を持つ入力行の各連続的なグループに対して、1つの出力行を生成します。
+左から右へこれらの行の<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>フィールドで出力<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>列を埋めていきます。
+もしグループ内の行が存在する出力<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>列より少なければ、余った出力列はNULLになります。
+もし行が多ければ、余った入力行は無視されます。
+   </P
+><P
+>実際のところ、入力行の順序が適切になるように、つまり、同じ<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>を持つ値がまとまり、行内で正しく順序付けられるように、SQL問い合わせは常に<TT
+CLASS="LITERAL"
+>ORDER BY 1,2</TT
+>を指定しなければなりません。
+<CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>自体が問い合わせ結果の2番目の列に注意を払わないことに注意してください。
+これは順序付けのため、3番目の列の値がページに渡って現れる順序を制御するためだけに存在します。
+   </P
+><P
+>以下に複雑な例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE ct(id SERIAL, rowid TEXT, attribute TEXT, value TEXT);
+INSERT INTO ct(rowid, attribute, value) VALUES('test1','att1','val1');
+INSERT INTO ct(rowid, attribute, value) VALUES('test1','att2','val2');
+INSERT INTO ct(rowid, attribute, value) VALUES('test1','att3','val3');
+INSERT INTO ct(rowid, attribute, value) VALUES('test1','att4','val4');
+INSERT INTO ct(rowid, attribute, value) VALUES('test2','att1','val5');
+INSERT INTO ct(rowid, attribute, value) VALUES('test2','att2','val6');
+INSERT INTO ct(rowid, attribute, value) VALUES('test2','att3','val7');
+INSERT INTO ct(rowid, attribute, value) VALUES('test2','att4','val8');
+
+SELECT *
+FROM crosstab(
+  'select rowid, attribute, value
+   from ct
+   where attribute = ''att2'' or attribute = ''att3''
+   order by 1,2')
+AS ct(row_name text, category_1 text, category_2 text, category_3 text);
+
+ row_name | category_1 | category_2 | category_3
+----------+------------+------------+------------
+ test1    | val2       | val3       |
+ test2    | val6       | val7       |
+(2 rows)</PRE
+><P>
+   </P
+><P
+>必要な出力行型をその定義に反映した独自のcrosstab関数を構築することで、常に出力列を定義するための<TT
+CLASS="LITERAL"
+>FROM</TT
+>句を書く必要性をなくすことができます。
+これは次節で説明します。
+他にも必要な<TT
+CLASS="LITERAL"
+>FROM</TT
+>句をビュー定義に埋め込むことでも実現可能です。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN138306"
+>F.41.1.3. <CODE
+CLASS="FUNCTION"
+>crosstab<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>(text)</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>crosstab<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>(text sql)</PRE
+><P
+><CODE
+CLASS="FUNCTION"
+>crosstab<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+></CODE
+>関数は、呼び出し元の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせで列名と型を書き出す必要性をなくすことができるように、一般的な<CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>関数に対する独自のラッパを構築する方法の例です。
+<TT
+CLASS="FILENAME"
+>tablefunc</TT
+>モジュールには、次のように出力行型が定義された<CODE
+CLASS="FUNCTION"
+>crosstab2</CODE
+>、<CODE
+CLASS="FUNCTION"
+>crosstab3</CODE
+>、<CODE
+CLASS="FUNCTION"
+>crosstab4</CODE
+>が含まれています。
+    </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE tablefunc_crosstab_N AS (
+    row_name TEXT,
+    category_1 TEXT,
+    category_2 TEXT,
+        .
+        .
+        .
+    category_N TEXT
+);</PRE
+><P
+>このように、入力問い合わせが<TT
+CLASS="TYPE"
+>text</TT
+>型の<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>列と<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>列を生成し、かつ、2、3、または4個の出力値列を持つ場合、これらの関数を直接使用することができます。
+この他の点はすべて、上述の一般的な<CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>関数で説明した通りの動作をします。
+    </P
+><P
+>例えば、上で挙げた例は下のように動作します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT *
+FROM crosstab3(
+  'select rowid, attribute, value
+   from ct
+   where attribute = ''att2'' or attribute = ''att3''
+   order by 1,2');</PRE
+><P>
+    </P
+><P
+>これらの関数はほぼ説明を目的として提供されたものです。
+背後の<CODE
+CLASS="FUNCTION"
+>crosstab()</CODE
+>関数に基いた独自の戻り型と関数を作成することができます
+独自のcrosstab関数を構築する方法は2つあります。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/tablefunc/tablefunc--1.0.sql</TT
+>の例と同様にして、必要な出力列を記述する複合型を作成します。
+そして、<TT
+CLASS="TYPE"
+>text</TT
+>型のパラメータを1つ取り、<TT
+CLASS="TYPE"
+>setof your_type_name</TT
+>を返す一意な名前の関数を、同じ背後の<CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+> C関数をリンクさせて定義します。
+例えば、元データが行名として<TT
+CLASS="TYPE"
+>text</TT
+>型を、値としてFLOAT8を生成し、5つの値列を希望する場合、以下のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE my_crosstab_float8_5_cols AS (
+    my_row_name text,
+    my_category_1 float8,
+    my_category_2 float8,
+    my_category_3 float8,
+    my_category_4 float8,
+    my_category_5 float8
+);
+
+CREATE OR REPLACE FUNCTION crosstab_float8_5_cols(text)
+    RETURNS setof my_crosstab_float8_5_cols
+    AS '$libdir/tablefunc','crosstab' LANGUAGE C STABLE STRICT;</PRE
+><P>
+      </P
+></LI
+><LI
+><P
+>暗黙的に戻り値の型を定義する場合は<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータを使用してください。
+同じ例を以下のように書くこともできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION crosstab_float8_5_cols(
+    IN text,
+    OUT my_row_name text,
+    OUT my_category_1 float8,
+    OUT my_category_2 float8,
+    OUT my_category_3 float8,
+    OUT my_category_4 float8,
+    OUT my_category_5 float8)
+  RETURNS setof record
+  AS '$libdir/tablefunc','crosstab' LANGUAGE C STABLE STRICT;</PRE
+><P>
+      </P
+></LI
+></UL
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN138344"
+>F.41.1.4. <CODE
+CLASS="FUNCTION"
+>crosstab(text, text)</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>crosstab(text source_sql, text category_sql)</PRE
+><P
+>単一パラメータの<CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>構文の大きな制限は、各値を最初の利用可能な列に挿入して、すべての値をグループのように扱う点です。
+値列を特定のデータカテゴリに対応させ、グループの一部はカテゴリの一部のデータを持たない可能性がある場合は、うまく動作しません。
+2パラメータを取る<CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>構文は、出力列に対応するカテゴリのリストを明示的に提供することで、こうした状況を扱います。
+   </P
+><P
+><TT
+CLASS="PARAMETER"
+>source_sql</TT
+>は元となるデータ集合を生成するSQL文です。
+このSQL文は<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>列を1つ<TT
+CLASS="STRUCTFIELD"
+>category</TT
+>列を1つ、<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>列を1つ返さなければなりません。
+また1つ以上の<SPAN
+CLASS="QUOTE"
+>"追加"</SPAN
+>の列を持つこともできます。
+<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>列が先頭でなければなりません。
+<TT
+CLASS="STRUCTFIELD"
+>category</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>列は、この順番で最後の2列でなければなりません。
+<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>category</TT
+>との間の列はすべて<SPAN
+CLASS="QUOTE"
+>"追加"</SPAN
+>の列とみなされます。
+<SPAN
+CLASS="QUOTE"
+>"追加"</SPAN
+>の列は同じ<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>値を持つ行すべてで同一であるということが前提です。
+   </P
+><P
+>例えば、<TT
+CLASS="PARAMETER"
+>source_sql</TT
+>は以下のような集合を生成しなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT row_name, extra_col, cat, value FROM foo ORDER BY 1;
+
+ row_name    extra_col   cat    value
+----------+------------+-----+---------
+  row1         extra1    cat1    val1
+  row1         extra1    cat2    val2
+  row1         extra1    cat4    val4
+  row2         extra2    cat1    val5
+  row2         extra2    cat2    val6
+  row2         extra2    cat3    val7
+  row2         extra2    cat4    val8</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="PARAMETER"
+>category_sql</TT
+>はカテゴリの集合を生成するSQL文でなければなりません。
+このSQL文は1つの列のみを返さなければなりません。
+また、少なくとも1つの結果行を生成しなければならず、さもないと、エラーになります。
+さらに重複するカテゴリを生成してはなりません。
+さもないとエラーとなります。
+<TT
+CLASS="PARAMETER"
+>category_sql</TT
+>は以下のようなものになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT DISTINCT cat FROM foo ORDER BY 1;
+    cat
+  -------
+    cat1
+    cat2
+    cat3
+    cat4</PRE
+><P>
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>関数は<TT
+CLASS="TYPE"
+>setof record</TT
+>を返すものとして宣言されていますので、出力列の実際の名前と型を、以下の例のように、呼出元の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で定義しなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM crosstab('...', '...')
+    AS ct(row_name text, extra text, cat1 text, cat2 text, cat3 text, cat4 text);</PRE
+><P>
+   </P
+><P
+>これは以下のような集合を生成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>                  &lt;==  value  columns   ==&gt;
+row_name   extra   cat1   cat2   cat3   cat4
+---------+-------+------+------+------+------
+  row1     extra1  val1   val2          val4
+  row2     extra2  val5   val6   val7   val8</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>FROM</TT
+>句は、出力列の適切な個数、およびその適切なデータ型を定義しなければなりません。
+<TT
+CLASS="PARAMETER"
+>source_sql</TT
+>問い合わせ結果に<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>個の列がある場合、最初の<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>-2は最初の<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>-2出力列と一致しなければなりません。
+残りの出力列は<TT
+CLASS="PARAMETER"
+>source_sql</TT
+>問い合わせ結果の最後の列の型を持たなければならず、かつ、<TT
+CLASS="PARAMETER"
+>category_sql</TT
+>問い合わせ結果内の行と同じ個数でなければなりません。
+   </P
+><P
+><CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>関数は、同一<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>値を持つ入力行の連続したグループ毎に1つの出力行を生成します。
+<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>出力列と任意の<SPAN
+CLASS="QUOTE"
+>"追加"</SPAN
+>列はグループの最初の行からコピーされます。
+<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>出力列は、<TT
+CLASS="STRUCTFIELD"
+>category</TT
+>値と一致する行の<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>で埋められます。
+行の<TT
+CLASS="STRUCTFIELD"
+>category</TT
+>が<TT
+CLASS="PARAMETER"
+>category_sql</TT
+>問い合わせの出力とまったく一致しなかった場合、その<TT
+CLASS="STRUCTFIELD"
+>value</TT
+>は無視されます。
+グループの入力行内にまったくカテゴリに一致する出力列が存在しない場合、NULLで埋められます。
+   </P
+><P
+>実際は、同じ<TT
+CLASS="STRUCTFIELD"
+>row_name</TT
+>を持つ値をまとめられるように、<TT
+CLASS="PARAMETER"
+>source_sql</TT
+>問い合わせでは常に<TT
+CLASS="LITERAL"
+>ORDER BY 1</TT
+>を指定すべきです。
+しかし、グループ内のカテゴリの順序は重要ではありません。
+また、<TT
+CLASS="PARAMETER"
+>category_sql</TT
+>問い合わせの出力順序が指定された出力列の順序と一致することを確実にすることが重要です。
+   </P
+><P
+>以下に複雑な例を2つ示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>create table sales(year int, month int, qty int);
+insert into sales values(2007, 1, 1000);
+insert into sales values(2007, 2, 1500);
+insert into sales values(2007, 7, 500);
+insert into sales values(2007, 11, 1500);
+insert into sales values(2007, 12, 2000);
+insert into sales values(2008, 1, 1000);
+
+select * from crosstab(
+  'select year, month, qty from sales order by 1',
+  'select m from generate_series(1,12) m'
+) as (
+  year int,
+  "Jan" int,
+  "Feb" int,
+  "Mar" int,
+  "Apr" int,
+  "May" int,
+  "Jun" int,
+  "Jul" int,
+  "Aug" int,
+  "Sep" int,
+  "Oct" int,
+  "Nov" int,
+  "Dec" int
+);
+ year | Jan  | Feb  | Mar | Apr | May | Jun | Jul | Aug | Sep | Oct | Nov  | Dec
+------+------+------+-----+-----+-----+-----+-----+-----+-----+-----+------+------
+ 2007 | 1000 | 1500 |     |     |     |     | 500 |     |     |     | 1500 | 2000
+ 2008 | 1000 |      |     |     |     |     |     |     |     |     |      |
+(2 rows)</PRE
+><P>
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE cth(rowid text, rowdt timestamp, attribute text, val text);
+INSERT INTO cth VALUES('test1','01 March 2003','temperature','42');
+INSERT INTO cth VALUES('test1','01 March 2003','test_result','PASS');
+INSERT INTO cth VALUES('test1','01 March 2003','volts','2.6987');
+INSERT INTO cth VALUES('test2','02 March 2003','temperature','53');
+INSERT INTO cth VALUES('test2','02 March 2003','test_result','FAIL');
+INSERT INTO cth VALUES('test2','02 March 2003','test_startdate','01 March 2003');
+INSERT INTO cth VALUES('test2','02 March 2003','volts','3.1234');
+
+SELECT * FROM crosstab
+(
+  'SELECT rowid, rowdt, attribute, val FROM cth ORDER BY 1',
+  'SELECT DISTINCT attribute FROM cth ORDER BY 1'
+)
+AS
+(
+       rowid text,
+       rowdt timestamp,
+       temperature int4,
+       test_result text,
+       test_startdate timestamp,
+       volts float8
+);
+ rowid |          rowdt           | temperature | test_result |      test_startdate      | volts
+-------+--------------------------+-------------+-------------+--------------------------+--------
+ test1 | Sat Mar 01 00:00:00 2003 |          42 | PASS        |                          | 2.6987
+ test2 | Sun Mar 02 00:00:00 2003 |          53 | FAIL        | Sat Mar 01 00:00:00 2003 | 3.1234
+(2 rows)</PRE
+><P>
+   </P
+><P
+>各問い合わせで結果列の名前と型を記述する必要性をなくすために、事前定義した関数を作成することができます。
+前節の例を参照してください。
+この<CODE
+CLASS="FUNCTION"
+>crosstab</CODE
+>構文用の背後のC関数は<TT
+CLASS="LITERAL"
+>crosstab_hash</TT
+>という名前です。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN138410"
+>F.41.1.5. <CODE
+CLASS="FUNCTION"
+>connectby</CODE
+></A
+></H3
+><PRE
+CLASS="SYNOPSIS"
+>connectby(text relname, text keyid_fld, text parent_keyid_fld
+          [, text orderby_fld ], text start_with, int max_depth
+          [, text branch_delim ])</PRE
+><P
+><CODE
+CLASS="FUNCTION"
+>connectby</CODE
+>関数はテーブル内に格納された階層データ表示を生成します。
+テーブルは行を一意に識別するキーフィールドと各行の親（もしあれば）を参照する親キーフィールドを持たなければなりません。
+<CODE
+CLASS="FUNCTION"
+>connectby</CODE
+>は任意の行から辿った部分ツリーを表示することができます。
+   </P
+><P
+><A
+HREF="tablefunc.html#TABLEFUNC-CONNECTBY-PARAMETERS"
+>&#34920;F-28</A
+>ではパラメータを解説します。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="TABLEFUNC-CONNECTBY-PARAMETERS"
+></A
+><P
+><B
+>&#34920; F-28. <CODE
+CLASS="FUNCTION"
+>connectby</CODE
+>パラメータ</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>パラメータ</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>relname</TT
+></TD
+><TD
+>元となるリレーション名</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>keyid_fld</TT
+></TD
+><TD
+>キーフィールドの名前</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>parent_keyid_fld</TT
+></TD
+><TD
+>親のキーフィールドの名前</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>orderby_fld</TT
+></TD
+><TD
+>兄弟の順序付け用のフィールド名（省略可能）</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>start_with</TT
+></TD
+><TD
+>開始行のキー値</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>max_depth</TT
+></TD
+><TD
+>辿る深さに対する制限。無制限の場合はゼロ</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="PARAMETER"
+>branch_delim</TT
+></TD
+><TD
+>キーと分岐出力で区切る文字列（省略可能）</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>キーおよび親キーフィールドは任意のデータ型を取ることができますが、これらは同じデータ型でなければなりません。
+キーフィールドのデータ型に関係なく、<TT
+CLASS="PARAMETER"
+>start_with</TT
+>はテキスト文字列として入力されなければならないことに注意してください。
+    </P
+><P
+><CODE
+CLASS="FUNCTION"
+>connectby</CODE
+>関数は<TT
+CLASS="TYPE"
+>setof record</TT
+>を返すものとして宣言されていますので、以下の例のように、出力列の実際の名前と型を呼出し元の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文の<TT
+CLASS="LITERAL"
+>FROM</TT
+>句で定義しなければなりません。
+    </P
+><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM connectby('connectby_tree', 'keyid', 'parent_keyid', 'pos', 'row2', 0, '~')
+    AS t(keyid text, parent_keyid text, level int, branch text, pos int);</PRE
+><P
+>先頭から2つの出力列は、現在の行のキーおよび親行のキーとして使用されます。
+これらはテーブルのキーフィールドのデータ型と一致する必要があります。
+3番目の出力列はツリーの深さであり、<TT
+CLASS="TYPE"
+>integer</TT
+>型である必要があります。
+<TT
+CLASS="PARAMETER"
+>branch_delim</TT
+>パラメータが与えられた場合、次の出力列は分岐表示であり、<TT
+CLASS="TYPE"
+>text</TT
+>型である必要があります。
+最後に、<TT
+CLASS="PARAMETER"
+>orderby_fld</TT
+>パラメータが与えられた場合、最後の出力列は連番であり、<TT
+CLASS="TYPE"
+>integer</TT
+>型である必要があります。
+    </P
+><P
+><SPAN
+CLASS="QUOTE"
+>"分岐"</SPAN
+>出力列は現在の行まで達するために取られるキーの経路を示します。
+キーは指定された<TT
+CLASS="PARAMETER"
+>branch_delim</TT
+>文字列で区切られます。
+分岐表示が不要ならば、<TT
+CLASS="PARAMETER"
+>branch_delim</TT
+>パラメータと出力列リスト内の分岐列を省略してください。
+    </P
+><P
+>同じ親を持つ兄弟の順序が重要な場合、どのフィールドで兄弟の順序付けを行うかを指定する<TT
+CLASS="PARAMETER"
+>orderby_fld</TT
+>パラメータを含めてください。
+このフィールドは任意のソート可能なデータ型を取ることができます。
+<TT
+CLASS="PARAMETER"
+>orderby_fld</TT
+>が指定された場合のみ、出力列リストには、最終整数型連番列を含めなければなりません。
+    </P
+><P
+>テーブルおよびフィールド名を表すパラメータはそのまま<CODE
+CLASS="FUNCTION"
+>connectby</CODE
+>が内部的に生成するSQL問い合わせにコピーされます。
+したがって、大文字小文字が混在した名前または特殊文字を含む名前の場合は二重引用符で括ってください。
+またテーブル名をスキーマで修飾する必要があるかもしれません。
+    </P
+><P
+>大規模なテーブルでは、親キーフィールド上にインデックスがないと性能が劣化します。
+    </P
+><P
+><TT
+CLASS="PARAMETER"
+>branch_delim</TT
+>文字列がキー値内にまったく出現しないことが重要です。
+さもないと、<CODE
+CLASS="FUNCTION"
+>connectby</CODE
+>は無限再帰エラーを間違って報告するかもしれません。
+<TT
+CLASS="PARAMETER"
+>branch_delim</TT
+>が提供されていない場合、再帰を検知するためにデフォルト値<TT
+CLASS="LITERAL"
+>~</TT
+>が使用されます。
+     
+    </P
+><P
+>以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE connectby_tree(keyid text, parent_keyid text, pos int);
+
+INSERT INTO connectby_tree VALUES('row1',NULL, 0);
+INSERT INTO connectby_tree VALUES('row2','row1', 0);
+INSERT INTO connectby_tree VALUES('row3','row1', 0);
+INSERT INTO connectby_tree VALUES('row4','row2', 1);
+INSERT INTO connectby_tree VALUES('row5','row2', 0);
+INSERT INTO connectby_tree VALUES('row6','row4', 0);
+INSERT INTO connectby_tree VALUES('row7','row3', 0);
+INSERT INTO connectby_tree VALUES('row8','row6', 0);
+INSERT INTO connectby_tree VALUES('row9','row5', 0);
+
+-- with branch, without orderby_fld (order of results is not guaranteed)
+SELECT * FROM connectby('connectby_tree', 'keyid', 'parent_keyid', 'row2', 0, '~')
+ AS t(keyid text, parent_keyid text, level int, branch text);
+ keyid | parent_keyid | level |       branch
+-------+--------------+-------+---------------------
+ row2  |              |     0 | row2
+ row4  | row2         |     1 | row2~row4
+ row6  | row4         |     2 | row2~row4~row6
+ row8  | row6         |     3 | row2~row4~row6~row8
+ row5  | row2         |     1 | row2~row5
+ row9  | row5         |     2 | row2~row5~row9
+(6 rows)
+
+-- without branch, without orderby_fld (order of results is not guaranteed)
+SELECT * FROM connectby('connectby_tree', 'keyid', 'parent_keyid', 'row2', 0)
+ AS t(keyid text, parent_keyid text, level int);
+ keyid | parent_keyid | level
+-------+--------------+-------
+ row2  |              |     0
+ row4  | row2         |     1
+ row6  | row4         |     2
+ row8  | row6         |     3
+ row5  | row2         |     1
+ row9  | row5         |     2
+(6 rows)
+
+-- with branch, with orderby_fld (notice that row5 comes before row4)
+SELECT * FROM connectby('connectby_tree', 'keyid', 'parent_keyid', 'pos', 'row2', 0, '~')
+ AS t(keyid text, parent_keyid text, level int, branch text, pos int);
+ keyid | parent_keyid | level |       branch        | pos
+-------+--------------+-------+---------------------+-----
+ row2  |              |     0 | row2                |   1
+ row5  | row2         |     1 | row2~row5           |   2
+ row9  | row5         |     2 | row2~row5~row9      |   3
+ row4  | row2         |     1 | row2~row4           |   4
+ row6  | row4         |     2 | row2~row4~row6      |   5
+ row8  | row6         |     3 | row2~row4~row6~row8 |   6
+(6 rows)
+
+-- without branch, with orderby_fld (notice that row5 comes before row4)
+SELECT * FROM connectby('connectby_tree', 'keyid', 'parent_keyid', 'pos', 'row2', 0)
+ AS t(keyid text, parent_keyid text, level int, pos int);
+ keyid | parent_keyid | level | pos
+-------+--------------+-------+-----
+ row2  |              |     0 |   1
+ row5  | row2         |     1 |   2
+ row9  | row5         |     2 |   3
+ row4  | row2         |     1 |   4
+ row6  | row4         |     2 |   5
+ row8  | row6         |     3 |   6
+(6 rows)</PRE
+><P>
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138487"
+>F.41.2. 作者</A
+></H2
+><P
+>   Joe Conway
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sslinfo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="test-parser.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>sslinfo</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>test_parser</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

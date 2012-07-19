@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ファイルシステムレベルのバックアップ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="バックアップとリストア"
+HREF="backup.html"><LINK
+REL="PREVIOUS"
+TITLE="SQLによるダンプ"
+HREF="backup-dump.html"><LINK
+REL="NEXT"
+TITLE="継続的アーカイブとポイントインタイムリカバリ（PITR）"
+HREF="continuous-archiving.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="SQLによるダンプ"
+HREF="backup-dump.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="バックアップとリストア"
+HREF="backup.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 24&#31456;バックアップとリストア</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="バックアップとリストア"
+HREF="backup.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="継続的アーカイブとポイントインタイムリカバリ（PITR）"
+HREF="continuous-archiving.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="BACKUP-FILE"
+>24.2. ファイルシステムレベルのバックアップ</A
+></H1
+><P
+>バックアップ戦略の代替案として<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がデータベース内のデータを保存するために使用しているファイルを直接コピーする方法があります。
+<A
+HREF="creating-cluster.html"
+>&#38917;17.2</A
+>にこれらのファイルがどこにあるか解説されています。
+下記のような通常のファイルシステムのバックアップを行うどんな方法でも問題ありません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>tar -cf backup.tar /usr/local/pgsql/data</PRE
+><P>
+  </P
+><P
+>しかしこの方法には2つの制約があり、そのためにあまり実用的ではなく、少なくとも<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>より劣ると言わざるを得ません。
+
+   <P
+></P
+></P><OL
+TYPE="1"
+><LI
+><P
+>有効なバックアップを行うにはデータベースサーバを<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必ず</I
+></SPAN
+>停止しなければなりません。
+全ての接続を無効とするような中途半端な対策では作用しません
+（<TT
+CLASS="COMMAND"
+>tar</TT
+>やその類似ツールはある時点におけるファイルシステムの原子的なスナップショットを取らないことと同時に、サーバ内の内部バッファリングの理由によるからです）。
+サーバの停止に関しては<A
+HREF="server-shutdown.html"
+>&#38917;17.5</A
+>を参照してください。
+言うまでもありませんが、データをリストアする前にもサーバを停止させる必要があります。
+     </P
+></LI
+><LI
+><P
+>データベースのファイルシステムレイアウトの詳細を熟知している場合、ある個別のテーブルやデータベースをそれぞれのファイルやディレクトリからバックアップしたり復元したりすることを試みたいと思うことがあったかもしれません。
+しかし、それらのファイル内の情報はすべてのトランザクションのコミット状態を保持するコミットログファイル<TT
+CLASS="FILENAME"
+>pg_clog/*</TT
+>なしでは使えないため、この方法では正常なバックアップは<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>行えません</I
+></SPAN
+>。
+テーブルファイルはこの情報があって初めて意味をなします。
+もちろんテーブルとそれに付帯する<TT
+CLASS="FILENAME"
+>pg_clog</TT
+>データだけで復元することも、データベースクラスタにある他のテーブルを無効としてしまうのでできません。
+ですので、ファイルシステムバックアップは、データベースクラスタ全体の完全なバックアップとリストア処理にのみ動作します。
+     </P
+></LI
+></OL
+><P>
+  </P
+><P
+>その他のファイルシステムバックアップ方法として、ファイルシステムが<SPAN
+CLASS="QUOTE"
+>"整合性を維持したスナップショット"</SPAN
+>機能をサポートしている場合（かつ、正しく実装されていると信用する場合）、データディレクトリのスナップショットを作成する方法があります。
+典型的な手順では、データベースを含むボリュームの<SPAN
+CLASS="QUOTE"
+>"凍結スナップショット"</SPAN
+>を作成し、データディレクトリ全体（上述のように、一部だけではいけません）をスナップショットからバックアップデバイスにコピーし、そして、凍結スナップショットを解放します。
+これはデータベースサーバが稼動中であっても動作します。
+しかし、こうして作成されたバックアップは、データベースサーバが適切に停止されなかった状態のデータベースファイルを保存します。
+そのため、このバックアップデータでデータベースサーバを起動する時、直前のサーバインスタンスがクラッシュしたものとみなされ、WALログが取り直されます。
+これは問題ではありません。単に注意してください（そして、確実にバックアップにWALファイルを含めてください）。CHECKPOINTコマンドをスナップショット取得前に発行することでリカバリ時間を減らすこともできます。
+  </P
+><P
+>対象のデータベースが複数のファイルシステムにまたがって分散している場合、全てのボリュームに対して完全に同期した凍結スナップショットを得る方法が存在しない可能性があります。例えば、データファイルとWALログが異なったディスク上にあったり、テーブル空間が異なるファイルシステム上にある場合、スナップショットは同時でなければ<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>なりません</I
+></SPAN
+>ので、スナップショットのバックアップを使用できない可能性があります。こうした状況では、整合性を維持したスナップショット技術を信用する前に使用するファイルシステムの文書を熟読してください。
+  </P
+><P
+>同時実行のスナップショットができない場合、選択肢の１つとして、全ての機能の停止したスナップショットを確定させるのに充分な時間、データベースサーバをシャットダウンさせることが挙げられます。
+他の選択肢は、継続的なベースバックアップの保管（<A
+HREF="continuous-archiving.html#BACKUP-BASE-BACKUP"
+>&#38917;24.3.2</A
+>）を行うことです。
+こうしたバックアップには、バックアップ中のファイルシステムの変更を心配する必要がないためです。
+これにはバックアップ処理期間のみに継続的な保管を行う必要があり、継続的なアーカイブリカバリ（<A
+HREF="continuous-archiving.html#BACKUP-PITR-RECOVERY"
+>&#38917;24.3.3</A
+>）を使用してリストアを行います。
+  </P
+><P
+>ファイルシステムをバックアップするその他の選択肢として<SPAN
+CLASS="APPLICATION"
+>rsync</SPAN
+>の使用が挙げられます。これを行うには、先ずデータベースサーバが稼働中に<SPAN
+CLASS="APPLICATION"
+>rsync</SPAN
+>を実行し、そして次の<SPAN
+CLASS="APPLICATION"
+>rsync</SPAN
+>を実行するのに充分な余裕をもってデータベースサーバを停止します。次の<SPAN
+CLASS="APPLICATION"
+>rsync</SPAN
+>は、比較的転送するデータ量が少なく、サーバが稼働していないため最終結果に矛盾がない事から、最初の<SPAN
+CLASS="APPLICATION"
+>rsync</SPAN
+>よりもより迅速です。この方法で最小の稼働停止時間でファイルシステムのバックアップを行う事ができます。
+  </P
+><P
+>ファイルシステムバックアップは、概してSQLによるダンプより大きくなることに注意してください。
+（<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>では、例えばインデックスの内容をダンプする必要はありません。単にコマンドで再作成します。）しかし、ファイルシステムのバックアップを取るほうがより高速でしょう。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="backup-dump.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="continuous-archiving.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>によるダンプ</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="backup.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>継続的アーカイブとポイントインタイムリカバリ（PITR）</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,453 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>uuid-ossp</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="unaccent"
+HREF="unaccent.html"><LINK
+REL="NEXT"
+TITLE="vacuumlo"
+HREF="vacuumlo.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="unaccent"
+HREF="unaccent.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="vacuumlo"
+HREF="vacuumlo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="UUID-OSSP"
+>F.45. uuid-ossp</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>uuid-ossp</TT
+>モジュールは複数の標準的なアルゴリズムの1つを使用して汎用一意識別子（UUID）を生成する関数を提供します。
+また、特殊なUUID定数を生成する関数も提供します。
+ </P
+><P
+>本モジュールは<A
+HREF="http://www.ossp.org/pkg/lib/uuid/"
+TARGET="_top"
+>http://www.ossp.org/pkg/lib/uuid/</A
+>にあるOSSP UUIDライブラリに依存しています。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138667"
+>F.45.1. <TT
+CLASS="LITERAL"
+>uuid-ossp</TT
+>関数</A
+></H2
+><P
+>UUIDを生成するために利用できる関数を<A
+HREF="uuid-ossp.html#UUID-OSSP-FUNCTIONS"
+>&#34920;F-29</A
+>に示します。関連する標準ITU-T Rec. X.667、ISO/IEC 9834-8:2005、RFC 4122はUUIDの生成に関して、バージョン番号1、3、4、5で識別される4つのアルゴリズムを規定します。
+（バージョン2アルゴリズムは存在しません。）
+これらのアルゴリズムのそれぞれは、異なるアプリケーション群に適切でしょう。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="UUID-OSSP-FUNCTIONS"
+></A
+><P
+><B
+>&#34920; F-29. UUID生成用関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_generate_v1()</TT
+></TD
+><TD
+>       <P
+>この関数はバージョン1 UUIDを生成します。
+これはコンピュータのMACアドレスとタイムスタンプが含まれます。
+この種のUUIDは識別子を生成したコンピュータを識別できる情報や生成した時刻をあばくことができますので、ある種のセキュリティに注意すべきアプリケーションでは適しません。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_generate_v1mc()</TT
+></TD
+><TD
+>       <P
+>この関数は、コンピュータの実MACアドレスではなくランダムなマルチキャストMACアドレスを使用して、バージョン1 UUIDを作成します。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_generate_v3(namespace uuid, name text)</TT
+></TD
+><TD
+>       <P
+>この関数は、入力で指定されたnameを使用して、与えられた名前空間でバージョン3 UUIDを生成します。
+名前空間は、<A
+HREF="uuid-ossp.html#UUID-OSSP-CONSTANTS"
+>&#34920;F-30</A
+>で示す <CODE
+CLASS="FUNCTION"
+>uuid_ns_*()</CODE
+>関数で生成される特殊な定数の1つでなければなりません。(理論上これは何らかのUUIDになります。)
+nameは選択された名前空間内の識別子です。
+       </P
+>
+
+       <P
+>        例えば以下の様になります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT uuid_generate_v3(uuid_ns_url(), 'http://www.postgresql.org');</PRE
+><P>
+
+nameパラメータはMD5でハッシュ化されます。
+このため、生成されたUUIDから平文が分かることはありません。
+この方法によるUUIDの生成は不規則性はなく、また、環境に依存する要素もないため、再度生成されます。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_generate_v4()</TT
+></TD
+><TD
+>       <P
+>この関数はバージョン4 UUIDを生成します。
+これは完全にランダムな数から生成されます。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_generate_v5(namespace uuid, name text)</TT
+></TD
+><TD
+>       <P
+>この関数はバージョン5 UUIDを生成します。
+バージョン3 UUIDと似ていますが、ハッシュ方式としてSHA-1を使用することが異なります。
+SHA-1がMD5より安全であることから、バージョン5はバージョン3に比べて好まれるはずです。
+       </P
+>
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="UUID-OSSP-CONSTANTS"
+></A
+><P
+><B
+>&#34920; F-30. UUID定数を返す関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_nil()</TT
+></TD
+><TD
+>       <P
+><SPAN
+CLASS="QUOTE"
+>"nil"</SPAN
+> UUID定数です。
+これは実際のUUIDになることはありません。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_ns_dns()</TT
+></TD
+><TD
+>       <P
+>DNS名前空間をUUIDに選定した定数です。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_ns_url()</TT
+></TD
+><TD
+>       <P
+>URL名前空間をUUIDに選定した定数です。
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_ns_oid()</TT
+></TD
+><TD
+>       <P
+>ISOオブジェクト識別子（OID）をUUIDに選定した定数です。
+（これはASN.1のOIDに関するもので、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で使われるOIDとは関係ありません。）
+       </P
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uuid_ns_x500()</TT
+></TD
+><TD
+>       <P
+>X.500区分名（DN）をUIDに選定した定数です。
+       </P
+>
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138740"
+>F.45.2. 作者</A
+></H2
+><P
+>   Peter Eisentraut <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:peter_e@gmx.net"
+>peter_e@gmx.net</A
+>&#62;</CODE
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="unaccent.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="vacuumlo.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>unaccent</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>vacuumlo</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

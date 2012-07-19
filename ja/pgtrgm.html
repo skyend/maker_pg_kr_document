@@ -1,0 +1,698 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>pg_trgm</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="pg_test_fsync"
+HREF="pgtestfsync.html"><LINK
+REL="NEXT"
+TITLE="pg_upgrade"
+HREF="pgupgrade.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="pg_test_fsync"
+HREF="pgtestfsync.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="pg_upgrade"
+HREF="pgupgrade.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PGTRGM"
+>F.35. pg_trgm</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>pg_trgm</TT
+>モジュールは、類似文字列の高速検索をサポートするインデックス演算子クラスだけではなく、トリグラム一致に基づく<ACRONYM
+CLASS="ACRONYM"
+>ASCII</ACRONYM
+>英数字の類似度の決定に関する関数と演算子も提供します。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137059"
+>F.35.1. トリグラム（またはトリグラフ）の概念</A
+></H2
+><P
+>トリグラムは文字列から3つの連続する文字を取り出したグループです。
+共有するトリグラムの個数を数えることで、２つの文字列の類似度を測定することができます。
+この単純な考えが、多くの自然言語における単語の類似度を測定する際に非常に効率的であることが判明しています。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>文字列内に含まれるトリグラム集合を決める際、文字列の前に２つの空白、後に1つの空白が付いているものとみなされます。
+例えば、<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>cat</TT
+>"</SPAN
+>という文字列のトリグラム集合は、<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>  c</TT
+>"</SPAN
+>、<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+> ca</TT
+>"</SPAN
+>、<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>cat</TT
+>"</SPAN
+>、<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>at </TT
+>"</SPAN
+>です。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137074"
+>F.35.2. 関数と演算子</A
+></H2
+><P
+><TT
+CLASS="FILENAME"
+>pg_trgm</TT
+>モジュールで提供される関数を<A
+HREF="pgtrgm.html#PGTRGM-FUNC-TABLE"
+>&#34920;F-22</A
+>に、演算子を<A
+HREF="pgtrgm.html#PGTRGM-OP-TABLE"
+>&#34920;F-23</A
+>に示します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="PGTRGM-FUNC-TABLE"
+></A
+><P
+><B
+>&#34920; F-22. <TT
+CLASS="FILENAME"
+>pg_trgm</TT
+>関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>similarity(text, text)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>real</TT
+></TD
+><TD
+>２つの引数がどの程度似ているかを示す数値を返します。
+結果はゼロ（２つの文字列にまったく類似度がないことを示す）から1（２つの文字列が同一であることを示す）までの範囲です。
+      </TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>show_trgm(text)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>text[]</TT
+></TD
+><TD
+>与えられた文字列内のすべてのトリグラムからなる配列を返します。
+（実際これはデバッグ時を除いて役に立つことはほぼありません。）
+      </TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>show_limit()</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>real</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>%</TT
+>演算子で使用される現在の類似度閾値を返します。
+これは、例えば２つの単語それぞれでミススペルがあったとしても類似しているものとみなす、その2つの単語間の最低の類似度を設定します。
+      </TD
+></TR
+><TR
+><TD
+><CODE
+CLASS="FUNCTION"
+>set_limit(real)</CODE
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>real</TT
+></TD
+><TD
+><TT
+CLASS="LITERAL"
+>%</TT
+>演算子で使用される現在の類似度閾値を設定します。
+閾値は0から1までの値でなければなりません（デフォルトは0.3です）。
+渡された値と同じ値が返ります。
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="PGTRGM-OP-TABLE"
+></A
+><P
+><B
+>&#34920; F-23. <TT
+CLASS="FILENAME"
+>pg_trgm</TT
+>演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+> <TT
+CLASS="LITERAL"
+>%</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>２つの引数が<CODE
+CLASS="FUNCTION"
+>set_limit</CODE
+>で設定された類似度閾値以上の類似度を持つ場合<TT
+CLASS="LITERAL"
+>true</TT
+>を返します。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+> <TT
+CLASS="LITERAL"
+>&lt;-&gt;</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>real</TT
+></TD
+><TD
+>引数間の<SPAN
+CLASS="QUOTE"
+>"距離"</SPAN
+>、つまり1 - <CODE
+CLASS="FUNCTION"
+>similarity()</CODE
+>の値を返します。
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137146"
+>F.35.3. インデックスサポート</A
+></H2
+><P
+><TT
+CLASS="LITERAL"
+>pg_trgm</TT
+>モジュールは、テキスト列全体に非常に高速な類似度検索を行うためのインデックスを作成することができるように、GiSTおよびGINインデックス演算子クラスを提供します。
+これらのインデックス種類は上記類似度演算子をサポートし、さらに<TT
+CLASS="LITERAL"
+>LIKE</TT
+>および<TT
+CLASS="LITERAL"
+>ILIKE</TT
+>問い合わせにおけるトリグラムを基にしたインデックス検索をサポートします。
+（これらのインデックスは等価性や単純な比較演算子をサポートしません。ですので通常のB-treeインデックスも必要になるかもしれません。）
+  </P
+><P
+>例：
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test_trgm (t text);
+CREATE INDEX trgm_idx ON test_trgm USING gist (t gist_trgm_ops);</PRE
+><P>
+または
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX trgm_idx ON test_trgm USING gin (t gin_trgm_ops);</PRE
+><P>
+  </P
+><P
+>この段階で、テキスト列<TT
+CLASS="STRUCTFIELD"
+>t</TT
+>に類似度検索で使用可能なインデックスがあります。
+典型的な問い合わせを以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT t, similarity(t, '<TT
+CLASS="REPLACEABLE"
+><I
+>word</I
+></TT
+>') AS sml
+  FROM test_trgm
+  WHERE t % '<TT
+CLASS="REPLACEABLE"
+><I
+>word</I
+></TT
+>'
+  ORDER BY sml DESC, t;</PRE
+><P>
+これは<TT
+CLASS="REPLACEABLE"
+><I
+>word</I
+></TT
+>に十分似たテキスト列の値をすべて、類似度の高い順番に返します。
+インデックスは非常に大規模なデータ群に対する高速操作を行うために使用されます。
+  </P
+><P
+>以下は上の問い合わせを変形させたものです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT t, t &lt;-&gt; '<TT
+CLASS="REPLACEABLE"
+><I
+>word</I
+></TT
+>' AS dist
+  FROM test_trgm
+  ORDER BY dist LIMIT 10;</PRE
+><P>
+これはGINインデックスではなくGiSTインデックスにより非常に効率的に実装することができます。
+通常、類似度が高いものの中から少ない個数のみを必要とする場合、1番目の式よりも効率的です。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.1から、これらのインデックス種類は<TT
+CLASS="LITERAL"
+>LIKE</TT
+>および<TT
+CLASS="LITERAL"
+>ILIKE</TT
+>におけるインデックス検索をサポートします。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM test_trgm WHERE t LIKE '%foo%bar';</PRE
+><P>
+インデックス検索は、検索文字列からトリグラムを抽出し、それらをインデックスから検索することによって動作します。
+検索文字列内のトリグラムが多ければ、よりインデックス検索が効率的になります。
+B-treeを基にした検索とは異なり、検索文字列の左側が固定されている必要はありません。
+  </P
+><P
+>GiSTまたはGINインデックスの選択は、他で説明されるGiSTとGINの相対的な性能特性に依存します。
+まとめとしては、GINインデックスはGiSTインデックスより検索が高速ですが、構築または更新は低速です。
+このためGINは静的なデータに、GiSTはよく更新されるデータに適しています。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137170"
+>F.35.4. テキスト検索の統合</A
+></H2
+><P
+>トリグラム一致は全文テキストインデックスと一緒に使用する時、非常に有用なツールです。
+特に、全文検索機構では直接一致しない、ミススペルがある入力単語の認識を行うために役に立ちます。
+  </P
+><P
+>第一段階は文書内で一意な単語からなる補助テーブルを生成することです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE words AS SELECT word FROM
+        ts_stat('SELECT to_tsvector(''simple'', bodytext) FROM documents');</PRE
+><P>
+
+ここで<TT
+CLASS="STRUCTNAME"
+>documents</TT
+>は、検索対象の<TT
+CLASS="STRUCTFIELD"
+>bodytext</TT
+>テキストフィールドを持つテーブルです。
+言語固有の設定を使用するのではなく、<CODE
+CLASS="FUNCTION"
+>to_tsvector</CODE
+>関数で<TT
+CLASS="LITERAL"
+>simple</TT
+>設定を使用する理由は、元の（語幹抽出されていない）単語のリストが欲しいためです。
+  </P
+><P
+>次にword列にトリグラムインデックスを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE INDEX words_idx ON words USING gin(word gin_trgm_ops);</PRE
+><P>
+
+これで、上の例に似た<TT
+CLASS="LITERAL"
+>SELECT</TT
+>問い合わせを使用して、ユーザの検索語内でミススペルのある単語を提示できるようになります。
+有用な追加された試験は、選択された単語の長さがミススペルのある単語の長さとほぼ同じになることを要求するものです。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><TT
+CLASS="STRUCTNAME"
+>words</TT
+>テーブルは別に生成された静的なテーブルですので、文書群の更新に合理的に追従できるよう定期的に再生成する必要があります。
+正確に最新状態を維持する必要性は通常ありません。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137185"
+>F.35.5. 参考</A
+></H2
+><P
+>GiST開発サイト
+   <A
+HREF="http://www.sai.msu.su/~megera/postgres/gist/"
+TARGET="_top"
+>http://www.sai.msu.su/~megera/postgres/gist/</A
+>
+  </P
+><P
+>Tsearch2開発サイト
+   <A
+HREF="http://www.sai.msu.su/~megera/postgres/gist/tsearch/V2/"
+TARGET="_top"
+>http://www.sai.msu.su/~megera/postgres/gist/tsearch/V2/</A
+>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN137191"
+>F.35.6. 作者</A
+></H2
+><P
+>   Oleg Bartunov <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:oleg@sai.msu.su"
+>oleg@sai.msu.su</A
+>&#62;</CODE
+>, Moscow, Moscow University, Russia
+  </P
+><P
+>   Teodor Sigaev <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:teodor@sigaev.ru"
+>teodor@sigaev.ru</A
+>&#62;</CODE
+>, Moscow, Delta-Soft Ltd.,Russia
+  </P
+><P
+>   文書作成: Christopher Kings-Lynne
+  </P
+><P
+>本モジュールはロシアモスクワのDelta-Soft Ltd.による後援です。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="pgtestfsync.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pgupgrade.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>pg_test_fsync</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>pg_upgrade</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

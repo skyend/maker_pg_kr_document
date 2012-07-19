@@ -1,0 +1,1397 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE FUNCTION</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE FOREIGN TABLE"
+HREF="sql-createforeigntable.html"><LINK
+REL="NEXT"
+TITLE="CREATE GROUP"
+HREF="sql-creategroup.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE FOREIGN TABLE"
+HREF="sql-createforeigntable.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE FOREIGN TABLE"
+HREF="sql-createforeigntable.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE GROUP"
+HREF="sql-creategroup.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE GROUP"
+HREF="sql-creategroup.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATEFUNCTION"
+></A
+>CREATE FUNCTION</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN65320"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE FUNCTION&nbsp;--&nbsp;新しい関数を定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN65325"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE [ OR REPLACE ] FUNCTION
+    <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> ( [ [ <TT
+CLASS="REPLACEABLE"
+><I
+>argmode</I
+></TT
+> ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>argname</I
+></TT
+> ] <TT
+CLASS="REPLACEABLE"
+><I
+>argtype</I
+></TT
+> [ { DEFAULT | = } <TT
+CLASS="REPLACEABLE"
+><I
+>default_expr</I
+></TT
+> ] [, ...] ] )
+    [ RETURNS <TT
+CLASS="REPLACEABLE"
+><I
+>rettype</I
+></TT
+>
+      | RETURNS TABLE ( <TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>column_type</I
+></TT
+> [, ...] ) ]
+  { LANGUAGE <TT
+CLASS="REPLACEABLE"
+><I
+>lang_name</I
+></TT
+>
+    | WINDOW
+    | IMMUTABLE | STABLE | VOLATILE
+    | CALLED ON NULL INPUT | RETURNS NULL ON NULL INPUT | STRICT
+    | [ EXTERNAL ] SECURITY INVOKER | [ EXTERNAL ] SECURITY DEFINER
+    | COST <TT
+CLASS="REPLACEABLE"
+><I
+>execution_cost</I
+></TT
+>
+    | ROWS <TT
+CLASS="REPLACEABLE"
+><I
+>result_rows</I
+></TT
+>
+    | SET <TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+> { TO <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> | = <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> | FROM CURRENT }
+    | AS '<TT
+CLASS="REPLACEABLE"
+><I
+>definition</I
+></TT
+>'
+    | AS '<TT
+CLASS="REPLACEABLE"
+><I
+>obj_file</I
+></TT
+>', '<TT
+CLASS="REPLACEABLE"
+><I
+>link_symbol</I
+></TT
+>'
+  } ...
+    [ WITH ( <TT
+CLASS="REPLACEABLE"
+><I
+>attribute</I
+></TT
+> [, ...] ) ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATEFUNCTION-DESCRIPTION"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>は新しい関数を定義します。
+<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>は、新しい関数の作成、または、既存定義の置換のどちらかを行います。
+関数を定義するには、ユーザはその言語の<TT
+CLASS="LITERAL"
+>USAGE</TT
+>権限が必要です。
+  </P
+><P
+>スキーマ名が含まれている場合、関数は指定されたスキーマで作成されます。
+スキーマ名がなければ、関数は現在のスキーマで作成されます。
+同じスキーマ内の同じ入力引数データ型を持つ既存の関数の名前は、新しい関数の名前として使用できません。
+しかし、異なる引数データ型を持つ関数であれば、名前が重複しても構いません
+（これを、<I
+CLASS="FIRSTTERM"
+>オーバーロード</I
+>と言います）。
+  </P
+><P
+>既存の関数定義を入れ替えるには、<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>を使用してください。
+この方法では関数の名前や引数の型を変更することはできないことに注意してください
+（これを行った場合、新しく別の関数が作成されます）。
+また、<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>では、既存の関数の戻り値の型を変更することはできません。
+戻り値の型を変更したい場合は、その関数を削除し、再度作成してください。
+（これは、<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータを使用している場合、関数を削除しない限り<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータの型を変更できないことを意味します。）
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>を使用して既存の関数を置き換える場合、関数の所有者と権限は変わりません。
+他の関数に関するすべての属性には、そのコマンドで指定された値、または暗黙的な値が代入されます。
+置き換えるためにはその関数を所有していなければなりません。
+（これには所有するロールのメンバであることが含まれています。）
+  </P
+><P
+>関数を削除し再作成した場合、新しい関数は古いものと同じ実体にはなりません。
+古い関数を参照する、既存のルール、ビュー、トリガなどを削除しなければならないでしょう。
+関数を参照するオブジェクトを破壊しないように関数定義を変更するには、<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>を使用してください。
+また、<TT
+CLASS="COMMAND"
+>ALTER FUNCTION</TT
+>を使用して、既存の関数の補助属性のほとんどを変更することができます。
+  </P
+><P
+>関数を作成したユーザが、その関数の所有者となります。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65364"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>作成する関数の名前です（スキーマ修飾名も可）。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>argmode</I
+></TT
+></DT
+><DD
+><P
+>引数のモードで、<TT
+CLASS="LITERAL"
+>IN</TT
+>、<TT
+CLASS="LITERAL"
+>OUT</TT
+>、<TT
+CLASS="LITERAL"
+>INOUT</TT
+>、<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+>のいずれかです。
+省略時のデフォルトは<TT
+CLASS="LITERAL"
+>IN</TT
+>です。
+<TT
+CLASS="LITERAL"
+>OUT</TT
+>引数のみが<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+>を１つ後に続けることができます。
+また、<TT
+CLASS="LITERAL"
+>RETURNS TABLE</TT
+>記法では、<TT
+CLASS="LITERAL"
+>OUT</TT
+>と<TT
+CLASS="LITERAL"
+>INOUT</TT
+>引数の両方を使用することはできません。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>argname</I
+></TT
+></DT
+><DD
+><P
+>引数の名前です。
+言語の中にはこの名前を関数本体で使用できるものもあります
+（今のところPL/pgSQLのみです）。
+他の言語では、関数そのものに注目する限り、入力引数の名前は単なる追加ドキュメントとして扱われます。
+しかし関数呼び出し時に入力引数の名前を使用することで可読性を高めることができます。
+（<A
+HREF="sql-syntax-calling-funcs.html"
+>&#38917;4.3</A
+>参照）
+どのような場合であっても、出力引数の名前は、結果の行型の列名となりますので重要です。
+（出力引数の名前を省略した場合、システムはデフォルトの列名を付与します。）
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>argtype</I
+></TT
+></DT
+><DD
+><P
+>関数の引数のデータ型です（スキーマ修飾名も可）。
+基本データ型、複合データ型、ドメイン型、または、テーブル列の型の参照を使用することができます。
+      </P
+><P
+>また、言語の実装に依存しますが、<TT
+CLASS="TYPE"
+>cstring</TT
+>といった<SPAN
+CLASS="QUOTE"
+>"疑似型"</SPAN
+>を指定できる場合もあります。
+疑似型は、引数の型の指定が不完全である、もしくは、通常のSQLデータ型の集合を越えていることを示します。
+      </P
+><P
+>列の型を参照するには、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+>%TYPE</TT
+>と記述します。
+これを使用すると、テーブル定義が変更されても関数が影響を受けないようにするのに役に立つことがあります。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>default_expr</I
+></TT
+></DT
+><DD
+><P
+>パラメータが指定されなかった場合のデフォルト値として使用される式です。
+この式はパラメータの引数型と型強制を持たなければなりません。
+入力パラメータ（<TT
+CLASS="LITERAL"
+>INOUT</TT
+>を含みます）のみがデフォルト値を持つことができます。
+デフォルト値を持つパラメータの後ろにあるパラメータはすべて、同様にデフォルト値を持つパラメータでなければなりません。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>rettype</I
+></TT
+></DT
+><DD
+><P
+>関数が返すデータの型です（スキーマ修飾名も可）。
+基本型、複合型、ドメイン型、または、テーブル列の型の参照を設定することができます。
+また、実装している言語によりますが、<TT
+CLASS="TYPE"
+>cstring</TT
+>のような<SPAN
+CLASS="QUOTE"
+>"疑似型"</SPAN
+>も指定することが可能です。
+その関数が値を返すことを想定していない場合は、戻り値として<TT
+CLASS="TYPE"
+>void</TT
+>を指定してください。
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>OUT</TT
+>もしくは<TT
+CLASS="LITERAL"
+>INOUT</TT
+>パラメータが存在する場合、<TT
+CLASS="LITERAL"
+>RETURNS</TT
+>句を省略することができます。
+省略しない場合は、出力用パラメータが意味する結果型に従ったもの、つまり、複数の出力用パラメータがあれば<TT
+CLASS="LITERAL"
+>RECORD</TT
+>、単一の出力用パラメータであればそれと同じ型、でなければなりません。
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>SETOF</TT
+>修飾子は、その関数が、1つではなく複数のアイテムの集合を返すことを示します。
+      </P
+><P
+>列の型は、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+>.<TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+>%TYPE</TT
+>と記述することで参照されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>RETURNS TABLE</TT
+>構文における出力列の名前です。
+これは実際名前付けされた<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータを宣言する別の方法ですが、<TT
+CLASS="LITERAL"
+>RETURNS TABLE</TT
+>が<TT
+CLASS="LITERAL"
+>RETURNS SETOF</TT
+>をも意味する点が異なります。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column_type</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>RETURNS TABLE</TT
+>構文における出力列のデータ型です。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>lang_name</I
+></TT
+></DT
+><DD
+><P
+>関数を実装している言語の名前です。
+このパラメータには、<TT
+CLASS="LITERAL"
+>SQL</TT
+>、<TT
+CLASS="LITERAL"
+>C</TT
+>、<TT
+CLASS="LITERAL"
+>internal</TT
+>、もしくはユーザ定義手続き言語の名前を指定可能です。
+後方互換を保持するため、この名前を単一引用符で囲むこともできます。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WINDOW</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>WINDOW</TT
+>は、この関数が普通の関数ではなく<I
+CLASS="FIRSTTERM"
+>ウィンドウ関数</I
+>であることを示します。
+現在これはC言語で作成した関数のみに使用することができます。
+既存の関数定義を置き換える場合、<TT
+CLASS="LITERAL"
+>WINDOW</TT
+>属性を変更することはできません。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>IMMUTABLE</TT
+><BR><TT
+CLASS="LITERAL"
+>STABLE</TT
+><BR><TT
+CLASS="LITERAL"
+>VOLATILE</TT
+></DT
+><DD
+><P
+>これらの属性は、関数の動作に関する情報を問い合わせオプティマイザに提供します。
+いずれか1つのキーワードのみ指定できます。
+指定がない場合は、デフォルトで<TT
+CLASS="LITERAL"
+>VOLATILE</TT
+>と解釈されます。
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>IMMUTABLE</TT
+>は、データベースに対する変更を行わないこと、および、その関数に同じ引数値を与えた場合に常に同じ結果を返すことを示します。
+これは、データベースを検索したり、引数リスト中に直接存在しない情報を使用したりしないということです。
+このオプションが指定された場合、引数が全て定数である関数呼び出しは、即座に関数値と置き換えることができます。
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>STABLE</TT
+>は、データベースに対する変更を行わないこと、および、その関数に同じ引数値を与えた場合、1テーブルスキャン内で常に同じ結果を返すが、
+SQL文が異なると結果が変わってしまう可能性があることを示します。
+これは、データベース検索や（現在の時間帯のような）パラメータ変数などに結果が依存する関数に適します。
+(これは現在のコマンドで変更された行を問い合わせたい<TT
+CLASS="LITERAL"
+>AFTER</TT
+>トリガでは不適切です。)
+また、<CODE
+CLASS="FUNCTION"
+>current_timestamp</CODE
+>系の関数は、1つのトランザクション内では値が変化しないため、STABLEであることに注意してください。
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>VOLATILE</TT
+>は、1テーブルスキャン内において関数の値が変化する可能性があるため、最適化できないことを示します。
+このような意味で変動的（volatile）なデータベース関数は、比較的少数です。
+例えば、<TT
+CLASS="LITERAL"
+>random()</TT
+>、<TT
+CLASS="LITERAL"
+>currval()</TT
+>、<TT
+CLASS="LITERAL"
+>timeofday()</TT
+>などは変動的な関数です。
+しかし、例えば<TT
+CLASS="LITERAL"
+>setval()</TT
+>などの副作用がある関数は、その結果を完全に予測できるとしても、呼び出しを最適化しないよう、<TT
+CLASS="LITERAL"
+>VOLATILE</TT
+>（変動的）に分類する必要があることに注意してください。
+      </P
+><P
+>詳細は<A
+HREF="xfunc-volatility.html"
+>&#38917;35.6</A
+>を参照してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CALLED ON NULL INPUT</TT
+><BR><TT
+CLASS="LITERAL"
+>RETURNS NULL ON NULL INPUT</TT
+><BR><TT
+CLASS="LITERAL"
+>STRICT</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>CALLED ON NULL INPUT</TT
+>（デフォルト）を指定すると、引数にNULLが含まれていても、関数が通常通り呼び出されます。
+その場合は、必要に応じてNULL値を確認し、適切な対応をすることは関数作成者の責任です。
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>RETURNS NULL ON NULL INPUT</TT
+>もしくは<TT
+CLASS="LITERAL"
+>STRICT</TT
+>を指定すると、関数の引数にNULLがある場合、常にNULLを返します。
+このパラメータが指定されると、NULL引数がある場合、関数は実行されません。
+代わりに、NULLという結果が自動的に与えられます。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>[<SPAN
+CLASS="OPTIONAL"
+>EXTERNAL</SPAN
+>] SECURITY INVOKER</TT
+><BR><TT
+CLASS="LITERAL"
+>[<SPAN
+CLASS="OPTIONAL"
+>EXTERNAL</SPAN
+>] SECURITY DEFINER</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>SECURITY INVOKER</TT
+>を指定すると、関数を呼び出したユーザの権限で、その関数が実行されます。
+これがデフォルトです。
+<TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>を指定すると、関数を作成したユーザの権限で、その関数が実行されます。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>EXTERNAL</TT
+>キーワードは、SQLとの互換性を保つために許されています。
+しかし、SQLとは異なり、この機能は外部関数にのみ適用されるわけではないため、このキーワードは省略可能です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>execution_cost</I
+></TT
+></DT
+><DD
+><P
+>この関数の推定実行コストを表す正数で、単位は<A
+HREF="runtime-config-query.html#GUC-CPU-OPERATOR-COST"
+>cpu_operator_cost</A
+>です。
+関数が集合を返す場合、これは1行当たりのコストとなります。
+このコストが指定されない場合、C言語および内部関数では1、他のすべての言語では100となります。
+値をより大きくすると、プランナは必要以上に頻繁に関数を評価しないようになります。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>result_rows</I
+></TT
+></DT
+><DD
+><P
+>プランナが想定する、この関数が返す行数の推定値を表す正数です。
+これは、関数が集合を返すものと宣言された場合のみ許されます。
+デフォルト推定値は1000行です。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>configuration_parameter</I
+></TT
+><BR><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>SET</TT
+>句により、関数が始まった時に指定した設定パラメータを指定した値に設定し、関数の終了時にそれを以前の値に戻すことができます。
+<TT
+CLASS="LITERAL"
+>SET FROM CURRENT</TT
+>は、セッションにおけるパラメータの現在値を関数が始まった時に適用する値として保管します。
+      </P
+><P
+>関数に<TT
+CLASS="LITERAL"
+>SET</TT
+>句が付いている場合、関数内部で実行される<TT
+CLASS="COMMAND"
+>SET LOCAL</TT
+>コマンドの同一変数に対する効果はその関数に制限されます。
+設定パラメータの前の値は関数が終了する時に元に戻ります。
+しかし、通常の（<TT
+CLASS="LITERAL"
+>LOCAL</TT
+>がない）<TT
+CLASS="COMMAND"
+>SET</TT
+>コマンドは<TT
+CLASS="LITERAL"
+>SET</TT
+>句を上書きします。
+これは過去に行われた<TT
+CLASS="COMMAND"
+>SET LOCAL</TT
+>コマンドに対してもほぼ同じです。
+このコマンドの効果は、現在のトランザクションがロールバックされない限り、関数が終了した後も永続化されます。
+      </P
+><P
+>使用可能なパラメータと値については、<A
+HREF="sql-set.html"
+>SET</A
+>および<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>definition</I
+></TT
+></DT
+><DD
+><P
+>関数を定義する文字列定数です。
+このパラメータの意味は言語に依存します。
+内部的な関数名、オブジェクトファイルへのパス、SQLコマンド、手続き言語で記述されたテキストなどを指定できます。
+      </P
+><P
+>関数を定義する文字列を記述する際に、通常の単一引用符ではなく、ドル引用符（<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING"
+>&#38917;4.1.2.4</A
+>参照）を使用すると便利なことが多くあります。
+ドル引用符を使用しない限り、関数定義内の単一引用符やバックスラッシュは必ず二重にしてエスケープしなければなりません。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>obj_file</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>link_symbol</I
+></TT
+></TT
+></DT
+><DD
+><P
+>この構文の<TT
+CLASS="LITERAL"
+>AS</TT
+>句は、C言語のソースコード中の関数名がSQL関数の名前と同じでない場合、動的にロードされるC言語関数に使われます。
+<TT
+CLASS="REPLACEABLE"
+><I
+>obj_file</I
+></TT
+>という文字列は動的にロードできるオブジェクトを含むファイルの名前で、<TT
+CLASS="REPLACEABLE"
+><I
+>link_symbol</I
+></TT
+>はそのオブジェクトのリンクシンボル、つまり、C言語ソースコード中の関数の名前です。
+リンクシンボルが省略された場合、定義されるSQL関数の名前と同じものであると仮定されます。
+      </P
+><P
+>同一オブジェクトファイルを参照する、<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>呼び出しが繰り返された場合、そのファイルはセッション毎に一度だけロードされます。
+（おそらく開発段階で）ファイルをアンロードし再ロードするには、新しいセッションを開始してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>attribute</I
+></TT
+></DT
+><DD
+><P
+>関数に関する情報を、部分的に選択して指定する伝統的な方法です。
+ここで指定できる属性を以下に示します。
+      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>isStrict</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>STRICT</TT
+>または<TT
+CLASS="LITERAL"
+>RETURNS NULL ON NULL INPUT</TT
+>と同じです。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>isCachable</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>isCachable</TT
+>は、<TT
+CLASS="LITERAL"
+>IMMUTABLE</TT
+>と同じですが、既に廃止されています。
+しかし、後方互換性を保持するため、まだ有効とされています。
+         </P
+></DD
+></DL
+></DIV
+><P>
+
+属性名では、大文字小文字を区別しません。
+     </P
+></DD
+></DL
+></DIV
+><P
+>さらに詳しい外部関数の作成方法については<A
+HREF="xfunc.html"
+>&#38917;35.3</A
+>を参照してください。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATEFUNCTION-OVERLOADING"
+></A
+><H2
+>オーバーロード</H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は関数の<I
+CLASS="FIRSTTERM"
+>オーバーロード</I
+>を許可します。 
+つまり、入力引数の型が異なっていれば、複数の関数に同じ名前を使用することができます。
+しかし、全ての関数のC言語における名前は、重複してはいけません。
+したがって、オーバーロードするC言語関数には、異なるC言語の名前を与える必要があります
+（例えば、C言語における名前の一部に引数の型を使用してください）。
+   </P
+><P
+>同じ名前、同じ<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>入力用</I
+></SPAN
+>パラメータ型を持つ場合、2つの関数は同一であるとみなされます。
+<TT
+CLASS="LITERAL"
+>OUT</TT
+>パラメータは無視されます。
+したがって、例えば以下の宣言は競合しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION foo(int) ...
+CREATE FUNCTION foo(int, out text) ...</PRE
+><P>
+   </P
+><P
+>異なる引数型のリストを持つ関数は、作成時に競合するとはみなされませんが、デフォルト値が指定された場合使用時に競合する可能性があります。
+例えば以下を考えてみましょう。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION foo(int) ...
+CREATE FUNCTION foo(int, int default 42) ...</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>foo(10)</TT
+>という呼び出しは、どちらの関数を呼び出すべきかに関して曖昧さがあるために失敗します。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATEFUNCTION-NOTES"
+></A
+><H2
+>注釈</H2
+><P
+>完全な<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>型の構文により入力引数と戻り値が許されます。
+しかし、一部の型指定の細部(例えば<TT
+CLASS="TYPE"
+>numeric</TT
+>型の精度フィールド)は、背後の関数の実装に責任があり、<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドにより警告なく飲み込まれてしまいます(つまり認識も強制もされません)。
+
+   </P
+><P
+>既存の関数を<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE FUNCTION</TT
+>を使って置き換える場合、パラメータ名の変更に関して制限があります。
+すでに何らかの入力パラメータに割り当てられた名前を変更することはできません。
+（しかし、これまで名前を持たなかったパラメータに名前を追加することは可能です。）
+複数の出力パラメータが存在する場合、関数の結果を表わす無名複合型の列名を変更することになるため、出力パラメータの名前を変更することはできません。
+既存の関数呼び出しが置き換わった時に動作しなくなることを確実に防ぐために、これらの制限がなされています。
+   </P
+><P
+>関数が<TT
+CLASS="LITERAL"
+>VARIADIC</TT
+>引数を持つ<TT
+CLASS="LITERAL"
+>STRICT</TT
+>と宣言された場合、その厳密性検査では、可変長配列<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>全体</I
+></SPAN
+>が非NULLかどうかを検査します。
+配列がNULL要素を持っていたとしても関数は呼び出されます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATEFUNCTION-EXAMPLES"
+></A
+><H2
+>例</H2
+><P
+>ここでは、初心者向けの簡単な例をいくつか示します。
+<A
+HREF="xfunc.html"
+>&#38917;35.3</A
+>には、より多くの情報と例が記載されています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION add(integer, integer) RETURNS integer
+    AS 'select $1 + $2;'
+    LANGUAGE SQL
+    IMMUTABLE
+    RETURNS NULL ON NULL INPUT;</PRE
+><P>
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+>で、引数名を使用して、整数を1増やします。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION increment(i integer) RETURNS integer AS $$
+        BEGIN
+                RETURN i + 1;
+        END;
+$$ LANGUAGE plpgsql;</PRE
+><P>
+  </P
+><P
+>複数の出力用パラメータを持つレコードを返します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION dup(in int, out f1 int, out f2 text)
+    AS $$ SELECT $1, CAST($1 AS text) || ' is text' $$
+    LANGUAGE SQL;
+
+SELECT * FROM dup(42);</PRE
+><P>
+上と同じことを、明示的な名前が付いた複合型を使用して、より冗長に行うことができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE dup_result AS (f1 int, f2 text);
+
+CREATE FUNCTION dup(int) RETURNS dup_result
+    AS $$ SELECT $1, CAST($1 AS text) || ' is text' $$
+    LANGUAGE SQL;
+
+SELECT * FROM dup(42);</PRE
+><P>
+複数列を返す別の方法は、<TT
+CLASS="LITERAL"
+>TABLE</TT
+>関数を使用することです。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION dup(int) RETURNS TABLE(f1 int, f2 text)
+    AS $$ SELECT $1, CAST($1 AS text) || ' is text' $$
+    LANGUAGE SQL;
+
+SELECT * FROM dup(42);</PRE
+><P>
+しかし、これは実際には、1つのレコードではなく、レコードの<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>集合</I
+></SPAN
+>を返しますので、<TT
+CLASS="LITERAL"
+>TABLE</TT
+>関数は上の例とは異なります。
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATEFUNCTION-SECURITY"
+></A
+><H2
+><TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>関数の安全な作成</H2
+><P
+><TT
+CLASS="LITERAL"
+>SECURITY DEFINER</TT
+>関数は関数を作成したユーザの権限で実行されますので、その関数を間違って使用できないことを確実にしなければなりません。
+安全上、<A
+HREF="runtime-config-client.html#GUC-SEARCH-PATH"
+>search_path</A
+>は、信頼できないユーザが書き込み可能なスキーマを除去した形で設定されます。
+これは、悪意のあるユーザがその関数で使用されるオブジェクトを隠すようなオブジェクトを作成することを防ぎます。
+ここで特に重要なことは、一時テーブルスキーマです。
+このスキーマはデフォルトで最初に検索され、そして、通常誰でも書き込み可能です。
+一時スキーマの検索を強制的に最後にすることで、セキュリティを調整できます。
+このためには、<TT
+CLASS="LITERAL"
+>pg_temp</TT
+>を<TT
+CLASS="VARNAME"
+>search_path</TT
+>の最後の項目として記載してください。
+この関数の安全な使用方法を以下に示します。
+   </P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE FUNCTION check_password(uname TEXT, pass TEXT)
+RETURNS BOOLEAN AS $$
+DECLARE passed BOOLEAN;
+BEGIN
+        SELECT  (pwd = $2) INTO passed
+        FROM    pwds
+        WHERE   username = $1;
+
+        RETURN passed;
+END;
+$$  LANGUAGE plpgsql
+    SECURITY DEFINER
+    -- 信頼できるスキーマ、その後にpg_tempという順でsearch_pathを安全に設定します。
+    SET search_path = admin, pg_temp;</PRE
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>バージョン8.3より前では、<TT
+CLASS="LITERAL"
+>SET</TT
+>オプションは利用できません。
+このため古い関数には、<TT
+CLASS="VARNAME"
+>search_path</TT
+>を保管し、設定、そして元に戻すという、多少複雑なロジックが含まれているかもしれません。
+こうした目的に<TT
+CLASS="LITERAL"
+>SET</TT
+>オプションを使用すると、かなり簡単になります。
+   </P
+><P
+>この他に注意すべき点として、新しく作成された関数ではデフォルトで実行権限が<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>に付与されていることがあります。
+（詳細は<A
+HREF="sql-grant.html"
+>GRANT</A
+>を参照してください。）
+SECURITY DEFINER関数の使用を一部のユーザのみに制限したいことはよくあります。
+このためには、デフォルトの<TT
+CLASS="LITERAL"
+>PUBLIC</TT
+>権限を取り上げ、そして、実行権限の付与を選択して行ってください。
+新しい関数がすべてのユーザに実行可能となる隙間が存在することを防ぐためには、単一トランザクション内で作成と権限設定を行ってください。
+以下に例を示します。
+   </P
+><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN;
+CREATE FUNCTION check_password(uname TEXT, pass TEXT) ... SECURITY DEFINER;
+REVOKE ALL ON FUNCTION check_password(uname TEXT, pass TEXT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION check_password(uname TEXT, pass TEXT) TO admins;
+COMMIT;</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATEFUNCTION-COMPAT"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>コマンドはSQL:1999以降で定義されています。
+<SPAN
+CLASS="APPLICATION"
+>PostgreSQL</SPAN
+>における<TT
+CLASS="COMMAND"
+>CREATE FUNCTION</TT
+>も類似の機能を持ちますが、完全な互換性はありません。
+属性には移植性がありません。また、使用可能な言語も異なります。
+  </P
+><P
+>他のデータベースシステムとの互換性のために、<TT
+CLASS="REPLACEABLE"
+><I
+>argmode</I
+></TT
+>は<TT
+CLASS="REPLACEABLE"
+><I
+>argname</I
+></TT
+>の前に書くことも後に書くこともできます。
+しかし、1つ目の方法が標準に従っています。
+  </P
+><P
+>標準SQLはパラメータのデフォルトを規定していません。
+<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>キーワードを持つ構文はOracleに由来したもので、標準の流れを多少汲んだものです。
+SQL/PSMではこれを変数のデフォルト値として使用しています。
+<TT
+CLASS="LITERAL"
+>=</TT
+>を持つ構文はT-SQLおよびFirebirdで使用されています。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65653"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-alterfunction.html"
+>ALTER FUNCTION</A
+>, <A
+HREF="sql-dropfunction.html"
+>DROP FUNCTION</A
+>, <A
+HREF="sql-grant.html"
+>GRANT</A
+>, <A
+HREF="sql-load.html"
+>LOAD</A
+>, <A
+HREF="sql-revoke.html"
+>REVOKE</A
+>, <A
+HREF="app-createlang.html"
+><SPAN
+CLASS="APPLICATION"
+>createlang</SPAN
+></A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createforeigntable.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-creategroup.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE FOREIGN TABLE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE GROUP</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

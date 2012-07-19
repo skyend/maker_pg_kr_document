@@ -1,0 +1,560 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER TEXT SEARCH CONFIGURATION</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER TABLESPACE"
+HREF="sql-altertablespace.html"><LINK
+REL="NEXT"
+TITLE="ALTER TEXT SEARCH DICTIONARY"
+HREF="sql-altertsdictionary.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER TABLESPACE"
+HREF="sql-altertablespace.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER TABLESPACE"
+HREF="sql-altertablespace.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER TEXT SEARCH DICTIONARY"
+HREF="sql-altertsdictionary.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER TEXT SEARCH DICTIONARY"
+HREF="sql-altertsdictionary.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERTSCONFIG"
+></A
+>ALTER TEXT SEARCH CONFIGURATION</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN62394"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER TEXT SEARCH CONFIGURATION&nbsp;--&nbsp;テキスト検索設定の定義を変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN62399"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    ADD MAPPING FOR <TT
+CLASS="REPLACEABLE"
+><I
+>token_type</I
+></TT
+> [, ... ] WITH <TT
+CLASS="REPLACEABLE"
+><I
+>dictionary_name</I
+></TT
+> [, ... ]
+ALTER TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    ALTER MAPPING FOR <TT
+CLASS="REPLACEABLE"
+><I
+>token_type</I
+></TT
+> [, ... ] WITH <TT
+CLASS="REPLACEABLE"
+><I
+>dictionary_name</I
+></TT
+> [, ... ]
+ALTER TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    ALTER MAPPING REPLACE <TT
+CLASS="REPLACEABLE"
+><I
+>old_dictionary</I
+></TT
+> WITH <TT
+CLASS="REPLACEABLE"
+><I
+>new_dictionary</I
+></TT
+>
+ALTER TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    ALTER MAPPING FOR <TT
+CLASS="REPLACEABLE"
+><I
+>token_type</I
+></TT
+> [, ... ] REPLACE <TT
+CLASS="REPLACEABLE"
+><I
+>old_dictionary</I
+></TT
+> WITH <TT
+CLASS="REPLACEABLE"
+><I
+>new_dictionary</I
+></TT
+>
+ALTER TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+>
+    DROP MAPPING [ IF EXISTS ] FOR <TT
+CLASS="REPLACEABLE"
+><I
+>token_type</I
+></TT
+> [, ... ]
+ALTER TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>
+ALTER TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+>
+ALTER TEXT SEARCH CONFIGURATION <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SET SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62422"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TEXT SEARCH CONFIGURATION</TT
+>はテキスト検索設定の定義を変更します。
+トークン型から辞書への対応付けの変更、または、設定名称の変更、設定の所有者の変更を行うことができます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TEXT SEARCH CONFIGURATION</TT
+>を使用するためには、設定の所有者でなければなりません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62428"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>既存のテキスト検索設定の名称（スキーマ修飾可）です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>token_type</I
+></TT
+></DT
+><DD
+><P
+>設定のパーサが発行するトークン型の名称です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>dictionary_name</I
+></TT
+></DT
+><DD
+><P
+>指定したトークン型（複数可）で考慮されるテキスト検索辞書の名称です。
+複数の辞書が列挙された場合、指定された順序で考慮されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>old_dictionary</I
+></TT
+></DT
+><DD
+><P
+>対応付けにて置換されるテキスト検索辞書の名称です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_dictionary</I
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>old_dictionary</I
+></TT
+>を置き換えるテキスト検索辞書の名称です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>新しいテキスト検索設定の名称です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></DT
+><DD
+><P
+>新しいテキスト検索設定の所有者です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></DT
+><DD
+><P
+>テキスト検索設定の新しいスキーマです。
+     </P
+></DD
+></DL
+></DIV
+><P
+><TT
+CLASS="LITERAL"
+>ADD MAPPING FOR</TT
+>構文は指定したトークン型で考慮される辞書のリストをインストールします。
+既にそのトークン型に対する対応付けが存在する場合はエラーになります。
+<TT
+CLASS="LITERAL"
+>ALTER MAPPING FOR</TT
+>構文は、まず既存の対象トークン型に対する対応付けを削除する点を除き、同一です。
+<TT
+CLASS="LITERAL"
+>ALTER MAPPING REPLACE</TT
+>構文は、すべての<TT
+CLASS="REPLACEABLE"
+><I
+>old_dictionary</I
+></TT
+>を<TT
+CLASS="REPLACEABLE"
+><I
+>new_dictionary</I
+></TT
+>で置き換えます。
+<TT
+CLASS="LITERAL"
+>FOR</TT
+>があれば、これは指定したトークン型に対してのみ行われ、なければ、設定におけるすべての対応付けに対して行われます。
+<TT
+CLASS="LITERAL"
+>DROP MAPPING</TT
+>構文は指定したトークン型（複数可）に対するすべての辞書を削除します。
+この結果、このテキスト検索設定ではこれらの型のトークンが無視されるようになります。
+<TT
+CLASS="LITERAL"
+>IF EXISTS</TT
+>がない限り、トークン型に対する対応付けが存在しない場合はエラーになります。
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62481"
+></A
+><H2
+>例</H2
+><P
+>次の例は、<TT
+CLASS="LITERAL"
+>my_config</TT
+>内で<TT
+CLASS="LITERAL"
+>english</TT
+>が使用されるすべてに対し、<TT
+CLASS="LITERAL"
+>english</TT
+>辞書を<TT
+CLASS="LITERAL"
+>swedish</TT
+>辞書で置換します。
+  </P
+><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TEXT SEARCH CONFIGURATION my_config
+  ALTER MAPPING REPLACE english WITH swedish;</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62489"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>ALTER TEXT SEARCH CONFIGURATION</TT
+>文はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62493"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createtsconfig.html"
+>CREATE TEXT SEARCH CONFIGURATION</A
+>, <A
+HREF="sql-droptsconfig.html"
+>DROP TEXT SEARCH CONFIGURATION</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-altertablespace.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-altertsdictionary.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER TABLESPACE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER TEXT SEARCH DICTIONARY</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

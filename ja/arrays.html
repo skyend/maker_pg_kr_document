@@ -1,0 +1,1150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>配列</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ型"
+HREF="datatype.html"><LINK
+REL="PREVIOUS"
+TITLE="XML型"
+HREF="datatype-xml.html"><LINK
+REL="NEXT"
+TITLE="複合型"
+HREF="rowtypes.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="XML型"
+HREF="datatype-xml.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 8&#31456;データ型</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="複合型"
+HREF="rowtypes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ARRAYS"
+>8.14. 配列</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではテーブルの列を可変長多次元配列として定義できます。
+あらゆる組み込み型、ユーザ定義基本型、列挙型または複合型の配列も作成可能です。
+ドメインの配列はサポートされていません。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ARRAYS-DECLARATION"
+>8.14.1. 配列型の宣言</A
+></H2
+><P
+>実際に配列の使い方を説明するために、次のテーブルを作成します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE sal_emp (
+    name            text,
+    pay_by_quarter  integer[],
+    schedule        text[][]
+);</PRE
+><P>
+見ておわかりのように配列データ型は配列要素のデータ型の名前に大括弧（<TT
+CLASS="LITERAL"
+>[]</TT
+>）を付けて指定します。 
+このコマンドは<TT
+CLASS="TYPE"
+>text</TT
+>型文字列（<TT
+CLASS="STRUCTFIELD"
+>name</TT
+>）、従業員の四半期の給与を保存する<TT
+CLASS="TYPE"
+>integer</TT
+>型の一次元配列（<TT
+CLASS="STRUCTFIELD"
+>pay_by_quarter</TT
+>）、そして従業員の週間スケジュールを保存する<TT
+CLASS="TYPE"
+>text</TT
+>型の二次元配列（<TT
+CLASS="STRUCTFIELD"
+>schedule</TT
+>）の列を持つ<TT
+CLASS="STRUCTNAME"
+>sal_emp</TT
+>という名前のテーブルを作成します。
+ </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>構文で指定する配列の正確な大きさを指定することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE tictactoe (
+    squares   integer[3][3]
+);</PRE
+><P>
+
+とは言っても現在の実装では指定された配列の大きさの制限を無視します。
+つまり、長さの指定がない配列と同じ振舞いをします。
+ </P
+><P
+>現在の実装では次元数の宣言も強制していません。
+特定の要素型の配列はすべて大きさあるいは次元数とは無関係に同じ型とみなされます。
+ですから<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>で配列の大きさや次元数を宣言することは、単なる説明です。
+実行時の動作に影響を及ぼしません。
+ </P
+><P
+>SQLに準拠し、<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>キーワードを使用したもう1つの構文を一次元配列に使うことができます。
+<TT
+CLASS="STRUCTFIELD"
+>pay_by_quarter</TT
+>を次のように定義することもできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>    pay_by_quarter  integer ARRAY[4],</PRE
+><P>
+または、もし配列の大きさが指定されない場合は次のようになります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>    pay_by_quarter  integer ARRAY,</PRE
+><P>
+しかし、前で触れたように<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はどんな場合でも大きさの制限を強要しません。
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ARRAYS-INPUT"
+>8.14.2. 配列の値の入力</A
+></H2
+><P
+>リテラル定数として配列の値を書き込むには、その要素の値を中括弧で囲み、それぞれの要素の値をカンマで区切ります
+（C言語を知っているならば、構造体を初期化するための構文のようなものと考えてください）。
+要素の値を二重引用符でくくることもでき、カンマもしくは中括弧がある時は必ずそのように書かなければなりません
+（詳細は以下に出てきます）。
+したがって配列定数の一般的書式は次のようになります。
+</P><PRE
+CLASS="SYNOPSIS"
+>'{ <TT
+CLASS="REPLACEABLE"
+><I
+>val1</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>delim</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>val2</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>delim</I
+></TT
+> ... }'</PRE
+><P>
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>delim</I
+></TT
+>はその<TT
+CLASS="LITERAL"
+>pg_type</TT
+>項目に記録されている型の区切り文字です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>配布物で提供されている標準データ型の内、セミコロン（<TT
+CLASS="LITERAL"
+>;</TT
+>）を使用する<TT
+CLASS="TYPE"
+>box</TT
+>型を除き、すべてはカンマ（<TT
+CLASS="LITERAL"
+>,</TT
+>）を使います。
+それぞれの<TT
+CLASS="REPLACEABLE"
+><I
+>val</I
+></TT
+>は配列要素の型の定数か副配列です。
+配列定数の例を以下に示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>'{{1,2,3},{4,5,6},{7,8,9}}'</PRE
+><P>
+この定数は整数の3つの副配列を持っている二次元3×3の配列です。
+  </P
+><P
+>配列定数の要素をNULLとするためには、その要素値に<TT
+CLASS="LITERAL"
+>NULL</TT
+>と記載してください。
+（<TT
+CLASS="LITERAL"
+>NULL</TT
+>を大文字で書いても小文字で書いても構いません。）
+<SPAN
+CLASS="QUOTE"
+>"NULL"</SPAN
+>という文字列値を指定したければ、二重引用符でくくって記載しなければなりません。
+  </P
+><P
+>（この種の配列定数は実際<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-CONSTANTS-GENERIC"
+>&#38917;4.1.2.7</A
+>で説明されている一般型定数の特別の場合に過ぎません。
+この定数は元々文字列として扱われていて配列入力ルーチンに渡されます。
+明示的な型指定が必要かもしれません。）
+  </P
+><P
+>では、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>文をいくつか紹介します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO sal_emp
+    VALUES ('Bill',
+    '{10000, 10000, 10000, 10000}',
+    '{{"meeting", "lunch"}, {"training", "presentation"}}');
+
+INSERT INTO sal_emp
+    VALUES ('Carol',
+    '{20000, 25000, 25000, 25000}',
+    '{{"breakfast", "consulting"}, {"meeting", "lunch"}}');</PRE
+><P>
+  </P
+><P
+>上に記載した2つの挿入文の結果は次のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM sal_emp;
+ name  |      pay_by_quarter       |                 schedule
+-------+---------------------------+-------------------------------------------
+ Bill  | {10000,10000,10000,10000} | {{meeting,lunch},{training,presentation}}
+ Carol | {20000,25000,25000,25000} | {{breakfast,consulting},{meeting,lunch}}
+(2 rows)</PRE
+><P>
+ </P
+><P
+>多次元配列では、各次元の範囲を合わせなければなりません。
+一致しないと以下のようにエラーが発生します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO sal_emp
+    VALUES ('Bill',
+    '{10000, 10000, 10000, 10000}',
+    '{{"meeting", "lunch"}, {"meeting"}}');
+ERROR:  multidimensional arrays must have array expressions with matching dimensions</PRE
+><P>
+ </P
+><P
+><TT
+CLASS="LITERAL"
+>ARRAY</TT
+>生成子構文も使えます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO sal_emp
+    VALUES ('Bill',
+    ARRAY[10000, 10000, 10000, 10000],
+    ARRAY[['meeting', 'lunch'], ['training', 'presentation']]);
+
+INSERT INTO sal_emp
+    VALUES ('Carol',
+    ARRAY[20000, 25000, 25000, 25000],
+    ARRAY[['breakfast', 'consulting'], ['meeting', 'lunch']]);</PRE
+><P>
+配列要素は通常のSQL定数もしくは演算式であることに注意してください。
+例えば文字列リテラルは配列リテラルと同様、二重引用符ではなく単一引用符でくくられます。
+<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>生成子構文は<A
+HREF="sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS"
+>&#38917;4.2.12</A
+>により詳しい説明があります。
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ARRAYS-ACCESSING"
+>8.14.3. 配列へのアクセス</A
+></H2
+><P
+>ではテーブルに対していくつかの問い合わせを行ってみましょう。
+初めに、配列の単一要素にアクセスする方法を示します。
+この問い合わせは第2四半期に給与が更新された従業員の名前を抽出します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT name FROM sal_emp WHERE pay_by_quarter[1] &lt;&gt; pay_by_quarter[2];
+
+ name
+-------
+ Carol
+(1 row)</PRE
+><P>
+
+配列の添字番号は大括弧で囲んで記述されます。
+デフォルトで<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は配列に対し「1始まり」の振り番規定を採用しています。
+つまり要素が<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>個ある配列は<TT
+CLASS="LITERAL"
+>array[1]</TT
+>で始まり、<TT
+CLASS="LITERAL"
+>array[<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>]</TT
+>で終わります。
+ </P
+><P
+>次の問い合わせは全ての従業員の第3四半期の給与を抽出します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT pay_by_quarter[3] FROM sal_emp;
+
+ pay_by_quarter
+----------------
+          10000
+          25000
+(2 rows)</PRE
+><P>
+ </P
+><P
+>また、配列や副配列の任意の縦方向の部分を切り出すこともできます。
+一次元以上の配列についてその一部を表現するには、<TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>lower-bound</I
+></TT
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>upper-bound</I
+></TT
+></TT
+>と記述します。
+例えばこの問い合わせはBillのその週の初めの2日に最初何が予定されているかを抽出します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT schedule[1:2][1:1] FROM sal_emp WHERE name = 'Bill';
+
+        schedule
+------------------------
+ {{meeting},{training}}
+(1 row)</PRE
+><P>
+
+任意の次元を部分として、つまりコロンを含めて記述すると、すべての次元が部分として扱われます。
+単一の番号のみ（コロンを持たない）を持つ次元はすべて、1から指定番号までと扱われます。
+例えば、<TT
+CLASS="LITERAL"
+>[2]</TT
+>は以下の例のように <TT
+CLASS="LITERAL"
+>[1:2]</TT
+>と扱われます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT schedule[1:2][2] FROM sal_emp WHERE name = 'Bill';
+
+                 schedule
+-------------------------------------------
+ {{meeting,lunch},{training,presentation}}
+(1 row)</PRE
+><P>
+
+切り出しのない場合と混乱を避けるため、すべての次元に対し切り出し構文を使用することが最善です。
+例えば、<TT
+CLASS="LITERAL"
+>[2][1:1]</TT
+>ではなく、<TT
+CLASS="LITERAL"
+>[1:2][1:1]</TT
+>のようにします。
+ </P
+><P
+>配列自体がNULLもしくはその添字式がNULLとなる場合、配列添字式はNULLを返します。
+また、配列の範囲を超える添字の場合もNULLが返されます（この場合はエラーになりません）。
+例えば、<TT
+CLASS="LITERAL"
+>schedule</TT
+>が現在<TT
+CLASS="LITERAL"
+>[1:3][1:2]</TT
+>次元であれば、<TT
+CLASS="LITERAL"
+>schedule[3][3]</TT
+>の参照はNULLとなります。
+同様にして、添字として間違った値を指定して配列を参照した場合もエラーではなく、NULLが返されます。
+ </P
+><P
+>同様に、部分配列式も配列自体がNULLもしくはその添字式がNULLとなる場合にNULLを返します。
+しかし、現在の配列範囲を完全に超えた部分配列を選択する場合では、部分配列式はNULLではなく空の（0次元）の配列を返します。
+（これは切り出しなしの動作に一致せず、歴史的理由で行われるものです。）
+要求された部分配列が配列の範囲に重なる場合、NULLを返さずに、警告なく重複部分だけに減少させます。
+ </P
+><P
+><CODE
+CLASS="FUNCTION"
+>array_dims</CODE
+>関数で任意の配列値の現在の次元を取り出せます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT array_dims(schedule) FROM sal_emp WHERE name = 'Carol';
+
+ array_dims
+------------
+ [1:2][1:2]
+(1 row)</PRE
+><P>
+
+<CODE
+CLASS="FUNCTION"
+>array_dims</CODE
+>関数は<TT
+CLASS="TYPE"
+>text</TT
+>型で結果を返します。
+人間が結果を見るためには便利ですが、プログラムにとって都合がよくありません。
+次元は<CODE
+CLASS="FUNCTION"
+>array_upper</CODE
+>と<CODE
+CLASS="FUNCTION"
+>array_lower</CODE
+>でも抽出することができ、それぞれ特定の配列の次元の上限と下限を返します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT array_upper(schedule, 1) FROM sal_emp WHERE name = 'Carol';
+
+ array_upper
+-------------
+           2
+(1 row)</PRE
+><P>
+
+<CODE
+CLASS="FUNCTION"
+>array_length</CODE
+>は指定された配列次元の長さを返します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT array_length(schedule, 1) FROM sal_emp WHERE name = 'Carol';
+
+ array_length
+--------------
+            2
+(1 row)</PRE
+><P>
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ARRAYS-MODIFYING"
+>8.14.4. 配列の変更</A
+></H2
+><P
+>配列の値を全て置き換えることができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE sal_emp SET pay_by_quarter = '{25000,25000,27000,27000}'
+    WHERE name = 'Carol';</PRE
+><P>
+
+もしくは<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>演算構文を用いて次のように書きます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE sal_emp SET pay_by_quarter = ARRAY[25000,25000,27000,27000]
+    WHERE name = 'Carol';</PRE
+><P>
+
+配列の1つの要素を更新することも可能です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE sal_emp SET pay_by_quarter[4] = 15000
+    WHERE name = 'Bill';</PRE
+><P>
+
+あるいは一部分の更新も可能です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE sal_emp SET pay_by_quarter[1:2] = '{27000,27000}'
+    WHERE name = 'Carol';</PRE
+><P>
+
+ </P
+><P
+>保存されている配列の値は、存在しない要素に代入することで拡張することができます。
+過去に存在した位置と新しく代入された位置との間はNULLで埋められます。
+例えば、現在配列<TT
+CLASS="LITERAL"
+>myarray</TT
+>の要素数が4の場合、<TT
+CLASS="LITERAL"
+>myarray[6]</TT
+>を割り当てる更新の後6要素を持つことなり、<TT
+CLASS="LITERAL"
+>myarray[5]</TT
+>はNULLを含みます。
+現在、こうした方法での拡張は、1次元配列でのみ許されます。
+多次元配列では行うことができません。
+ </P
+><P
+>添字指定の代入で1始まり以外の添字がある配列を作れます。
+例えば添字が-2から7までの値を持つ配列を<TT
+CLASS="LITERAL"
+>array[-2:7]</TT
+>で指定できます。
+ </P
+><P
+>新規の配列の値は連結演算子<TT
+CLASS="LITERAL"
+>||</TT
+>を用いて作成することもできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT ARRAY[1,2] || ARRAY[3,4];
+ ?column?
+-----------
+ {1,2,3,4}
+(1 row)
+
+SELECT ARRAY[5,6] || ARRAY[[1,2],[3,4]];
+      ?column?
+---------------------
+ {{5,6},{1,2},{3,4}}
+(1 row)</PRE
+><P>
+ </P
+><P
+>連結演算子を使うと、一次元配列の最初もしくは最後に1つの要素を押し込むことができます。
+さらには2つの<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>-次元配列もしくは<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>-次元配列と<TT
+CLASS="REPLACEABLE"
+><I
+>N+1</I
+></TT
+>-次元配列にも対応しています。
+ </P
+><P
+>1つの要素が1次元配列の先頭や末尾に押し込まれた時、結果は配列演算項目と同じ下限添字を持つ配列となります。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT array_dims(1 || '[0:1]={2,3}'::int[]);
+ array_dims
+------------
+ [0:2]
+(1 row)
+
+SELECT array_dims(ARRAY[1,2] || 3);
+ array_dims
+------------
+ [1:3]
+(1 row)</PRE
+><P>
+ </P
+><P
+>等しい次元を持った2つの配列が連結された場合、結果は左側演算項目の外側の次元の下限添字を引き継ぎます。
+結果は右側被演算子のすべての要素に左側被演算子が続いた配列となります。
+例を挙げます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT array_dims(ARRAY[1,2] || ARRAY[3,4,5]);
+ array_dims
+------------
+ [1:5]
+(1 row)
+
+SELECT array_dims(ARRAY[[1,2],[3,4]] || ARRAY[[5,6],[7,8],[9,0]]);
+ array_dims
+------------
+ [1:5][1:2]
+(1 row)</PRE
+><P>
+ </P
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>-次元配列が<TT
+CLASS="REPLACEABLE"
+><I
+>N+1</I
+></TT
+>-次元配列の最初または最後に押し込まれると、結果は上記と似通った要素配列になります。
+それぞれの<TT
+CLASS="REPLACEABLE"
+><I
+>N</I
+></TT
+>-次元副配列は本質的に<TT
+CLASS="REPLACEABLE"
+><I
+>N+1</I
+></TT
+>-次元配列の外側の次元の要素となります。
+例を挙げます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT array_dims(ARRAY[1,2] || ARRAY[[3,4],[5,6]]);
+ array_dims
+------------
+ [1:3][1:2]
+(1 row)</PRE
+><P>
+ </P
+><P
+>配列は<CODE
+CLASS="FUNCTION"
+>array_prepend</CODE
+>、<CODE
+CLASS="FUNCTION"
+>array_append</CODE
+>、もしくは<CODE
+CLASS="FUNCTION"
+>array_cat</CODE
+>を使って構築することもできます。
+初めの2つは一次元配列にしか対応していませんが、<CODE
+CLASS="FUNCTION"
+>array_cat</CODE
+>は多次元配列でも使えます。
+上で説明した連結演算子はそれぞれの関数を直接実行することよりも望ましいことを覚えておいてください。
+事実、それらの関数は連結演算子の実装のため主として存在します。
+とは言っても、ユーザ定義の集約関数を作る時そのまま使えます。
+例を挙げます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT array_prepend(1, ARRAY[2,3]);
+ array_prepend
+---------------
+ {1,2,3}
+(1 row)
+
+SELECT array_append(ARRAY[1,2], 3);
+ array_append
+--------------
+ {1,2,3}
+(1 row)
+
+SELECT array_cat(ARRAY[1,2], ARRAY[3,4]);
+ array_cat
+-----------
+ {1,2,3,4}
+(1 row)
+
+SELECT array_cat(ARRAY[[1,2],[3,4]], ARRAY[5,6]);
+      array_cat
+---------------------
+ {{1,2},{3,4},{5,6}}
+(1 row)
+
+SELECT array_cat(ARRAY[5,6], ARRAY[[1,2],[3,4]]);
+      array_cat
+---------------------
+ {{5,6},{1,2},{3,4}}</PRE
+><P>
+ </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ARRAYS-SEARCHING"
+>8.14.5. 配列内の検索</A
+></H2
+><P
+>配列内のある値を検索するにはそれぞれの値が検証されなければなりません。
+もし配列の大きさがわかっているならば手作業でも検索できます。
+例を挙げます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM sal_emp WHERE pay_by_quarter[1] = 10000 OR
+                            pay_by_quarter[2] = 10000 OR
+                            pay_by_quarter[3] = 10000 OR
+                            pay_by_quarter[4] = 10000;</PRE
+><P>
+
+とは言ってもこの方法では大きい配列では大変な作業となりますし、配列の大きさが不明な場合この方法は使えません。
+代わりになる方法が<A
+HREF="functions-comparisons.html"
+>&#38917;9.21</A
+>で説明されています。
+上の問い合わせは以下のように書くことができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM sal_emp WHERE 10000 = ANY (pay_by_quarter);</PRE
+><P>
+
+さらに配列で行の値が全て10000に等しいものを見つけることもできます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM sal_emp WHERE 10000 = ALL (pay_by_quarter);</PRE
+><P>
+
+ </P
+><P
+>代わりとして、<CODE
+CLASS="FUNCTION"
+>generate_subscripts</CODE
+>関数を使うことができます。
+以下はその例です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM
+   (SELECT pay_by_quarter,
+           generate_subscripts(pay_by_quarter, 1) AS s
+      FROM sal_emp) AS foo
+ WHERE pay_by_quarter[s] = 10000;</PRE
+><P>
+
+この関数は<A
+HREF="functions-srf.html#FUNCTIONS-SRF-SUBSCRIPTS"
+>&#34920;9-46</A
+>に記載されています。
+ </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>配列は集合ではありません。
+特定の配列要素に検索をかけることはデータベース設計が誤っている可能性があります。
+配列の要素とみなされるそれぞれの項目を行に持つ別のテーブルを使うことを検討してください。
+この方が検索がより簡単になり要素数が大きくなっても規模的拡張性があります。
+  </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ARRAYS-IO"
+>8.14.6. 配列の入出力構文</A
+></H2
+><P
+>配列の値の外部表現は配列の要素の型に対するI/O変換ルールに基づいて解釈された項目と配列の構造を示す装飾項目で構成されています。
+装飾は配列の値を中括弧（<TT
+CLASS="LITERAL"
+>{</TT
+>と<TT
+CLASS="LITERAL"
+>}</TT
+>）で囲んだものと次の項目との間を区切り文字で区切ったものです。
+区切り文字は通常カンマ（<TT
+CLASS="LITERAL"
+>,</TT
+>）ですが他の文字でも構いません。
+配列の要素の型<TT
+CLASS="LITERAL"
+>typdelim</TT
+>を設定することで決まります。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>配布物における標準のデータ型の中でセミコロン（<TT
+CLASS="LITERAL"
+>;</TT
+>）を使う<TT
+CLASS="TYPE"
+>box</TT
+>型を除いて、すべてはカンマを使います。
+多次元配列ではそれぞれの次元（行、面、立体など）はそれ自身の階層において中括弧、同じ階層の中括弧でくくられた次の塊との間に区切り文字が書かれていなければなりません。
+  </P
+><P
+>空の文字列や中括弧や区切り文字、二重引用符、バックスラッシュ、空白、<TT
+CLASS="LITERAL"
+>NULL</TT
+>という単語が含まれていると、配列出力処理は要素の値を二重引用符でくくります。
+要素の値に組み込まれている二重引用符とバックスラッシュはバックスラッシュでエスケープされます。
+数値データ型に対しては二重引用符が出現しないと想定するのが安全ですが、テキストデータ型の場合引用符がある場合とない場合に対処できるようにしておくべきです。
+  </P
+><P
+>デフォルトでは配列の次元の下限インデックス値は1に設定されています。
+他の下限値を持つ配列を表現したければ、配列定数を作成する前に明示的に配列添字範囲を指定することで実現できます。
+修飾項目はそれぞれの配列次元の上限と下限をコロン（<TT
+CLASS="LITERAL"
+>:</TT
+>）で区切って前後を大括弧（<TT
+CLASS="LITERAL"
+>[]</TT
+>）でくくった形式になっています。
+代入演算子（<TT
+CLASS="LITERAL"
+>=</TT
+>）の後に配列次元修飾項目が続きます。
+例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT f1[1][-2][3] AS e1, f1[1][-1][5] AS e2
+ FROM (SELECT '[1:1][-2:-1][3:5]={{{1,2,3},{4,5,6}}}'::int[] AS f1) AS ss;
+
+ e1 | e2
+----+----
+  1 |  6
+(1 row)</PRE
+><P>
+1とは異なる下限を持つ場合にのみ、配列出力関数はその結果に明示的な次元を含めます。
+  </P
+><P
+>要素に指定された値が<TT
+CLASS="LITERAL"
+>NULL</TT
+>（またはその亜種）の場合、要素はNULLとして扱われます。
+引用符やバックスラッシュがあると、これは無効となり、<SPAN
+CLASS="QUOTE"
+>"NULL"</SPAN
+>という文字列リテラルを入力することができます。
+また、8.2以前の<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>との後方互換性のため、<A
+HREF="runtime-config-compatible.html#GUC-ARRAY-NULLS"
+>array_nulls</A
+>設定パラメータを<TT
+CLASS="LITERAL"
+>off</TT
+>にして、<TT
+CLASS="LITERAL"
+>NULL</TT
+>をNULLとして認識しないようにすることができます。
+  </P
+><P
+>前に示したように配列に値を書き込む場合は独立した配列要素を二重引用符でくくります。
+配列値パーサが配列要素値によって混乱を来さないように<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必ず</I
+></SPAN
+>この形式を守ってください。
+例えば、中括弧、カンマ（もしくはデータ型の区切り文字）、二重引用符、バックスラッシュもしくは前後に付いた空白を含む要素は必ず二重引用符でくくらなければなりません。
+空文字列や<TT
+CLASS="LITERAL"
+>NULL</TT
+>という単語自体も同様に引用符でくくらなければなりません。
+二重引用符もしくはバックスラッシュを引用符付きの配列要素に付け加えたい場合、エスケープ文字列構文を使用し、そしてその直前にバックスラッシュを付けます。
+別の方法として配列構文とみなされるような全てのデータ文字を、引用符を使用しないでバックスラッシュでエスケープしても構いません。
+  </P
+><P
+>括弧の右側もしくは左側それぞれの前と後に空白を追加することができます。
+同様に独立した項目の文字列の前後に空白を付け加えることもできます。
+これらすべての場合において空白は無視されます。
+とは言っても二重引用符で囲まれた要素の中の空白、もしくは要素の空白文字以外により両側がくくられているものは無視されません。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>SQLコマンドで書かれたものは最初に文字列リテラルとして解釈され、その次に配列として解釈されることを覚えておいてください。
+と言うことは、バックスラッシュの数が倍になることを意味します。
+例えばバックスラッシュと二重引用符を含んだ<TT
+CLASS="TYPE"
+>text</TT
+>配列値を挿入する場合、次のようになります。 
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT ... VALUES (E'{"\\\\","\\""}');</PRE
+><P>
+エスケープ文字列プロセッサは1つの階層のバックスラッシュを取り除きますので、配列値パーサに渡された時は<TT
+CLASS="LITERAL"
+>{"\\","\""}</TT
+>のようになります。
+さらに<TT
+CLASS="TYPE"
+>text</TT
+>データ型入力ルーチンに与えられた文字列はそれぞれ<TT
+CLASS="LITERAL"
+>\</TT
+>と<TT
+CLASS="LITERAL"
+>"</TT
+>になります
+（もし入力ルーチンがバックスラッシュを特別に取り扱うデータ型を操作している場合（例えば<TT
+CLASS="TYPE"
+>bytea</TT
+>）、1つのバックスラッシュを配列要素に保存したい時はコマンドの中に8つのバックスラッシュが必要です）。
+ドル引用符付け（<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-DOLLAR-QUOTING"
+>&#38917;4.1.2.4</A
+>参照）を使用して、バックスラッシュを二重化する必要性をなくすことができます。
+  </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>SQLコマンドの中で配列値を書く時、配列リテラル構文よりも<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>生成子構文（<A
+HREF="sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS"
+>&#38917;4.2.12</A
+>を参照）の方が往々にして扱いやすい場合があります。
+  </P
+></BLOCKQUOTE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="datatype-xml.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="rowtypes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><ACRONYM
+CLASS="ACRONYM"
+>XML</ACRONYM
+>型</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="datatype.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>複合型</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

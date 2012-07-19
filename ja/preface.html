@@ -1,0 +1,339 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>はじめに</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="NEXT"
+TITLE="PostgreSQLとは?"
+HREF="intro-whatis.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="PREFACE"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE=""
+HREF="index.html#AEN3"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="チュートリアル"
+HREF="tutorial.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLとは?"
+HREF="intro-whatis.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="PREFACE"
+><H1
+><A
+NAME="PREFACE"
+></A
+>はじめに</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+><A
+HREF="intro-whatis.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>とは?</A
+></DT
+><DT
+><A
+HREF="history.html"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>小史</A
+></DT
+><DT
+><A
+HREF="notation.html"
+>規約</A
+></DT
+><DT
+><A
+HREF="resources.html"
+>より進んだ情報</A
+></DT
+><DT
+><A
+HREF="bug-reporting.html"
+>バグレポートガイドライン</A
+></DT
+></DL
+></DIV
+><P
+>本書は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のオフィシャルドキュメントです。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ソフトウェアの開発と並行して<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>開発者とそれ以外のボランティアにより書かれてきました。
+現在のバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が公式にサポートする全ての機能を網羅しています。 
+ </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の膨大な情報を取り扱いやすくするため、本書はいくつかの部分で構成されています。
+それぞれの部分は異なるユーザクラスを対象としており、ユーザに対しても<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の経験に異なる段階があることを意識しています。
+
+  <P
+></P
+></P><UL
+><LI
+><P
+><A
+HREF="tutorial.html"
+>&#12497;&#12540;&#12488;I</A
+>は新規ユーザ向けの形式ばらない入門編です。
+    </P
+></LI
+><LI
+><P
+><A
+HREF="sql.html"
+>&#12497;&#12540;&#12488;II</A
+>はユーザレベルのパフォーマンスチューニング、データ型や関数などの<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>問い合わせ言語環境についてを文書化したものです。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーザは皆、一読すべきです。
+    </P
+></LI
+><LI
+><P
+><A
+HREF="admin.html"
+>&#12497;&#12540;&#12488;III</A
+>はサーバのインストールと管理について記載しています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を実行させているユーザは全て、個人用やその他用途などの目的にかかわらず、この部分を読むべきです。
+    </P
+></LI
+><LI
+><P
+><A
+HREF="client-interfaces.html"
+>&#12497;&#12540;&#12488;IV</A
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のクライアントプログラム用プログラミングインタフェースについて記載しています。
+    </P
+></LI
+><LI
+><P
+><A
+HREF="server-programming.html"
+>&#12497;&#12540;&#12488;V</A
+>にはサーバの拡張機能について上級ユーザ向けに情報を提供します。
+話題にはユーザ定義型やユーザ定義関数があります。
+    </P
+></LI
+><LI
+><P
+><A
+HREF="reference.html"
+>&#12497;&#12540;&#12488;VI</A
+>にはSQLコマンド、クライアントおよびサーバプログラムに関する情報があります。
+この部分では、他で構成された情報を補助するために、コマンドやプログラムを順番に説明します。
+    </P
+></LI
+><LI
+><P
+><A
+HREF="internals.html"
+>&#12497;&#12540;&#12488;VII</A
+>には<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>開発者が利用可能な類別された情報があります。
+    </P
+></LI
+></UL
+><P>
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="intro-whatis.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PostgreSQL 9.1.4文書</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>とは?</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

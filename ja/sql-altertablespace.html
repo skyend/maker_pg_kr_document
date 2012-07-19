@@ -1,0 +1,421 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER TABLESPACE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER TABLE"
+HREF="sql-altertable.html"><LINK
+REL="NEXT"
+TITLE="ALTER TEXT SEARCH CONFIGURATION"
+HREF="sql-altertsconfig.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER TABLE"
+HREF="sql-altertable.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER TABLE"
+HREF="sql-altertable.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER TEXT SEARCH CONFIGURATION"
+HREF="sql-altertsconfig.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER TEXT SEARCH CONFIGURATION"
+HREF="sql-altertsconfig.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERTABLESPACE"
+></A
+>ALTER TABLESPACE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN62319"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER TABLESPACE&nbsp;--&nbsp;テーブル空間の定義を変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN62324"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+>
+ALTER TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+>
+ALTER TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SET ( <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace_option</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> [, ... ] )
+ALTER TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RESET ( <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace_option</I
+></TT
+> [, ... ] )</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62335"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TABLESPACE</TT
+>はテーブル空間の定義を変更します。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TABLESPACE</TT
+>を使用するにはテーブル空間の所有者でなければなりません。
+所有者を変更するには、直接または間接的に新しい所有者ロールのメンバでなければなりません。
+（スーパーユーザがこれらの権限を自動的に持つことに注意してください。）
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62341"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>既存のテーブル空間の名前です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>新しいテーブル空間の名前です。
+<TT
+CLASS="LITERAL"
+>pg_</TT
+>から始まる名前は、システムのテーブル空間用に予約されているため使用することができません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></DT
+><DD
+><P
+>新しいテーブル空間の所有者です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>tablespace_parameter</I
+></TT
+></DT
+><DD
+><P
+>設定または設定解除するテーブル空間パラメータです。
+現時点では<TT
+CLASS="VARNAME"
+>seq_page_cost</TT
+>および<TT
+CLASS="VARNAME"
+>random_page_cost</TT
+>パラメータのみが利用可能です。
+特定のテーブル空間にいずれかの値を設定することにより、同一の名前の設定パラメータ(<A
+HREF="runtime-config-query.html#GUC-SEQ-PAGE-COST"
+>seq_page_cost</A
+>、<A
+HREF="runtime-config-query.html#GUC-RANDOM-PAGE-COST"
+>random_page_cost</A
+>参照)で決定されるテーブル空間内のテーブルからページを読み取る、プランナの通常のコスト推定値が上書きされます。
+これはあるテーブル空間が他のI/Oサブシステムに比べ低速または高速なディスク上にある場合に有用となるかもしれません。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62369"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>index_space</TT
+>テーブル空間を<TT
+CLASS="LITERAL"
+>fast_raid</TT
+>という名前に変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLESPACE index_space RENAME TO fast_raid;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>index_space</TT
+>テーブル空間の所有者を変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TABLESPACE index_space OWNER TO mary;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62378"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>ALTER TABLESPACE</TT
+>文はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62382"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createtablespace.html"
+>CREATE TABLESPACE</A
+>, <A
+HREF="sql-droptablespace.html"
+>DROP TABLESPACE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-altertable.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-altertsconfig.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER TABLE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER TEXT SEARCH CONFIGURATION</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

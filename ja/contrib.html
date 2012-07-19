@@ -1,0 +1,579 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>追加で提供されるモジュール</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="付録"
+HREF="appendixes.html"><LINK
+REL="PREVIOUS"
+TITLE="Postgres95 リリース 0.01"
+HREF="release-0-01.html"><LINK
+REL="NEXT"
+TITLE="adminpack"
+HREF="adminpack.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="APPENDIX"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="Postgres95 リリース 0.01"
+HREF="release-0-01.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="外部プロジェクト"
+HREF="external-projects.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="adminpack"
+HREF="adminpack.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="APPENDIX"
+><H1
+><A
+NAME="CONTRIB"
+></A
+>&#20184;&#37682; F. 追加で提供されるモジュール</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>F.1. <A
+HREF="adminpack.html"
+>adminpack</A
+></DT
+><DT
+>F.2. <A
+HREF="auth-delay.html"
+>auth_delay</A
+></DT
+><DT
+>F.3. <A
+HREF="auto-explain.html"
+>auto_explain</A
+></DT
+><DT
+>F.4. <A
+HREF="btree-gin.html"
+>btree_gin</A
+></DT
+><DT
+>F.5. <A
+HREF="btree-gist.html"
+>btree_gist</A
+></DT
+><DT
+>F.6. <A
+HREF="chkpass.html"
+>chkpass</A
+></DT
+><DT
+>F.7. <A
+HREF="citext.html"
+>citext</A
+></DT
+><DT
+>F.8. <A
+HREF="cube.html"
+>cube</A
+></DT
+><DT
+>F.9. <A
+HREF="dblink.html"
+>dblink</A
+></DT
+><DT
+>F.10. <A
+HREF="dict-int.html"
+>dict_int</A
+></DT
+><DT
+>F.11. <A
+HREF="dict-xsyn.html"
+>dict_xsyn</A
+></DT
+><DT
+>F.12. <A
+HREF="dummy-seclabel.html"
+>dummy_seclabel</A
+></DT
+><DT
+>F.13. <A
+HREF="earthdistance.html"
+>earthdistance</A
+></DT
+><DT
+>F.14. <A
+HREF="file-fdw.html"
+>file_fdw</A
+></DT
+><DT
+>F.15. <A
+HREF="fuzzystrmatch.html"
+>fuzzystrmatch</A
+></DT
+><DT
+>F.16. <A
+HREF="hstore.html"
+>hstore</A
+></DT
+><DT
+>F.17. <A
+HREF="intagg.html"
+>intagg</A
+></DT
+><DT
+>F.18. <A
+HREF="intarray.html"
+>intarray</A
+></DT
+><DT
+>F.19. <A
+HREF="isn.html"
+>isn</A
+></DT
+><DT
+>F.20. <A
+HREF="lo.html"
+>lo</A
+></DT
+><DT
+>F.21. <A
+HREF="ltree.html"
+>ltree</A
+></DT
+><DT
+>F.22. <A
+HREF="oid2name.html"
+>oid2name</A
+></DT
+><DT
+>F.23. <A
+HREF="pageinspect.html"
+>pageinspect</A
+></DT
+><DT
+>F.24. <A
+HREF="passwordcheck.html"
+>パスワード検査</A
+></DT
+><DT
+>F.25. <A
+HREF="pgarchivecleanup.html"
+>pg_archivecleanup</A
+></DT
+><DT
+>F.26. <A
+HREF="pgbench.html"
+>pgbench</A
+></DT
+><DT
+>F.27. <A
+HREF="pgbuffercache.html"
+>pg_buffercache</A
+></DT
+><DT
+>F.28. <A
+HREF="pgcrypto.html"
+>pgcrypto</A
+></DT
+><DT
+>F.29. <A
+HREF="pgfreespacemap.html"
+>pg_freespacemap</A
+></DT
+><DT
+>F.30. <A
+HREF="pgrowlocks.html"
+>pgrowlocks</A
+></DT
+><DT
+>F.31. <A
+HREF="pgstandby.html"
+>pg_standby</A
+></DT
+><DT
+>F.32. <A
+HREF="pgstatstatements.html"
+>pg_stat_statements</A
+></DT
+><DT
+>F.33. <A
+HREF="pgstattuple.html"
+>pgstattuple</A
+></DT
+><DT
+>F.34. <A
+HREF="pgtestfsync.html"
+>pg_test_fsync</A
+></DT
+><DT
+>F.35. <A
+HREF="pgtrgm.html"
+>pg_trgm</A
+></DT
+><DT
+>F.36. <A
+HREF="pgupgrade.html"
+>pg_upgrade</A
+></DT
+><DT
+>F.37. <A
+HREF="seg.html"
+>seg</A
+></DT
+><DT
+>F.38. <A
+HREF="sepgsql.html"
+>sepgsql</A
+></DT
+><DT
+>F.39. <A
+HREF="contrib-spi.html"
+>spi</A
+></DT
+><DT
+>F.40. <A
+HREF="sslinfo.html"
+>sslinfo</A
+></DT
+><DT
+>F.41. <A
+HREF="tablefunc.html"
+>tablefunc</A
+></DT
+><DT
+>F.42. <A
+HREF="test-parser.html"
+>test_parser</A
+></DT
+><DT
+>F.43. <A
+HREF="tsearch2.html"
+>tsearch2</A
+></DT
+><DT
+>F.44. <A
+HREF="unaccent.html"
+>unaccent</A
+></DT
+><DT
+>F.45. <A
+HREF="uuid-ossp.html"
+>uuid-ossp</A
+></DT
+><DT
+>F.46. <A
+HREF="vacuumlo.html"
+>vacuumlo</A
+></DT
+><DT
+>F.47. <A
+HREF="xml2.html"
+>xml2</A
+></DT
+></DL
+></DIV
+><P
+>この付録には<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>配布物の<TT
+CLASS="LITERAL"
+>contrib</TT
+>ディレクトリにあるモジュールに関する情報を記載します。
+ここには、移植用のツール、解析ユーティリティ、限定した利用者を対象にしていること、または、主ソースツリーに含めるには実験的すぎることが主な理由でPostgreSQLのコアシステムにはないプラグイン機能が含まれます。
+これはその有用性を妨げるものではありません。
+ </P
+><P
+>ソース配布から構築する場合、"world"を対象に構築しない限り、これらのモジュールは自動的に構築されません(<A
+HREF="install-procedure.html#BUILD"
+>&#12473;&#12486;&#12483;&#12503;2</A
+>参照)。
+以下をconfigureを実行した後のソースツリー内の<TT
+CLASS="LITERAL"
+>contrib</TT
+>ディレクトリで実行することで、これらすべてを構築しインストールすることができます。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>gmake</KBD
+>
+<KBD
+CLASS="USERINPUT"
+>gmake install</KBD
+></PRE
+><P>
+選択した1つのモジュールのみを構築しインストールするには、そのモジュールのディレクトリで同じコマンドを行ってください。
+多くのモジュールには、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバを実行している場合に以下のように実行することができるリグレッション試験があります。
+</P><PRE
+CLASS="SCREEN"
+><KBD
+CLASS="USERINPUT"
+>gmake installcheck</KBD
+></PRE
+><P>
+（<TT
+CLASS="LITERAL"
+>gmake check</TT
+>はサポートされていないことに注意してください。
+試験を行うためには運用状態のデータベースサーバが必要です。
+また、試験対象のモジュールを構築しインストールしなければなりません。）
+ </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のパッケージ化されたバージョンを使用している場合は通常、例えば<TT
+CLASS="LITERAL"
+>postgresql-contrib</TT
+>のような別途副パッケージとしてこれらのモジュールが利用可能です。
+ </P
+><P
+>多くのモジュールは新しいユーザ定義関数、演算子、型を提供します。
+こうしたモジュールの1つを使用できるようにするためには、コードをインストールした後に、新しいオブジェクトをデータベースサーバに登録する必要があります。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.1以降では、これは<A
+HREF="sql-createextension.html"
+>CREATE EXTENSION</A
+>コマンドを実行することで行われます。
+新しいデータベースでは、以下のように簡単に行うことができます。
+以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE EXTENSION <TT
+CLASS="REPLACEABLE"
+><I
+>module_name</I
+></TT
+>;</PRE
+><P>
+
+このコマンドはデータベーススーパーユーザにより実行されなければなりません。
+これは現在のデータベースの中にのみ新しいオブジェクトを登録します。
+このため、そのモジュールの機能を利用可能にさせたいデータベース毎にこのコマンドを実行しなければなりません。
+その拡張が今後作成されるデータベースにデフォルトでコピーされるように<TT
+CLASS="LITERAL"
+>template1</TT
+>データベースに対して実行する方法もあります。
+ </P
+><P
+>多くのモジュールはユーザが選択したスキーマ内にそのオブジェクトをインストールすることができます。
+これを行うためには<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>コマンドに<TT
+CLASS="LITERAL"
+>SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>schema_name</I
+></TT
+></TT
+>を追加してください。
+デフォルトでは、現在の作成対象スキーマ、通常は<TT
+CLASS="LITERAL"
+>public</TT
+>内に格納されます。
+ </P
+><P
+>9.1より前のバージョンの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>からダンプしてリストアすることでデータベースができあがった場合、もし9.1より前のバージョンのモジュールを使用していたのであれば、代わりに以下を行わなければなりません。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE EXTENSION <TT
+CLASS="REPLACEABLE"
+><I
+>module_name</I
+></TT
+> FROM unpackaged;</PRE
+><P>
+
+これは9.1より前のモジュール内のオブジェクトを適切な<I
+CLASS="FIRSTTERM"
+>拡張</I
+>オブジェクトに更新します。
+今後のモジュールの更新は<A
+HREF="sql-alterextension.html"
+>ALTER EXTENSION</A
+>により管理されます。
+拡張の更新に関する詳細については<A
+HREF="extend-extensions.html"
+>&#38917;35.15</A
+>を参照してください。
+ </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-0-01.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="adminpack.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+> リリース 0.01</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="appendixes.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>adminpack</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

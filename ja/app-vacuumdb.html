@@ -1,0 +1,856 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>vacuumdb</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PostgreSQLクライアントアプリケーション"
+HREF="reference-client.html"><LINK
+REL="PREVIOUS"
+TITLE="reindexdb"
+HREF="app-reindexdb.html"><LINK
+REL="NEXT"
+TITLE="PostgreSQLサーバアプリケーション"
+HREF="reference-server.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="reindexdb"
+HREF="app-reindexdb.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="reindexdb"
+HREF="app-reindexdb.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLサーバアプリケーション"
+HREF="reference-server.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLサーバアプリケーション"
+HREF="reference-server.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="APP-VACUUMDB"
+></A
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+></H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN82423"
+></A
+><H2
+>&#21517;&#21069;</H2
+>vacuumdb&nbsp;--&nbsp;<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースの不要領域の回収と解析を行う</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN82429"
+></A
+><H2
+>&#27010;&#35201;</H2
+><P
+><TT
+CLASS="COMMAND"
+>vacuumdb</TT
+> [<TT
+CLASS="REPLACEABLE"
+><I
+>connection-option</I
+></TT
+>...] [--full | -f] [--freeze | -F] [--verbose | -v] [--analyze | -z] [--analyze-only | -Z] [--table | -t <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>
+     [( <TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [,...] )]
+   ] [<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+>]</P
+><P
+><TT
+CLASS="COMMAND"
+>vacuumdb</TT
+> [<TT
+CLASS="REPLACEABLE"
+><I
+>connection-option</I
+></TT
+>...] [--full | -f] [--freeze | -F] [--verbose | -v] [--analyze | -z] [--analyze-only | -Z] [--all | -a]</P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82477"
+></A
+><H2
+>説明</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>データベースの不要領域のクリーンアップを行うユーティリティです。 
+また、<SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の問い合わせオプティマイザが使用する内部的な統計情報も生成します。
+  </P
+><P
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>は、SQLの<A
+HREF="sql-vacuum.html"
+>VACUUM</A
+>コマンドのラッパです。
+このユーティリティを使っても、これ以外の方法でサーバにアクセスしてバキュームや解析を行っても特に違いは生じません。 
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82487"
+></A
+><H2
+>オプション</H2
+><P
+>    <SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>では、下記のコマンドライン引数を指定できます。
+    
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="OPTION"
+>-a</TT
+><BR><TT
+CLASS="OPTION"
+>--all</TT
+></DT
+><DD
+><P
+>        全てのデータベースに対してバキュームを行います。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>[<SPAN
+CLASS="OPTIONAL"
+>-d</SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>[<SPAN
+CLASS="OPTIONAL"
+>--dbname=</SPAN
+>]<TT
+CLASS="REPLACEABLE"
+><I
+>dbname</I
+></TT
+></TT
+></DT
+><DD
+><P
+>不要領域のクリーンアップ、または、解析を行うデータベース名を指定します。 
+データベース名が指定されておらず、<TT
+CLASS="OPTION"
+>-a</TT
+>（または<TT
+CLASS="OPTION"
+>--all</TT
+>）も指定されていない場合、データベース名は<TT
+CLASS="ENVAR"
+>PGDATABASE</TT
+>環境変数から読み取られます。
+この変数も設定されていない場合は、接続時に指定したユーザ名が使用されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-e</TT
+><BR><TT
+CLASS="OPTION"
+>--echo</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>が生成し、サーバに送るコマンドをエコー表示します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-f</TT
+><BR><TT
+CLASS="OPTION"
+>--full</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="QUOTE"
+>"完全な（full）"</SPAN
+>クリーンアップを行います。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-F</TT
+><BR><TT
+CLASS="OPTION"
+>--freeze</TT
+></DT
+><DD
+><P
+>積極的にタプルを<SPAN
+CLASS="QUOTE"
+>"凍結"</SPAN
+>します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-q</TT
+><BR><TT
+CLASS="OPTION"
+>--quiet</TT
+></DT
+><DD
+><P
+>進行メッセージを表示しません。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-t <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ (<TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [,...]) ]</TT
+><BR><TT
+CLASS="OPTION"
+>--table=<TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ (<TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [,...]) ]</TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+>のみをクリーンアップ/解析します。
+列名は<TT
+CLASS="OPTION"
+>--analyze</TT
+>や<TT
+CLASS="OPTION"
+>--analyze-only</TT
+>オプションがある場合にのみ設定できます。
+       </P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>クリーンアップする列を指定する場合は、シェルで括弧をエスケープする必要があるでしょう
+（後述の例を参照してください）。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-v</TT
+><BR><TT
+CLASS="OPTION"
+>--verbose</TT
+></DT
+><DD
+><P
+>	処理中に詳細な情報を表示します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-V</TT
+><BR><TT
+CLASS="OPTION"
+>--version</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>のバージョンを表示し、終了します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-z</TT
+><BR><TT
+CLASS="OPTION"
+>--analyze</TT
+></DT
+><DD
+><P
+>	オプティマイザが使用する、データベースの統計情報も算出します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-Z</TT
+><BR><TT
+CLASS="OPTION"
+>--analyze-only</TT
+></DT
+><DD
+><P
+>オプティマイザにより使用される統計情報の計算のみを行います（バキュームを行いません）。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-?</TT
+><BR><TT
+CLASS="OPTION"
+>--help</TT
+></DT
+><DD
+><P
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>のコマンドライン引数の使用方法を表示し、終了します。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+><P
+>    <SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>には、以下に記す接続パラメータ用のコマンドライン引数も指定することもできます。
+    
+    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="OPTION"
+>-h <TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--host=<TT
+CLASS="REPLACEABLE"
+><I
+>host</I
+></TT
+></TT
+></DT
+><DD
+><P
+>	サーバが稼働しているマシンのホスト名を指定します。
+ホスト名がスラッシュから始まる場合、Unixドメインソケット用のディレクトリとして使用されます。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-p <TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--port=<TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+></TT
+></DT
+><DD
+><P
+>	サーバが接続を監視するTCPポートもしくはUnixドメインソケットファイルの拡張子を指定します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-U <TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+></TT
+><BR><TT
+CLASS="OPTION"
+>--username=<TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+></TT
+></DT
+><DD
+><P
+>接続するユーザ名を指定します。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-w</TT
+><BR><TT
+CLASS="OPTION"
+>--no-password</TT
+></DT
+><DD
+><P
+>パスワードの入力を促しません。
+サーバがパスワード認証を必要とし、かつ、<TT
+CLASS="FILENAME"
+>.pgpass</TT
+>ファイルなどの他の方法が利用できない場合、接続試行は失敗します。
+バッチジョブやパスワードを入力するユーザが存在しない場合にこのオプションは有用かもしれません。
+       </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>-W</TT
+><BR><TT
+CLASS="OPTION"
+>--password</TT
+></DT
+><DD
+><P
+>データベースに接続する前に、<SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>は強制的にパスワード入力を促します。
+       </P
+><P
+>サーバがパスワード認証を要求する場合<SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>は自動的にパスワード入力を促しますので、これが重要になることはありません。
+しかし、<SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>は、サーバにパスワードが必要かどうかを判断するための接続試行を無駄に行います。
+こうした余計な接続試行を防ぐために<TT
+CLASS="OPTION"
+>-W</TT
+>の入力が有意となる場合もあります。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82647"
+></A
+><H2
+>環境</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="ENVAR"
+>PGDATABASE</TT
+><BR><TT
+CLASS="ENVAR"
+>PGHOST</TT
+><BR><TT
+CLASS="ENVAR"
+>PGPORT</TT
+><BR><TT
+CLASS="ENVAR"
+>PGUSER</TT
+></DT
+><DD
+><P
+>      デフォルトの接続パラメータです。
+     </P
+></DD
+></DL
+></DIV
+><P
+>また、このユーティリティは、他のほとんどの<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ユーティリティと同様、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>でサポートされる環境変数を使用します（<A
+HREF="libpq-envars.html"
+>&#38917;31.13</A
+>を参照してください）。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82665"
+></A
+><H2
+>診断</H2
+><P
+>問題が発生した場合、考えられる原因とエラーメッセージについての説明は<A
+HREF="sql-vacuum.html"
+>VACUUM</A
+>と<A
+HREF="app-psql.html"
+><SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+></A
+>を参照してください。
+データベースサーバは、指定したホストで稼働している必要があります。
+また、<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+>フロントエンドライブラリのデフォルトの設定や環境変数が適応されることに注意してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82671"
+></A
+><H2
+>注釈</H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+>の実行中には<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>サーバに何度も接続しなければならないことがありますが、この場合その度にパスワードが必要です。 
+そのような場合は<TT
+CLASS="FILENAME"
+>~/.pgpass</TT
+>ファイルを用意しておくと便利です。
+詳細は<A
+HREF="libpq-pgpass.html"
+>&#38917;31.14</A
+>を参照してください。
+
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82678"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>test</TT
+>というデータベースをクリーンアップするには、下記のコマンドを実行します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>vacuumdb test</KBD
+></PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>bigdb</TT
+>という名前のデータベースのクリーンアップとオプティマイザ用の解析を行う場合には、下記のコマンドを実行します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>vacuumdb --analyze bigdb</KBD
+></PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>xyzzy</TT
+>という名前のデータベースの<TT
+CLASS="LITERAL"
+>foo</TT
+>という1つのテーブルだけの掃除と、そのテーブルの<TT
+CLASS="LITERAL"
+>bar</TT
+>という1つの列にだけ対してオプティマイザ用の解析を行う場合には、下記のコマンドを実行します。
+</P><PRE
+CLASS="SCREEN"
+><SAMP
+CLASS="PROMPT"
+>$ </SAMP
+><KBD
+CLASS="USERINPUT"
+>vacuumdb --analyze --verbose --table 'foo(bar)' xyzzy</KBD
+></PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN82697"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-vacuum.html"
+>VACUUM</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="app-reindexdb.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-server.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="APPLICATION"
+>reindexdb</SPAN
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="reference-client.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PostgreSQLサーバアプリケーション</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

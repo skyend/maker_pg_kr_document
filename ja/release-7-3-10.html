@@ -1,0 +1,398 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース7.3.10</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース 7.3.11"
+HREF="release-7-3-11.html"><LINK
+REL="NEXT"
+TITLE="リリース7.3.9"
+HREF="release-7-3-9.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース 7.3.11"
+HREF="release-7-3-11.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース7.3.9"
+HREF="release-7-3-9.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-7-3-10"
+>E.165. リリース7.3.10</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>2005-05-09</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースは、複数のセキュリティ関連の問題を含む、7.3.9の各種不具合を修正したものです。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN128284"
+>E.165.1. バージョン7.3.10への移行</A
+></H2
+><P
+>7.3.Xからの移行ではダンプ/リストアは不要です。
+しかし、7.3.Xのシステムカタログで見つかった重大なセキュリティ問題を突かれる可能性があります。
+ダンプ、7.3.10のinitdbを使用したinitdb、リロードを行うことで、自動的にこれらの問題を修正します。
+    </P
+><P
+>セキュリティ問題は、組み込みの文字セット符号化変換関数により、権限を持たないユーザがSQLコマンドを呼び出すことができるという点です。
+このような用途のためにこれらの関数を設計していませんでしたが、悪意のある引数の設定に対する安全性がありませんでした。
+この修正により、これらの関数の宣言されたパラメータリストがSQLコマンドから呼び出されないように変更されました。
+（通常の符号化変換機構の使用には影響はありません。）
+initdb、もしくは、後述の手作業による修正手順に従って、すべてのインストレーションにおいてこれらのエラーを修正することを強く勧めます。
+これらのエラーにより、少なくとも、権限を持たないデータベースユーザがサーバプロセスをクラッシュさせることができます。
+また、権限を持たないユーザがデータベーススーパーユーザ権限を手に入れることができる可能性もあります。
+    </P
+><P
+>initdbを行いたくないのであれば、スーパーユーザ権限で以下の手続きを行ってください。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN;
+UPDATE pg_proc SET proargtypes[3] = 'internal'::regtype
+WHERE pronamespace = 11 AND pronargs = 5
+      AND proargtypes[2] = 'cstring'::regtype;
+-- このコマンドは90行を更新したと報告するはずです。
+-- 異なる場合は、コミットせずにロールバックして調査を行ってください。
+COMMIT;</PRE
+><P>
+    </P
+><P
+>上の手続きを、<TT
+CLASS="LITERAL"
+>template1</TT
+>を含むインストレーション内の<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>すべての</I
+></SPAN
+>データベースで行わなければなりません。
+理想を言えば、<TT
+CLASS="LITERAL"
+>template0</TT
+>に対しても実施してください。
+テンプレートデータベースで修正を行わなかった場合、この後に作成されるデータベースにこのエラーが含まれてしまいます。
+<TT
+CLASS="LITERAL"
+>template1</TT
+>は他のデータベースと同じ方法で修正できますが、<TT
+CLASS="LITERAL"
+>template0</TT
+>では更に行わなければならないことがあります。
+まず、任意のデータベースから以下を実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>UPDATE pg_database SET datallowconn = true WHERE datname = 'template0';</PRE
+><P>
+次に、<TT
+CLASS="LITERAL"
+>template0</TT
+>に接続し、上記修正手続きを実施してください。
+最後に以下を実行してください。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>-- 再度template0を凍結させます
+VACUUM FREEZE;
+-- そして、今後の変更に対し保護します。
+UPDATE pg_database SET datallowconn = false WHERE datname = 'template0';</PRE
+><P>
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN128299"
+>E.165.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>誤使用を防ぐために符号化関数のシグネチャを変更しました。</P
+></LI
+><LI
+><P
+>ある目的（例えばSELECT FOR UPDATE）用にコミットされるように見えるトランザクションが直後に別の目的用にコミットされるという従来から存在した競合状況を修正しました。</P
+><P
+>一貫性が明らかにないデータが短期間アプリケーションから参照できてしまうため、これはきわめて重大な不具合です。</P
+></LI
+><LI
+><P
+>リレーションの拡張とVACUUMとの間の競合状態を修正しました。</P
+><P
+>理論上、これにより新たに挿入されたページの価値が失われます。
+しかしこうした状況が発生する頻度はきわめてまれで、アサートエラー以外に発生した事例はありません。</P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>TIME WITH TIME ZONE</TT
+>型の値の比較を修正しました。</P
+><P
+><TT
+CLASS="LITERAL"
+>--enable-integer-datetimes</TT
+>設定スイッチが使用されている場合、この比較コードに間違いがありました。
+注意: この修正により列値のソート順が正しくなるように変更されましたので、<TT
+CLASS="TYPE"
+>TIME WITH TIME ZONE</TT
+>型の列に対するインデックスを持つ場合、この更新をインストールした後\
+に<TT
+CLASS="COMMAND"
+>REINDEX</TT
+>を行う必要があります。</P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>TIME WITH TIME ZONE</TT
+>型の値に対する<CODE
+CLASS="FUNCTION"
+>EXTRACT(EPOCH)</CODE
+>を修正しました。</P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>INTERVAL</TT
+>型の値の秒の小数部分において、負の値が間違って表示される点を修正しました。</P
+><P
+>このエラーは、<TT
+CLASS="LITERAL"
+>--enable-integer-datetimes</TT
+>設定スイッチが使用された場合にのみ発生します。</P
+></LI
+><LI
+><P
+>plpgsqlにおいて更にバッファオーバーランの検査を追加しました。（Neil）</P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>%</TT
+>を名前含むトリガを正しくダンプできるようにpg_dumpを修正しました。</P
+></LI
+><LI
+><P
+>月に関連した書式のために<CODE
+CLASS="FUNCTION"
+>to_char(interval)</CODE
+>がコアダンプすることを防止しました。</P
+></LI
+><LI
+><P
+>より最近のOpenSSLによる構築のために<TT
+CLASS="FILENAME"
+>contrib/pgcrypto</TT
+>を修正しました。(Marko Kreen)</P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/intagg</TT
+>に対する更なる64ビット向けの修正を行いました。</P
+></LI
+><LI
+><P
+><TT
+CLASS="TYPE"
+>RECORD</TT
+>型を返す関数の最適化の間違いを修正しました。</P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-7-3-11.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-7-3-9.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース 7.3.11</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース7.3.9</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,789 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE TABLE AS</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE TABLE"
+HREF="sql-createtable.html"><LINK
+REL="NEXT"
+TITLE="CREATE TABLESPACE"
+HREF="sql-createtablespace.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE TABLE"
+HREF="sql-createtable.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE TABLE"
+HREF="sql-createtable.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE TABLESPACE"
+HREF="sql-createtablespace.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE TABLESPACE"
+HREF="sql-createtablespace.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATETABLEAS"
+></A
+>CREATE TABLE AS</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN68053"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE TABLE AS&nbsp;--&nbsp;問い合わせの結果によって新しいテーブルを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN68058"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE [ [ GLOBAL | LOCAL ] { TEMPORARY | TEMP } | UNLOGGED ] TABLE <TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+>
+    [ (<TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+> [, ...] ) ]
+    [ WITH ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> [= <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>] [, ... ] ) | WITH OIDS | WITHOUT OIDS ]
+    [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+    [ TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+> ]
+    AS <TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+>
+    [ WITH [ NO ] DATA ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68066"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>はテーブルを作成し、<TT
+CLASS="COMMAND"
+>SELECT</TT
+> コマンドによって算出されたデータをそのテーブルに格納します。
+テーブルの列は、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>の出力列に結び付いた名前とデータ型を持ちます（ただし、新しい列名を明示したリストを渡すと、この列名を上書きすることができます）。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>はビューの作成と似ていますが、実際にはまったく異なります。
+<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>は新しいテーブルを作成し、新しいテーブルの内容を初期化するために一度だけ問い合わせを評価します。
+それ以降に行われた、問い合わせの元テーブルに対する変更は、新しいテーブルには反映されません。
+反対に、ビューは問い合わせの度に定義された<TT
+CLASS="COMMAND"
+>SELECT</TT
+>文を再評価します。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68076"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>GLOBAL</TT
+> or <TT
+CLASS="LITERAL"
+>LOCAL</TT
+></DT
+><DD
+><P
+>互換性を保持するため、無視されます。
+詳細は<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>を参照してください。
+     </P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>TEMPORARY</TT
+> or <TT
+CLASS="LITERAL"
+>TEMP</TT
+></DT
+><DD
+><P
+>指定された場合、テーブルは一時テーブルとして作成されます。
+<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>UNLOGGED</TT
+></DT
+><DD
+><P
+>指定された場合、テーブルはログを取らないテーブルとして作成されます。
+<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>を参照してください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table_name</I
+></TT
+></DT
+><DD
+><P
+>作成するテーブルの名前です（スキーマ修飾名も可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column_name</I
+></TT
+></DT
+><DD
+><P
+>新しいテーブルにおける列の名前です。
+列名を指定しない場合は、問い合わせの出力列名を利用します。
+<TT
+CLASS="COMMAND"
+>EXECUTE</TT
+>コマンドを実行してテーブルを作成する場合は、列名のリストを指定できません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WITH ( <TT
+CLASS="REPLACEABLE"
+><I
+>storage_parameter</I
+></TT
+> [= <TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>] [, ... ] )</TT
+></DT
+><DD
+><P
+>この句は、新しいテーブル用の省略可能な格納パラメータを指定します。
+詳細は<A
+HREF="sql-createtable.html#SQL-CREATETABLE-STORAGE-PARAMETERS"
+><I
+>格納パラメータ</I
+></A
+>を参照してください。
+<TT
+CLASS="LITERAL"
+>WITH</TT
+>には、<TT
+CLASS="LITERAL"
+>OIDS=TRUE</TT
+>（もしくは単なる<TT
+CLASS="LITERAL"
+>OIDS</TT
+>）を含めて、新しいテーブルの行が行に割り当てられたOID（オブジェクト識別子）を持たなければならないことを指定することもできます。
+また、<TT
+CLASS="LITERAL"
+>OIDS=FALSE</TT
+>を含めて、OIDを持たないことを指定することもできます。
+詳細は<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>を参照してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WITH OIDS</TT
+><BR><TT
+CLASS="LITERAL"
+>WITHOUT OIDS</TT
+></DT
+><DD
+><P
+>これらは古い構文で、それぞれ<TT
+CLASS="LITERAL"
+>WITH (OIDS)</TT
+>と<TT
+CLASS="LITERAL"
+>WITH (OIDS=FALSE)</TT
+>と同じです。
+<TT
+CLASS="LITERAL"
+>OIDS</TT
+>と格納パラメータの設定の両方を指定したい場合、上記の<TT
+CLASS="LITERAL"
+>WITH ( ... )</TT
+>構文を使用しなければなりません。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ON COMMIT</TT
+></DT
+><DD
+><P
+>トランザクションブロックの終了時の一時テーブルの動作を<TT
+CLASS="LITERAL"
+>ON COMMIT</TT
+>を使用して制御することができます。
+以下の3つのオプションがあります。
+
+      <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>PRESERVE ROWS</TT
+></DT
+><DD
+><P
+>トランザクションの終了時に特別な処理は何も行われません。
+これがデフォルトの動作です。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DELETE ROWS</TT
+></DT
+><DD
+><P
+>各トランザクションブロックの終了時に、一時テーブルのすべての行が削除されます。
+具体的には、コミット毎に自動的に<A
+HREF="sql-truncate.html"
+>TRUNCATE</A
+>が行われます。
+         </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DROP</TT
+></DT
+><DD
+><P
+>現在のトランザクションブロックの終了時に一時テーブルは削除されます。
+         </P
+></DD
+></DL
+></DIV
+><P></P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>TABLESPACE <TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>tablespace</I
+></TT
+>は、新しいテーブルの作成先となるテーブル空間名です。
+指定がなければ、<A
+HREF="runtime-config-client.html#GUC-DEFAULT-TABLESPACE"
+>default_tablespace</A
+>、もし一時テーブルの場合は<A
+HREF="runtime-config-client.html#GUC-TEMP-TABLESPACES"
+>temp_tablespaces</A
+>が考慮されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+></DT
+><DD
+><P
+><A
+HREF="sql-select.html"
+>SELECT</A
+>、<A
+HREF="sql-select.html#SQL-TABLE"
+>TABLE</A
+>、<A
+HREF="sql-values.html"
+>VALUES</A
+>コマンドまたは、あらかじめ準備された<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>TABLE</TT
+>または<TT
+CLASS="COMMAND"
+>VALUES</TT
+>問い合わせを実行する<A
+HREF="sql-execute.html"
+>EXECUTE</A
+>コマンドです。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>WITH [ NO ] DATA</TT
+></DT
+><DD
+><P
+>この句は問い合わせで生成されるデータを新しいテーブルにコピーすべきかどうかを指定します。
+コピーしない場合はテーブル構造のみがコピーされます。
+デフォルトではデータをコピーします。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68184"
+></A
+><H2
+>注釈</H2
+><P
+>このコマンドは、<A
+HREF="sql-selectinto.html"
+>SELECT INTO</A
+>と同じ機能を持ちますが、<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>構文の他の使用方法と混乱する可能性が少ないため、こちらを使用する方が良いでしょう。
+さらに、<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>は、<TT
+CLASS="COMMAND"
+>SELECT INTO</TT
+>が提供する機能のスーパーセットを提供します。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.0より前は、<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>が生成するテーブルには、常にOIDが含まれていました。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.0では、ユーザが明示的に<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>コマンドの結果にOIDを含めるかどうかを指定できるようになりました。
+OIDの有無を明示していない場合、<A
+HREF="runtime-config-compatible.html#GUC-DEFAULT-WITH-OIDS"
+>default_with_oids</A
+>設定変数が使用されます。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.1では<A
+HREF="runtime-config-compatible.html#GUC-DEFAULT-WITH-OIDS"
+>default_with_oids</A
+>のデフォルトは偽ですので、デフォルトの振舞いは8.0以前のリリースとは異なります。
+<TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>が生成するテーブルにおいてOIDが必要なアプリケーションでは、確実に適切な動作をさせるために明示的に<TT
+CLASS="LITERAL"
+>WITH (OIDS)</TT
+>を付与しなければなりません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68201"
+></A
+><H2
+>例</H2
+><P
+><TT
+CLASS="LITERAL"
+>films</TT
+>の最近の項目のみから構成される、新しい<TT
+CLASS="LITERAL"
+>films_recent</TT
+>テーブルを作成します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE films_recent AS
+  SELECT * FROM films WHERE date_prod &gt;= '2002-01-01';</PRE
+><P>
+  </P
+><P
+>テーブルを完全に複製するために、<TT
+CLASS="LITERAL"
+>TABLE</TT
+>コマンドを使った短縮形も使用することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE films2 AS
+  TABLE films;</PRE
+><P>
+  </P
+><P
+>準備された文を使用して、<TT
+CLASS="LITERAL"
+>films</TT
+>内の最近の項目のみから構成される<TT
+CLASS="LITERAL"
+>films_recent</TT
+>一時テーブルを作成します。
+この新しいテーブルはOIDを持ち、コミット時に削除されます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>PREPARE recentfilms(date) AS
+  SELECT * FROM films WHERE date_prod &gt; $1;
+CREATE TEMP TABLE films_recent WITH (OIDS) ON COMMIT DROP AS
+  EXECUTE recentfilms('2002-01-01');</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68214"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE TABLE AS</TT
+>は標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>に従います。
+以下は非標準の拡張です。
+   <P
+></P
+></P><UL
+COMPACT="COMPACT"
+><LI
+><P
+>標準では副問い合わせ句を括弧で囲む必要がありますが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>ではこの括弧は省略可能です。
+     </P
+></LI
+><LI
+><P
+>標準では<TT
+CLASS="LITERAL"
+>WITH [ NO ] DATA</TT
+>句は必須ですが、PostgreSQLでは省略可能です。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の一時テーブルの扱いは標準とは異なります。
+詳細は<A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>を参照してください。
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>WITH</TT
+>句は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+格納パラメータもOIDも標準にはありません。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のテーブル空間という概念は標準にはありません。
+したがって、<TT
+CLASS="LITERAL"
+>TABLESPACE</TT
+>句は拡張です。
+     </P
+></LI
+></UL
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN68238"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createtable.html"
+>CREATE TABLE</A
+>, <A
+HREF="sql-execute.html"
+>EXECUTE</A
+>, <A
+HREF="sql-select.html"
+>SELECT</A
+>, <A
+HREF="sql-selectinto.html"
+>SELECT INTO</A
+>, <A
+HREF="sql-values.html"
+>VALUES</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createtable.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createtablespace.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE TABLE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE TABLESPACE</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

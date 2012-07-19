@@ -1,0 +1,389 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース 6.1</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース 6.1.1"
+HREF="release-6-1-1.html"><LINK
+REL="NEXT"
+TITLE="リリース 6.0"
+HREF="release-6-0.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース 6.1.1"
+HREF="release-6-1-1.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース 6.0"
+HREF="release-6-0.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-6-1"
+>E.206. リリース 6.1</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>1997-06-08</P
+></BLOCKQUOTE
+></DIV
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 6.1 リリースでは、リグレッションテストが追加され、また、多くの変更がなされました。</P
+><P
+>新しい 3 個のデータ型(<TT
+CLASS="TYPE"
+>datetime</TT
+>、<TT
+CLASS="TYPE"
+>timespan</TT
+>、<TT
+CLASS="TYPE"
+>circle</TT
+>) が <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 固有の型セットとして追加されました。points、boxes、paths、polygons の出力書式において、これら型の間で一貫性を持たせました。misc.out における polygon 出力は元のリグレッション出力からの相対値の正確さをチェックする部分的なものになりました。</P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 6.1 では、<I
+CLASS="FIRSTTERM"
+>遺伝的</I
+>アルゴリズムを使用した、新しい、もう一つのオプティマイザを導入しました。問い合わせに複数の条件や複数のテーブルが含まれる(オプティマイザが評価の順番を選択することになる)場合、このアルゴリズムは問い合わせ結果の順番において不規則な動作をもたらします。多くのリグレッションテストがその結果を明示的に順序付けするように変更されましたので、オプティマイザの選択の影響はありません。ごく一部の (例えば、pointや time intervalなどの)生来順番を持たないデータ型用のリグレッションテストやこれらの型を使用するテスト、明示的に<TT
+CLASS="COMMAND"
+>set geqo to 'off'</TT
+> と <TT
+CLASS="COMMAND"
+>reset geqo</TT
+>の間で行われます。</P
+><P
+>配列指示子(大括弧に囲まれた原子値)の解釈が、元となるリグレッションテストが生成された後に数回変更されたようです。現在の <TT
+CLASS="FILENAME"
+>./expected/*.out</TT
+> はこの新しい解釈を反映していますが、間違っているかもしれません。</P
+><P
+>float8 リグレッションテストは少なくともいくつかのプラットフォームで失敗します。これは、<CODE
+CLASS="FUNCTION"
+>pow()</CODE
+> と <CODE
+CLASS="FUNCTION"
+>exp()</CODE
+> の実装やオーバーフロー、アンダーフロー検出に使用される通知機構の違いが原因です。</P
+><P
+>random テストの結果は<SPAN
+CLASS="QUOTE"
+>"不規則"</SPAN
+>なものです。また、リグレッションテストの評価は単なる diff コマンドを使用しますので、<SPAN
+CLASS="QUOTE"
+>"random"</SPAN
+> テストは<SPAN
+CLASS="QUOTE"
+>"失敗"</SPAN
+>します。 しかし、私の試験用マシン(Linux/<SPAN
+CLASS="APPLICATION"
+>gcc</SPAN
+>/i686)では <SPAN
+CLASS="QUOTE"
+>"random"</SPAN
+> は不規則な結果を生成しないようです。</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131109"
+>E.206.1. バージョン 6.1 への移行</A
+></H2
+><P
+>この移行の場合、6.0 データベースの完全なダンプと、6.1 のデータベースへのリストアが必要です。</P
+><P
+>1.* の初期リリースからの移行の場合は、まず、1.09 へアップグレードしなければなりません。 COPY の出力書式がリリース 1.02 から改良されたからです。</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131113"
+>E.206.2. 変更点</A
+></H2
+><P
+></P><PRE
+CLASS="PROGRAMLISTING"
+>Bug Fixes
+---------
+packet length checking in library routines
+lock manager priority patch
+check for under/over flow of float8(Bruce)
+multitable join fix(Vadim)
+SIGPIPE crash fix(Darren)
+large object fixes(Sven)
+allow btree indexes to handle NULLs(Vadim)
+timezone fixes(D'Arcy)
+select SUM(x) can return NULL on no rows(Thomas)
+internal optimizer, executor bug fixes(Vadim)
+fix problem where inner loop in &lt; or &lt;= has no rows(Vadim)
+prevent re-commuting join index clauses(Vadim)
+fix join clauses for multiple tables(Vadim)
+fix hash, hashjoin for arrays(Vadim)
+fix btree for abstime type(Vadim)
+large object fixes(Raymond)
+fix buffer leak in hash indexes (Vadim)
+fix rtree for use in inner scan (Vadim)
+fix gist for use in inner scan, cleanups (Vadim, Andrea)
+avoid unnecessary local buffers allocation (Vadim, Massimo)
+fix local buffers leak in transaction aborts (Vadim)
+fix file manager memmory leaks, cleanups (Vadim, Massimo)
+fix storage manager memmory leaks (Vadim)
+fix btree duplicates handling (Vadim)
+fix deleted rows reincarnation caused by vacuum (Vadim)
+fix SELECT varchar()/char() INTO TABLE made zero-length fields(Bruce)
+many psql, pg_dump, and libpq memory leaks fixed using Purify (Igor)
+
+Enhancements
+------------
+attribute optimization statistics(Bruce)
+much faster new btree bulk load code(Paul)
+BTREE UNIQUE added to bulk load code(Vadim) 
+new lock debug code(Massimo)
+massive changes to libpg++(Leo)
+new GEQO optimizer speeds table multitable optimization(Martin)
+new WARN message for non-unique insert into unique key(Marc)
+update x=-3, no spaces, now valid(Bruce)
+remove case-sensitive identifier handling(Bruce,Thomas,Dan)
+debug backend now pretty-prints tree(Darren)
+new Oracle character functions(Edmund)
+new plaintext password functions(Dan)
+no such class or insufficient privilege changed to distinct messages(Dan)
+new ANSI timestamp function(Dan)
+new ANSI Time and Date types (Thomas)
+move large chunks of data in backend(Martin)
+multicolumn btree indexes(Vadim)
+new SET var TO value command(Martin)
+update transaction status on reads(Dan)
+new locale settings for character types(Oleg)
+new SEQUENCE serial number generator(Vadim)
+GROUP BY function now possible(Vadim)
+re-organize regression test(Thomas,Marc)
+new optimizer operation weights(Vadim)
+new psql \z grant/permit option(Marc)
+new MONEY data type(D'Arcy,Thomas)
+tcp socket communication speed improved(Vadim)
+new VACUUM option for attribute statistics, and for certain columns (Vadim)
+many geometric type improvements(Thomas,Keith)
+additional regression tests(Thomas)
+new datestyle variable(Thomas,Vadim,Martin)
+more comparison operators for sorting types(Thomas)
+new conversion functions(Thomas)
+new more compact btree format(Vadim)
+allow pg_dumpall to preserve database ownership(Bruce)
+new SET GEQO=# and R_PLANS variable(Vadim)
+old (!GEQO) optimizer can use right-sided plans (Vadim)
+typechecking improvement in SQL parser(Bruce)
+new SET, SHOW, RESET commands(Thomas,Vadim)
+new \connect database USER option
+new destroydb -i option (Igor)
+new \dt and \di psql commands (Darren)
+SELECT "\n" now escapes newline (A. Duursma)
+new geometry conversion functions from old format (Thomas)
+
+Source tree changes
+-------------------
+new configuration script(Marc)
+readline configuration option added(Marc)
+OS-specific configuration options removed(Marc)
+new OS-specific template files(Marc)
+no more need to edit Makefile.global(Marc)
+re-arrange include files(Marc)
+nextstep patches (Gregor Hoffleit)
+removed Windows-specific code(Bruce)
+removed postmaster -e option, now only postgres -e option (Bruce)
+merge duplicate library code in front/backends(Martin)
+now works with eBones, international Kerberos(Jun)
+more shared library support
+c++ include file cleanup(Bruce)
+warn about buggy flex(Bruce)
+DG/UX, Ultrix, IRIX, AIX portability fixes</PRE
+><P></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-6-1-1.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-6-0.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース 6.1.1</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース 6.0</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

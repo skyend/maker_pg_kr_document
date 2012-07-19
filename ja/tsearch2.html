@@ -1,0 +1,503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>tsearch2</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="test_parser"
+HREF="test-parser.html"><LINK
+REL="NEXT"
+TITLE="unaccent"
+HREF="unaccent.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="test_parser"
+HREF="test-parser.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="unaccent"
+HREF="unaccent.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TSEARCH2"
+>F.43. tsearch2</A
+></H1
+><P
+><SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>モジュールは、テキスト検索がリリース8.3でコア<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に統合される前の、<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>を使用したアプリケーション向けの後方互換のテキスト検索機能を提供します。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138517"
+>F.43.1. 移植に関する問題</A
+></H2
+><P
+>組み込みのテキスト検索機能は<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>を基にしており、大部分は似ていますが、多くの小さな違いがあります。
+このため、既存のアプリケーションにおいて移植に関する問題が発生します。
+  </P
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: disc"
+><P
+>一部の関数名が変わりました。
+例えば<CODE
+CLASS="FUNCTION"
+>rank</CODE
+>は<CODE
+CLASS="FUNCTION"
+>ts_rank</CODE
+>になりました。
+置き換え版の<TT
+CLASS="LITERAL"
+>tsearch2</TT
+>モジュールは古い名前を別名として提供します。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>組み込みのテキスト検索データ型と関数はすべて<TT
+CLASS="LITERAL"
+>pg_catalog</TT
+>システムスキーマ内に存在します。
+<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>を使用したインストレーションでは、これらのオブジェクトは通常<TT
+CLASS="LITERAL"
+>public</TT
+>スキーマ内にありましたが、ユーザによっては独自に別のスキーマに格納することを選択していました。
+したがって、これらのオブジェクトへの明示的にスキーマ修飾された参照はどちらの場合も失敗します。
+置き換え版の<TT
+CLASS="LITERAL"
+>tsearch2</TT
+>モジュールは、こうした参照が動作し続けられるように、<TT
+CLASS="LITERAL"
+>public</TT
+>（必要ならば他のスキーマ）に格納される別名オブジェクトを提供します。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>組込みのテキスト検索機能では<SPAN
+CLASS="QUOTE"
+>"現在のパーサ"</SPAN
+>または<SPAN
+CLASS="QUOTE"
+>"現在の辞書"</SPAN
+>という概念はなく、現在の検索設定<TT
+CLASS="VARNAME"
+>default_text_search_config</TT
+>パラメータによりせっていされます）のみがあります。
+現在のパーサや現在の辞書はデバッグ目的の関数でのみ使用されていましたが、これが移植の問題を引き起こす場合があります。
+置き換え版の<TT
+CLASS="LITERAL"
+>tsearch2</TT
+>モジュールはこれらの追加状態変数を模擬し、その設定および抽出に関する後方互換を持つ関数を提供します。
+    </P
+></LI
+></UL
+><P
+>置き換え版の<TT
+CLASS="LITERAL"
+>tsearch2</TT
+>で対応されていない問題もいくつか存在します。
+このため、以下のいずれかの場合はアプリケーションコードの変更が必要です。
+  </P
+><P
+></P
+><UL
+><LI
+STYLE="list-style-type: disc"
+><P
+>過去の<CODE
+CLASS="FUNCTION"
+>tsearch2</CODE
+>トリガ関数では、引数リスト内の項目を<TT
+CLASS="TYPE"
+>tsvector</TT
+>書式に変換される前にテキストデータに対して呼び出される関数名にすることができました。
+これはセキュリティ問題になりますので削除されました。
+このため、呼び出される関数が意図したものであることを保証することはできません。
+インデックス付けされる前にデータをいじる必要がある場合の推奨方式は、専用の作業を行う独自トリガを作成することです。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>テキスト検索設定の情報は、<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>で使用されたテーブルと大きく異なる中核のシステムカタログに移動されました。
+こうしたテーブルの検査、変更を行うアプリケーションはすべて調整する必要があります。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>アプリケーションが独自のテキスト検索設定を使用していた場合、それらを新しいテキスト検索設定SQLコマンドを使用してコアカタログ内に構築する必要があります。
+置き換え版の<TT
+CLASS="LITERAL"
+>tsearch2</TT
+>モジュールは、古い<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>の設定テーブルの集合を<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.3にロードできるようにすることで、多少のサポートを行います。
+（このモジュールがなければ、<TT
+CLASS="TYPE"
+>regprocedure</TT
+>列の値を関数に解決できませんので、設定データをロードすることは不可能です。）
+こうした設定テーブルは実際に何も<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>行いません</I
+></SPAN
+>が、少なくとも8.3で同等の独自設定を構築する際に、その内容を考慮することは可能です。
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>古い<CODE
+CLASS="FUNCTION"
+>reset_tsearch()</CODE
+>および<CODE
+CLASS="FUNCTION"
+>get_covers()</CODE
+>はサポートされません。
+
+    </P
+></LI
+><LI
+STYLE="list-style-type: disc"
+><P
+>置き換え版の<TT
+CLASS="LITERAL"
+>tsearch2</TT
+>モジュールは別名演算子をまったく定義しません。
+完全に組み込みのものに依存しています。
+まったく一般的ではありませんが、アプリケーションが明示的にスキーマ修飾した演算子名を使用する場合のみ、問題が発生します。
+    </P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138564"
+>F.43.2. 8.3より前のインストレーションを変換</A
+></H2
+><P
+><SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>を使用した、8.3より前のインストレーションからの推奨更新方法を以下に示します。
+  </P
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+>通常の方法で古いインストレーションのダンプを作成します。
+ただし、<SPAN
+CLASS="APPLICATION"
+>pg_dump</SPAN
+>または<SPAN
+CLASS="APPLICATION"
+>pg_dumpall</SPAN
+>の<TT
+CLASS="LITERAL"
+>-c</TT
+> (<TT
+CLASS="LITERAL"
+>--clean</TT
+>)オプションは使用しないでください。
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>新しいインストレーションで、空のデータベースを作成し、置き換え版の<TT
+CLASS="LITERAL"
+>tsearch2</TT
+>をテキスト検索を使用する各データベースにインストールしてください。
+これをダンプデータをロードする<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>前に</I
+></SPAN
+>行う必要があります。
+古いインストレーションが<TT
+CLASS="LITERAL"
+>public</TT
+>以外のスキーマに<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>のオブジェクトを持つ場合は、置き換え版のオブジェクトが同じスキーマ内に生成されるように<TT
+CLASS="COMMAND"
+>CREATE EXTENSION</TT
+>コマンドを確実に調整してください。
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>ダンプデータをロードしてください。
+実際、元の<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>のオブジェクトの再作成に失敗するため、いくつかエラーが報告されます。
+これらのエラーは無視することができますが、単一トランザクションでダンプをリストアすることができないことを意味します。
+（例えば、<SPAN
+CLASS="APPLICATION"
+>pg_restore</SPAN
+>の<TT
+CLASS="OPTION"
+>-1</TT
+>スイッチを使用することはできません。）
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>リストアした<SPAN
+CLASS="APPLICATION"
+>tsearch2</SPAN
+>の設定テーブル（<TT
+CLASS="STRUCTNAME"
+>pg_ts_cfg</TT
+>など）の内容を検査してください。
+そして、必要に応じて同等の組込みテキスト検索設定を作成してください。
+古い設定テーブルから有用な情報をすべて取り出した後、これらを削除することができます。
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>アプリケーションを試験します。
+    </P
+></LI
+></OL
+></DIV
+><P
+>後で、最終的に置き換え版の<TT
+CLASS="LITERAL"
+>tsearch2</TT
+>モジュールをアンインストールできるように、アプリケーション内の別名テキスト検索オブジェクトへの参照の名前を変更する方がよいでしょう。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138595"
+>F.43.3. 参考資料</A
+></H2
+><P
+>Tsearch2開発サイト
+   <A
+HREF="http://www.sai.msu.su/~megera/postgres/gist/tsearch/V2/"
+TARGET="_top"
+>http://www.sai.msu.su/~megera/postgres/gist/tsearch/V2/</A
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="test-parser.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="unaccent.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>test_parser</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>unaccent</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

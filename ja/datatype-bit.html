@@ -1,0 +1,341 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ビット列データ型</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ型"
+HREF="datatype.html"><LINK
+REL="PREVIOUS"
+TITLE="ネットワークアドレス型"
+HREF="datatype-net-types.html"><LINK
+REL="NEXT"
+TITLE="テキスト検索に関する型"
+HREF="datatype-textsearch.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ネットワークアドレス型"
+HREF="datatype-net-types.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 8&#31456;データ型</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="テキスト検索に関する型"
+HREF="datatype-textsearch.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DATATYPE-BIT"
+>8.10. ビット列データ型</A
+></H1
+><P
+>ビット列とは1と0のビットが連続したものです。
+ビットマスクを格納したり顕在化するために使用されます。
+SQLのビット型には2つあります。
+<TT
+CLASS="TYPE"
+>bit(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</TT
+>と<TT
+CLASS="TYPE"
+>bit varying(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</TT
+>です。
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>は正の整数です。
+   </P
+><P
+><TT
+CLASS="TYPE"
+>bit</TT
+>型のデータは厳密に<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>で表される長さに一致しなければなりません。
+この長さより長いか短いビット列を格納しようとするとエラーになります。
+<TT
+CLASS="TYPE"
+>bit varying</TT
+>型のデータは最大<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>までの可変長です。
+最大長を越えるビット列は受け付けません。
+長さ指定のない<TT
+CLASS="TYPE"
+>bit</TT
+>データ型は<TT
+CLASS="LITERAL"
+>bit(1)</TT
+>データ型と同一で、長さ指定のない<TT
+CLASS="TYPE"
+>bit varying</TT
+>データ型は無限長を意味します。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>ビット列の値を明示的に<TT
+CLASS="TYPE"
+>bit(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</TT
+>にキャストすると、厳密に<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>ビットになるように、切り捨てられるか右側をゼロ詰めされ、エラーにはなりません。
+同様に、ビット列の値を明示的に<TT
+CLASS="TYPE"
+>bit varying(<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>)</TT
+>にキャストすると、ビット数が<TT
+CLASS="REPLACEABLE"
+><I
+>n</I
+></TT
+>を超える場合は右側が切り捨てられます。 
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+>ビット列定数に関する構文についての情報は<A
+HREF="sql-syntax-lexical.html#SQL-SYNTAX-BIT-STRINGS"
+>&#38917;4.1.2.5</A
+>を参照してください。
+ビット論理演算子とビット列操作関数が用意されています。
+<A
+HREF="functions-bitstring.html"
+>&#38917;9.6</A
+>を参照してください。
+   </P
+><DIV
+CLASS="EXAMPLE"
+><A
+NAME="AEN6809"
+></A
+><P
+><B
+>&#20363; 8-3. ビット列データ型を使って</B
+></P
+><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test (a BIT(3), b BIT VARYING(5));
+INSERT INTO test VALUES (B'101', B'00');
+INSERT INTO test VALUES (B'10', B'101');
+<SAMP
+CLASS="COMPUTEROUTPUT"
+>ERROR:  bit string length 2 does not match type bit(3)</SAMP
+>
+INSERT INTO test VALUES (B'10'::bit(3), B'101');
+SELECT * FROM test;
+<SAMP
+CLASS="COMPUTEROUTPUT"
+>  a  |  b
+-----+-----
+ 101 | 00
+ 100 | 101</SAMP
+></PRE
+></DIV
+><P
+>ビット列の値は8ビット毎に1バイト、さらにビット列長に応じた5または8バイトのオーバーヘッドが必要です。
+（しかし、文字列に関する<A
+HREF="datatype-character.html"
+>&#38917;8.3</A
+>の説明と同様、長い値は圧縮または行外に移動する可能性があります。）
+
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="datatype-net-types.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="datatype-textsearch.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ネットワークアドレス型</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="datatype.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>テキスト検索に関する型</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

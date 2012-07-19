@@ -1,0 +1,619 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>エラーとメッセージ</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"><LINK
+REL="PREVIOUS"
+TITLE="カーソル"
+HREF="plpgsql-cursors.html"><LINK
+REL="NEXT"
+TITLE="トリガプロシージャ"
+HREF="plpgsql-trigger.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="カーソル"
+HREF="plpgsql-cursors.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 39&#31456;<SPAN
+CLASS="APPLICATION"
+>PL/pgSQL</SPAN
+> - <ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/pgSQL - SQL手続き言語"
+HREF="plpgsql.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="トリガプロシージャ"
+HREF="plpgsql-trigger.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPGSQL-ERRORS-AND-MESSAGES"
+>39.8. エラーとメッセージ</A
+></H1
+><P
+><TT
+CLASS="COMMAND"
+>RAISE</TT
+>文を使用してメッセージを報告し、エラーを発生することができます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>RAISE [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>level</I
+></TT
+> </SPAN
+>] '<TT
+CLASS="REPLACEABLE"
+><I
+>format</I
+></TT
+>' [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>]</SPAN
+>] [<SPAN
+CLASS="OPTIONAL"
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>] </SPAN
+>];
+RAISE [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>level</I
+></TT
+> </SPAN
+>] <TT
+CLASS="REPLACEABLE"
+><I
+>condition_name</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>] </SPAN
+>];
+RAISE [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>level</I
+></TT
+> </SPAN
+>] SQLSTATE '<TT
+CLASS="REPLACEABLE"
+><I
+>sqlstate</I
+></TT
+>' [<SPAN
+CLASS="OPTIONAL"
+> USING <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>] </SPAN
+>];
+RAISE [<SPAN
+CLASS="OPTIONAL"
+> <TT
+CLASS="REPLACEABLE"
+><I
+>level</I
+></TT
+> </SPAN
+>] USING <TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, ... </SPAN
+>];
+RAISE ;</PRE
+><P>
+
+<TT
+CLASS="REPLACEABLE"
+><I
+>level</I
+></TT
+>オプションはエラーの深刻度を指定します。
+使用可能なレベルは<TT
+CLASS="LITERAL"
+>DEBUG</TT
+>、<TT
+CLASS="LITERAL"
+>LOG</TT
+>、<TT
+CLASS="LITERAL"
+>INFO</TT
+>、<TT
+CLASS="LITERAL"
+>NOTICE</TT
+>、<TT
+CLASS="LITERAL"
+>WARNING</TT
+>および<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>で、<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>がデフォルトです。
+<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>はエラーを発生させ、現在のトランザクションをアボートします。
+他のレベルは異なる優先度レベルのメッセージを生成するだけです。
+特定の優先度のエラーメッセージがクライアントに報告するか、サーバログに書き込むか、またはその両方は<A
+HREF="runtime-config-logging.html#GUC-LOG-MIN-MESSAGES"
+>log_min_messages</A
+>および<A
+HREF="runtime-config-logging.html#GUC-CLIENT-MIN-MESSAGES"
+>client_min_messages</A
+>設定変数によって制御されます。
+詳細については、<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+   </P
+><P
+>もしあれば<TT
+CLASS="REPLACEABLE"
+><I
+>level</I
+></TT
+>の後に<TT
+CLASS="REPLACEABLE"
+><I
+>format</I
+></TT
+>を記述することができます
+（これは評価式ではなく、単純文字列リテラルでなければなりません）。
+書式文字列は報告されるエラーメッセージテキストを指定します。
+書式文字列内では、<TT
+CLASS="LITERAL"
+>%</TT
+>は次の省略可能な引数の値の文字列表現で書き換えられます。
+<TT
+CLASS="LITERAL"
+>%%</TT
+>と記述することで<TT
+CLASS="LITERAL"
+>%</TT
+>リテラルを表すことができます。
+   </P
+><P
+>以下の例では、<TT
+CLASS="LITERAL"
+>v_job_id</TT
+>の値は文字列内の<TT
+CLASS="LITERAL"
+>%</TT
+>を置き換えます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>RAISE NOTICE 'Calling cs_create_job(%)', v_job_id;</PRE
+><P>
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>USING</TT
+>に続いて、<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+> = <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>項目を記載することで、エラー報告に追加の情報を加えることができます。
+使用可能な<TT
+CLASS="REPLACEABLE"
+><I
+>option</I
+></TT
+>キーワードは<TT
+CLASS="LITERAL"
+>MESSAGE</TT
+>、<TT
+CLASS="LITERAL"
+>DETAIL</TT
+>、<TT
+CLASS="LITERAL"
+>HINT</TT
+>、および<TT
+CLASS="LITERAL"
+>ERRCODE</TT
+>で、それぞれの<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>は任意の文字列で値付けされる式を取ることができます。
+<TT
+CLASS="LITERAL"
+>MESSAGE</TT
+>はエラーメッセージテキストを設定します
+（このオプションは<TT
+CLASS="LITERAL"
+>USING</TT
+>の前に書式文字列を含む<TT
+CLASS="COMMAND"
+>RAISE</TT
+>形式では使用できません）。
+<TT
+CLASS="LITERAL"
+>DETAIL</TT
+>はエラー詳細メッセージを、一方<TT
+CLASS="LITERAL"
+>HINT</TT
+>はヒントを出力します。
+<TT
+CLASS="LITERAL"
+>ERRCODE</TT
+>は、<A
+HREF="errcodes-appendix.html"
+>&#20184;&#37682;A</A
+>で示されている状況名、または直接的に５文字によるSQLSTATEコードのいずれかの報告すべきエラーコード（SQLSTATE）を指定します。
+   </P
+><P
+>   
+以下の例は、与えられたエラーメッセージとヒントを付けてトランザクションをアボートします。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>RAISE EXCEPTION 'Nonexistent ID --&#62; %', user_id
+      USING HINT = 'Please check your user ID';</PRE
+><P>
+   </P
+><P
+>   
+以下の２つの例は、SQLSTATEを設定する等価な方法を示しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>RAISE 'Duplicate user ID: %', user_id USING ERRCODE = 'unique_violation';
+RAISE 'Duplicate user ID: %', user_id USING ERRCODE = '23505';</PRE
+><P>
+   </P
+><P
+>   
+主引数が報告されるべき状況名、またはSQLSTATEである場合、２番目の<TT
+CLASS="COMMAND"
+>RAISE</TT
+>構文があります。
+例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>RAISE division_by_zero;
+RAISE SQLSTATE '22012';</PRE
+><P>
+    
+この構文において、<TT
+CLASS="LITERAL"
+>USING</TT
+>は独自のエラーメッセージ、詳細、またはヒントを供給するように使用できます。
+先の例と同じことを行う別の方法は次のようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>RAISE unique_violation USING MESSAGE = 'Duplicate user ID: ' || user_id;</PRE
+><P>
+
+   </P
+><P
+>   
+他にも亜種があり、<TT
+CLASS="LITERAL"
+>RAISE USING</TT
+> または <TT
+CLASS="LITERAL"
+>RAISE <TT
+CLASS="REPLACEABLE"
+><I
+>level</I
+></TT
+> USING</TT
+>と記述して、全て一括して<TT
+CLASS="LITERAL"
+>USING</TT
+>リスト内に書き加えます。
+   </P
+><P
+>最後の<TT
+CLASS="COMMAND"
+>RAISE</TT
+>亜種はパラメータを全く取りません。
+この形式は<TT
+CLASS="LITERAL"
+>BEGIN</TT
+>ブロックの<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>句で使用されるのみです。
+これは、現在処理中のエラーを再発生させます。
+   </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>9.1より前のバージョンでは、パラメータのない<TT
+CLASS="COMMAND"
+>RAISE</TT
+>は稼動している例外ハンドラを含むブロックからのエラーの再発生と解釈されました。
+したがって、例外ハンドラの中で入れ子となった<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>句は、<TT
+CLASS="COMMAND"
+>RAISE</TT
+>が入れ子となった<TT
+CLASS="LITERAL"
+>EXCEPTION</TT
+>句のブロック内にあるときでも、エラーを捕捉できないことになりました。
+これは驚くべきことであり、オラクルの PL/SQLと非互換でした。
+    </P
+></BLOCKQUOTE
+></DIV
+><P
+><TT
+CLASS="COMMAND"
+>RAISE EXCEPTION</TT
+>コマンド内で状況名もSQLSTATEも指定されない場合、デフォルトは<TT
+CLASS="LITERAL"
+>RAISE_EXCEPTION</TT
+> (<TT
+CLASS="LITERAL"
+>P0001</TT
+>)を使用します。
+メッセージテキストが指定されない場合、デフォルトは状況名、またはSQLSTATEをメッセージテキストとして使用します。
+    </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+SQLSTATEコードでエラーコードを指定する場合、事前に定義されたエラーコードに制約されることはありません。
+<TT
+CLASS="LITERAL"
+>00000</TT
+>以外の５桁の数字かASCIIの大文字からなるどんなエラーコードも選択できます。
+３つのゼロで終わるエラーコードの出力を避けるように推奨されています。
+と言うのは、そこには分類コードがあり、それらは全ての分類から捕捉することによってのみ補足可能だからです。
+    </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plpgsql-cursors.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plpgsql-trigger.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>カーソル</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plpgsql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>トリガプロシージャ</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

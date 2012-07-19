@@ -1,0 +1,586 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>関数と演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQL言語"
+HREF="sql.html"><LINK
+REL="PREVIOUS"
+TITLE="疑似データ型"
+HREF="datatype-pseudo.html"><LINK
+REL="NEXT"
+TITLE="論理演算子"
+HREF="functions-logical.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="CHAPTER"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="疑似データ型"
+HREF="datatype-pseudo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="型変換"
+HREF="typeconv.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="論理演算子"
+HREF="functions-logical.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="FUNCTIONS"
+></A
+>&#31532; 9&#31456;関数と演算子</H1
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>&#30446;&#27425;</B
+></DT
+><DT
+>9.1. <A
+HREF="functions-logical.html"
+>論理演算子</A
+></DT
+><DT
+>9.2. <A
+HREF="functions-comparison.html"
+>比較演算子</A
+></DT
+><DT
+>9.3. <A
+HREF="functions-math.html"
+>算術関数と演算子</A
+></DT
+><DT
+>9.4. <A
+HREF="functions-string.html"
+>文字列関数と演算子</A
+></DT
+><DT
+>9.5. <A
+HREF="functions-binarystring.html"
+>バイナリ文字列関数と演算子</A
+></DT
+><DT
+>9.6. <A
+HREF="functions-bitstring.html"
+>ビット文字列関数と演算子</A
+></DT
+><DT
+>9.7. <A
+HREF="functions-matching.html"
+>パターンマッチ</A
+></DT
+><DD
+><DL
+><DT
+>9.7.1. <A
+HREF="functions-matching.html#FUNCTIONS-LIKE"
+><CODE
+CLASS="FUNCTION"
+>LIKE</CODE
+></A
+></DT
+><DT
+>9.7.2. <A
+HREF="functions-matching.html#FUNCTIONS-SIMILARTO-REGEXP"
+><CODE
+CLASS="FUNCTION"
+>SIMILAR TO</CODE
+>正規表現</A
+></DT
+><DT
+>9.7.3. <A
+HREF="functions-matching.html#FUNCTIONS-POSIX-REGEXP"
+><ACRONYM
+CLASS="ACRONYM"
+>POSIX</ACRONYM
+>正規表現</A
+></DT
+></DL
+></DD
+><DT
+>9.8. <A
+HREF="functions-formatting.html"
+>データ型書式設定関数</A
+></DT
+><DT
+>9.9. <A
+HREF="functions-datetime.html"
+>日付/時刻関数と演算子</A
+></DT
+><DD
+><DL
+><DT
+>9.9.1. <A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT"
+><CODE
+CLASS="FUNCTION"
+>EXTRACT</CODE
+>, <CODE
+CLASS="FUNCTION"
+>date_part</CODE
+></A
+></DT
+><DT
+>9.9.2. <A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-TRUNC"
+><CODE
+CLASS="FUNCTION"
+>date_trunc</CODE
+></A
+></DT
+><DT
+>9.9.3. <A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-ZONECONVERT"
+><TT
+CLASS="LITERAL"
+>AT TIME ZONE</TT
+></A
+></DT
+><DT
+>9.9.4. <A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-CURRENT"
+>Current Date/Time</A
+></DT
+><DT
+>9.9.5. <A
+HREF="functions-datetime.html#FUNCTIONS-DATETIME-DELAY"
+>遅延実行</A
+></DT
+></DL
+></DD
+><DT
+>9.10. <A
+HREF="functions-enum.html"
+>列挙型サポート関数</A
+></DT
+><DT
+>9.11. <A
+HREF="functions-geometry.html"
+>幾何関数と演算子</A
+></DT
+><DT
+>9.12. <A
+HREF="functions-net.html"
+>ネットワークアドレス関数と演算子</A
+></DT
+><DT
+>9.13. <A
+HREF="functions-textsearch.html"
+>テキスト検索関数と演算子</A
+></DT
+><DT
+>9.14. <A
+HREF="functions-xml.html"
+>XML関数</A
+></DT
+><DD
+><DL
+><DT
+>9.14.1. <A
+HREF="functions-xml.html#FUNCTIONS-PRODUCING-XML"
+>XML内容の生成</A
+></DT
+><DT
+>9.14.2. <A
+HREF="functions-xml.html#FUNCTIONS-XML-PREDICATES"
+>XML述語</A
+></DT
+><DT
+>9.14.3. <A
+HREF="functions-xml.html#FUNCTIONS-XML-PROCESSING"
+>XMLの処理</A
+></DT
+><DT
+>9.14.4. <A
+HREF="functions-xml.html#FUNCTIONS-XML-MAPPING"
+>XMLにテーブルをマップ</A
+></DT
+></DL
+></DD
+><DT
+>9.15. <A
+HREF="functions-sequence.html"
+>シーケンス操作関数</A
+></DT
+><DT
+>9.16. <A
+HREF="functions-conditional.html"
+>条件式</A
+></DT
+><DD
+><DL
+><DT
+>9.16.1. <A
+HREF="functions-conditional.html#FUNCTIONS-CASE"
+><TT
+CLASS="LITERAL"
+>CASE</TT
+></A
+></DT
+><DT
+>9.16.2. <A
+HREF="functions-conditional.html#FUNCTIONS-COALESCE-NVL-IFNULL"
+><TT
+CLASS="LITERAL"
+>COALESCE</TT
+></A
+></DT
+><DT
+>9.16.3. <A
+HREF="functions-conditional.html#FUNCTIONS-NULLIF"
+><TT
+CLASS="LITERAL"
+>NULLIF</TT
+></A
+></DT
+><DT
+>9.16.4. <A
+HREF="functions-conditional.html#FUNCTIONS-GREATEST-LEAST"
+><TT
+CLASS="LITERAL"
+>GREATEST</TT
+>および<TT
+CLASS="LITERAL"
+>LEAST</TT
+></A
+></DT
+></DL
+></DD
+><DT
+>9.17. <A
+HREF="functions-array.html"
+>配列関数と演算子</A
+></DT
+><DT
+>9.18. <A
+HREF="functions-aggregate.html"
+>集約関数</A
+></DT
+><DT
+>9.19. <A
+HREF="functions-window.html"
+>ウィンドウ関数</A
+></DT
+><DT
+>9.20. <A
+HREF="functions-subquery.html"
+>副問い合わせ式</A
+></DT
+><DD
+><DL
+><DT
+>9.20.1. <A
+HREF="functions-subquery.html#FUNCTIONS-SUBQUERY-EXISTS"
+><TT
+CLASS="LITERAL"
+>EXISTS</TT
+></A
+></DT
+><DT
+>9.20.2. <A
+HREF="functions-subquery.html#FUNCTIONS-SUBQUERY-IN"
+><TT
+CLASS="LITERAL"
+>IN</TT
+></A
+></DT
+><DT
+>9.20.3. <A
+HREF="functions-subquery.html#FUNCTIONS-SUBQUERY-NOTIN"
+><TT
+CLASS="LITERAL"
+>NOT IN</TT
+></A
+></DT
+><DT
+>9.20.4. <A
+HREF="functions-subquery.html#FUNCTIONS-SUBQUERY-ANY-SOME"
+><TT
+CLASS="LITERAL"
+>ANY</TT
+>/<TT
+CLASS="LITERAL"
+>SOME</TT
+></A
+></DT
+><DT
+>9.20.5. <A
+HREF="functions-subquery.html#FUNCTIONS-SUBQUERY-ALL"
+><TT
+CLASS="LITERAL"
+>ALL</TT
+></A
+></DT
+><DT
+>9.20.6. <A
+HREF="functions-subquery.html#AEN17341"
+>行に関する比較</A
+></DT
+></DL
+></DD
+><DT
+>9.21. <A
+HREF="functions-comparisons.html"
+>行と配列の比較</A
+></DT
+><DD
+><DL
+><DT
+>9.21.1. <A
+HREF="functions-comparisons.html#AEN17378"
+><TT
+CLASS="LITERAL"
+>IN</TT
+></A
+></DT
+><DT
+>9.21.2. <A
+HREF="functions-comparisons.html#AEN17394"
+><TT
+CLASS="LITERAL"
+>NOT IN</TT
+></A
+></DT
+><DT
+>9.21.3. <A
+HREF="functions-comparisons.html#AEN17416"
+><TT
+CLASS="LITERAL"
+>ANY</TT
+>/<TT
+CLASS="LITERAL"
+>SOME</TT
+> (array)</A
+></DT
+><DT
+>9.21.4. <A
+HREF="functions-comparisons.html#AEN17440"
+><TT
+CLASS="LITERAL"
+>ALL</TT
+> (array)</A
+></DT
+><DT
+>9.21.5. <A
+HREF="functions-comparisons.html#ROW-WISE-COMPARISON"
+>行に関しての比較</A
+></DT
+></DL
+></DD
+><DT
+>9.22. <A
+HREF="functions-srf.html"
+>集合を返す関数</A
+></DT
+><DT
+>9.23. <A
+HREF="functions-info.html"
+>システム情報関数</A
+></DT
+><DT
+>9.24. <A
+HREF="functions-admin.html"
+>システム管理関数</A
+></DT
+><DT
+>9.25. <A
+HREF="functions-trigger.html"
+>トリガ関数</A
+></DT
+></DL
+></DIV
+><P
+>  
+   <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は組み込みデータ型に対して数多くの関数と演算子を用意しています。また、<A
+HREF="server-programming.html"
+>&#12497;&#12540;&#12488;V</A
+>で解説しているように、ユーザは独自の関数と演算子を定義することもできます。<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>の<TT
+CLASS="COMMAND"
+>\df</TT
+>コマンドと<TT
+CLASS="COMMAND"
+>\do</TT
+>コマンドはそれぞれ全ての使用可能な関数と演算子をリストするのに使用されます。
+  </P
+><P
+>  
+   もし移植性が気になるのであれば、本章で説明する大多数の関数と演算子は、ほとんどの基本的算術演算子、比較演算子およびいくつかの明示的に印を付けた関数を除いて、標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>で規定されていない点に注意してください。この拡張機能のいくつかは、他の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>データベース管理システムにも備わっており、多くの場合この機能には各種実装間で互換性と整合性があります。同時に、本節は完全なものではありません。追加の関数はマニュアルの関連のある節に出てきます。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="datatype-pseudo.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-logical.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>疑似データ型</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>論理演算子</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

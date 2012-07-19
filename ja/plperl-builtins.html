@@ -1,0 +1,985 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>組込み関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"><LINK
+REL="PREVIOUS"
+TITLE="PL/Perlにおけるデータ値"
+HREF="plperl-data.html"><LINK
+REL="NEXT"
+TITLE="PL/Perlにおけるグローバルな値"
+HREF="plperl-global.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Perlにおけるデータ値"
+HREF="plperl-data.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 41&#31456;PL/Perl - Perl手続き言語</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Perl - Perl手続き言語"
+HREF="plperl.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PL/Perlにおけるグローバルな値"
+HREF="plperl-global.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLPERL-BUILTINS"
+>41.3. 組込み関数</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPERL-DATABASE"
+>41.3.1. PL/Perlからのデータベースアクセス</A
+></H2
+><P
+>Perl関数からデータベースそのものにアクセスするには以下の関数で行います。
+  </P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>spi_exec_query</CODE
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>query</I
+></TT
+> [, <TT
+CLASS="REPLACEABLE"
+><I
+>max-rows</I
+></TT
+>])</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>spi_exec_query</TT
+>はSQLコマンドを実行し、行セット全体をハッシュへの参照を要素とする配列への参照として返します。
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>結果が相対的に小規模であることが分かっている場合にのみこのコマンドを使用してください。</I
+></SPAN
+> 
+以下に最大行数オプションを持った問い合わせ（<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンド）の例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$rv = spi_exec_query('SELECT * FROM my_table', 5);</PRE
+><P>
+
+これは<TT
+CLASS="LITERAL"
+>my_table</TT
+>テーブルから5行までを返します。
+<TT
+CLASS="LITERAL"
+>my_table</TT
+>に<TT
+CLASS="LITERAL"
+>my_column</TT
+>列がある場合、結果の第<TT
+CLASS="LITERAL"
+>$i</TT
+>行の列値を以下のように取り出すことができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$foo = $rv-&gt;{rows}[$i]-&gt;{my_column};</PRE
+><P>
+
+<TT
+CLASS="COMMAND"
+>SELECT</TT
+>問い合わせから返される行の総数は以下のようにアクセスできます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$nrows = $rv-&gt;{processed}</PRE
+><P>
+       </P
+><P
+>以下は他の種類のコマンドを使用する例です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$query = "INSERT INTO my_table VALUES (1, 'test')";
+$rv = spi_exec_query($query);</PRE
+><P>
+
+この後、以下のようにコマンドステータス（例えば<TT
+CLASS="LITERAL"
+>SPI_OK_INSERT</TT
+>）にアクセスすることができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$res = $rv-&gt;{status};</PRE
+><P>
+
+影響を受けた行数を取り出すには以下を行います。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$nrows = $rv-&gt;{processed};</PRE
+><P>
+       </P
+><P
+>以下に複雑な例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE test (
+    i int,
+    v varchar
+);
+
+INSERT INTO test (i, v) VALUES (1, 'first line');
+INSERT INTO test (i, v) VALUES (2, 'second line');
+INSERT INTO test (i, v) VALUES (3, 'third line');
+INSERT INTO test (i, v) VALUES (4, 'immortal');
+
+CREATE OR REPLACE FUNCTION test_munge() RETURNS SETOF test AS $$
+    my $rv = spi_exec_query('select i, v from test;');
+    my $status = $rv-&gt;{status};
+    my $nrows = $rv-&gt;{processed};
+    foreach my $rn (0 .. $nrows - 1) {
+        my $row = $rv-&gt;{rows}[$rn];
+        $row-&gt;{i} += 200 if defined($row-&gt;{i});
+        $row-&gt;{v} =~ tr/A-Za-z/a-zA-Z/ if (defined($row-&gt;{v}));
+        return_next($row);
+    }
+    return undef;
+$$ LANGUAGE plperl;
+
+SELECT * FROM test_munge();</PRE
+><P>
+    </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>spi_query(<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>)</CODE
+></TT
+><BR><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>spi_fetchrow(<TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>)</CODE
+></TT
+><BR><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>spi_cursor_close(<TT
+CLASS="REPLACEABLE"
+><I
+>cursor</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>spi_query</TT
+>および<TT
+CLASS="LITERAL"
+>spi_fetchrow</TT
+>は、大規模になる可能性がある行セット用、または、行を順番通りに返したい場合向けに組み合わせて動作します。
+<TT
+CLASS="LITERAL"
+>spi_fetchrow</TT
+>は<TT
+CLASS="LITERAL"
+>spi_query</TT
+>と一緒で<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>なければ</I
+></SPAN
+>動作しません。
+組み合わせて使用する方法について、以下の例で示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TYPE foo_type AS (the_num INTEGER, the_text TEXT);
+
+CREATE OR REPLACE FUNCTION lotsa_md5 (INTEGER) RETURNS SETOF foo_type AS $$
+    use Digest::MD5 qw(md5_hex);
+    my $file = '/usr/share/dict/words';
+    my $t = localtime;
+    elog(NOTICE, "opening file $file at $t" );
+    open my $fh, '&lt;', $file # ooh, it's a file access!
+        or elog(ERROR, "cannot open $file for reading: $!");
+    my @words = &lt;$fh&gt;;
+    close $fh;
+    $t = localtime;
+    elog(NOTICE, "closed file $file at $t");
+    chomp(@words);
+    my $row;
+    my $sth = spi_query("SELECT * FROM generate_series(1,$_[0]) AS b(a)");
+    while (defined ($row = spi_fetchrow($sth))) {
+        return_next({
+            the_num =&gt; $row-&gt;{a},
+            the_text =&gt; md5_hex($words[rand @words])
+        });
+    }
+    return;
+$$ LANGUAGE plperlu;
+
+SELECT * from lotsa_md5(500);</PRE
+><P>
+    </P
+><P
+>通常<CODE
+CLASS="FUNCTION"
+>spi_fetchrow</CODE
+>は、読み取る行がなくなったことを示す<TT
+CLASS="LITERAL"
+>undef</TT
+>が返されるまで繰り返されるはずです。
+<CODE
+CLASS="FUNCTION"
+>spi_fetchrow</CODE
+>が<TT
+CLASS="LITERAL"
+>undef</TT
+>を返すと<TT
+CLASS="LITERAL"
+>spi_query</TT
+>で返されるカーソルは自動的に解放されます。
+すべての行を読み取りたくない場合は代わりに<CODE
+CLASS="FUNCTION"
+>spi_cursor_close</CODE
+>を呼び出してカーソルを解放してください。
+これに失敗するとメモリリークという結果になります。
+    </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>spi_prepare(<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>argument types</I
+></TT
+>)</CODE
+></TT
+><BR><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>spi_query_prepared(<TT
+CLASS="REPLACEABLE"
+><I
+>plan</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>arguments</I
+></TT
+>)</CODE
+></TT
+><BR><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>spi_exec_prepared(<TT
+CLASS="REPLACEABLE"
+><I
+>plan</I
+></TT
+> [, <TT
+CLASS="REPLACEABLE"
+><I
+>attributes</I
+></TT
+>], <TT
+CLASS="REPLACEABLE"
+><I
+>arguments</I
+></TT
+>)</CODE
+></TT
+><BR><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>spi_freeplan(<TT
+CLASS="REPLACEABLE"
+><I
+>plan</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>spi_prepare</TT
+>、<TT
+CLASS="LITERAL"
+>spi_query_prepared</TT
+>、<TT
+CLASS="LITERAL"
+>spi_exec_prepared</TT
+>、<TT
+CLASS="LITERAL"
+>spi_freeplan</TT
+>は、プリペアド問い合わせ用に同様の機能を実装します。
+<TT
+CLASS="LITERAL"
+>spi_prepare</TT
+>は番号付き引数プレースホルダ($1、$2など)を持つ問い合わせ文字列と引数の型を表す文字列リストを受け付けます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>$plan = spi_prepare('SELECT * FROM test WHERE id &gt; $1 AND name = $2',
+                                                     'INTEGER', 'TEXT');</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>spi_prepare</TT
+>を呼び出すことで問い合わせ計画が準備されると、<TT
+CLASS="LITERAL"
+>spi_exec_query</TT
+>により返されるものと同様の結果となる<TT
+CLASS="LITERAL"
+>spi_exec_prepared</TT
+>や<TT
+CLASS="LITERAL"
+>spi_query</TT
+>とまったく同じカーソルが返される<TT
+CLASS="LITERAL"
+>spi_query_prepared</TT
+>(このカーソルは後で<TT
+CLASS="LITERAL"
+>spi_fetchrow</TT
+>に渡すことができます)の中で、その計画を問い合わせ文字列の代わりに使用することができます。
+<TT
+CLASS="LITERAL"
+>spi_exec_prepared</TT
+>の省略可能な第二パラメータは属性のハッシュ参照です。
+現在サポートされる唯一の属性は、問い合わせで返される最大行数を設定する<TT
+CLASS="LITERAL"
+>limit</TT
+>です。
+    </P
+><P
+>プリペアド問い合わせの利点は、1つの準備された計画を複数回使用して問い合わせを実行することができるという点です。
+計画が不要になった後、<TT
+CLASS="LITERAL"
+>spi_freeplan</TT
+>を使用して、計画を解放することができます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE OR REPLACE FUNCTION init() RETURNS VOID AS $$
+        $_SHARED{my_plan} = spi_prepare('SELECT (now() + $1)::date AS now',
+                                        'INTERVAL');
+$$ LANGUAGE plperl;
+
+CREATE OR REPLACE FUNCTION add_time( INTERVAL ) RETURNS TEXT AS $$
+        return spi_exec_prepared(
+                $_SHARED{my_plan},
+                $_[0]
+        )-&#62;{rows}-&#62;[0]-&#62;{now};
+$$ LANGUAGE plperl;
+
+CREATE OR REPLACE FUNCTION done() RETURNS VOID AS $$
+        spi_freeplan( $_SHARED{my_plan});
+        undef $_SHARED{my_plan};
+$$ LANGUAGE plperl;
+
+SELECT init();
+SELECT add_time('1 day'), add_time('2 days'), add_time('3 days');
+SELECT done();
+
+  add_time  |  add_time  |  add_time
+------------+------------+------------
+ 2005-12-10 | 2005-12-11 | 2005-12-12</PRE
+><P>
+<TT
+CLASS="LITERAL"
+>spi_prepare</TT
+>内のパラメータ添字が$1、$2、$3などを介して定義されることに注意してください。
+そのため、検出困難な不具合が簡単に発生することになる二重引用符内での問い合わせ文字列宣言はやめてください。
+    </P
+><P
+>他の例は、<TT
+CLASS="LITERAL"
+>spi_exec_prepared</TT
+>における省略可能なパラメータの使用について示しています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE TABLE hosts AS SELECT id, ('192.168.1.'||id)::inet AS address
+                      FROM generate_series(1,3) AS id;
+
+CREATE OR REPLACE FUNCTION init_hosts_query() RETURNS VOID AS $$
+        $_SHARED{plan} = spi_prepare('SELECT * FROM hosts
+                                      WHERE address &lt;&lt; $1', 'inet');
+$$ LANGUAGE plperl;
+
+CREATE OR REPLACE FUNCTION query_hosts(inet) RETURNS SETOF hosts AS $$
+        return spi_exec_prepared(
+                $_SHARED{plan},
+                {limit =&gt; 2},
+                $_[0]
+        )-&#62;{rows};
+$$ LANGUAGE plperl;
+
+CREATE OR REPLACE FUNCTION release_hosts_query() RETURNS VOID AS $$
+        spi_freeplan($_SHARED{plan});
+        undef $_SHARED{plan};
+$$ LANGUAGE plperl;
+
+SELECT init_hosts_query();
+SELECT query_hosts('192.168.1.0/30');
+SELECT release_hosts_query();
+
+    query_hosts    
+-----------------
+ (1,192.168.1.1)
+ (2,192.168.1.2)
+(2 rows)</PRE
+><P>
+    </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLPERL-UTILITY-FUNCTIONS"
+>41.3.2. PL/Perlのユーティリティ関数</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>elog(<TT
+CLASS="REPLACEABLE"
+><I
+>level</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>msg</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>ログまたはエラーメッセージを発行します。
+使用できるレベルは、<TT
+CLASS="LITERAL"
+>DEBUG</TT
+>、<TT
+CLASS="LITERAL"
+>LOG</TT
+>、<TT
+CLASS="LITERAL"
+>INFO</TT
+>、<TT
+CLASS="LITERAL"
+>NOTICE</TT
+>、<TT
+CLASS="LITERAL"
+>WARNING</TT
+>、および<TT
+CLASS="LITERAL"
+>ERROR</TT
+>です。
+<TT
+CLASS="LITERAL"
+>ERROR</TT
+>はエラー状態を発生します。
+その上位のPerlコードでこのエラーを捕捉しない場合、エラーは問い合わせの呼び出し元まで伝播し、その結果、現在のトランザクションもしくはサブトランザクションはアボートします。
+これは実質Perlの<TT
+CLASS="LITERAL"
+>die</TT
+>コマンドと同じです。
+他のレベルは、異なる重要度のメッセージを生成するだけです。
+<A
+HREF="runtime-config-logging.html#GUC-LOG-MIN-MESSAGES"
+>log_min_messages</A
+>と<A
+HREF="runtime-config-logging.html#GUC-CLIENT-MIN-MESSAGES"
+>client_min_messages</A
+>設定パラメータは、特定の重要度のメッセージをクライアントに報告するか、サーバのログに書き出すか、あるいはその両方かを制御します。
+詳細は<A
+HREF="runtime-config.html"
+>&#31532;18&#31456;</A
+>を参照してください。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>quote_literal(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>与えられた文字列を、SQL文の文字列内で文字列リテラルとして使用するために適切に引用符付けして返します。
+埋め込まれた単一引用符およびバックスラッシュは適切に二重化されます。
+<CODE
+CLASS="FUNCTION"
+>quote_literal</CODE
+>は入力がundefならばundefを返すことに注意してください。
+引数がundefの可能性があるのであれば、<CODE
+CLASS="FUNCTION"
+>quote_nullable</CODE
+>の方が適しています。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>quote_nullable(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>与えられた文字列を、SQL文の文字列内で文字列リテラルとして使用するために適切に引用符付けして返します。
+引数がundefの場合引用符付けされない文字列"NULL"を返します。
+埋め込まれた単一引用符およびバックスラッシュは適切に二重化されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>quote_ident(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>与えられた文字列を、SQL文の文字列内で識別子として使用するために適切に引用符付けして返します。
+必要な場合(つまり文字列に識別子用ではない文字列が含まれる、または、大文字小文字を保持する場合)のみ引用符が付けられます。
+埋め込まれた引用符は適切に二重化されます。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>decode_bytea(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>与えられた文字列の内容を表す、エスケープのないバイナリデータを返します。
+これは<TT
+CLASS="TYPE"
+>bytea</TT
+>符号化でなければなりません。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>encode_bytea(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>与えられた文字列の内容をバイナリデータ形式で符号化した<TT
+CLASS="TYPE"
+>bytea</TT
+>を返します。
+      </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>encode_array_literal(<TT
+CLASS="REPLACEABLE"
+><I
+>array</I
+></TT
+>)</CODE
+></TT
+><BR><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>encode_array_literal(<TT
+CLASS="REPLACEABLE"
+><I
+>array</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>delimiter</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>参照先の配列の内容を、配列リテラル書式で表した文字列として返します(<A
+HREF="arrays.html#ARRAYS-INPUT"
+>&#38917;8.14.2</A
+>参照)。
+配列への参照でない場合は引数の値は変更されません。
+配列リテラルの要素間の区切り文字は指定がない、または、undefの場合、デフォルトで"<TT
+CLASS="LITERAL"
+>, </TT
+>"です。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>encode_typed_literal(<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>typename</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>Perl変数を2番目の引数として渡されたデータ型の値に変換し、その値の文字列表現を返します。
+入れ子状の配列や複合型の値を正しく扱います。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>encode_array_constructor(<TT
+CLASS="REPLACEABLE"
+><I
+>array</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>参照先の配列の内容を配列生成書式で表した文字列として返します(<A
+HREF="sql-expressions.html#SQL-SYNTAX-ARRAY-CONSTRUCTORS"
+>&#38917;4.2.12</A
+>参照)。
+個々の値は<CODE
+CLASS="FUNCTION"
+>quote_nullable</CODE
+>を使用して引用符付けされます。
+配列への参照でない場合は、<CODE
+CLASS="FUNCTION"
+>quote_nullable</CODE
+>を使用して引用符付けされた引数の値が返されます。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>looks_like_number(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>与えられた文字列の内容がPerlの流儀で数値でありそうな場合に真値を、さもなくば偽を返します。
+引数がundefならばundefを返します。
+先頭の空白、末尾の空白は無視されます。
+<TT
+CLASS="LITERAL"
+>Inf</TT
+>および<TT
+CLASS="LITERAL"
+>Infinity</TT
+>は数値とみなします。
+        </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>is_array_ref(<TT
+CLASS="REPLACEABLE"
+><I
+>argument</I
+></TT
+>)</CODE
+></TT
+></DT
+><DD
+><P
+>指定された引数が配列参照として扱うことができる場合、つまり、引数のrefが<TT
+CLASS="LITERAL"
+>ARRAY</TT
+>または<TT
+CLASS="LITERAL"
+>PostgreSQL::InServer::ARRAY</TT
+>の場合、真を返します。
+さもなくば偽を返します。
+      </P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="plperl-data.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plperl-global.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PL/Perlにおけるデータ値</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="plperl.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PL/Perlにおけるグローバルな値</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,397 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER GROUP</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER FUNCTION"
+HREF="sql-alterfunction.html"><LINK
+REL="NEXT"
+TITLE="ALTER INDEX"
+HREF="sql-alterindex.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER FUNCTION"
+HREF="sql-alterfunction.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER FUNCTION"
+HREF="sql-alterfunction.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER INDEX"
+HREF="sql-alterindex.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER INDEX"
+HREF="sql-alterindex.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERGROUP"
+></A
+>ALTER GROUP</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN60682"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER GROUP&nbsp;--&nbsp;ロールの名前またはメンバ資格を変更する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN60687"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER GROUP <TT
+CLASS="REPLACEABLE"
+><I
+>group_name</I
+></TT
+> ADD USER <TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+> [, ... ]
+ALTER GROUP <TT
+CLASS="REPLACEABLE"
+><I
+>group_name</I
+></TT
+> DROP USER <TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+> [, ... ]
+
+ALTER GROUP <TT
+CLASS="REPLACEABLE"
+><I
+>group_name</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60695"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER GROUP</TT
+>はユーザグループの属性を変更します。
+後方互換性のために受け付けられていますが、このコマンドは廃止予定です。
+グループ（ユーザも同様）は、より一般化されたロールという概念に置き換えられたからです。
+  </P
+><P
+>最初の2つの構文は、ユーザをグループに追加もしくはグループから削除します
+（この場合、任意のロールを<SPAN
+CLASS="QUOTE"
+>"ユーザ"</SPAN
+>部分として、または<SPAN
+CLASS="QUOTE"
+>"グループ"</SPAN
+> 部分として使用することができます）。
+この種の構文は、実のところ、<SPAN
+CLASS="QUOTE"
+>"グループ"</SPAN
+>として指名された ロール内のメンバ資格の付与、削除と同じです。
+ですので、<A
+HREF="sql-grant.html"
+>GRANT</A
+>や<A
+HREF="sql-revoke.html"
+>REVOKE</A
+>を使用する方法を薦めます。
+  </P
+><P
+>3番目の構文はグループの名前を変更します。
+これは、<A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+>を使用したロール名の変更とまったく同じです。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60707"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>group_name</I
+></TT
+></DT
+><DD
+><P
+>変更するグループ（ロール）の名前です。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>user_name</I
+></TT
+></DT
+><DD
+><P
+>グループに追加または削除されるユーザ（ロール）です。
+指定するユーザは存在するものでなければいけません。
+<TT
+CLASS="COMMAND"
+>ALTER GROUP</TT
+>は、ユーザの作成も削除も行いません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>新しいグループ名です。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60726"
+></A
+><H2
+>例</H2
+><P
+>ユーザをグループに追加します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER GROUP staff ADD USER karl, john;</PRE
+><P>
+
+ユーザをグループから削除します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER GROUP workers DROP USER beth;</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60731"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>ALTER GROUP</TT
+>文はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN60735"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-grant.html"
+>GRANT</A
+>, <A
+HREF="sql-revoke.html"
+>REVOKE</A
+>, <A
+HREF="sql-alterrole.html"
+>ALTER ROLE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-alterfunction.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alterindex.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER FUNCTION</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER INDEX</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>VACUUM</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="UPDATE"
+HREF="sql-update.html"><LINK
+REL="NEXT"
+TITLE="VALUES"
+HREF="sql-values.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="UPDATE"
+HREF="sql-update.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="UPDATE"
+HREF="sql-update.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="VALUES"
+HREF="sql-values.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="VALUES"
+HREF="sql-values.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-VACUUM"
+></A
+>VACUUM</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN76349"
+></A
+><H2
+>&#21517;&#21069;</H2
+>VACUUM&nbsp;--&nbsp;データベースの不要領域の回収とデータベースの解析（オプション）を行う</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN76354"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>VACUUM [ ( { FULL | FREEZE | VERBOSE | ANALYZE } [, ...] ) ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ (<TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) ] ]
+VACUUM [ FULL ] [ FREEZE ] [ VERBOSE ] [ <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> ]
+VACUUM [ FULL ] [ FREEZE ] [ VERBOSE ] ANALYZE [ <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ (<TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+> [, ...] ) ] ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76361"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM</TT
+> は、不要タプルが使用する領域を回収します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の通常動作では、削除されたタプルや更新によって不要となったタプルは、テーブルから物理的には削除されません。
+これらのタプルは<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>が完了するまで存在し続けます。
+そのため、特に更新頻度が多いテーブルでは、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>を定期的に実行する必要があります。
+  </P
+><P
+>パラメータの指定がない場合、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>は現在のユーザがバキュームできる権限を持つ、現在のデータベース内の全てのテーブルを処理します。
+パラメータを指定した場合、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>は指定したテーブルのみを処理します。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM ANALYZE</TT
+>は、指定したテーブルの1つひとつに対し、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>を行った後、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>を行います。
+このコマンドの組合わせは、日常的な管理スクリプトで使うと便利です。
+処理の詳細に関しては、<A
+HREF="sql-analyze.html"
+>ANALYZE</A
+>を参照してください。
+  </P
+><P
+>（<TT
+CLASS="LITERAL"
+>FULL</TT
+>が指定されていない）通常の<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>は、単に領域を回収し、そこを再利用可能な状態に変更します。
+この形式のコマンドでは排他的ロックが取得されていないため、テーブルへの通常の読み書き操作と並行して実行することができます。
+しかし余った領域はオペレーティングシステムには(ほとんどの場合)返されません。
+同じテーブル内で再利用できるように保持されるだけです。
+<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>では、テーブルの内容全体を新しいディスクファイルに書き換えるため領域が余ることはなく、オペレーティングシステムに未使用の領域を返すことができます。
+この形式では、実行速度がかなり低速になります。また、処理中のテーブルに対する排他的ロックが必要になります。
+  </P
+><P
+>オプションリストが括弧でくくられていた場合、オプションを任意の順序で記述することができます。
+括弧がないと、オプションは上で示した通りの順番で指定しなければなりません。
+括弧付きの構文は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 9.0で追加されました。
+カッコがない構文は廃止予定です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76382"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>FULL</TT
+></DT
+><DD
+><P
+>より多くの領域の回収することができる<SPAN
+CLASS="QUOTE"
+>"完全な"</SPAN
+>バキュームを選択します。
+ただし、通常よりも処理に時間がかかります。
+また、テーブルに対する排他ロックが必要です。
+     </P
+><P
+>またこの方式では、テーブルのコピーを新しく書き出し、操作が終わるまで古いコピーが解放されませんので、余分にディスク領域が必要です、
+通常、大きな容量がテーブルから回収されなければなら内場合にのみこれが使用されるはずです。
+
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>FREEZE</TT
+></DT
+><DD
+><P
+>積極的にタプルの<SPAN
+CLASS="QUOTE"
+>"凍結"</SPAN
+>を選択します。
+<TT
+CLASS="LITERAL"
+>FREEZE</TT
+>指定は、<A
+HREF="runtime-config-client.html#GUC-VACUUM-FREEZE-MIN-AGE"
+>vacuum_freeze_min_age</A
+>パラメータをゼロとして<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>を実行することと同じです。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>VERBOSE</TT
+></DT
+><DD
+><P
+>各テーブルについてバキューム処理の詳細な報告を出力します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ANALYZE</TT
+></DT
+><DD
+><P
+>プランナが使用する統計情報を更新し、問い合わせを実行する最も効率的な方法を決定できるようにします。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+></DT
+><DD
+><P
+>バキューム対象のテーブル名です（スキーマ修飾名も可）。
+デフォルトは現在のデータベース内の全テーブルです。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>column</I
+></TT
+></DT
+><DD
+><P
+>解析の対象とする列名です。デフォルトは全列です。
+列リストが指定された場合は<TT
+CLASS="LITERAL"
+>ANALYZE</TT
+>を意味します。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76422"
+></A
+><H2
+>出力</H2
+><P
+><TT
+CLASS="LITERAL"
+>VERBOSE</TT
+>が指定された場合、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>は、現在処理中のテーブルを示す進行状況メッセージを表示します。
+同様に、テーブルについての各種の統計情報も表示されます。
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76427"
+></A
+><H2
+>注釈</H2
+><P
+>テーブルをバキュームするためには、通常はテーブルの所有者もしくはスーパーユーザでなければなりません。
+しかしデータベースの所有者は共有カタログを除くデータベース内の全テーブルをバキュームすることができます。
+（共有カタログに関する制限は、データベース全体の<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>はスーパーユーザのみが実行可能であることを意味します。）
+<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>は、呼び出したユーザがバキュームするための権限を持たないテーブルはすべて飛ばします。
+   </P
+><P
+>トランザクションブロック内で<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>を実行することはできません。
+   </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GIN</ACRONYM
+>インデックスを持つテーブルでは、<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>（全構文）は待ち状態のインデックス挿入を、待ち状態のインデックス構文を主<ACRONYM
+CLASS="ACRONYM"
+>GIN</ACRONYM
+>インデックス構造内の適切なところに移動させることにより、すべて完了させます。
+<A
+HREF="gin-implementation.html#GIN-FAST-UPDATE"
+>&#38917;54.3.1</A
+>を参照してください。
+   </P
+><P
+>不要となった行を削除するため、実運用状態のデータベースに対しては（少なくとも毎晩）定期的に<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>を実行することを推奨します。
+また、テーブルに対して多数の行を追加/削除した後は、そのテーブルに<TT
+CLASS="COMMAND"
+>VACUUM ANALYZE</TT
+>を発行することを推奨します。
+これによりシステムカタログに最近なされた全ての変更が反映されることになり、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の問い合わせプランナが、問い合わせ計画の作成時により良い選択をできるようになります。
+   </P
+><P
+><TT
+CLASS="OPTION"
+>FULL</TT
+>オプションを日常的に使用することは推奨しませんが、特殊なケースでは有用となる場合もあります。
+例えば、テーブル内のほとんど全ての行を削除または更新し、そのテーブルによるディスクの使用量を物理的に縮小させて高速なテーブルスキャンを行いたい場合です。
+<TT
+CLASS="COMMAND"
+>VACUUM FULL</TT
+>はたいていの場合、通常の<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>よりもテーブルを縮小します。
+   </P
+><P
+><TT
+CLASS="COMMAND"
+>VACUUM</TT
+>によりI/Oトラフィックがかなり増大しますので、実行中の他のセッションの性能が悪化する可能性があります。
+このため、コストベースのバキューム遅延機能の使用を推奨する場合があります。
+詳細は<A
+HREF="runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST"
+>&#38917;18.4.3</A
+>を参照してください。
+   </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>には、バキューム保守作業を自動化する<SPAN
+CLASS="QUOTE"
+>"autovacuum"</SPAN
+>機能があります。
+自動バキューム処理および手作業によるバキューム処理に関する詳細については、<A
+HREF="routine-vacuuming.html"
+>&#38917;23.1</A
+>を参照してください。
+
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76454"
+></A
+><H2
+>例</H2
+><P
+>下記の例は、regressionデータベース内のテーブルに<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>を実行したものです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>regression=# VACUUM (VERBOSE, ANALYZE) onek;
+INFO:  vacuuming "public.onek"
+INFO:  index "onek_unique1" now contains 1000 tuples in 14 pages
+DETAIL:  3000 index tuples were removed.
+0 index pages have been deleted, 0 are currently reusable.
+CPU 0.01s/0.08u sec elapsed 0.18 sec.
+INFO:  index "onek_unique2" now contains 1000 tuples in 16 pages
+DETAIL:  3000 index tuples were removed.
+0 index pages have been deleted, 0 are currently reusable.
+CPU 0.00s/0.07u sec elapsed 0.23 sec.
+INFO:  index "onek_hundred" now contains 1000 tuples in 13 pages
+DETAIL:  3000 index tuples were removed.
+0 index pages have been deleted, 0 are currently reusable.
+CPU 0.01s/0.08u sec elapsed 0.17 sec.
+INFO:  index "onek_stringu1" now contains 1000 tuples in 48 pages
+DETAIL:  3000 index tuples were removed.
+0 index pages have been deleted, 0 are currently reusable.
+CPU 0.01s/0.09u sec elapsed 0.59 sec.
+INFO:  "onek": removed 3000 tuples in 108 pages
+DETAIL:  CPU 0.01s/0.06u sec elapsed 0.07 sec.
+INFO:  "onek": found 3000 removable, 1000 nonremovable tuples in 143 pages
+DETAIL:  0 dead tuples cannot be removed yet.
+There were 0 unused item pointers.
+0 pages are entirely empty.
+CPU 0.07s/0.39u sec elapsed 1.56 sec.
+INFO:  analyzing "public.onek"
+INFO:  "onek": 36 pages, 1000 rows sampled, 1000 estimated total rows
+VACUUM</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76459"
+></A
+><H2
+>互換性</H2
+><P
+>標準SQLには<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>文はありません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76463"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="app-vacuumdb.html"
+><SPAN
+CLASS="APPLICATION"
+>vacuumdb</SPAN
+></A
+>, <A
+HREF="runtime-config-resource.html#RUNTIME-CONFIG-RESOURCE-VACUUM-COST"
+>&#38917;18.4.3</A
+>, <A
+HREF="routine-vacuuming.html#AUTOVACUUM"
+>&#38917;23.1.5</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-update.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-values.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>UPDATE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>VALUES</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

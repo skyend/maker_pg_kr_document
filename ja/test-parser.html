@@ -1,0 +1,290 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>test_parser</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="tablefunc"
+HREF="tablefunc.html"><LINK
+REL="NEXT"
+TITLE="tsearch2"
+HREF="tsearch2.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="tablefunc"
+HREF="tablefunc.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="tsearch2"
+HREF="tsearch2.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEST-PARSER"
+>F.42. test_parser</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>test_parser</TT
+>は、全文検索用の独自パーサの例です。
+これは特に有用なことはまったく行いませんが、独自パーサ開発の開始点として提供することができます。
+ </P
+><P
+><TT
+CLASS="FILENAME"
+>test_parser</TT
+>は空白で区切られた単語を認知し、2つのトークン種類だけを返します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mydb=# SELECT * FROM ts_token_type('testparser');
+ tokid | alias |  description
+-------+-------+---------------
+     3 | word  | Word
+    12 | blank | Space symbols
+(2 rows)</PRE
+><P>
+
+これらのトークン数はデフォルトパーサの数え方と互換性があるように選択されました。
+これにより、<CODE
+CLASS="FUNCTION"
+>headline()</CODE
+>関数として使用することができますますので、例を単純にしています。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138500"
+>F.42.1. 使用方法</A
+></H2
+><P
+><TT
+CLASS="LITERAL"
+>test_parser</TT
+>拡張をインストールすると、<TT
+CLASS="LITERAL"
+>testparser</TT
+>テキスト検索パーサが作成されます。
+ユーザが設定可能なパラメータはありません。
+  </P
+><P
+>例えば、このパーサを試験することができます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mydb=# SELECT * FROM ts_parse('testparser', 'That''s my first own parser');
+ tokid | token
+-------+--------
+     3 | That's
+    12 |
+     3 | my
+    12 |
+     3 | first
+    12 |
+     3 | own
+    12 |
+     3 | parser</PRE
+><P>
+  </P
+><P
+>実際に使用する場合は、このパーサを使用するテキスト検索設定の構築が必要です。
+以下に例を示します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>mydb=# CREATE TEXT SEARCH CONFIGURATION testcfg ( PARSER = testparser );
+CREATE TEXT SEARCH CONFIGURATION
+
+mydb=# ALTER TEXT SEARCH CONFIGURATION testcfg
+mydb-#   ADD MAPPING FOR word WITH english_stem;
+ALTER TEXT SEARCH CONFIGURATION
+
+mydb=#  SELECT to_tsvector('testcfg', 'That''s my first own parser');
+          to_tsvector
+-------------------------------
+ 'that':1 'first':3 'parser':5
+(1 row)
+
+mydb=# SELECT ts_headline('testcfg', 'Supernovae stars are the brightest phenomena in galaxies',
+mydb(#                    to_tsquery('testcfg', 'star'));
+                           ts_headline
+-----------------------------------------------------------------
+ Supernovae &lt;b&gt;stars&lt;/b&gt; are the brightest phenomena in galaxies
+(1 row)</PRE
+><P>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="tablefunc.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tsearch2.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>tablefunc</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>tsearch2</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,514 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE DOMAIN</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE DATABASE"
+HREF="sql-createdatabase.html"><LINK
+REL="NEXT"
+TITLE="CREATE EXTENSION"
+HREF="sql-createextension.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE DATABASE"
+HREF="sql-createdatabase.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE DATABASE"
+HREF="sql-createdatabase.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE EXTENSION"
+HREF="sql-createextension.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE EXTENSION"
+HREF="sql-createextension.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATEDOMAIN"
+></A
+>CREATE DOMAIN</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN64923"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE DOMAIN&nbsp;--&nbsp;新しいドメインを定義する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN64928"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE DOMAIN <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> [ AS ] <TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+>
+    [ COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+> ]
+    [ DEFAULT <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> ]
+    [ <TT
+CLASS="REPLACEABLE"
+><I
+>constraint</I
+></TT
+> [ ... ] ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>constraint</I
+></TT
+>は、次のようになります。</SPAN
+></SPAN
+>
+
+[ CONSTRAINT <TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+> ]
+{ NOT NULL | NULL | CHECK (<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>) }</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64939"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE DOMAIN</TT
+>は新しいデータドメインを作成します。
+ドメインとは基本的には、特別な制約（設定可能な値集合に対する制限）を持ったデータ型です。
+ドメインを定義したユーザが、その所有者となります。
+  </P
+><P
+>スキーマ名が付けられている場合（例えば、<TT
+CLASS="LITERAL"
+>CREATE DOMAIN myschema.mydomain ...</TT
+>）、ドメインは指定されたスキーマで作成されます。
+スキーマ名が付けられていなければ、そのドメインは現在のスキーマで作成されます。
+ドメイン名は、そのスキーマ内に存在するデータ型およびドメインの間で、一意である必要があります。
+  </P
+><P
+>ドメインを使用すると、共通な制約を1箇所にまとめることができ、メンテナンスに便利です。
+たとえば、E-mailアドレスを格納する列が複数のテーブルで使用されていて、アドレス構文の検証のためすべてが同一のCHECK制約を必要としているような場合です。
+このような場合、各テーブルに個別に制約を設定するよりも、ドメインを定義してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN64946"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>作成するドメインの名前です（スキーマ修飾名でも可）。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+></DT
+><DD
+><P
+>ドメインの基礎となるデータ型です。
+配列指定子が含めることができます。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+></DT
+><DD
+><P
+>省略可能なドメインの照合順です。
+照合順序の指定がなければ基礎となるデータ型のデフォルトの照合順序が使用されます。
+<TT
+CLASS="LITERAL"
+>COLLATE</TT
+>が指定される場合、基礎となる型は照合順序が設定可能な型でなければなりません。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DEFAULT <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+></TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>句を使用すると、ドメインデータ型の列にデフォルト値を指定できます。
+任意の無変数式を値とすることができます（ただし、副問い合わせは許可されません）。
+デフォルト式のデータ型は、そのドメインのデータ型と一致する必要があります。
+デフォルト値が指定されない場合、デフォルト値はNULL値となります。
+       </P
+><P
+>デフォルト式は、挿入操作において該当する列に値が指定されなかった場合に使用されます。
+特定の列に対してデフォルト値が定義された場合、ドメインに関連するデフォルト値は上書きされます。
+反対に、基礎となるデータ型に関連するデフォルト値は、ドメインのデフォルト値によって上書きされます。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CONSTRAINT <TT
+CLASS="REPLACEABLE"
+><I
+>constraint_name</I
+></TT
+></TT
+></DT
+><DD
+><P
+>制約の名前です（省略可能です）。
+指定されなければ、システムが名前を生成します。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NOT NULL</TT
+></DT
+><DD
+><P
+>このドメインの値としてNULLの使用を通常禁止します。
+しかしこの制約を持つドメインでは、例えば左外部結合や<TT
+CLASS="COMMAND"
+>INSERT INTO tab (domcol) VALUES ((SELECT domcol FROM tab WHERE false))</TT
+>など、NULLとなるドメイン型と一致するように代入された場合、NULLをとることができます。
+
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>NULL</TT
+></DT
+><DD
+><P
+>ドメインの値としてNULLの使用を許可します。
+こちらがデフォルトです。
+       </P
+><P
+>この句は非標準的なSQLデータベースとの互換性を持つためだけに用意されています。
+新しいアプリケーションでこの句を使用するのはお勧めできません。
+       </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CHECK (<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+>)</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>CHECK</TT
+>句は、整合性制約やドメインの値が満たさなければならない検査を指定します。
+各制約は、Boolean型の結果を生成する式である必要があります。
+検査される値を参照するには、<TT
+CLASS="LITERAL"
+>VALUE</TT
+>というキーワードを使用すべきです。
+     </P
+><P
+>現時点では、<TT
+CLASS="LITERAL"
+>CHECK</TT
+>式に副問い合わせを含めたり、<TT
+CLASS="LITERAL"
+>VALUE</TT
+>以外の変数を参照したりすることはできません。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN65002"
+></A
+><H2
+>例</H2
+><P
+>この例では、<TT
+CLASS="TYPE"
+>us_postal_code</TT
+>データ型を作成し、その型をテーブル定義の中で使用します。
+データが有効なUS郵便番号であるかどうかを検証するために正規表現検査が使用されます。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE DOMAIN us_postal_code AS TEXT
+CHECK(
+    VALUE ~ '^\d{5}$'
+OR VALUE ~ '^\d{5}-\d{4}$'
+);
+
+CREATE TABLE us_snail_addy (
+  address_id SERIAL PRIMARY KEY,
+  street1 TEXT NOT NULL,
+  street2 TEXT,
+  street3 TEXT,
+  city TEXT NOT NULL,
+  postal us_postal_code NOT NULL
+);</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATEDOMAIN-COMPATIBILITY"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE DOMAIN</TT
+>コマンドは標準SQLに準拠しています。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-CREATEDOMAIN-SEE-ALSO"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-alterdomain.html"
+>ALTER DOMAIN</A
+>, <A
+HREF="sql-dropdomain.html"
+>DROP DOMAIN</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createdatabase.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createextension.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE DATABASE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE EXTENSION</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

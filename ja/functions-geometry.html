@@ -1,0 +1,1720 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>幾何関数と演算子</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="列挙型サポート関数"
+HREF="functions-enum.html"><LINK
+REL="NEXT"
+TITLE="ネットワークアドレス関数と演算子"
+HREF="functions-net.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="列挙型サポート関数"
+HREF="functions-enum.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ネットワークアドレス関数と演算子"
+HREF="functions-net.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-GEOMETRY"
+>9.11. 幾何関数と演算子</A
+></H1
+><P
+>   
+    <TT
+CLASS="TYPE"
+>point</TT
+>、<TT
+CLASS="TYPE"
+>box</TT
+>、<TT
+CLASS="TYPE"
+>lseg</TT
+>、<TT
+CLASS="TYPE"
+>line</TT
+>、<TT
+CLASS="TYPE"
+>path</TT
+>、<TT
+CLASS="TYPE"
+>polygon</TT
+>、および<TT
+CLASS="TYPE"
+>circle</TT
+>幾何データ型には、PostgreSQLが元々サポートしている関数と演算子が豊富に揃っています（<A
+HREF="functions-geometry.html#FUNCTIONS-GEOMETRY-OP-TABLE"
+>&#34920;9-30</A
+>、<A
+HREF="functions-geometry.html#FUNCTIONS-GEOMETRY-FUNC-TABLE"
+>&#34920;9-31</A
+>、および<A
+HREF="functions-geometry.html#FUNCTIONS-GEOMETRY-CONV-TABLE"
+>&#34920;9-32</A
+>を参照してください）。
+   </P
+><DIV
+CLASS="CAUTION"
+><P
+></P
+><TABLE
+CLASS="CAUTION"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#27880;&#24847;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>    
+     <SPAN
+CLASS="QUOTE"
+>"同じを示す"</SPAN
+><TT
+CLASS="LITERAL"
+>~=</TT
+>演算子は<TT
+CLASS="TYPE"
+>point</TT
+>、<TT
+CLASS="TYPE"
+>box</TT
+>、<TT
+CLASS="TYPE"
+>polygon</TT
+>、および<TT
+CLASS="TYPE"
+>circle</TT
+>型に対し通常の等価概念を示すことに注意してください。これらのいくつかの型は<TT
+CLASS="LITERAL"
+>=</TT
+>演算子を持ちますが、<TT
+CLASS="LITERAL"
+>=</TT
+>は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>面積</I
+></SPAN
+>の等しさのみを比較します。その他のスカラー比較演算子（<TT
+CLASS="LITERAL"
+>&lt;=</TT
+>など）は同様にこれらの型の面積を比較します。
+    </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-GEOMETRY-OP-TABLE"
+></A
+><P
+><B
+>&#34920; 9-30. 幾何データ演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>+</TT
+> </TD
+><TD
+>平行移動</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(1,1))' + point '(2.0,0)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>-</TT
+> </TD
+><TD
+>平行移動</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(1,1))' - point '(2.0,0)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>*</TT
+> </TD
+><TD
+>拡大縮小/回転</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(1,1))' * point '(2.0,0)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>/</TT
+> </TD
+><TD
+>拡大縮小/回転</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(2,2))' / point '(2.0,0)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>#</TT
+> </TD
+><TD
+>交差点、交差矩形</TD
+><TD
+><TT
+CLASS="LITERAL"
+>'((1,-1),(-1,1))' # '((1,1),(-1,-1))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>#</TT
+> </TD
+><TD
+>経路もしくは多角形の点の数</TD
+><TD
+><TT
+CLASS="LITERAL"
+># '((1,0),(0,1),(-1,0))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>@-@</TT
+> </TD
+><TD
+>長さもしくは円周</TD
+><TD
+><TT
+CLASS="LITERAL"
+>@-@ path '((0,0),(1,0))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>@@</TT
+> </TD
+><TD
+>中心</TD
+><TD
+><TT
+CLASS="LITERAL"
+>@@ circle '((0,0),10)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>##</TT
+> </TD
+><TD
+>第1演算項目と第2演算項目との近接点</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point '(0,0)' ## lseg '((2,0),(0,2))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;-&gt;</TT
+> </TD
+><TD
+>距離</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle '((0,0),1)' &lt;-&gt; circle '((5,0),1)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&amp;&amp;</TT
+> </TD
+><TD
+>重なっているかどうか？(一つでも共通する点があれば真となります)</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(1,1))' &amp;&amp; box '((0,0),(2,2))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;&lt;</TT
+> </TD
+><TD
+>厳密に左側にあるか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle '((0,0),1)' &lt;&lt; circle '((5,0),1)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;&gt;</TT
+> </TD
+><TD
+>厳密に右側にあるか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle '((5,0),1)' &gt;&gt; circle '((0,0),1)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&amp;&lt;</TT
+> </TD
+><TD
+>右側にはみ出さないか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(1,1))' &amp;&lt; box '((0,0),(2,2))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&amp;&gt;</TT
+> </TD
+><TD
+>左側にはみ出さないか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(3,3))' &amp;&gt; box '((0,0),(2,2))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;&lt;|</TT
+> </TD
+><TD
+>厳密に下側にあるか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(3,3))' &lt;&lt;| box '((3,4),(5,5))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>|&gt;&gt;</TT
+> </TD
+><TD
+>厳密に上側にあるか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((3,4),(5,5))' |&gt;&gt; box '((0,0),(3,3))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&amp;&lt;|</TT
+> </TD
+><TD
+>上側に出ていないか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(1,1))' &amp;&lt;| box '((0,0),(2,2))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>|&amp;&gt;</TT
+> </TD
+><TD
+>下側に出ていないか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box '((0,0),(3,3))' |&amp;&gt; box '((0,0),(2,2))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;^</TT
+> </TD
+><TD
+>（接触を許可し）下側にあるか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle '((0,0),1)' &lt;^ circle '((0,5),1)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&gt;^</TT
+> </TD
+><TD
+>（接触を許可し）上側にあるか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle '((0,5),1)' &gt;^ circle '((0,0),1)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>?#</TT
+> </TD
+><TD
+>交わるか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>lseg '((-1,0),(1,0))' ?# box '((-2,-2),(2,2))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>?-</TT
+> </TD
+><TD
+>水平か？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>?- lseg '((-1,0),(1,0))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>?-</TT
+> </TD
+><TD
+>水平方向に揃っているか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point '(1,0)' ?- point '(0,0)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>?|</TT
+> </TD
+><TD
+>垂直か？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>?| lseg '((-1,0),(1,0))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>?|</TT
+> </TD
+><TD
+>垂直方向に揃っているか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point '(0,1)' ?| point '(0,0)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>?-|</TT
+> </TD
+><TD
+>直角をなしているか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>lseg '((0,0),(0,1))' ?-| lseg '((0,0),(1,0))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>?||</TT
+> </TD
+><TD
+>平行か？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>lseg '((-1,0),(1,0))' ?|| lseg '((-1,2),(1,2))'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>@&gt;</TT
+> </TD
+><TD
+>包含しているか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle '((0,0),2)' @&gt; point '(1,1)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>&lt;@</TT
+> </TD
+><TD
+>包含もしくは境界上を含むか？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point '(1,1)' &lt;@ circle '((0,0),2)'</TT
+></TD
+></TR
+><TR
+><TD
+> <TT
+CLASS="LITERAL"
+>~=</TT
+> </TD
+><TD
+>同等か？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>polygon '((0,0),(1,1))' ~= polygon '((1,1),(0,0))'</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>    
+     <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+> 8.2より前では、含有演算子<TT
+CLASS="LITERAL"
+>@&gt;</TT
+>および<TT
+CLASS="LITERAL"
+>&lt;@</TT
+>はそれぞれ<TT
+CLASS="LITERAL"
+>~</TT
+>および<TT
+CLASS="LITERAL"
+>@</TT
+>という名前でした。これらの名前はまだ利用できますが、削除予定で予告なしでなくなるかもしれません。
+    </P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-GEOMETRY-FUNC-TABLE"
+></A
+><P
+><B
+>&#34920; 9-31. 幾何データ型関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>area(<TT
+CLASS="REPLACEABLE"
+><I
+>object</I
+></TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>面積</TD
+><TD
+><TT
+CLASS="LITERAL"
+>area(box '((0,0),(1,1))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>center(<TT
+CLASS="REPLACEABLE"
+><I
+>object</I
+></TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+>中心</TD
+><TD
+><TT
+CLASS="LITERAL"
+>center(box '((0,0),(1,2))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>diameter(<TT
+CLASS="TYPE"
+>circle</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>円の直径</TD
+><TD
+><TT
+CLASS="LITERAL"
+>diameter(circle '((0,0),2.0)')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>height(<TT
+CLASS="TYPE"
+>box</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>矩形の高さ</TD
+><TD
+><TT
+CLASS="LITERAL"
+>height(box '((0,0),(1,1))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>isclosed(<TT
+CLASS="TYPE"
+>path</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>閉経路か？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>isclosed(path '((0,0),(1,1),(2,0))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>isopen(<TT
+CLASS="TYPE"
+>path</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>開経路か？</TD
+><TD
+><TT
+CLASS="LITERAL"
+>isopen(path '[(0,0),(1,1),(2,0)]')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>length(<TT
+CLASS="REPLACEABLE"
+><I
+>object</I
+></TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>長さ</TD
+><TD
+><TT
+CLASS="LITERAL"
+>length(path '((-1,0),(1,0))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>npoints(<TT
+CLASS="TYPE"
+>path</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int</TT
+></TD
+><TD
+>点の数</TD
+><TD
+><TT
+CLASS="LITERAL"
+>npoints(path '[(0,0),(1,1),(2,0)]')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>npoints(<TT
+CLASS="TYPE"
+>polygon</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int</TT
+></TD
+><TD
+>点の数</TD
+><TD
+><TT
+CLASS="LITERAL"
+>npoints(polygon '((1,1),(0,0))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pclose(<TT
+CLASS="TYPE"
+>path</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>path</TT
+></TD
+><TD
+>閉経路に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>pclose(path '[(0,0),(1,1),(2,0)]')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>popen(<TT
+CLASS="TYPE"
+>path</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>path</TT
+></TD
+><TD
+>開経路に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>popen(path '((0,0),(1,1),(2,0))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>radius(<TT
+CLASS="TYPE"
+>circle</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>円の半径</TD
+><TD
+><TT
+CLASS="LITERAL"
+>radius(circle '((0,0),2.0)')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>width(<TT
+CLASS="TYPE"
+>box</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>double precision</TT
+></TD
+><TD
+>矩形の幅</TD
+><TD
+><TT
+CLASS="LITERAL"
+>width(box '((0,0),(1,1))')</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-GEOMETRY-CONV-TABLE"
+></A
+><P
+><B
+>&#34920; 9-32. 幾何型変換関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+><TH
+>例</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>box(<TT
+CLASS="TYPE"
+>circle</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>box</TT
+></TD
+><TD
+>円から矩形</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box(circle '((0,0),2.0)')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>box(<TT
+CLASS="TYPE"
+>point</TT
+>, <TT
+CLASS="TYPE"
+>point</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>box</TT
+></TD
+><TD
+>座標点を矩形に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box(point '(0,0)', point '(1,1)')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>box(<TT
+CLASS="TYPE"
+>polygon</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>box</TT
+></TD
+><TD
+>多角形を矩形に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>box(polygon '((0,0),(1,1),(2,0))')</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>circle(<TT
+CLASS="TYPE"
+>box</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>circle</TT
+></TD
+><TD
+>矩形を円に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle(box '((0,0),(1,1))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>circle(<TT
+CLASS="TYPE"
+>point</TT
+>, <TT
+CLASS="TYPE"
+>double precision</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>circle</TT
+></TD
+><TD
+>中心と半径から円に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle(point '(0,0)', 2.0)</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>circle(<TT
+CLASS="TYPE"
+>polygon</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>circle</TT
+></TD
+><TD
+>多角形を円に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>circle(polygon '((0,0),(1,1),(2,0))')</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>lseg(<TT
+CLASS="TYPE"
+>box</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>lseg</TT
+></TD
+><TD
+>矩形の対角線を線分に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>lseg(box '((-1,0),(1,0))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>lseg(<TT
+CLASS="TYPE"
+>point</TT
+>, <TT
+CLASS="TYPE"
+>point</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>lseg</TT
+></TD
+><TD
+>座標点を線分に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>lseg(point '(-1,0)', point '(1,0)')</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>path(<TT
+CLASS="TYPE"
+>polygon</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+>多角形を経路に変換</TD
+><TD
+><TT
+CLASS="LITERAL"
+>path(polygon '((0,0),(1,1),(2,0))')</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>point</CODE
+>(<TT
+CLASS="TYPE"
+>double
+         precision</TT
+>, <TT
+CLASS="TYPE"
+>double precision</TT
+>)</TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+>座標点の構築</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point(23.4, -44.5)</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>point(<TT
+CLASS="TYPE"
+>box</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+>矩形の中心</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point(box '((-1,0),(1,0))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>point(<TT
+CLASS="TYPE"
+>circle</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+>円の中心</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point(circle '((0,0),2.0)')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>point(<TT
+CLASS="TYPE"
+>lseg</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+>線分の中心</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point(lseg '((-1,0),(1,0))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>point(<TT
+CLASS="TYPE"
+>polygon</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+>多角形の中心</TD
+><TD
+><TT
+CLASS="LITERAL"
+>point(polygon '((0,0),(1,1),(2,0))')</TT
+></TD
+></TR
+><TR
+><TD
+>         
+         <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>polygon(<TT
+CLASS="TYPE"
+>box</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>polygon</TT
+></TD
+><TD
+>矩形から4頂点の多角形</TD
+><TD
+><TT
+CLASS="LITERAL"
+>polygon(box '((0,0),(1,1))')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>polygon(<TT
+CLASS="TYPE"
+>circle</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>polygon</TT
+></TD
+><TD
+>円から12角形</TD
+><TD
+><TT
+CLASS="LITERAL"
+>polygon(circle '((0,0),2.0)')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>polygon(<TT
+CLASS="REPLACEABLE"
+><I
+>npts</I
+></TT
+>, <TT
+CLASS="TYPE"
+>circle</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>polygon</TT
+></TD
+><TD
+>円から<TT
+CLASS="REPLACEABLE"
+><I
+>npts</I
+></TT
+>角形</TD
+><TD
+><TT
+CLASS="LITERAL"
+>polygon(12, circle '((0,0),2.0)')</TT
+></TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>polygon(<TT
+CLASS="TYPE"
+>path</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>polygon</TT
+></TD
+><TD
+>経路から多角形</TD
+><TD
+><TT
+CLASS="LITERAL"
+>polygon(path '((0,0),(1,1),(2,0))')</TT
+></TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>    
+     あたかもpointは添字0、1を有する配列であるかのように、<TT
+CLASS="TYPE"
+>point</TT
+>の２つの構成要素にアクセスすることができます。
+     例えば、<TT
+CLASS="LITERAL"
+>t.p</TT
+>が<TT
+CLASS="TYPE"
+>point</TT
+>列の場合、<TT
+CLASS="LITERAL"
+>SELECT p[0] FROM t</TT
+>という式でX座標点を抽出できます。また、<TT
+CLASS="LITERAL"
+>UPDATE t SET p[1] = ...</TT
+>でY座標点を変更できます。同様に、<TT
+CLASS="TYPE"
+>box</TT
+>または<TT
+CLASS="TYPE"
+>lseg</TT
+>でも、2つの<TT
+CLASS="TYPE"
+>point</TT
+>からなる配列のように扱えます。
+    </P
+><P
+>    
+     <CODE
+CLASS="FUNCTION"
+>area</CODE
+>関数は、<TT
+CLASS="TYPE"
+>box</TT
+>、<TT
+CLASS="TYPE"
+>circle</TT
+>、<TT
+CLASS="TYPE"
+>path</TT
+>型に対して動作します。<TT
+CLASS="TYPE"
+>path</TT
+>データ型に対する<CODE
+CLASS="FUNCTION"
+>area</CODE
+>関数は、その<TT
+CLASS="TYPE"
+>path</TT
+>が交差しない場合にのみ動作します。例えば、<TT
+CLASS="LITERAL"
+>'((0,0),(0,1),(2,1),(2,2),(1,2),(1,0),(0,0))'::PATH</TT
+>という<TT
+CLASS="TYPE"
+>path</TT
+>は動作しません。しかし、見た目は同じですが、<TT
+CLASS="LITERAL"
+>'((0,0),(0,1),(1,1),(1,2),(2,2),(2,1),(1,1),(1,0),(0,0))'::PATH</TT
+>という<TT
+CLASS="TYPE"
+>path</TT
+>では動作します。<TT
+CLASS="TYPE"
+>path</TT
+>の交差する、しないという概念がよくわからなければ、上の2つの<TT
+CLASS="TYPE"
+>path</TT
+>を並べてグラフ用紙に書いてみてください。
+    </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-enum.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-net.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>列挙型サポート関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ネットワークアドレス関数と演算子</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

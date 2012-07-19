@@ -1,0 +1,447 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>リリース8.2.8</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="リリースノート"
+HREF="release.html"><LINK
+REL="PREVIOUS"
+TITLE="リリース8.2.9"
+HREF="release-8-2-9.html"><LINK
+REL="NEXT"
+TITLE="リリース8.2.7"
+HREF="release-8-2-7.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリース8.2.9"
+HREF="release-8-2-9.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; E. リリースノート</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリースノート"
+HREF="release.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="リリース8.2.7"
+HREF="release-8-2-7.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RELEASE-8-2-8"
+>E.63. リリース8.2.8</A
+></H1
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>リリース日: </B
+>リリースされませんでした</P
+></BLOCKQUOTE
+></DIV
+><P
+>このリリースには8.2.7からの各種修正が含まれています。
+8.2メジャーリリースにおける新機能については<A
+HREF="release-8-2.html"
+>&#38917;E.71</A
+>を参照してください。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN118681"
+>E.63.1. バージョン8.2.8への移行</A
+></H2
+><P
+>8.2.Xからの移行ではダンプ/リストアは不要です。
+しかし、8.2.7より前のバージョンからアップグレードする場合は、8.2.7のリリースノートを参照してください。
+   </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN118684"
+>E.63.2. 変更点</A
+></H2
+><P
+></P
+><UL
+><LI
+><P
+>WindowsでUTF-8データベース符号化方式と異なるクライアント符号化方式が使用された場合に発生する<TT
+CLASS="LITERAL"
+>ERRORDATA_STACK_SIZE exceeded</TT
+>のクラッシュを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>新しい列がすべて非NULLに初期化されていることが正しく検査されるように<TT
+CLASS="COMMAND"
+>ALTER TABLE ADD COLUMN ... PRIMARY KEY</TT
+>を修正しました。(Brendan Jurd)
+     </P
+><P
+>これまでのバージョンでは、この必要条件の検査をまったく行っていませんでした。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="QUOTE"
+>"同じ"</SPAN
+>制約を、共通の祖先からその制約を継承する複数の親リレーションから継承する場合に、<TT
+CLASS="COMMAND"
+>CREATE TABLE</TT
+>が失敗する可能性を修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>の対象テーブルに別名が付与されていたならば、<CODE
+CLASS="FUNCTION"
+>pg_get_ruledef()</CODE
+>がその別名を表示するように修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>too many LWLocks taken</TT
+>という結果をもたらす、GINの不具合を修正しました。(Teodor)
+     </P
+></LI
+><LI
+><P
+>破損したデータを伸長する時に潜在するクラッシュを防止します。(Zdenek Kotala)
+     </P
+></LI
+><LI
+><P
+>バックエンドが共有メモリを破損したままSIGTERMによる終了する2か所を修正しました。(Tom)
+     </P
+><P
+>SIGTERMがデータベースクラスタ全体を停止するために使用された場合、どちらも非常に重要ではありません。
+しかし、個々のバックエンドにSIGTERMを送信することを試みる場合が問題でした。
+     </P
+></LI
+><LI
+><P
+>キリル語の<SPAN
+CLASS="QUOTE"
+>"Yo"</SPAN
+>文字（2つのドットを持つ<TT
+CLASS="LITERAL"
+>e</TT
+>と<TT
+CLASS="LITERAL"
+>E</TT
+>）を扱うISO-8859-5と他の符号化方式との間の変換を修正しました。(Sergey Burladyan)
+     </P
+></LI
+><LI
+><P
+>複数のデータ型入力関数、特に、結果に初期化されず予測できない値を含む未使用のバイトを許す<CODE
+CLASS="FUNCTION"
+>array_in()</CODE
+>を修正しました。(Tom)
+     </P
+><P
+>これは、2つの明らかに同じリテラル値が等しいとみなされず、結果パーサは一致しない<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>および<TT
+CLASS="LITERAL"
+>DISTINCT</TT
+>式に関して不平をいうといったエラーをもたらします。
+     </P
+></LI
+><LI
+><P
+>正規表現副文字列一致（<TT
+CLASS="LITERAL"
+>substring(<TT
+CLASS="REPLACEABLE"
+><I
+>string</I
+></TT
+> from <TT
+CLASS="REPLACEABLE"
+><I
+>pattern</I
+></TT
+>)</TT
+>）における境界状態を修正しました。(Tom)
+     </P
+><P
+>この問題は、パターン全体は一致するが、ユーザが括弧付きの副式を指定し、その副式が一致しなかった時に発生します。
+例えば、<TT
+CLASS="LITERAL"
+>substring('foo' from 'foo(bar)?')</TT
+>です。
+<TT
+CLASS="LITERAL"
+>(bar)</TT
+>は一致しませんので、これはNULLを返すべきです。
+しかし、間違ってパターン全体が一致（つまり<TT
+CLASS="LITERAL"
+>foo</TT
+>）という結果を返していました。
+     </P
+></LI
+><LI
+><P
+>時間帯データファイルを<SPAN
+CLASS="APPLICATION"
+>tzdata</SPAN
+>リリース2008c（モナコ、イラク、チョイバルサン、パキスタン、シリア、キューバ、アルゼンチン/サンルイスにおける昼時間規則の変更）まで更新しました。
+     </P
+></LI
+><LI
+><P
+><SPAN
+CLASS="APPLICATION"
+>ecpg</SPAN
+>の<CODE
+CLASS="FUNCTION"
+>PGTYPEStimestamp_sub()</CODE
+>関数からの不正確な結果を修正しました。(Michael)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/tsearch2</TT
+>の<TT
+CLASS="TYPE"
+>tsquery</TT
+>型用の壊れたGiST比較関数を修正しました。(Teodor)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/cube</TT
+>関数に潜在したクラッシュを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+>入力問い合わせがNULL値を返す場合の<TT
+CLASS="FILENAME"
+>contrib/xml2</TT
+>の<CODE
+CLASS="FUNCTION"
+>xpath_table()</CODE
+>関数のコアダンプを修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="FILENAME"
+>contrib/xml2</TT
+>のmakefileが<TT
+CLASS="LITERAL"
+>CFLAGS</TT
+>を上書きしないように修正しました。(Tom)
+     </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>DatumGetBool</TT
+>マクロが<SPAN
+CLASS="APPLICATION"
+>gcc</SPAN
+> 4.3でエラーにならないよう修正しました。 (Tom)
+     </P
+><P
+>この問題は、論理値を返す<SPAN
+CLASS="QUOTE"
+>"古い形式"</SPAN
+> (V0)のC関数に影響します。
+これは8.3ではすでに修正されていましたが、当時なかったバックパッチが必要になりました。
+     </P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="release-8-2-9.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="release-8-2-7.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>リリース8.2.9</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="release.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>リリース8.2.7</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,597 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>PostgreSQL小史</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="はじめに"
+HREF="preface.html"><LINK
+REL="PREVIOUS"
+TITLE="PostgreSQLとは?"
+HREF="intro-whatis.html"><LINK
+REL="NEXT"
+TITLE="規約"
+HREF="notation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="PostgreSQLとは?"
+HREF="intro-whatis.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="はじめに"
+HREF="preface.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>はじめに</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="はじめに"
+HREF="preface.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="規約"
+HREF="notation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="HISTORY"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>小史</A
+></H1
+><P
+>現在<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>として知られるオブジェクト指向リレーショナルデータベース管理システムは、カリフォルニア大学バークレイ校で作成された<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>パッケージから派生しています。
+20年以上にわたる開発の背景を持ち、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は現在最も先端的な、どこからでも入手可能なオープンソースデータベースです。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="HISTORY-BERKELEY"
+>バークレイ校<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>プロジェクト</A
+></H2
+><P
+>Michael Stonebraker教授率いる<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>プロジェクトにはその後援者としてDefense Advanced Research Projects Agency（<ACRONYM
+CLASS="ACRONYM"
+>DARPA</ACRONYM
+>）、National Science Foundation（<ACRONYM
+CLASS="ACRONYM"
+>NSF</ACRONYM
+>）、そしてESL, Inc.が名を連ねていました。
+<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>の実装は1986年から始まりました。
+当初のシステムに対する概念は<A
+HREF="biblio.html#STON86"
+><I
+><A
+HREF="http://db.cs.berkeley.edu/papers/ERL-M85-95.pdf"
+TARGET="_top"
+>    The design of <SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>
+    </A
+></I
+></A
+>で発表され、最初のデータモデルの定義は<A
+HREF="biblio.html#ROWE87"
+><I
+><A
+HREF="http://db.cs.berkeley.edu/papers/ERL-M87-13.pdf"
+TARGET="_top"
+>    The <SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+> data model
+    </A
+></I
+></A
+>で紹介されました。
+当時のルールシステムの設計は<A
+HREF="biblio.html#STON87A"
+><I
+>The design of the <SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+> rules system</I
+></A
+>で説明されました。
+ストレージ管理の理論や構造は<A
+HREF="biblio.html#STON87B"
+><I
+><A
+HREF="http://db.cs.berkeley.edu/papers/ERL-M87-06.pdf"
+TARGET="_top"
+>    The design of the <SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+> storage system
+    </A
+></I
+></A
+>で詳しく示されました。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Postgres</SPAN
+>はそれ以来いくつかの主要なリリースを重ねてきました。
+最初の<SPAN
+CLASS="QUOTE"
+>"デモウェア"</SPAN
+>システムが1987年に使用可能になり、1988年の<ACRONYM
+CLASS="ACRONYM"
+>ACM-SIGMOD</ACRONYM
+>コンファレンスで紹介されました。
+<A
+HREF="biblio.html#STON90A"
+><I
+><A
+HREF="http://db.cs.berkeley.edu/papers/ERL-M90-34.pdf"
+TARGET="_top"
+>    The implementation of <SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>
+    </A
+></I
+></A
+>で説明されているバージョン1は、1989年6月に一部の外部ユーザにリリースされ、最初のルールシステムに対する批評の結果（<A
+HREF="biblio.html#STON89"
+><I
+><A
+HREF="http://db.cs.berkeley.edu/papers/ERL-M89-82.pdf"
+TARGET="_top"
+>    A commentary on the <SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+> rules system
+    </A
+></I
+></A
+>）を基にルールシステムは再設計（<A
+HREF="biblio.html#STON90B"
+><I
+><A
+HREF="http://db.cs.berkeley.edu/papers/ERL-M90-36.pdf"
+TARGET="_top"
+>    On Rules, Procedures, Caching and Views in Database Systems
+    </A
+></I
+></A
+>）され、バージョン2が1990年6月に新しいルールシステムを実装してリリースされました。
+バージョン3は1991年に登場し、複数ストレージ管理機構、改善された問い合わせエクゼキュータ、書き直しされたルールシステムのサポートが追加されました。
+<SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>まで引き続いた各リリース（下記を参照）のほとんどの部分では、移植性と信頼性に焦点を合わせていました。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>は様々な研究用、そして実際の業務アプリケーションを実装するために使われてきています。
+その中には、金融データ分析システム、ジェットエンジン性能分析パッケージ、小惑星追跡データベース、医療情報データベース、いくつかの地図情報処理システム（GIS）などがあります。
+<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>はさらに、いくつかの大学で教材としても使われています。
+最後に、Illustra Information Technologies社（後に、 <A
+HREF="http://www.informix.com/"
+TARGET="_top"
+><SPAN
+CLASS="PRODUCTNAME"
+>Informix</SPAN
+></A
+>社に吸収合併され、現在は<A
+HREF="http://www.ibm.com/"
+TARGET="_top"
+>IBM</A
+>社所有）がコードを整理し商用化しました。
+<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>は1992年後半から始まった<A
+HREF="http://meteora.ucsd.edu/s2k/s2k_home.html"
+TARGET="_top"
+>Sequoia 2000 scientific computing project</A
+>の主要なデータ管理システムになりました。
+  </P
+><P
+>1993年には外部ユーザコミュニティの大きさは約2倍に膨れました。
+データベースの研究に費されるべき時間がプロトタイプコードの保守とサポートに取られていることが次第に明らかになってきました。
+このサポートの重荷を減らすために、バークレイ<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>プロジェクトはバージョン4.2をもって公式に終了しました。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="HISTORY-POSTGRES95"
+><SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+></A
+></H2
+><P
+>1994年、Andrew YuとJolly Chenが<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>にSQL言語インタプリタを追加しました。
+引き続いて<SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>がWeb上でリリースされ、オリジナルの<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>バークレイコードのオープンソースによる後続として世界への独自の道を歩み始めました。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>のコードは全てANSI C準拠となるように書き直され、これまでに膨れ上がったコードの25%を整理することで身軽になりました。
+多くの内部改造によって性能と保守性が改善されました。
+<SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>リリース1.0.xは、<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>バージョン4.2に比べWisconsin Benchmarkで約30〜50%速く動作しました。
+バグ修正以外では、下記の大きな改善がありました。
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>（サーバに実装された）<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>が問い合わせ言語PostQUELに取って代わりました。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>になる以前は副問い合わせはサポートされていませんでしたが（下記を参照）、<SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>ではユーザ定義<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>関数で模倣できました。
+集約は再実装されました。
+GROUP BY問い合わせ句のサポートも追加されました。
+     </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+>の<TT
+CLASS="FILENAME"
+>Readline</TT
+>を使った新しいプログラム（<SPAN
+CLASS="APPLICATION"
+>psql</SPAN
+>）が、対話式SQL問い合わせのために用意されました。
+これは古い<SPAN
+CLASS="APPLICATION"
+>monitor</SPAN
+>プログラムにほぼ取って代わるものになりました。
+     </P
+></LI
+><LI
+><P
+>新しいフロントエンドライブラリ、<TT
+CLASS="FILENAME"
+>libpgtcl</TT
+>が<ACRONYM
+CLASS="ACRONYM"
+>Tcl</ACRONYM
+>ベースのクライアントをサポートしました。
+サンプルシェル<TT
+CLASS="COMMAND"
+>pgtclsh</TT
+>は<SPAN
+CLASS="APPLICATION"
+>Tcl</SPAN
+>と<SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>サーバとインタフェースをとる新規Tclコマンドを提供しました。
+     </P
+></LI
+><LI
+><P
+>ラージオブジェクトインタフェースがオーバーホールされました。
+転置ラージオブジェクトが唯一のラージオブジェクト格納機構でした
+（転置ファイルシステムは削除されました）。
+     </P
+></LI
+><LI
+><P
+>インスタンスレベルのルールシステムが削除されました。
+ルールは書き換えルールとしてまだ利用できました。
+     </P
+></LI
+><LI
+><P
+>標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の機能や<SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>の機能を紹介したチュートリアルがソースコードとともに配布されました。
+     </P
+></LI
+><LI
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>GNU</ACRONYM
+> makeが（<ACRONYM
+CLASS="ACRONYM"
+>BSD</ACRONYM
+> makeの代わりに）構築に使われました。
+また、<SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>はパッチの当たっていない<SPAN
+CLASS="PRODUCTNAME"
+>GCC</SPAN
+>でコンパイルできました
+（doubleにおけるデータ整列が修正されたおかげです）。
+     </P
+></LI
+></UL
+><P>
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN185"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+></A
+></H2
+><P
+>1996年になると<SPAN
+CLASS="QUOTE"
+>"Postgres95"</SPAN
+>という名前が時代の試練に耐えられなくなったことが明らかになりました。
+そこで、オリジナルの<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>と<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の能力を持つ、より最近のバージョンとの関係を反映する、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>という新しい名前を選びました。
+同時に、元々バークレイ<SPAN
+CLASS="PRODUCTNAME"
+>POSTGRES</SPAN
+>プロジェクトで始まった連番に戻す番号の6.0で始まるバージョン番号を設定しました。   
+  </P
+><P
+>歴史的な理由か発音しやすいためか、多くの人々は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>を<SPAN
+CLASS="QUOTE"
+>"Postgres"</SPAN
+>と参照しつづけています。
+（いまではすべて大文字と記載することは稀です。）
+こうした使い方は愛称や別名として広く受け入れられています。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>Postgres95</SPAN
+>開発で重視されたのは、サーバのコードに内在する問題点を特定し、原因を理解することでした。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>においては、全ての分野に目を留めているとしても、保守作業を続けつつ特徴や能力を強化することに重点が移りました。
+  </P
+><P
+>その後<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>がたどった足跡の詳細は<A
+HREF="release.html"
+>&#20184;&#37682;E</A
+>を参照してください。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="intro-whatis.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="notation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>とは?</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="preface.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>規約</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

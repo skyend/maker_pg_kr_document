@@ -1,0 +1,990 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>cube</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="citext"
+HREF="citext.html"><LINK
+REL="NEXT"
+TITLE="dblink"
+HREF="dblink.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="citext"
+HREF="citext.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="dblink"
+HREF="dblink.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CUBE"
+>F.8. cube</A
+></H1
+><P
+>本モジュールは、多次元立体を表すための<TT
+CLASS="TYPE"
+>cube</TT
+>データ型を実装します。
+ </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131721"
+>F.8.1. 構文</A
+></H2
+><P
+><A
+HREF="cube.html#CUBE-REPR-TABLE"
+>&#34920;F-1</A
+>は<TT
+CLASS="TYPE"
+>cube</TT
+>型で有効な外部表現を示します。
+<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>、<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>などは浮動小数点数を意味します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="CUBE-REPR-TABLE"
+></A
+><P
+><B
+>&#34920; F-1. Cubeの外部表現</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+></TT
+></TD
+><TD
+>1次元の点。（または幅ゼロの一次元間隔）
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>)</TT
+></TD
+><TD
+>同上</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+>,...,<TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+></TT
+></TD
+><TD
+>n次元空間の点。
+内部的には体積0の立方体として表されます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+>,...,<TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+>)</TT
+></TD
+><TD
+>同上</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>),(<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>)</TT
+></TD
+><TD
+><TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>から<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>まで（またはその逆）の1次元の間隔。
+順序は関係ありません。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[(<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>),(<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>)]</TT
+></TD
+><TD
+>同上</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+>,...,<TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+>),(<TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>,...,<TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+>)</TT
+></TD
+><TD
+>対角の組み合わせで表されるn次元の立体。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[(<TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+>,...,<TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+>),(<TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>,...,<TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+>)]</TT
+></TD
+><TD
+>同上</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>立体の対角の入力順序は関係ありません。
+統一的な<SPAN
+CLASS="QUOTE"
+>"左下 &mdash; 右上"</SPAN
+>という内部表現を作成するために必要ならば、<TT
+CLASS="TYPE"
+>cube</TT
+>関数は自動的に値を交換します。
+  </P
+><P
+>空白文字は無視されます。
+このため、<TT
+CLASS="LITERAL"
+>[(<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>),(<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>)]</TT
+>は<TT
+CLASS="LITERAL"
+>[ ( <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> ), ( <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+> ) ]</TT
+>と同じです。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131796"
+>F.8.2. 精度</A
+></H2
+><P
+>値は内部的に64ビットの浮動小数点数値として格納されます。
+つまり、有効桁が16より大きい数値は切り詰められることを意味します。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131799"
+>F.8.3. 使用方法</A
+></H2
+><P
+><TT
+CLASS="FILENAME"
+>cube</TT
+>モジュールには、<TT
+CLASS="TYPE"
+>cube</TT
+>型の値に対するGiSTインデックス演算子クラスが含まれます。
+GiST演算子クラスでサポートされる演算子は<A
+HREF="cube.html#CUBE-GIST-OPERATORS"
+>&#34920;F-2</A
+>に書かれている通りです。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="CUBE-GIST-OPERATORS"
+></A
+><P
+><B
+>&#34920; F-2. cubeのGiST演算子</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>a = b</TT
+></TD
+><TD
+>立体aと立体bは同じです。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>a &amp;&amp; b</TT
+></TD
+><TD
+>立体aと立体bには重なりがあります。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>a @&gt; b</TT
+></TD
+><TD
+>立体aは立体bを含みます。</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>a &lt;@ b</TT
+></TD
+><TD
+>立体aは立体bに含まれます。</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>（PostgreSQL 8.2以前では、含有演算子<TT
+CLASS="LITERAL"
+>@&gt;</TT
+>と<TT
+CLASS="LITERAL"
+>&lt;@</TT
+>はそれぞれ<TT
+CLASS="LITERAL"
+>@</TT
+>と<TT
+CLASS="LITERAL"
+>~</TT
+>と呼ばれていました。
+これらの名前はまだ利用できますが、廃止予定であり、最終的にはなくなります。
+古い名前がコアの幾何データ型が従う規約と反対であることに注意してください。）
+  </P
+><P
+>標準的なB-tree演算子も提供されます。
+以下に例を示します。
+
+   <DIV
+CLASS="INFORMALTABLE"
+><P
+></P
+><A
+NAME="AEN131835"
+></A
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>演算子</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &lt; [c, d]</TT
+></TD
+><TD
+>より小さい</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>[a, b] &gt; [c, d]</TT
+></TD
+><TD
+>より大きい</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></DIV
+>
+
+これらの演算子はソート以外の実用的な目的に対して大きな意味を持ちません。
+これらの演算子はまず(a)と(c)を比べ、等しければ(b)と(d)を比べます。
+論理的にはほとんどの場合優れたソート処理と思えます。
+こうした型をORDER BYで使用したい場合に有用です。
+  </P
+><P
+><A
+HREF="cube.html#CUBE-FUNCTIONS-TABLE"
+>&#34920;F-3</A
+>は有効な関数を示します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="CUBE-FUNCTIONS-TABLE"
+></A
+><P
+><B
+>&#34920; F-3. Cubeの関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube(float8) returns cube</TT
+></TD
+><TD
+>同じ軸をもつ、1次元の立体を作成します。
+       <TT
+CLASS="LITERAL"
+>cube(1) == '(1)'</TT
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube(float8, float8) returns cube</TT
+></TD
+><TD
+>1次元の立体を作成します。
+       <TT
+CLASS="LITERAL"
+>cube(1,2) == '(1),(2)'</TT
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube(float8[]) returns cube</TT
+></TD
+><TD
+>配列で定義される座標を使用した体積0の立体を作成します。
+       <TT
+CLASS="LITERAL"
+>cube(ARRAY[1,2]) == '(1,2)'</TT
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube(float8[], float8[]) returns cube</TT
+></TD
+><TD
+>2つの配列で定義される右上および左下座標を持つ立体を作成します。
+配列長は同じでなければなりません。
+       <TT
+CLASS="LITERAL"
+>cube('{1,2}'::float[], '{3,4}'::float[]) == '(1,2),(3,4)'
+       </TT
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube(cube, float8) returns cube</TT
+></TD
+><TD
+>新しい座標の両部分に同一の値をを持たせて、既存の立体に次元を加えた立体を新しく作成します。
+これは計算した値で部品を追加しながら立体を構築する場合に有用です。
+       <TT
+CLASS="LITERAL"
+>cube('(1)',2) == '(1,2),(1,2)'</TT
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube(cube, float8, float8) returns cube</TT
+></TD
+><TD
+>既存の立体に次元を加えた立体を新しく作成します。
+これは計算した値で部品を追加しながら立体を構築する場合に有用です。
+<TT
+CLASS="LITERAL"
+>cube('(1,2)',3,4) == '(1,3),(2,4)'</TT
+>
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_dim(cube) returns int</TT
+></TD
+><TD
+>立体の次元数を返します。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_ll_coord(cube, int) returns double </TT
+></TD
+><TD
+>立体の左下隅のn次座標の値を返します。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_ur_coord(cube, int) returns double
+      </TT
+></TD
+><TD
+>立体の右上隅のn次座標の値を返します。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_is_point(cube) returns bool</TT
+></TD
+><TD
+>立体が点、つまり2つの定義された隅が同一の場合真を返します。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_distance(cube, cube) returns double</TT
+></TD
+><TD
+>2つの立体間の距離を返します。
+両方の立体が点の場合、これは通常の距離測定関数です。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_subset(cube, int[]) returns cube
+      </TT
+></TD
+><TD
+>配列内の次元インデックスの一覧を使用して、既存の立体から新しい立体を作成します。
+例えば、<TT
+CLASS="LITERAL"
+>cube_subset(cube('(1,3,5),(6,7,8)'), ARRAY[2]) = '(3),(7)'</TT
+>のように1次元のLLおよびUR座標を見つけるために使用することができます。
+また、例えば、<TT
+CLASS="LITERAL"
+>cube_subset(cube('(1,3,5),(6,7,8)'), ARRAY[3,2,1,1]) = '(5, 3, 1, 1),(8, 7, 6, 6)'</TT
+>のように次元を除去することや希望通りの順序に並び替えることもできます。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_union(cube, cube) returns cube</TT
+></TD
+><TD
+>2つの立体の和集合を作成します。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_inter(cube, cube) returns cube</TT
+></TD
+><TD
+>2つの立体の共通部分を作成します。
+      </TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>cube_enlarge(cube c, double r, int n) returns cube</TT
+></TD
+><TD
+>最小でn次元において指定した径で立体のサイズを増加させます。
+径が負の場合、立体は縮小されます。
+これは、近傍点を見つけるための点を囲む境界矩形を作成する際に有用です。
+定義済のすべての次元は径rにより変わります。
+LL座標をrにより減少し、UR座標をrにより増加します。
+LL座標を対応するUR座標より大きくするために増加する場合（これはr &lt; 0の場合にのみ発生します）、両方の座標はその平均値に設定されます。
+nが定義済の次元より多く、かつ、立体が増加される（r &gt;= 0）場合、余計な座標の基として0が使われます。
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131924"
+>F.8.4. デフォルト</A
+></H2
+><P
+>  </P
+><PRE
+CLASS="PROGRAMLISTING"
+>select cube_union('(0,5,2),(2,3,1)', '0');
+cube_union
+-------------------
+(0, 0, 0),(2, 5, 2)
+(1 row)</PRE
+><P
+>この和集合および以下の共通集合は一般常識と矛盾しないと思います。
+   </P
+><PRE
+CLASS="PROGRAMLISTING"
+>select cube_inter('(0,-1),(1,1)', '(-2),(2)');
+cube_inter
+-------------
+(0, 0),(1, 0)
+(1 row)</PRE
+><P
+>次元が異なる立体のバイナリ操作すべてにおいて、より低い次元の方がデカルト投影、つまり、文字列表現で省略された座標に0を持つものになると仮定します。
+上の例は以下と同じです。
+   </P
+><PRE
+CLASS="PROGRAMLISTING"
+>cube_union('(0,5,2),(2,3,1)','(0,0,0),(0,0,0)');
+cube_inter('(0,-1),(1,1)','(-2,0),(2,0)');</PRE
+><P
+>以下の含有の述部は点構文を使用しますが、実際内部的には第2引数は矩形として表されます。
+この構文により、別の点用の型や(box,point)という述部用の関数を定義することが不要になります。
+   </P
+><PRE
+CLASS="PROGRAMLISTING"
+>select cube_contains('(0,0),(1,1)', '0.5,0.5');
+cube_contains
+--------------
+t
+(1 row)</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131934"
+>F.8.5. 注釈</A
+></H2
+><P
+>使用例については、<TT
+CLASS="FILENAME"
+>sql/cube.sql</TT
+>リグレッション試験を参照してください。
+  </P
+><P
+>破壊防止のために立体の次元数に100までという制限を行いました。
+これは<TT
+CLASS="FILENAME"
+>cubedata.h</TT
+>で設定されており、必要に応じて多少大きくすることができます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN131940"
+>F.8.6. クレジット</A
+></H2
+><P
+>   原作者: Gene Selkov, Jr. <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:selkovjr@mcs.anl.gov"
+>selkovjr@mcs.anl.gov</A
+>&#62;</CODE
+>,
+   Mathematics and Computer Science Division, Argonne National Laboratory.
+  </P
+><P
+>GiST (<A
+HREF="http://gist.cs.berkeley.edu/"
+TARGET="_top"
+>http://gist.cs.berkeley.edu/</A
+>)の要点を説明していただいたJoe Hellerstein博士 (<A
+HREF="http://db.cs.berkeley.edu/jmh/"
+TARGET="_top"
+>http://db.cs.berkeley.edu/jmh/</A
+>) に感謝します。
+また、Illustra用の例 <A
+HREF="http://best.berkeley.edu/~adong/rtree/index.html"
+TARGET="_top"
+>http://best.berkeley.edu/~adong/rtree/index.html</A
+>の作者である彼の以前の生徒Andy Dong (<A
+HREF="http://best.me.berkeley.edu/~adong/"
+TARGET="_top"
+>http://best.me.berkeley.edu/~adong/</A
+>)に感謝します。
+また、自分の世界を作成できるようにし、静かに生活できるようにしてもらった、過去から現在までのすべてのpostgres開発者に感謝します。
+データベース研究に長年誠実にサポートしてくれたArgonne LabとU.S. Department of Energyにも感謝します。
+  </P
+><P
+>2002年8月/9月にBruno Wolff III <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:bruno@wolff.to"
+>bruno@wolff.to</A
+>&#62;</CODE
+>による小規模な改修がこのパッケージになされました。
+この改修には、単精度から倍精度への精度の変更といくつかの関数の追加が含まれます。
+  </P
+><P
+>2006年7月にJoshua Reich <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:josh@root.net"
+>josh@root.net</A
+>&#62;</CODE
+>による改修がさらになされました。
+この改修には<TT
+CLASS="LITERAL"
+>cube(float8[], float8[])</TT
+>が含まれ、また、古いV0プロトコルからV1呼び出しプロトコルを使用するようコードが整理されました。
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="citext.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="dblink.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>citext</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>dblink</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

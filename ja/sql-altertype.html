@@ -1,0 +1,738 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ALTER TYPE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="ALTER TRIGGER"
+HREF="sql-altertrigger.html"><LINK
+REL="NEXT"
+TITLE="ALTER USER"
+HREF="sql-alteruser.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER TRIGGER"
+HREF="sql-altertrigger.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ALTER TRIGGER"
+HREF="sql-altertrigger.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER USER"
+HREF="sql-alteruser.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ALTER USER"
+HREF="sql-alteruser.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-ALTERTYPE"
+></A
+>ALTER TYPE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN62748"
+></A
+><H2
+>&#21517;&#21069;</H2
+>ALTER TYPE&nbsp;--&nbsp;型定義を変更する
+  </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN62753"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>ALTER TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+> [, ... ]
+ALTER TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> OWNER TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+>
+ALTER TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RENAME ATTRIBUTE <TT
+CLASS="REPLACEABLE"
+><I
+>attribute_name</I
+></TT
+> TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_attribute_name</I
+></TT
+>
+ALTER TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> RENAME TO <TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+> [ CASCADE | RESTRICT ]
+ALTER TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> SET SCHEMA <TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+>
+ALTER TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> ADD VALUE <TT
+CLASS="REPLACEABLE"
+><I
+>new_enum_value</I
+></TT
+> [ { BEFORE | AFTER } <TT
+CLASS="REPLACEABLE"
+><I
+>existing_enum_value</I
+></TT
+> ]
+
+<SPAN
+CLASS="phrase"
+><SPAN
+CLASS="PHRASE"
+>ここで<TT
+CLASS="REPLACEABLE"
+><I
+>action</I
+></TT
+>は以下のいずれかです。</SPAN
+></SPAN
+>
+    ADD ATTRIBUTE <TT
+CLASS="REPLACEABLE"
+><I
+>attribute_name</I
+></TT
+> <TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+> [ COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+> ] [ CASCADE | RESTRICT ]
+    DROP ATTRIBUTE [ IF EXISTS ] <TT
+CLASS="REPLACEABLE"
+><I
+>attribute_name</I
+></TT
+> [ CASCADE | RESTRICT ]
+    ALTER ATTRIBUTE <TT
+CLASS="REPLACEABLE"
+><I
+>attribute_name</I
+></TT
+> [ SET DATA ] TYPE <TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+> [ COLLATE <TT
+CLASS="REPLACEABLE"
+><I
+>collation</I
+></TT
+> ] [ CASCADE | RESTRICT ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62778"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TYPE</TT
+>は既存の型の定義を変更します。
+複数の副構文があります。
+
+  <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>ADD ATTRIBUTE</TT
+></DT
+><DD
+><P
+>この構文は、<A
+HREF="sql-createtype.html"
+>CREATE TYPE</A
+>と同じ構文を用いて、複合型に新しい属性を追加します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>DROP ATTRIBUTE [ IF EXISTS ]</TT
+></DT
+><DD
+><P
+>この構文は複合型から属性を削除します。
+<TT
+CLASS="LITERAL"
+>IF EXISTS</TT
+>が指定された時にその属性が存在しないでもエラーにはなりません。
+この場合は代わりに注意が発せられます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET DATA TYPE</TT
+></DT
+><DD
+><P
+>この構文は複合型の属性の型を変更します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>OWNER</TT
+></DT
+><DD
+><P
+>この構文は型の所有者を変更します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RENAME</TT
+></DT
+><DD
+><P
+>この構文は型の名前または複合型の個々の属性の名前を変更します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>SET SCHEMA</TT
+></DT
+><DD
+><P
+>この構文は型を他のスキーマに移動します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>ADD VALUE [ BEFORE | AFTER ]</TT
+></DT
+><DD
+><P
+>この構文は列挙型に新しい値を追加します。
+<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>または<TT
+CLASS="LITERAL"
+>AFTER</TT
+>によって列挙型の順番における新しい値の場所が指定されていない場合、新しい項目は値リストの最後に格納されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>CASCADE</TT
+></DT
+><DD
+><P
+>自動的に変更される型で型付けされたテーブルとその子テーブルにこの操作を伝播します。
+     </P
+></DD
+><DT
+><TT
+CLASS="LITERAL"
+>RESTRICT</TT
+></DT
+><DD
+><P
+>変更対象の型がテーブルの型付けに使用されている場合に拒絶します。
+これがデフォルトです。
+     </P
+></DD
+></DL
+></DIV
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>ADD ATTRIBUTE</TT
+>、<TT
+CLASS="LITERAL"
+>DROP ATTRIBUTE</TT
+>、<TT
+CLASS="LITERAL"
+>ALTER ATTRIBUTE</TT
+>操作は複数の変更リストにまとめて、並行して適用することができます。
+例えば、複数の属性の追加、複数の属性の変更、またはその両方を１つのコマンドで実行することができます。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TYPE</TT
+>を使用するには型の所有者でなければなりません。
+型のスキーマを変更するには、新しいスキーマにおける<TT
+CLASS="LITERAL"
+>CREATE</TT
+>権限も必要です。
+所有者を変更するには、直接または間接的に新しい所有者ロールのメンバでなければなりません。
+また、そのロールが型のスキーマにおいて<TT
+CLASS="LITERAL"
+>CREATE</TT
+>を持たなければなりません。
+（この制限により、強制的に、所有者の変更が型の削除と再作成で行うことができない何らかの処理を行わないようになります。
+しかし、スーパーユーザはすべての型の所有者を変更することができます。）
+
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62840"
+></A
+><H2
+>パラメータ</H2
+><P
+>    <P
+></P
+></P><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>変更対象の既存の型の名前です（スキーマ修飾名も可）。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_name</I
+></TT
+></DT
+><DD
+><P
+>新しい型の名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_owner</I
+></TT
+></DT
+><DD
+><P
+>新しい型の所有者のユーザ名です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_schema</I
+></TT
+></DT
+><DD
+><P
+>型の新しいスキーマです。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>attribute_name</I
+></TT
+></DT
+><DD
+><P
+>追加、変更または削除する属性の名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_attribute_name</I
+></TT
+></DT
+><DD
+><P
+>変名する属性の新しい名前です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>data_type</I
+></TT
+></DT
+><DD
+><P
+>追加する属性のデータ型、または、変更する属性の新しい型です。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>new_enum_value</I
+></TT
+></DT
+><DD
+><P
+>列挙型リストの値に追加する新しい値です。
+すべての列挙型のリテラル同様、引用符を付けなければなりません。
+       </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>existing_enum_value</I
+></TT
+></DT
+><DD
+><P
+>列挙型の並び順序において新しい値をその直前または直後に追加する、既存の列挙型の値です。
+すべての列挙型のリテラル同様、引用符を付けなければなりません。
+       </P
+></DD
+></DL
+></DIV
+><P>
+   </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62889"
+></A
+><H2
+>注意</H2
+><P
+><TT
+CLASS="COMMAND"
+>ALTER TYPE ... ADD VALUE</TT
+>（列挙型に新しい値を追加する構文）はトランザクションブロック内で実行することはできません。
+  </P
+><P
+>追加された列挙型の値を含む比較は、列挙型の元々の要素のみを含む比較よりも低速になることがあります。
+通常これは、新しい値のソート位置がリストの最後ではなく<TT
+CLASS="LITERAL"
+>BEFORE</TT
+>または<TT
+CLASS="LITERAL"
+>AFTER</TT
+>を用いて設定された場合のみで起こります。
+しかし最後に新しい値が追加された場合であっても起こる可能性があります。
+（これは、OIDカウンタが元の列挙型を作成してから<SPAN
+CLASS="QUOTE"
+>"周回"</SPAN
+>した場合に起こります。）
+この低下は通常は大きくありません。
+しかしこれが問題であれば、列挙型を削除し再作成する、あるいはデータベースをダンプし再ロードすることで最適な性能まで戻すことができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62897"
+></A
+><H2
+>例</H2
+><P
+>データ型の名前を変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TYPE electronic_mail RENAME TO email;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>email</TT
+>型の所有者を<TT
+CLASS="LITERAL"
+>joe</TT
+>に変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TYPE email OWNER TO joe;</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>email</TT
+>型のスキーマを<TT
+CLASS="LITERAL"
+>customers</TT
+>に変更します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TYPE email SET SCHEMA customers;</PRE
+><P>
+  </P
+><P
+>型に新しい属性を追加します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TYPE compfoo ADD ATTRIBUTE f3 int;</PRE
+><P>
+  </P
+><P
+>列挙型の特定のソート位置に新しい値を追加します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>ALTER TYPE colors ADD VALUE 'orange' AFTER 'red';</PRE
+><P></P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN62913"
+></A
+><H2
+>互換性</H2
+><P
+>属性の追加および削除を行う構文は標準SQLの一部です。
+他の構文はPostgreSQLの拡張です。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="SQL-ALTERTYPE-SEE-ALSO"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-createtype.html"
+>CREATE TYPE</A
+>, <A
+HREF="sql-droptype.html"
+>DROP TYPE</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-altertrigger.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-alteruser.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ALTER TRIGGER</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ALTER USER</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

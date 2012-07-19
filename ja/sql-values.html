@@ -1,0 +1,687 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>VALUES</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="VACUUM"
+HREF="sql-vacuum.html"><LINK
+REL="NEXT"
+TITLE="PostgreSQLクライアントアプリケーション"
+HREF="reference-client.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="VACUUM"
+HREF="sql-vacuum.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="VACUUM"
+HREF="sql-vacuum.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLクライアントアプリケーション"
+HREF="reference-client.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="PostgreSQLクライアントアプリケーション"
+HREF="reference-client.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-VALUES"
+></A
+>VALUES</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN76477"
+></A
+><H2
+>&#21517;&#21069;</H2
+>VALUES&nbsp;--&nbsp;行セットを計算します</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN76482"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>VALUES ( <TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> [, ...] ) [, ...]
+    [ ORDER BY <TT
+CLASS="REPLACEABLE"
+><I
+>sort_expression</I
+></TT
+> [ ASC | DESC | USING <TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+> ] [, ...] ]
+    [ LIMIT { <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+> | ALL } ]
+    [ OFFSET <TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+> [ ROW | ROWS ] ]
+    [ FETCH { FIRST | NEXT } [ <TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+> ] { ROW | ROWS } ONLY ]</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76490"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>VALUES</TT
+> は、値の式で指定された行あるいは行の集合を計算します。
+大きなコマンドの中で<SPAN
+CLASS="QUOTE"
+>"定数テーブル"</SPAN
+>を作成するために使用することが多いですが、
+それ単独で使用することも可能です。
+  </P
+><P
+>複数行を指定した場合は、すべての行の要素数が同じでなければなりません。
+できあがるテーブル列のデータ型を決定するには、
+明示的に指定されている型やその列に登場する式から推測できる型を組み合わせて使用します。
+これは <TT
+CLASS="LITERAL"
+>UNION</TT
+> と同じ方式です
+(<A
+HREF="typeconv-union-case.html"
+>&#38917;10.5</A
+> を参照ください)。
+  </P
+><P
+>大きなコマンドの中において、
+<TT
+CLASS="COMMAND"
+>SELECT</TT
+> が文法上使える場所ならどこでも<TT
+CLASS="COMMAND"
+>VALUES</TT
+>を使用することができます。
+なぜなら、これは文法上は<TT
+CLASS="COMMAND"
+>SELECT</TT
+>と同じ扱いだからです。
+<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>、<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>（、これと等価な<TT
+CLASS="LITERAL"
+>FETCH FIRST</TT
+>）そして<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>句で<TT
+CLASS="COMMAND"
+>VALUES</TT
+>コマンドを使用することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76507"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+></DT
+><DD
+><P
+>定数あるいは式です。これを計算した結果が、
+表 (行セット) の中の指定した場所に挿入されます。
+<TT
+CLASS="COMMAND"
+>VALUES</TT
+> リストを <TT
+CLASS="COMMAND"
+>INSERT</TT
+> の最上位レベルで使用する場合は、
+<TT
+CLASS="REPLACEABLE"
+><I
+>expression</I
+></TT
+> を <TT
+CLASS="LITERAL"
+>DEFAULT</TT
+>
+で置き換えることができます。これは、その列のデフォルト値を挿入することを表します。
+他の場所で <TT
+CLASS="COMMAND"
+>VALUES</TT
+> を使用する場合には、
+<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+> は使用できません。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>sort_expression</I
+></TT
+></DT
+><DD
+><P
+>式あるいは整数の定数で、結果の行をソートする方法を表します。
+この式は、<TT
+CLASS="COMMAND"
+>VALUES</TT
+> の結果の列を <TT
+CLASS="LITERAL"
+>column1</TT
+>、<TT
+CLASS="LITERAL"
+>column2</TT
+>などのように参照することができます。
+詳細は <A
+HREF="sql-select.html#SQL-ORDERBY"
+><I
+><I
+>ORDER BY</I
+>句</I
+></A
+> を参照ください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>operator</I
+></TT
+></DT
+><DD
+><P
+>ソート用の演算子です。詳細は
+<A
+HREF="sql-select.html#SQL-ORDERBY"
+><I
+><I
+>ORDER BY</I
+>句</I
+></A
+> を参照ください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>count</I
+></TT
+></DT
+><DD
+><P
+>返す行の最大数です。詳細は
+<A
+HREF="sql-select.html#SQL-LIMIT"
+><I
+><I
+>LIMIT</I
+>句</I
+></A
+> を参照ください。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>start</I
+></TT
+></DT
+><DD
+><P
+>結果を返す際に読み飛ばす行数です。詳細は
+<A
+HREF="sql-select.html#SQL-LIMIT"
+><I
+><I
+>LIMIT</I
+>句</I
+></A
+> を参照ください。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76548"
+></A
+><H2
+>注釈</H2
+><P
+><TT
+CLASS="COMMAND"
+>VALUES</TT
+> で大量の行を扱うことは避けるべきです。
+メモリ不足や性能の劣化を生じさせる可能性があります。
+<TT
+CLASS="COMMAND"
+>VALUES</TT
+> を <TT
+CLASS="COMMAND"
+>INSERT</TT
+> の中で使用する場合は特別です。
+(列の型は <TT
+CLASS="COMMAND"
+>INSERT</TT
+> 先のテーブルからわかるので、
+<TT
+CLASS="COMMAND"
+>VALUES</TT
+> のリストを調べて型を推測する必要がないからです)
+そのため、他の場面に比べて大きなリストを扱っても実用に耐えます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76556"
+></A
+><H2
+>例</H2
+><P
+>必要最小限の <TT
+CLASS="COMMAND"
+>VALUES</TT
+> コマンドはこのようになります。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>VALUES (1, 'one'), (2, 'two'), (3, 'three');</PRE
+><P>
+
+これは、列が二つで行が三つの表を返します。事実上、これは次と同じことです。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT 1 AS column1, 'one' AS column2
+UNION ALL
+SELECT 2, 'two'
+UNION ALL
+SELECT 3, 'three';</PRE
+><P>
+
+  </P
+><P
+>通常は、<TT
+CLASS="COMMAND"
+>VALUES</TT
+> は大きな SQL コマンドの内部で使用します。
+最もよくあるのは、<TT
+CLASS="COMMAND"
+>INSERT</TT
+> での使用です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO films (code, title, did, date_prod, kind)
+    VALUES ('T_601', 'Yojimbo', 106, '1961-06-16', 'Drama');</PRE
+><P></P
+><P
+><TT
+CLASS="COMMAND"
+>INSERT</TT
+> 内で使用する場合には、<TT
+CLASS="COMMAND"
+>VALUES</TT
+>
+のリストに <TT
+CLASS="LITERAL"
+>DEFAULT</TT
+> を指定することができます。
+これは、値を具体的に指定するのではなくその列のデフォルトを使用することを表します。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>INSERT INTO films VALUES
+    ('UA502', 'Bananas', 105, DEFAULT, 'Comedy', '82 minutes'),
+    ('T_601', 'Yojimbo', 106, DEFAULT, 'Drama', DEFAULT);</PRE
+><P>
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>VALUES</TT
+> は、副<TT
+CLASS="COMMAND"
+>SELECT</TT
+> が書ける場所ならどこでも使用することができます。
+例えば <TT
+CLASS="LITERAL"
+>FROM</TT
+> 句の中などでも使えます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT f.*
+  FROM films f, (VALUES('MGM', 'Horror'), ('UA', 'Sci-Fi')) AS t (studio, kind)
+  WHERE f.studio = t.studio AND f.kind = t.kind;
+
+UPDATE employees SET salary = salary * v.increase
+  FROM (VALUES(1, 200000, 1.2), (2, 400000, 1.4)) AS v (depno, target, increase)
+  WHERE employees.depno = v.depno AND employees.sales &gt;= v.target;</PRE
+><P>
+
+<TT
+CLASS="COMMAND"
+>VALUES</TT
+> を <TT
+CLASS="LITERAL"
+>FROM</TT
+> 句の中で使用する場合には、
+<TT
+CLASS="LITERAL"
+>AS</TT
+> 句が必須となることに注意しましょう。これは <TT
+CLASS="COMMAND"
+>SELECT</TT
+> の場合と同様です。
+<TT
+CLASS="LITERAL"
+>AS</TT
+> 句ですべての列の名前を指定する必要はありませんが、指定しておくことをお勧めします
+(<TT
+CLASS="COMMAND"
+>VALUES</TT
+> のデフォルトの列名は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>
+においては <TT
+CLASS="LITERAL"
+>column1</TT
+>、<TT
+CLASS="LITERAL"
+>column2</TT
+> のようになります。
+しかし、他のデータベースシステムでは異なるかもしれません)。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>VALUES</TT
+> を <TT
+CLASS="COMMAND"
+>INSERT</TT
+> の中で使用する場合は、
+値の型が挿入先列のデータ型に自動変換されます。
+それ以外の場面で使用する際には、正しいデータ型を指定する必要があるかもしれません。
+値がすべてクォートされたリテラル定数である場合は、最初の値にだけ型を指定しておけば十分です。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM machines
+WHERE ip_address IN (VALUES('192.168.0.1'::inet), ('192.168.0.10'), ('192.168.1.43'));</PRE
+><P></P
+><DIV
+CLASS="TIP"
+><BLOCKQUOTE
+CLASS="TIP"
+><P
+><B
+>&#12486;&#12451;&#12483;&#12503;: </B
+>単に <TT
+CLASS="LITERAL"
+>IN</TT
+> を試したいのなら、上のような <TT
+CLASS="COMMAND"
+>VALUES</TT
+> クエリを使用するよりも
+<TT
+CLASS="LITERAL"
+>IN</TT
+> のスカラリスト形式を使用するほうがよいでしょう。
+スカラメソッドのリストのほうが記述量が減りますし、たいていはより効率的になります。
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76594"
+></A
+><H2
+>互換性</H2
+><P
+><TT
+CLASS="COMMAND"
+>VALUES</TT
+>はSQL標準に従います。
+<TT
+CLASS="LITERAL"
+>LIMIT</TT
+>および<TT
+CLASS="LITERAL"
+>OFFSET</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+<A
+HREF="sql-select.html"
+>SELECT</A
+>も参照してください。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN76602"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-insert.html"
+>INSERT</A
+>, <A
+HREF="sql-select.html"
+>SELECT</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-vacuum.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="reference-client.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>VACUUM</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>PostgreSQLクライアントアプリケーション</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>パスワードファイル</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"><LINK
+REL="PREVIOUS"
+TITLE="環境変数"
+HREF="libpq-envars.html"><LINK
+REL="NEXT"
+TITLE="接続サービスファイル"
+HREF="libpq-pgservice.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="環境変数"
+HREF="libpq-envars.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 31&#31456;<SPAN
+CLASS="APPLICATION"
+>libpq</SPAN
+> - C ライブラリ</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="libpq - C ライブラリ"
+HREF="libpq.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="接続サービスファイル"
+HREF="libpq-pgservice.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="LIBPQ-PGPASS"
+>31.14. パスワードファイル</A
+></H1
+><P
+>ユーザのホームディレクトリの<TT
+CLASS="FILENAME"
+>.pgpass</TT
+>または<TT
+CLASS="ENVAR"
+>PGPASSFILE</TT
+>で設定されるファイルは、接続にパスワードが必要な場合(かつ、他に指定されたパスワードが無かった場合)に使用するパスワードを格納するファイルです。
+Microsoft Windowsでは、このファイルの名前は<TT
+CLASS="FILENAME"
+>%APPDATA%\postgresql\pgpass.conf</TT
+>(ここで<TT
+CLASS="FILENAME"
+>%APPDATA%</TT
+>はユーザのプロファイル内のアプリケーションデータディレクトリ)です。
+  </P
+><P
+>このファイル内の行の書式は次の通りです。
+</P><PRE
+CLASS="SYNOPSIS"
+><TT
+CLASS="REPLACEABLE"
+><I
+>hostname</I
+></TT
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>port</I
+></TT
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>database</I
+></TT
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>username</I
+></TT
+>:<TT
+CLASS="REPLACEABLE"
+><I
+>password</I
+></TT
+></PRE
+><P>
+（このファイルでは、上のような行をコピーし、その先頭に<TT
+CLASS="LITERAL"
+>#</TT
+>をつけて忘れないようにコメントとして残すことができます。）
+先頭の4フィールドはそれぞれリテラル値にすることも、あるいはすべてに一致する<TT
+CLASS="LITERAL"
+>*</TT
+>を使用することもできます。
+最初に現在の接続パラメータと一致した行のパスワードフィールドが使用されます。
+(従って、ワイルドカードを使用する場合は、始めの方により具体的な項目を入力してください。)
+項目内に<TT
+CLASS="LITERAL"
+>:</TT
+>または<TT
+CLASS="LITERAL"
+>\</TT
+>を含める必要があれば、<TT
+CLASS="LITERAL"
+>\</TT
+>でこれらの文字をエスケープする必要があります。
+<TT
+CLASS="LITERAL"
+>localhost</TT
+>ホスト名は、ローカルマシンからのTCP接続（ホスト名が<TT
+CLASS="LITERAL"
+>localhost</TT
+>）とUnixドメインソケット接続（<TT
+CLASS="LITERAL"
+>pghost</TT
+>が空またはデフォルトのソケットディレクトリ）の両方に一致します。
+スタンバイサーバでは、<TT
+CLASS="LITERAL"
+>replication</TT
+>という名称のデータベースは、マスタサーバとの間でなされるストリーミングレプリケーション用の接続に一致します。
+同一のクラスタ内のすべてのデータベースに対するパスワードは同じものですので、<TT
+CLASS="LITERAL"
+>database</TT
+>フィールドの有用性は限定的なものです。
+  </P
+><P
+>Unixシステムにおいて、<TT
+CLASS="FILENAME"
+>.pgpass</TT
+>の権限はグループ、他者へのアクセスをすべて拒否しなければなりません。
+これは<TT
+CLASS="COMMAND"
+>chmod 0600 ~/.pgpass</TT
+>といったコマンドによって行います。
+権限をこれよりも緩くすると、このファイルは無視されます。
+Microsoft Windowsにおいては、このファイルが安全なディレクトリに格納されていることを前提としていますので、特別に行われる権限の検査はありません。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="libpq-envars.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="libpq-pgservice.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>環境変数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="libpq.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>接続サービスファイル</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

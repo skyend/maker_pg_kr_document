@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>アプリケーションレベルでのデータの一貫性チェック</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="同時実行制御"
+HREF="mvcc.html"><LINK
+REL="PREVIOUS"
+TITLE="明示的ロック"
+HREF="explicit-locking.html"><LINK
+REL="NEXT"
+TITLE="ロックとインデックス"
+HREF="locking-indexes.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="明示的ロック"
+HREF="explicit-locking.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="同時実行制御"
+HREF="mvcc.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 13&#31456;同時実行制御</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="同時実行制御"
+HREF="mvcc.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ロックとインデックス"
+HREF="locking-indexes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="APPLEVEL-CONSISTENCY"
+>13.4. アプリケーションレベルでのデータの一貫性チェック</A
+></H1
+><P
+>データの参照範囲は各ステートメントで変化するので、リードコミッティドトランザクションを使用して、データ保全性に関するビジネスルールを強化するのは非常に難しいことです。また、書き込み競合が生じる場合、単一のステートメントでさえステートメントのスナップショットに限定されないかもしれません。
+   </P
+><P
+>リピータブルリードトランザクションは実行全体にわたってデータの安定した参照範囲を持ちますが、<ACRONYM
+CLASS="ACRONYM"
+>MVCC</ACRONYM
+>スナップショットをデータ完全性チェックに使用することによる、<I
+CLASS="FIRSTTERM"
+>読み取り/書き込み競合</I
+>として知られるものを含む、微妙な問題があります。
+
+1つのトランザクションがデータを書き、同時に実行するトランザクションが、同じデータ(書き込みの前に、あるいはその書き込みの後にも)を読むことを試みる場合、それは別のトランザクションの働きを見ることができません。
+その後、読み手は、どれが最初にスタートしたか、あるいは、どれが最初にコミットしたかにかかわらず最初に実行したように見えます。
+そのままいけば問題はありませんが、読み手がさらにデータを書けば、どれが同時に実行したトランザクションがそれを読んだ場合、上で述べたトランザクションのどちらかの前に走ったように見えるトランザクションとなってしまいます。
+最後に実行したように見えるトランザクションが実際には最初にコミットしていた場合、トランザクションの実行順のグラフには循環が容易に出現します。
+そのような循環が出現する時、完全性のチェックはなにかしらの支援がなければ正しく動作しません。
+   </P
+><P
+><A
+HREF="transaction-iso.html#XACT-SERIALIZABLE"
+>&#38917;13.2.3</A
+>により述べたように、シリアライザブルトランザクションは、危険なパターンの読み取り/書き込み競合のための非ブロッキング監視を加えたリピータブルリードトランザクションです。
+明白に実行順が循環を引き起こすパターンが検知された場合、含まれていたトランザクションのうちの1つは循環を断ち切るためにロールバックされます。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SERIALIZABLE-CONSISTENCY"
+>13.4.1. シリアライザブルトランザクションを用いた一貫性の強化</A
+></H2
+><P
+>シリアライザブルトランザクション分離レベルが、データの一貫性を必要とするすべての書き込みおよびすべての読み取りに使用される場合、一貫性を確実にするために必要なことは他にはありません。
+一貫性を保証するためにシリアライザブルトランザクションを使用するよう書かれている他の環境からのソフトウェアは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でこの点に関して<SPAN
+CLASS="QUOTE"
+>"正しく動く"</SPAN
+>べきです。
+    </P
+><P
+>この技術を使用した場合、アプリケーションソフトウェアが直列化失敗でロールバックしたトランザクションを自動的に再試行するようなフレームワークを備えている場合、アプリケーションプログラマにとって不必要な負担を生み出さないようにするでしょう。
+<TT
+CLASS="LITERAL"
+>default_transaction_isolation</TT
+>を<TT
+CLASS="LITERAL"
+>serializable</TT
+>にセットすることはよい考えかもしれません。
+他のトランザクション分離レベルは使用されないことを保証する処置を講ずる、そうでなければ、不注意に完全位チェックを失わないよう、トリガーでトランザクション分離レベルのチェックをすることも賢明でしょう。
+    </P
+><P
+>実行に関する提言は<A
+HREF="transaction-iso.html#XACT-SERIALIZABLE"
+>&#38917;13.2.3</A
+>を参照してください。
+    </P
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#35686;&#21578;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>シリアライザブルトランザクションを使用する整合性保護レベルは、まだホットスタンバイモード(<A
+HREF="hot-standby.html"
+>&#38917;25.5</A
+>)には拡張されていません。そのために、ホットスタンバイを使用する場合は、マスタにおけるリピータブルリードと明示的なロック処理の利用が望まれるかもしれません。
+     </P
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="NON-SERIALIZABLE-CONSISTENCY"
+>13.4.2. 明示的なブロッキングロックを用いた一貫性の強化</A
+></H2
+><P
+>非シリアライザブルの書き込みが可能な場合、
+ある行の現時点の有効性を確実なものとし、同時更新を避けるためには、<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>文や<TT
+CLASS="COMMAND"
+>SELECT FOR SHARE</TT
+>文、適切な<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>文を使用する必要があります
+（<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>文および<TT
+CLASS="COMMAND"
+>SELECT FOR SHARE</TT
+>文は返ってきた行のみを同時に起こる更新からロックし、<TT
+CLASS="COMMAND"
+>LOCK TABLE</TT
+>はテーブル全体をロックします）。
+これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に他の環境からアプリケーションを移植する時に考慮されなければなりません
+    </P
+><P
+>他の環境から切り替えた場合のさらなる注意点としては、同時実行トランザクションが選択された行を更新しないか削除しないということを<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>が保証しないという事実です。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でそれをするためには、値を変更する必要がなくても、実際に行を更新しなければなりません。
+<TT
+CLASS="COMMAND"
+>SELECT FOR UPDATE</TT
+>は、他のトランザクションが同じロックを獲得すること、または、ロックされた行に影響する<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>または<TT
+CLASS="COMMAND"
+>DELETE</TT
+>を実行することを<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>一時的にブロックします。</I
+></SPAN
+>
+しかしトランザクションがコミットするかロールバックして一度このロックを獲得すると、ロックが獲得されている間に、行の実際の<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>が行なわれなかった場合、ブロックされたトランザクションは、競合した操作を続けることになります。
+    </P
+><P
+><ACRONYM
+CLASS="ACRONYM"
+>MVCC</ACRONYM
+>においては全体的な有効性チェックに特別な考慮を払わなければなりません。
+例えば銀行のアプリケーションで、１つのテーブルにある全ての貸方の合計が、別のテーブルにある借方の合計と同じであることを、二つのテーブルが常に更新されているときに、チェックする必要があるとします。
+2つの連続する<TT
+CLASS="LITERAL"
+>SELECT SUM(...)</TT
+>コマンドの結果を比べると、2番目の問い合わせは、おそらく最初の問い合わせによってカウントされなかったトランザクションの結果を含んでいるため、リードコミッティドモードでは信頼のおける処理を実行できないことがわかります。
+1つのシリアライザブルトランザクションで2つの合計を出力すると、シリアライザブルトランザクションが開始される前にコミットされたトランザクション結果のみの正確な状況を得ることができます。
+しかし、その結果がもたらされた時点でもなお妥当であるかどうかは、実際には疑わしいかもしれません。
+整合性チェックを行う前にシリアライザブルトランザクション自身が変更を行った場合、そのチェックの有効性はさらに疑わしくなります。
+これにより、トランザクション開始後に行われる変更の全てだけでなく、何か別のものが含まれるためです。
+このような場合、注意深い人であれば、現状を確実に把握するためにチェックに必要な全てのテーブルをロックするでしょう。
+<TT
+CLASS="LITERAL"
+>SHARE</TT
+>モード（もしくはそれ以上）のロックにより、現在のトランザクションでの変更を除き、ロックされたテーブルにコミットされていない変更が存在しないことが保証されます。
+    </P
+><P
+>同時に、明示的なロック処理を使用して、同時に変更が実行されるのを防ごうとする場合、リードコミッティドモードの使用または、リピータブルリードモードを使用する場合は、問い合わせを実行する前にロックを獲得するよう留意してください。
+もしくは、シリアライザブルモードを使用する場合は、問い合わせを実行する前にロックを獲得するよう留意してください。
+リピータブルリードトランザクションにおいて獲得されたロックは、テーブルに変更をかける他のトランザクションが現在実行されていないことを保証します。
+しかし、トランザクションが参照しているスナップショットが、ロックの獲得より前に取得されたものであれば、そのスナップショットは現時点においてコミットされている変更より前のテーブルのものである可能性があります。
+リピータブルリードトランザクションのスナップショットは、実際にはその最初の問い合わせもしくはデータ変更コマンド（<TT
+CLASS="LITERAL"
+>SELECT</TT
+>、<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、または<TT
+CLASS="LITERAL"
+>DELETE</TT
+>）が開始された時点で取得されます。
+したがって、スナップショットを取得する前に、明示的にロックを獲得することが可能です。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="explicit-locking.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="locking-indexes.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>明示的ロック</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="mvcc.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ロックとインデックス</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

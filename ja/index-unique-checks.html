@@ -1,0 +1,365 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>インデックス一意性検査</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"><LINK
+REL="PREVIOUS"
+TITLE="インデックスのロック処理に関する検討"
+HREF="index-locking.html"><LINK
+REL="NEXT"
+TITLE="インデックスコスト推定関数"
+HREF="index-cost-estimation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックスのロック処理に関する検討"
+HREF="index-locking.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 52&#31456;インデックスアクセスメソッドのインタフェース定義</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックスアクセスメソッドのインタフェース定義"
+HREF="indexam.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="インデックスコスト推定関数"
+HREF="index-cost-estimation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INDEX-UNIQUE-CHECKS"
+>52.5. インデックス一意性検査</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、SQLの一意性制約を<I
+CLASS="FIRSTTERM"
+>一意性インデックス</I
+>を使用して強制します。
+このインデックスでは、同一キーに対し複数の項目を許しません。
+この機能をサポートするアクセスメソッドは<TT
+CLASS="STRUCTNAME"
+>pg_am</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>amcanunique</TT
+>を真に設定します。
+（現時点ではb-treeのみがこれをサポートします。）
+  </P
+><P
+>MVCCのため、インデックス内に物理的に重複した項目が存在することができることが常に必要です。
+これらの項目は１つの論理的な行の連続的なバージョンを示します。
+実際に強制させたい動作は、MVCCスナップショットが同じインデックスキーを持つ行を２つ含めないことです。
+一意性インデックスに新しい行を挿入する時に検査しなければならない状況を以下のように分割することができます。
+    <P
+></P
+></P><UL
+><LI
+><P
+>競合する有効な行が現在のトランザクションで削除された場合は問題ありません。
+（具体的には、UPDATEは常に新しいバージョンを挿入する前に古い行バージョンを削除します。
+これによりキーを変更することなく行をUPDATEすることができます。）
+      </P
+></LI
+><LI
+><P
+>競合する行が未コミットのトランザクションで挿入された場合、挿入しようとしている方はトランザクションのコミットが分かるまで待機しなければなりません。
+ロールバックした場合は競合しません。
+競合する行が削除されずにコミットした場合、一意性違反となります。
+（具体的には、他のトランザクションの終了をただ待機し、終了後に可視性の検査を完全に再実行します。）
+      </P
+></LI
+><LI
+><P
+>同様に、競合する有効な行が未コミットのトランザクションで削除された場合、挿入しようとしている方はトランザクションのコミットまたはアボートを待機しなければならず、その後、試験を繰り返します。
+      </P
+></LI
+></UL
+><P>
+  </P
+><P
+>さらに、上記規則に従った一意性違反を報告する直前に、アクセスメソッドは挿入される行の有効性を再度検査しなければなりません。
+もし、無効なコミットであれば、違反を報告してはいけません。
+（現在のトランザクションによって作成された通常の行の挿入という状況では、これは発生することはありません。
+しかし、これは<TT
+CLASS="COMMAND"
+>CREATE UNIQUE INDEX CONCURRENTLY</TT
+>中に発生することがあります。）
+  </P
+><P
+>インデックスアクセスメソッドにこうした試験を自身で行うことを要求します。
+これは、インデックスの内容に対して重複するキーを持つことを示している任意の行のコミット状態を検査するために、ヒープまでアクセスしなければならないことを意味します。
+これが醜くモジュール化されないことには疑う余地はありません。
+しかし、余計な作業を防ぐことができます。
+もし分離された探査を行ったとすると、新しいインデックス項目を挿入する場所を検索する時、競合する行に対するインデックス検索がどうしても繰り返されます。
+さらに、競合検査がインデックス行の挿入部分で統合されて行われない限り、競合状態を防ぐ明確な方法がありません。
+  </P
+><P
+>一意性制約が遅延可能である場合はさらに複雑になります。
+新しい行向けのインデックス項目を挿入可能にする必要があります。
+しかし一意性違反エラーは文の終わりまたはそれ以降まで遅延されます。
+不要なインデックス検索の繰り返しを防ぐために、インデックスアクセスメソッドは初期の挿入の間に前座の一意性検査を行わなければなりません。
+これが現存するタプルとまったく競合がないことを示した場合、それで終了です。
+さもなければ、制約を強制する時に再検査を行うようスケジュールします。
+再検査の時点で対象のタプルと同じキーを持つ何らかの他のタプルが存在すると、エラーを報告しなければなりません。
+（この目的のために<SPAN
+CLASS="QUOTE"
+>"存在する"</SPAN
+>は実際には<SPAN
+CLASS="QUOTE"
+>"インデックス項目のHOTチェイン内に何らかのタプルが存在する"</SPAN
+>ことを意味します。）
+これを実装するために、<CODE
+CLASS="FUNCTION"
+>aminsert</CODE
+>は以下のいずれかの値を持つ<TT
+CLASS="LITERAL"
+>checkUnique</TT
+>パラメータを渡されます。
+
+    <P
+></P
+></P><UL
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UNIQUE_CHECK_NO</TT
+>は、一意性検査を行うことはない(これは一意性インデックスではない)ことを示します。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UNIQUE_CHECK_YES</TT
+>は、上述の通り遅延がない一意性インデックスであり、一意性検査を即時に行わなければならないことを示します。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UNIQUE_CHECK_PARTIAL</TT
+>は一意性制約が遅延可能であることを示します。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>はこのモードを使用して、各行のインデックス項目を挿入します。
+このアクセスメソッドはインデックス内の重複する項目を許さなければなりません。
+そして<CODE
+CLASS="FUNCTION"
+>aminsert</CODE
+>から偽を返すことで重複の可能性があることを報告しなければなりません。
+偽が返された行それぞれに対して、遅延再検査が予定されます。
+      </P
+><P
+>アクセスメソッドは一意性制約違反となるかもしれない行を識別しなければなりません。
+しかし間違った偽を報告することはエラーではありません。
+これにより他のトランザクションを待つことなく検査を行うことができます。
+ここで報告された重複はエラーとして扱われず、後で再検査されます。
+再検査時には重複しなくなっている可能性があります。
+      </P
+></LI
+><LI
+><P
+><TT
+CLASS="LITERAL"
+>UNIQUE_CHECK_EXISTING</TT
+>は、一意性違反の可能性があると報告された行に対する遅延再検査であることを示します。
+これは<CODE
+CLASS="FUNCTION"
+>aminsert</CODE
+>を呼び出すことで実装されますが、アクセスメソッドはこの場合に新しいインデックス項目を挿入しては<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>いけません</I
+></SPAN
+>。
+インデックス項目はすでに存在します。
+それよりも、アクセスメソッドは他に存在するインデックス項目があるか検査する必要があります。
+もし存在し、対象の行もまだ存在する場合エラーを報告します。
+      </P
+><P
+><TT
+CLASS="LITERAL"
+>UNIQUE_CHECK_EXISTING</TT
+>呼び出しでは、アクセスメソッドはさらに対象行が実際にインデックス内に既存の項目を持つか検証し、もしなければエラーを報告することを推奨します。
+<CODE
+CLASS="FUNCTION"
+>aminsert</CODE
+>に渡されるインデックスタプル値が再計算されているため勧めます。
+インデックス定義に実際には不変ではない関数が含まれる場合、インデックスの間違った領域を検査してしまうかもしれません。
+再検査にて対象行の存在を検査することで、元の挿入で使用されたものと同じタプル値をスキャンしていることを検証します。
+      </P
+></LI
+></UL
+><P>
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index-locking.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="index-cost-estimation.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>インデックスのロック処理に関する検討</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="indexam.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>インデックスコスト推定関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

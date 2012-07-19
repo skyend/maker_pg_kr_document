@@ -1,0 +1,2508 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>システム管理関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="システム情報関数"
+HREF="functions-info.html"><LINK
+REL="NEXT"
+TITLE="トリガ関数"
+HREF="functions-trigger.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="システム情報関数"
+HREF="functions-info.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="トリガ関数"
+HREF="functions-trigger.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-ADMIN"
+>9.24. システム管理関数</A
+></H1
+><P
+>   
+    <A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-SET-TABLE"
+>&#34920;9-54</A
+>は、実行時構成パラメータの問い合わせや変更に使用できる関数を示しています。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-ADMIN-SET-TABLE"
+></A
+><P
+><B
+>&#34920; 9-54. 構成設定関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>        
+        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>current_setting(<TT
+CLASS="PARAMETER"
+>setting_name</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>現在の設定値の取得</TD
+></TR
+><TR
+><TD
+>        
+        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>set_config(<TT
+CLASS="PARAMETER"
+>setting_name</TT
+>,
+                             <TT
+CLASS="PARAMETER"
+>new_value</TT
+>,
+                             <TT
+CLASS="PARAMETER"
+>is_local</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>パラメータを設定し、新規値を返す</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    関数<CODE
+CLASS="FUNCTION"
+>current_setting</CODE
+>は、設定<TT
+CLASS="PARAMETER"
+>setting_name</TT
+>の現在の値を返します。この関数は、<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>の<TT
+CLASS="COMMAND"
+>SHOW</TT
+>コマンドと同じです。以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT current_setting('datestyle');
+
+ current_setting
+-----------------
+ ISO, MDY
+(1 row)</PRE
+><P>
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>set_config</CODE
+>関数は、パラメータ<TT
+CLASS="PARAMETER"
+>setting_name</TT
+>を<TT
+CLASS="PARAMETER"
+>new_value</TT
+>に設定します。ただし、<TT
+CLASS="PARAMETER"
+>is_local</TT
+>が<TT
+CLASS="LITERAL"
+>true</TT
+>の場合、新規値は現在のトランザクションにのみ適用されます。新規値を現在のセッションに適用する場合は、代わりに<TT
+CLASS="LITERAL"
+>false</TT
+>を使用してください。この関数は、SQLの<TT
+CLASS="COMMAND"
+>SET</TT
+>コマンドと同じです。以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT set_config('log_statement_stats', 'off', false);
+
+ set_config
+------------
+ off
+(1 row)</PRE
+><P>
+   </P
+><P
+>   
+    <A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-SIGNAL-TABLE"
+>&#34920;9-55</A
+>に示す関数は、制御用シグナルを他のサーバプロセスに送信します。これらの関数の使用はスーパーユーザのみに制限されています。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-ADMIN-SIGNAL-TABLE"
+></A
+><P
+><B
+>&#34920; 9-55. サーバシグナル送信関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_cancel_backend(<TT
+CLASS="PARAMETER"
+>pid</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>バックエンドの現在の問い合わせを取り消す</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_reload_conf()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>サーバプロセスに構成ファイルの再読み込みをさせる</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_rotate_logfile()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>サーバログファイルを循環させる</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_terminate_backend(<TT
+CLASS="PARAMETER"
+>pid</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>バックエンドを終結</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    これらのぞれぞれの関数は成功の場合<TT
+CLASS="LITERAL"
+>true（真）</TT
+>を返し、そうでない場合は<TT
+CLASS="LITERAL"
+>false（偽）</TT
+>を返します。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_cancel_backend</CODE
+>と<CODE
+CLASS="FUNCTION"
+>pg_terminate_backend</CODE
+>は（それぞれ、<SPAN
+CLASS="SYSTEMITEM"
+>SIGINT</SPAN
+>または<SPAN
+CLASS="SYSTEMITEM"
+>SIGTERM</SPAN
+>）シグナルをプロセス識別子で特定されたバックエンドプロセスに送ります。使用中のバックエンドのプロセス識別子は<TT
+CLASS="STRUCTNAME"
+>pg_stat_activity</TT
+>ビューの<TT
+CLASS="STRUCTFIELD"
+>procpid</TT
+>列から、もしくは、（Unixでは<SPAN
+CLASS="APPLICATION"
+>ps</SPAN
+>、<SPAN
+CLASS="PRODUCTNAME"
+>Windows</SPAN
+>では<SPAN
+CLASS="APPLICATION"
+>Task Manager</SPAN
+>により）サーバ上の<TT
+CLASS="COMMAND"
+>postgres</TT
+>プロセスをリストすることで見つけられます。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_reload_conf</CODE
+>は<SPAN
+CLASS="SYSTEMITEM"
+>SIGHUP</SPAN
+>シグナルをサーバに送り、その結果全てのサーバプロセスが構成ファイルを再読み込みすることになります。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_rotate_logfile</CODE
+>はログファイルマネージャに即座に新規出力ファイルに切替えるよう信号を送ります。これは組み込みログ取得が起動している場合のみ有効です。起動していない場合はログファイルマネージャの子プロセスが存在しない理由からです。
+   </P
+><P
+>   
+    <A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-BACKUP-TABLE"
+>&#34920;9-56</A
+>に示す関数はオンラインバックアップの作成を支援するものです。これらの関数は、リカバリ中には実行できません。最初の３つの関数の使用はスーパーユーザに制限されています。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-ADMIN-BACKUP-TABLE"
+></A
+><P
+><B
+>&#34920; 9-56. バックアップ制御関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_create_restore_point(<TT
+CLASS="PARAMETER"
+>name</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>リストア実行用に名前付けされたポイントを作成(スーパーユーザのみ実施可能です)</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_current_xlog_insert_location()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>現在のトランザクションログの挿入位置の取得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_current_xlog_location()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>現在のトランザクションログの書き込み位置を取得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_start_backup(<TT
+CLASS="PARAMETER"
+>label</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+> [<SPAN
+CLASS="OPTIONAL"
+>, <TT
+CLASS="PARAMETER"
+>fast</TT
+> <TT
+CLASS="TYPE"
+>boolean</TT
+> </SPAN
+>])</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>オンラインバックアップの実行準備(スーパーユーザかレプリケーション用のロールでのみ実施可能です)</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_stop_backup()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>オンラインバックアップの実行の終了(スーパーユーザかレプリケーション用のロールでのみ実施可能です)</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_switch_xlog()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>新しいトランザクションログファイルへの強制移行(スーパユーザのみ実施可能です)</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_xlogfile_name(<TT
+CLASS="PARAMETER"
+>location</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>トランザクションログの位置を表す文字列をファイル名に変換</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_xlogfile_name_offset(<TT
+CLASS="PARAMETER"
+>location</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+>, <TT
+CLASS="TYPE"
+>integer</TT
+></TD
+><TD
+>トランザクションログの位置を表す文字列を、ファイル名とファイル内の10進のバイトオフセットに変換</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_start_backup</CODE
+>は、ユーザが任意に定義したバックアップラベルを受け付けます（通常、格納に使用するバックアップダンプファイルにちなんだ名前が付けられます）。この関数は、データベースクラスタのデータディレクトリにバックアップラベルファイル（<TT
+CLASS="FILENAME"
+>backup_label</TT
+>）を書き出し、チェックポイントを実行し、バックアップを始めるトランザクションログの位置をテキスト形式で返します。ユーザはこの結果値を無視することができますが、便利なこともあるので提供されています。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>postgres=# select pg_start_backup('label_goes_here');
+ pg_start_backup
+-----------------
+ 0/D4445B8
+(1 row)</PRE
+><P>
+    オプションの<TT
+CLASS="TYPE"
+>boolean</TT
+>型パラメータがあります。<TT
+CLASS="LITERAL"
+>真</TT
+>であれば、すべからく早く<CODE
+CLASS="FUNCTION"
+>pg_start_backup</CODE
+>の実行を指定します。いかなる現時点で実行中の問い合わせも速度を落とし、I/O操作で急増の原因の即時チェックポイントを強要します。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_stop_backup</CODE
+>は、<CODE
+CLASS="FUNCTION"
+>pg_start_backup</CODE
+>で作成されたラベルファイルを削除し、トランザクションログ格納領域にバックアップ履歴ファイルを作成します。履歴ファイルには<CODE
+CLASS="FUNCTION"
+>pg_start_backup</CODE
+>で付与されたラベル、バックアップのトランザクションログの位置の開始位置、終了位置、バックアップ開始時刻、終了時刻が含まれます。戻り値は、バックアップの終了トランザクションログの位置です（これも同様に無視可能です）。終了位置を記録した後、現在のトランザクションログの挿入位置は自動的に、次のトランザクションログに進みます。ですので、終了トランザクションログファイルをすぐにアーカイブし、バックアップを完了させることができます。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_switch_xlog</CODE
+>は、次のトランザクションログファイルに移動し、現在のファイルをアーカイブできるようにします。（アーカイブを続けて使用することを前提とします。）戻り値は、完了した現在のトランザクションログファイル内の終了トランザクションログの位置に1を加えたものです。前回のトランザクションログファイルの切り替えからトランザクションログに変化がなければ、<CODE
+CLASS="FUNCTION"
+>pg_switch_xlog</CODE
+>は現在使用中のトランザクションログファイルの開始位置を返します。
+   </P
+><P
+>    
+    <CODE
+CLASS="FUNCTION"
+>pg_create_restore_point</CODE
+>はリカバリターゲットとして使用可能な名前付けされたトランザクションログレコードを生成し、それに該当するログ位置を返します。
+    与えられた名前は、どこまでリカバリをするかを明示的に指定する<A
+HREF="recovery-target-settings.html#RECOVERY-TARGET-NAME"
+>recovery_target_name</A
+>パラメータに使用することができます。
+    リカバリ処理はリカバリターゲットに指定した名前と一致した最初の時点で終了するため、同じ名前で複数のリストアポイントを作成することは避けてください。
+   </P
+><P
+>    
+    <CODE
+CLASS="FUNCTION"
+>pg_current_xlog_location</CODE
+>は、上記の関数で使用される同一の書式で現在のトランザクションログの書き込み位置を表示します。同様に<CODE
+CLASS="FUNCTION"
+>pg_current_xlog_insert_location</CODE
+>は、現在のトランザクションログの挿入位置を表示します。挿入位置は <SPAN
+CLASS="QUOTE"
+>"論理的"</SPAN
+>な任意の時点のトランザクションログの終了位置です。一方、書き込み位置は、サーバの内部バッファから書き出された実際の終了位置です。書き込み位置はサーバ外部から検証可能なものの終端です。通常は、部分的に完了したトランザクションログファイルのアーカイブ処理を行いたい場合に必要とされるものです。挿入位置はサーバをデバッグする際に主に使用されます。これらはどちらも読み取りのみの操作であり、スーパーユーザ権限を必要としません。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_xlogfile_name_offset</CODE
+>を使用して、上記いずれの関数の結果からも、対応するトランザクションログファイルとバイトオフセットを取り出すことができます。以下に例を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>postgres=# SELECT * FROM pg_xlogfile_name_offset(pg_stop_backup());
+        file_name         | file_offset 
+--------------------------+-------------
+ 00000001000000000000000D |     4039624
+(1 row)</PRE
+><P>
+    同様に、<CODE
+CLASS="FUNCTION"
+>pg_xlogfile_name</CODE
+>は、トランザクションログファイル名のみを取り出します。指定したトランザクションログの位置が正確にトランザクションログファイルの境界であった場合、これらの両関数は前のトランザクションログファイルの名前を返します。通常これは、トランザクションログファイルのアーカイブ動作では好まれる動作です。前のファイルが現在のアーカイブで必要とする最後のファイルであるからです。
+   </P
+><P
+>   
+    これらの関数の正しい使用方法については、<A
+HREF="continuous-archiving.html"
+>&#38917;24.3</A
+>を参照してください。
+   </P
+><P
+>   
+    <A
+HREF="functions-admin.html#FUNCTIONS-RECOVERY-INFO-TABLE"
+>&#34920;9-57</A
+>に示される関数は、スタンバイサーバの現在のステータス情報を提供します。これらの関数はリカバリ中、および通常稼動時に実行することができるでしょう。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-RECOVERY-INFO-TABLE"
+></A
+><P
+><B
+>&#34920; 9-57. リカバリ情報関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_is_in_recovery()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bool</TT
+></TD
+><TD
+>まだリカバリ実施中であれば真を返します。
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_last_xlog_receive_location()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>ストリーミングレプリケーションにより受信されディスクに書き込みされた、トランザクションログの最後の位置を取得します。ストリーミングレプリケーションが実施されている場合は、この値が単調に増加していくでしょう。リカバリが完了した場合、受信されディスクに書き込まれた最後のWALレコードの位置の値がそのまま残ります。ストリーミングレプリケーションが無効、もしくは開始されていない場合、この関数はNULLを返します。
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_last_xlog_replay_location()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>リカバリ中に再生された最後のトランザクションログの位置を取得します。リカバリが実施されている場合は、この値が単調に増加していくでしょう。リカバリが完了した場合は、リカバリ時に適用された最後のWALレコードの値がそのまま残ります。もしサーバがリカバリ無しで普通に起動された場合、この関数はNULLを返します。
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_last_xact_replay_timestamp()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>timestamp with time zone</TT
+></TD
+><TD
+>        リカバリ中に再生された最後のトランザクションのタイムスタンプを取得します。このタイムスタンプは、プライマリにて該当するトランザクションがコミット、もしくはアボートされた際のトランザクションログが生成された時間です。もしリカバリ中に何のトランザクションも再生されていない場合、この関数はNULLを返します。もしリカバリが完了した場合、この関数はリカバリ中に再生した最後のトランザクションの時間を静的に示し続けます。サーバがリカバリ処理無しに開始された場合、この関数はNULLを返します。
+       </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <A
+HREF="functions-admin.html#FUNCTIONS-RECOVERY-CONTROL-TABLE"
+>&#34920;9-58</A
+>に示す関数は、リカバリの進行を制御する関数です。これらの関数はリカバリ中のみ実施することが可能です。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-RECOVERY-CONTROL-TABLE"
+></A
+><P
+><B
+>&#34920; 9-58. リカバリ制御関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_is_xlog_replay_paused()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bool</TT
+></TD
+><TD
+>リカバリが停止中であれば真を返す
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_xlog_replay_pause()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>即座にリカバリを停止する
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_xlog_replay_resume()</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>もしリカバリ停止中であれば再開する
+       </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    リカバリ停止中は、それ以降のデータベースへの変更は適用されません。ホットスタンバイ側であれば、停止以降に発行されたSQLは、同じ一貫性を持ったデータベースのスナップショットを参照することができます。
+    そしてリカバリが再開されるまで、以降のSQLとプライマリへのSQLの衝突は発生しません。
+   </P
+><P
+>   
+    もしストリーミングレプリケーションが無効の場合、停止状態はいつまでも問題なく継続するでしょう。一方、ストリーミングレプリケーションによりWALレコードの受信が継続されていた場合、停止時間、WALの生成速度、ディスクの残存容量によりますが、ディスク溢れが発生する可能性があります。
+   </P
+><P
+>   
+    <A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-DBSIZE"
+>&#34920;9-59</A
+>で示された関数はデータベースオブジェクトのディスク領域を計算します。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-ADMIN-DBSIZE"
+></A
+><P
+><B
+>&#34920; 9-59. データベースオブジェクト容量関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_column_size(<TT
+CLASS="TYPE"
+>any</TT
+>)</CODE
+></TT
+></TD
+><TD
+><TT
+CLASS="TYPE"
+>int</TT
+></TD
+><TD
+>特定の値を格納するのに使用される（場合により圧縮された）バイト数</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_database_size(<TT
+CLASS="TYPE"
+>oid</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>指定されたOIDのデータベースで使用されるディスク容量</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_database_size(<TT
+CLASS="TYPE"
+>name</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>指定された名前のデータベースで使用されるディスク容量</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_indexes_size(<TT
+CLASS="TYPE"
+>regclass</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>       
+       指定されテーブルに付与されたインデックスで使用される総ディスク容量。
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_relation_size(<TT
+CLASS="PARAMETER"
+>relation</TT
+> <TT
+CLASS="TYPE"
+>regclass</TT
+>, <TT
+CLASS="PARAMETER"
+>fork</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>       
+       指定されたテーブルまたはインデックスの指定されたフォーク（<TT
+CLASS="LITERAL"
+>'main'</TT
+>、<TT
+CLASS="LITERAL"
+>'fsm'</TT
+>または<TT
+CLASS="LITERAL"
+>'vm'</TT
+>）で使用されるディスク容量
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_relation_size(<TT
+CLASS="PARAMETER"
+>relation</TT
+> <TT
+CLASS="TYPE"
+>regclass</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>       
+	<TT
+CLASS="LITERAL"
+>pg_relation_size(..., 'main')</TT
+>の省略表現
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_size_pretty(<TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>バイト単位のサイズを可読性が高いサイズ単位の書式に変換</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_table_size(<TT
+CLASS="TYPE"
+>regclass</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>       
+       指定されたテーブルで使用される容量の内、すべてのインデックスを除外した(しかしTOAST、空き領域マップ、可視性マップを含む)ディスク総容量。
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_tablespace_size(<TT
+CLASS="TYPE"
+>oid</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>指定されたOIDを持つテーブル空間で使用されるディスク容量</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_tablespace_size(<TT
+CLASS="TYPE"
+>name</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>指定された名前を持つテーブル空間で使用されるディスク容量</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_total_relation_size(<TT
+CLASS="TYPE"
+>regclass</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>bigint</TT
+></TD
+><TD
+>       
+	   指定されたテーブルで使用される、すべてのインデックスと<ACRONYM
+CLASS="ACRONYM"
+>TOAST</ACRONYM
+>データを含むディスク総容量
+       </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_column_size</CODE
+>はどんな個別のデータ値を格納するのにも使用される領域を示します。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_total_relation_size</CODE
+>は、テーブルまたはTOASTテーブルのOIDまたは名前を受け付け、指定されたテーブルと関連する全てのインデックスで使用される総ディスク容量を返します。この関数は<CODE
+CLASS="FUNCTION"
+>pg_table_size</CODE
+> <TT
+CLASS="LITERAL"
+>+</TT
+> <CODE
+CLASS="FUNCTION"
+>pg_indexes_size</CODE
+> の結果と等しいです。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_table_size</CODE
+>は、テーブルのOIDまたは名前を受け付け、インデックスを除いたテーブルのみで使用されるディスク容量を返します。(TOAST領域、空き領域マップ、可視性マップを含みます。)
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_indexes_size</CODE
+>は、テーブルのOIDまたは名前を受け付け、指定されたテーブル付与されている全てのインデックスで使用されるディスク容量を返します。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_database_size</CODE
+>と<CODE
+CLASS="FUNCTION"
+>pg_tablespace_size</CODE
+>はデータベースまたはテーブル空間の名前またはOIDを受付け、そこで使用される総容量を返します。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_relation_size</CODE
+>はOIDもしくはテーブル名、インデックスもしくはtoastテーブルを受け付け、ディスク容量をバイト単位で返します。<TT
+CLASS="LITERAL"
+>'main'</TT
+>を指定するか、第二番目の引数を除外するとその関係の主データフォークの容量を返します。<TT
+CLASS="LITERAL"
+>'fsm'</TT
+>を指定すると、関係（リレーション）に関連した空き領域マップ（<A
+HREF="storage-fsm.html"
+>&#38917;55.3</A
+>を参照）を返します。<TT
+CLASS="LITERAL"
+>'vm'</TT
+>を指定すると、関係に関連した可視性マップ（<A
+HREF="storage-vm.html"
+>&#38917;55.4</A
+>を参照）の容量を返します。この関数は一つのフォークのみのサイズを示すことに注意して下さい。大方の目的では、<CODE
+CLASS="FUNCTION"
+>pg_total_relation_size</CODE
+>や<CODE
+CLASS="FUNCTION"
+>pg_table_size</CODE
+>などの関数を使う方が便利です。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_size_pretty</CODE
+>は、適切にkB、MB、GB、もしくはTB単位を使用して目で見て判るようにその他の関数の1つの結果を整形するのに使用可能です。
+   </P
+><P
+>    
+    上記の関数において、テーブルやインデックスを<TT
+CLASS="TYPE"
+>regclass</TT
+>引数として受け取って処理するものがありますが、この引数は単に<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>システムカタログにあるテーブルやインデックスのOIDです。
+    ただし、<TT
+CLASS="TYPE"
+>regclass</TT
+>データ型が自動で入力変換を行うため、ユーザが手動で該当するOIDを調べる必要はありません。リテラル定数のようにシングルクォートで囲んだテーブル名を記述するだけです。
+    通常のSQL名に対する処理互換のため、テーブル名をダブルクォートで囲わない限り、テーブル名として入力された文字列は小文字に変換されます。
+   </P
+><P
+>    
+    <A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-DBLOCATION"
+>&#34920;9-60</A
+> に示される関数は、データベースオブジェクトに関連する特定のディスクファイルを確認する際の手助けとなります。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-ADMIN-DBLOCATION"
+></A
+><P
+><B
+>&#34920; 9-60. データベースオブジェクト位置関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_relation_filenode(<TT
+CLASS="PARAMETER"
+>relation</TT
+> <TT
+CLASS="TYPE"
+>regclass</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>oid</TT
+></TD
+><TD
+>       
+        指定されたリレーションのファイルノード番号
+       </TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_relation_filepath(<TT
+CLASS="PARAMETER"
+>relation</TT
+> <TT
+CLASS="TYPE"
+>regclass</TT
+>)</CODE
+></TT
+>
+        </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>       
+        指定されたリレーションのファイルパス
+       </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_relation_filenode</CODE
+>は、テーブル、インデックス、シーケンス、もしくはTOASTテーブルのOIDまたは名前を受け付け、現在それに充てられている<SPAN
+CLASS="QUOTE"
+>"ファイルノード"</SPAN
+>を返します。ファイルノードは、リレーションに使用しているファイル名の基礎部分です。(詳しくは<A
+HREF="storage-file-layout.html"
+>&#38917;55.1</A
+>を参照して下さい。)ほとんどのテーブルについては、結果が<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>relfilenode</TT
+>と同じになります。ただし、いくつかのシステムカタログでは<TT
+CLASS="STRUCTFIELD"
+>relfilenode</TT
+>が0になるため、これらのシステムカタログの正しいファイルノードを取得するには、この関数を使用しなければいけません。この関数は、ビューの様にストレージに格納されないリレーションが指定された場合はNULLを返します。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_relation_filepath</CODE
+>は<CODE
+CLASS="FUNCTION"
+>pg_relation_filenode</CODE
+>と似ていますが、こちらはリレーションのファイルパス名(データベースクラスタのディレクトリである<TT
+CLASS="VARNAME"
+>PGDATA</TT
+>からの相対パス)を返します。
+   </P
+><P
+>   
+    <A
+HREF="functions-admin.html#FUNCTIONS-ADMIN-GENFILE"
+>&#34920;9-61</A
+>で示されている関数はサーバをホスティングしているマシン上のファイルに対し、生来のアクセスを提供します。データベースクラスタディレクトリと<TT
+CLASS="VARNAME"
+>log_directory</TT
+>に存在するファイルのみがアクセス可能です。クラスタディレクトリ内のファイルに対して相対パスを、そしてログファイルに対しては<TT
+CLASS="VARNAME"
+>log_directory</TT
+>構成設定に一致するパスを使用してください。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-ADMIN-GENFILE"
+></A
+><P
+><B
+>&#34920; 9-61. 汎用ファイルアクセス関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_ls_dir(<TT
+CLASS="PARAMETER"
+>dirname</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>setof text</TT
+></TD
+><TD
+>ディレクトリ内容のリスト</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_read_file(<TT
+CLASS="PARAMETER"
+>filename</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+> [, <TT
+CLASS="PARAMETER"
+>offset</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>, <TT
+CLASS="PARAMETER"
+>length</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>])</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>text</TT
+></TD
+><TD
+>テキストファイルの内容を返す</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_read_binary_file(<TT
+CLASS="PARAMETER"
+>filename</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+> [, <TT
+CLASS="PARAMETER"
+>offset</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>, <TT
+CLASS="PARAMETER"
+>length</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>])</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>bytea</TT
+></TD
+><TD
+>ファイルの内容を返す</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_stat_file(<TT
+CLASS="PARAMETER"
+>filename</TT
+> <TT
+CLASS="TYPE"
+>text</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>record</TT
+></TD
+><TD
+>ファイル情報を返す</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_ls_dir</CODE
+>は、特別なエントリである<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>.</TT
+>"</SPAN
+>、および　<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>..</TT
+>"</SPAN
+>を除いた、指定されたディレクトリの全ての名前を返します。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_read_file</CODE
+>は与えられた<TT
+CLASS="PARAMETER"
+>offset</TT
+>から始まり、最大<TT
+CLASS="PARAMETER"
+>length</TT
+>バイト（最初にファイルの終りに到達すればこれより少なくなりますが）テキストファイルの一部分を返します。<TT
+CLASS="PARAMETER"
+>offset</TT
+>が負の場合にはファイルの終りから数えた位置から読み出します。
+    もし<TT
+CLASS="PARAMETER"
+>offset</TT
+>と<TT
+CLASS="PARAMETER"
+>length</TT
+>が省略された場合、ファイル全体が返されます。ファイルからのバイトの読み込みは、そのサーバ符号化方式に対する文字列と同様の解釈をされます。そのため、読み込んだバイト列がその符号化方式において有効でない場合にはエラーが投げられます。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_read_binary_file</CODE
+>は、結果が<TT
+CLASS="TYPE"
+>bytea</TT
+>値となり、従って符号化の検査がされないことを除き、<CODE
+CLASS="FUNCTION"
+>pg_read_file</CODE
+>と似ています。
+    <CODE
+CLASS="FUNCTION"
+>convert_from</CODE
+>関数と組み合わせることで、この指定した符号化方式でファイルの読み込みを行うことができます。
+    
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT convert_from(pg_read_binary_file('file_in_utf8.txt'), 'UTF8');</PRE
+><P>
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_stat_file</CODE
+>はファイル容量、最終アクセス時刻、最終更新時刻、最後にファイルステータスを変更した時刻（これはUnixプラットフォームのみ）、ファイル作成時刻（Windowsのみ）およびもしディレクトリであればそれを示す<TT
+CLASS="TYPE"
+>boolean</TT
+>を返します。典型的な使用法を示します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>SELECT * FROM pg_stat_file('filename');
+SELECT (pg_stat_file('filename')).modification;</PRE
+><P>
+   </P
+><P
+>   
+    <A
+HREF="functions-admin.html#FUNCTIONS-ADVISORY-LOCKS"
+>&#34920;9-62</A
+>に示す関数は勧告的ロックを管理します。これらの関数の適切な使用方法についての詳細は、<A
+HREF="explicit-locking.html#ADVISORY-LOCKS"
+>&#38917;13.3.4</A
+>を参照してください。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-ADVISORY-LOCKS"
+></A
+><P
+><B
+>&#34920; 9-62. 勧告的ロック用関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>戻り型</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_lock(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>セッションレベルの排他勧告的ロックを獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_lock(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>セッションレベルの排他勧告的ロックを獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_lock_shared(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>セッションレベルの共有勧告的ロックを獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_lock_shared(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>セッションレベルの共有勧告的ロックを獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>セッションレベルの排他勧告的ロックを解放</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>セッションレベルの排他勧告的ロックを解放</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock_all()</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>現在のセッションで保持している全てのセッションレベルの勧告的ロックを解放</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock_shared(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>セッションレベルの共有勧告的ロックを解放</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock_shared(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>セッションレベルの共有勧告的ロックの解放</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_xact_lock(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>トランザクションレベルの排他勧告的ロックの獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_xact_lock(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>トランザクションレベルの排他勧告的ロックの獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_xact_lock_shared(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>トランザクションレベルの共有勧告的ロックの獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_advisory_xact_lock_shared(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>void</TT
+></TD
+><TD
+>トランザクションレベルの共有勧告的ロックの獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>可能ならばセッションレベルの排他勧告的ロックを獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>可能ならばセッションレベルの排他勧告的ロックを獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock_shared(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>可能ならばセッションレベルの共有勧告的ロックを獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock_shared(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>可能ならばセッションレベルの共有勧告的ロックを獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_try_advisory_xact_lock(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>可能ならばトランザクションレベルの排他勧告的ロックの獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_try_advisory_xact_lock(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>可能ならばトランザクションレベルの排他勧告的ロックの獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_try_advisory_xact_lock_shared(<TT
+CLASS="PARAMETER"
+>key</TT
+> <TT
+CLASS="TYPE"
+>bigint</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>可能ならばトランザクションレベルの共有勧告的ロックの獲得</TD
+></TR
+><TR
+><TD
+>        <TT
+CLASS="LITERAL"
+><CODE
+CLASS="FUNCTION"
+>pg_try_advisory_xact_lock_shared(<TT
+CLASS="PARAMETER"
+>key1</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>, <TT
+CLASS="PARAMETER"
+>key2</TT
+> <TT
+CLASS="TYPE"
+>int</TT
+>)</CODE
+></TT
+>
+       </TD
+><TD
+><TT
+CLASS="TYPE"
+>boolean</TT
+></TD
+><TD
+>可能ならばトランザクションレベルの共有勧告的ロックの獲得</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_advisory_lock</CODE
+>は、アプリケーションが定義したリソースをロックします。キーは単一の64ビットキー値、または、２つの32ビットキー
+    （この2つのキー空間は重複しないことに注意）によって識別されます。
+    
+    もし、別のセッションがが同一リソースに対するロックを保持している場合、関数はリソースが利用可能になるまで待機します。ロックは排他ロックです。
+    複数のロック要求が待ち状態になります。ですので、同一リソースが３回ロックされた場合、他のセッションが使用できるように解放するためにはロック解除を３回行わなければなりません。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_advisory_lock_shared</CODE
+>の動作は<CODE
+CLASS="FUNCTION"
+>pg_advisory_lock</CODE
+>と同じですが、他のセッションの共有ロックと共有できるロックである点が異なります。
+排他ロック要求のみ締め出されます。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock</CODE
+>は<CODE
+CLASS="FUNCTION"
+>pg_advisory_lock</CODE
+>と同様ですが、この関数の場合、ロックが利用可能になるまで待機しません。ロックを即座に取得し<TT
+CLASS="LITERAL"
+>true</TT
+>を返すか、ロックを即座に獲得できなかった場合に<TT
+CLASS="LITERAL"
+>false</TT
+>を返すかのいずれかです。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock_shared</CODE
+>の動作は <CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock</CODE
+>と同じですが、排他ロックではなく共有ロックの獲得を試みます。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock</CODE
+>は、事前に獲得したセッションレベルの勧告的排他ロックを解放します。ロックの解放に成功した場合、<TT
+CLASS="LITERAL"
+>true</TT
+>を返します。ロックを保持していない場合、<TT
+CLASS="LITERAL"
+>false</TT
+>を返し、さらに、SQL警告がサーバから発生します。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock_shared</CODE
+>の動作は<CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock</CODE
+>と同じですが、セッションレベルの勧告的共有ロックを解放する点が異なります。
+   </P
+><P
+>    
+    <CODE
+CLASS="FUNCTION"
+>pg_advisory_unlock_all</CODE
+>は、現在のセッションで保持するセッションレベルの勧告的ロックをすべて解放します。（この関数は、クライアントとの接続がぶざまに切れた場合でも、セッション終了時に暗黙的に呼び出されます。)
+   </P
+><P
+>    
+    <CODE
+CLASS="FUNCTION"
+>pg_advisory_xact_lock</CODE
+>の動作は<CODE
+CLASS="FUNCTION"
+>pg_advisory_lock</CODE
+>と同じですが、現在のトランザクションの終了時に自動的にロックが解放され、明示的なロックの解放はできません。
+   </P
+><P
+>    
+    <CODE
+CLASS="FUNCTION"
+>pg_advisory_xact_lock_shared</CODE
+>の動作は<CODE
+CLASS="FUNCTION"
+>pg_advisory_lock_shared</CODE
+>と同じですが、現在のトランザクションの終了時に自動的にロックが解放され、明示的なロックの解放はできません。
+   </P
+><P
+>    
+    <CODE
+CLASS="FUNCTION"
+>pg_try_advisory_xact_lock</CODE
+>の動作は<CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock</CODE
+>と同じですが、ロックが獲得できた場合は現在のトランザクションの終了時に自動的にロックが解放され、明示的なロックの解放はできません。
+   </P
+><P
+>   
+    <CODE
+CLASS="FUNCTION"
+>pg_try_advisory_xact_lock_shared</CODE
+>の動作は<CODE
+CLASS="FUNCTION"
+>pg_try_advisory_lock_shared</CODE
+>と同じですが、ロックが獲得できた場合は現在のトランザクションの終了時に自動的にロックが解放され、明示的なロックの解放はできません。
+   </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-info.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-trigger.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>システム情報関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>トリガ関数</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

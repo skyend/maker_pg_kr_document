@@ -1,0 +1,415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>プランナで使用される統計情報</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="性能に関するヒント"
+HREF="performance-tips.html"><LINK
+REL="PREVIOUS"
+TITLE="EXPLAINの利用"
+HREF="using-explain.html"><LINK
+REL="NEXT"
+TITLE="明示的なJOIN句でプランナを制御する"
+HREF="explicit-joins.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="EXPLAINの利用"
+HREF="using-explain.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="性能に関するヒント"
+HREF="performance-tips.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 14&#31456;性能に関するヒント</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="性能に関するヒント"
+HREF="performance-tips.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="明示的なJOIN句でプランナを制御する"
+HREF="explicit-joins.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLANNER-STATS"
+>14.2. プランナで使用される統計情報</A
+></H1
+><P
+>前節で説明した通り、問い合わせプランナは、より良い問い合わせ計画を選択するために問い合わせによって取り出される行数の推定値を必要としています。
+本節では、システムがこの推定に使用する統計情報について簡単に説明します。
+  </P
+><P
+>統計情報の1つの構成要素は、各テーブルとインデックスの項目の総数と、各テーブルとインデックスが占めるディスクブロック数です。
+この情報は<A
+HREF="catalog-pg-class.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+></A
+>の<TT
+CLASS="STRUCTFIELD"
+>reltuples</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>relpages</TT
+>列に保持されます。
+以下のような問い合わせによりこれを参照することができます。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT relname, relkind, reltuples, relpages
+FROM pg_class
+WHERE relname LIKE 'tenk1%';
+
+       relname        | relkind | reltuples | relpages
+----------------------+---------+-----------+----------
+ tenk1                | r       |     10000 |      358
+ tenk1_hundred        | i       |     10000 |       30
+ tenk1_thous_tenthous | i       |     10000 |       30
+ tenk1_unique1        | i       |     10000 |       30
+ tenk1_unique2        | i       |     10000 |       30
+(5 rows)</PRE
+><P>
+
+ここで、<TT
+CLASS="STRUCTNAME"
+>tenk1</TT
+>とそのインデックスには10000行が存在し、そして、（驚くには値しませんが）インデックスはテーブルよりもかなり小さなものであることがわかります。
+  </P
+><P
+>効率を上げるため、<TT
+CLASS="STRUCTFIELD"
+>reltuples</TT
+>と<TT
+CLASS="STRUCTFIELD"
+>relpages</TT
+>は処理の度には更新されず、したがって通常は多少古い値のみ所有しています。
+これらは<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>、<TT
+CLASS="COMMAND"
+>CREATE INDEX</TT
+>などの一部のDDLコマンドによって更新されます。
+スタンドアロンの<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>、つまり<TT
+CLASS="COMMAND"
+>VACUUM</TT
+>の一部ではないコマンドはテーブルのすべての行を読みませんので、<TT
+CLASS="STRUCTFIELD"
+>reltuples</TT
+>の概算値を生成します。
+プランナは、現在の物理的なテーブルサイズに合わせるために<TT
+CLASS="STRUCTNAME"
+>pg_class</TT
+>から検索した値を調整して、より高精度な近似値を持ちます。
+  </P
+><P
+>ほとんどの問い合わせは、検証される行を制限する<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句によって、テーブル内の行の一部のみを取り出します。
+したがって、プランナは<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の<I
+CLASS="FIRSTTERM"
+>選択性</I
+>、つまり<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の各条件にどれだけの行が一致するかを推定する必要があります。
+この処理に使用される情報は<A
+HREF="catalog-pg-statistic.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+></A
+>システムカタログ内に格納されます。
+<TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+>内の項目は、<TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>と<TT
+CLASS="COMMAND"
+>VACUUM ANALYZE</TT
+>コマンドによって更新され、また１から更新がかかったとしても常に概算値になります。
+  </P
+><P
+>統計情報を手作業で確認する場合、<TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+>を直接参照するのではなく、<A
+HREF="view-pg-stats.html"
+><TT
+CLASS="STRUCTNAME"
+>pg_stats</TT
+></A
+>ビューを参照する方が良いでしょう。
+<TT
+CLASS="STRUCTNAME"
+>pg_stats</TT
+>はより読みやすくなるように設計されています。
+さらに、<TT
+CLASS="STRUCTNAME"
+>pg_stats</TT
+>は誰でも読み取ることができますが、<TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+>はスーパーユーザのみ読み取ることができます。
+（これは、非特権ユーザが統計情報から他人のテーブルの内容に関わる事項を読み取ることを防止します。
+<TT
+CLASS="STRUCTNAME"
+>pg_stats</TT
+>ビューは現在のユーザが読み取ることができるテーブルに関する行のみを表示するよう制限されています。）
+例えば、以下を行うことができます。
+
+</P><PRE
+CLASS="SCREEN"
+>SELECT attname, inherited, n_distinct,
+       array_to_string(most_common_vals, E'\n') as most_common_vals
+FROM pg_stats
+WHERE tablename = 'road';
+
+ attname | inherited | n_distinct |          most_common_vals          
+---------+-----------+------------+------------------------------------
+ name    | f         |  -0.363388 | I- 580                        Ramp+
+         |           |            | I- 880                        Ramp+
+         |           |            | Sp Railroad                       +
+         |           |            | I- 580                            +
+         |           |            | I- 680                        Ramp
+ name    | t         |  -0.284859 | I- 880                        Ramp+
+         |           |            | I- 580                        Ramp+
+         |           |            | I- 680                        Ramp+
+         |           |            | I- 580                            +
+         |           |            | State Hwy 13                  Ramp
+(2 rows)</PRE
+><P>
+
+同じ列に対して2行が表示されていることに注意してください。
+1つは<TT
+CLASS="LITERAL"
+>road</TT
+>テーブルが始まる継承階層(<TT
+CLASS="LITERAL"
+>inherited</TT
+>=<TT
+CLASS="LITERAL"
+>t</TT
+>)全体に相当し、もう1つは<TT
+CLASS="LITERAL"
+>road</TT
+>テーブル自身(<TT
+CLASS="LITERAL"
+>inherited</TT
+>=<TT
+CLASS="LITERAL"
+>f</TT
+>)のみを含むものです。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>ANALYZE</TT
+>により<TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+>に格納される情報量、具体的には、それぞれの列に対する<TT
+CLASS="STRUCTFIELD"
+>most_common_vals</TT
+>内と<TT
+CLASS="STRUCTFIELD"
+>histogram_bounds</TT
+>配列のエントリの最大数は、<TT
+CLASS="COMMAND"
+>ALTER TABLE SET STATISTICS</TT
+>コマンドによって列ごとに、<A
+HREF="runtime-config-query.html#GUC-DEFAULT-STATISTICS-TARGET"
+>default_statistics_target</A
+>設定パラメータを設定することによってグローバルに設定することができます。
+現在のデフォルトの上限は100エントリです。
+この上限を上げることで、特に、少し変わったデータ分布を持つ列でより正確なプランナの推定が行われますが、<TT
+CLASS="STRUCTNAME"
+>pg_statistic</TT
+>により多くの容量が必要になり、多少推定計算にかかる時間が多くなります。
+反対に上限を下げることは、単純なデータ分布の列に対して順当です。
+  </P
+><P
+>プランナによる統計情報の使用に関する詳細については<A
+HREF="planner-stats-details.html"
+>&#31532;57&#31456;</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="using-explain.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="explicit-joins.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><TT
+CLASS="COMMAND"
+>EXPLAIN</TT
+>の利用</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="performance-tips.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>明示的な<TT
+CLASS="LITERAL"
+>JOIN</TT
+>句でプランナを制御する</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

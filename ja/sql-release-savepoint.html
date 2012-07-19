@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>RELEASE SAVEPOINT</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="REINDEX"
+HREF="sql-reindex.html"><LINK
+REL="NEXT"
+TITLE="RESET"
+HREF="sql-reset.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="REINDEX"
+HREF="sql-reindex.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="REINDEX"
+HREF="sql-reindex.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="RESET"
+HREF="sql-reset.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="RESET"
+HREF="sql-reset.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-RELEASE-SAVEPOINT"
+></A
+>RELEASE SAVEPOINT</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN73643"
+></A
+><H2
+>&#21517;&#21069;</H2
+>RELEASE SAVEPOINT&nbsp;--&nbsp;設定済みのセーブポイントを破棄する</DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN73651"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>RELEASE [ SAVEPOINT ] <TT
+CLASS="REPLACEABLE"
+><I
+>savepoint_name</I
+></TT
+></PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73654"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>RELEASE SAVEPOINT</TT
+>は、現在のトランザクションで事前に設定されていたセーブポイントを破棄します。
+  </P
+><P
+>セーブポイントを破棄すると、ロールバックするポイントとして使用できなくなります。
+他にユーザの目に付くような動作はありません。
+このコマンドは、セーブポイントの設定後に実行されたコマンドの効果を取り消すわけではありません
+（これを行う方法は<A
+HREF="sql-rollback-to.html"
+>ROLLBACK TO SAVEPOINT</A
+>を参照してください）。
+不要になったセーブポイントを破棄することにより、システムがトランザクションの終了前に多少のリソースを回収することができます。
+  </P
+><P
+>また、<TT
+CLASS="COMMAND"
+>RELEASE SAVEPOINT</TT
+>が実行されると、指定したセーブポイントの後に設定されたセーブポイントは全て破棄されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73662"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>savepoint_name</I
+></TT
+></DT
+><DD
+><P
+>破棄するセーブポイントの名前です。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73670"
+></A
+><H2
+>注釈</H2
+><P
+>設定されていないセーブポイント名を指定するとエラーになります。
+  </P
+><P
+>トランザクションがアボート状態の時には、セーブポイントを解放することはできません。
+  </P
+><P
+>同じ名前のセーブポイントが複数存在する場合、最後に設定されたセーブポイントが解放されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73675"
+></A
+><H2
+>例</H2
+><P
+>セーブポイントを設定し、その後、破棄します。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>BEGIN;
+    INSERT INTO table1 VALUES (3);
+    SAVEPOINT my_savepoint;
+    INSERT INTO table1 VALUES (4);
+    RELEASE SAVEPOINT my_savepoint;
+COMMIT;</PRE
+><P>
+上記のトランザクションでは、3と4の両方が挿入されます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73679"
+></A
+><H2
+>互換性</H2
+><P
+>このコマンドは標準<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>に準拠しています。
+SQL:2003標準では、<TT
+CLASS="LITERAL"
+>SAVEPOINT</TT
+>は必須であると規定されています。
+<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>では<TT
+CLASS="LITERAL"
+>SAVEPOINT</TT
+>キーワードを省略することができます。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN73686"
+></A
+><H2
+>関連項目</H2
+><A
+HREF="sql-begin.html"
+>BEGIN</A
+>, <A
+HREF="sql-commit.html"
+>COMMIT</A
+>, <A
+HREF="sql-rollback.html"
+>ROLLBACK</A
+>, <A
+HREF="sql-rollback-to.html"
+>ROLLBACK TO SAVEPOINT</A
+>, <A
+HREF="sql-savepoint.html"
+>SAVEPOINT</A
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-reindex.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-reset.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>REINDEX</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>RESET</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

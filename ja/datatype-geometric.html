@@ -1,0 +1,1025 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>幾何データ型</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データ型"
+HREF="datatype.html"><LINK
+REL="PREVIOUS"
+TITLE="列挙型"
+HREF="datatype-enum.html"><LINK
+REL="NEXT"
+TITLE="ネットワークアドレス型"
+HREF="datatype-net-types.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="列挙型"
+HREF="datatype-enum.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 8&#31456;データ型</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データ型"
+HREF="datatype.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ネットワークアドレス型"
+HREF="datatype-net-types.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DATATYPE-GEOMETRIC"
+>8.8. 幾何データ型</A
+></H1
+><P
+>幾何データ型は2次元空間オブジェクトを表現します。
+<A
+HREF="datatype-geometric.html#DATATYPE-GEO-TABLE"
+>&#34920;8-20</A
+>は、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>で使用可能な幾何データ型を列挙したものです。
+一番の基本となる型はpointで、すべての他の型の基礎を形成します。
+   </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="DATATYPE-GEO-TABLE"
+></A
+><P
+><B
+>&#34920; 8-20. 幾何データ型</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><COL><THEAD
+><TR
+><TH
+>型名</TH
+><TH
+>格納サイズ</TH
+><TH
+>表現</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>point</TT
+></TD
+><TD
+>16バイト</TD
+><TD
+>平面における座標点</TD
+><TD
+>(x,y)</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>line</TT
+></TD
+><TD
+>32バイト</TD
+><TD
+>無限の直線（完全には実装されていません）</TD
+><TD
+>((x1,y1),(x2,y2))</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>lseg</TT
+></TD
+><TD
+>32バイト</TD
+><TD
+>有限の線分</TD
+><TD
+>((x1,y1),(x2,y2))</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>box</TT
+></TD
+><TD
+>32バイト</TD
+><TD
+>矩形</TD
+><TD
+>((x1,y1),(x2,y2))</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>path</TT
+></TD
+><TD
+>16+16nバイト</TD
+><TD
+>閉経路（多角形に類似）</TD
+><TD
+>((x1,y1),...)</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>path</TT
+></TD
+><TD
+>16+16nバイト</TD
+><TD
+>開経路</TD
+><TD
+>[(x1,y1),...]</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>polygon</TT
+></TD
+><TD
+>40+16nバイト</TD
+><TD
+>多角形（閉経路に類似）</TD
+><TD
+>((x1,y1),...)</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="TYPE"
+>circle</TT
+></TD
+><TD
+>24バイト</TD
+><TD
+>円</TD
+><TD
+>&lt;(x,y),r&gt;（中心と半径）</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>拡大縮小、変形、回転、交点の算出といった様々な幾何学的操作を行う関数と演算子の集合が豊富に揃っています。
+このことについては<A
+HREF="functions-geometry.html"
+>&#38917;9.11</A
+>に説明があります。
+   </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6435"
+>8.8.1. 座標点</A
+></H2
+><P
+>座標点は幾何データ型の基礎となる2次元構成要素です。
+<TT
+CLASS="TYPE"
+>point</TT
+>型の値は次の構文のいずれかで指定されます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>( <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+> )
+  <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+></PRE
+><P>
+
+ここで<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>は、それぞれの座標を浮動小数点数数値で表したものです。
+    </P
+><P
+>座標点は1番目の構文で出力されます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6449"
+>8.8.2. 線分</A
+></H2
+><P
+>線分（<TT
+CLASS="TYPE"
+>lseg</TT
+>）は座標点の組み合わせで表現されます。
+<TT
+CLASS="TYPE"
+>lseg</TT
+>型の値は次の構文のいずれかで指定されます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>[ ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ( <TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+> ) ]
+( ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ( <TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+> ) )
+  ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ( <TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+> )
+    <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>   ,   <TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+></PRE
+><P>
+
+ここで、<TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>)</TT
+>と<TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+>)</TT
+>は線分の終端点です。
+    </P
+><P
+>線分は1番目の構文で出力されます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6482"
+>8.8.3. 矩形</A
+></H2
+><P
+>矩形は、矩形の対角線の両端の座標点の組み合わせで表されます。
+<TT
+CLASS="TYPE"
+>box</TT
+>型の値は以下の構文のいずれかで指定されます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>( ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ( <TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+> ) )
+  ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ( <TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+> )
+    <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>   ,   <TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+></PRE
+><P>
+
+ここで<TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>)</TT
+>と<TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x2</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>y2</I
+></TT
+>)</TT
+>は矩形の対角線の両端です。
+    </P
+><P
+>矩形は最初に示した構文で出力されます。
+    </P
+><P
+>任意の対角頂点を入力として指定することができます。
+しかし頂点は右上の頂点を最初に、左下の頂点をその後に格納するよう必要に応じて並べられます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6511"
+>8.8.4. 経路</A
+></H2
+><P
+>経路は接続している座標点のリストで表現されます。
+経路は最初の座標点と最後の座標点が接続されていないとみなされる<I
+CLASS="FIRSTTERM"
+>開いている</I
+>状態か、最初の座標点と最後の座標点が接続されているとみなされる<I
+CLASS="FIRSTTERM"
+>閉じた</I
+>状態かのいずれかです。
+    </P
+><P
+><TT
+CLASS="TYPE"
+>path</TT
+>型の値は次の構文のいずれかで指定されます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>[ ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ... , ( <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+> ) ]
+( ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ... , ( <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+> ) )
+  ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ... , ( <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+> )
+  ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>   , ... ,   <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+> )
+    <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>   , ... ,   <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+></PRE
+><P>
+
+ここで、各座標点は、経路を構成する線分の終端点です。
+大括弧（<TT
+CLASS="LITERAL"
+>[]</TT
+>）は開経路を、括弧（<TT
+CLASS="LITERAL"
+>()</TT
+>）は閉経路を示します。
+3番目から4番目の構文のようにもっとも外側の括弧が省略された場合、閉経路と仮定されます。
+    </P
+><P
+>経路は最初または２番目の適切な構文で出力されます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6544"
+>8.8.5. 多角形</A
+></H2
+><P
+>多角形は座標点（多角形の頂点）のリストで表現されます。
+多角形は閉経路ととても良く似ていますが、異なった方式で格納されると同時にそれぞれ独自のサポート関数群を持っています。
+    </P
+><P
+><TT
+CLASS="TYPE"
+>polygon</TT
+>型の値は次の構文のいずれかで指定されます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>( ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ... , ( <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+> ) )
+  ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+> ) , ... , ( <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+> )
+  ( <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>   , ... ,   <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+> )
+    <TT
+CLASS="REPLACEABLE"
+><I
+>x1</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y1</I
+></TT
+>   , ... ,   <TT
+CLASS="REPLACEABLE"
+><I
+>xn</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>yn</I
+></TT
+></PRE
+><P>
+
+各座標点は多角形の境界を構成する線分の終端点です。
+    </P
+><P
+>多角形は最初の構文で出力されます。
+    </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6569"
+>8.8.6. 円</A
+></H2
+><P
+>円は中心座標点と半径で表現されます。
+<TT
+CLASS="TYPE"
+>circle</TT
+>型の値は次の構文のいずれかで指定されます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>&lt; ( <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+> ) , <TT
+CLASS="REPLACEABLE"
+><I
+>r</I
+></TT
+> &gt;
+( ( <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+> ) , <TT
+CLASS="REPLACEABLE"
+><I
+>r</I
+></TT
+> )
+  ( <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+> ) , <TT
+CLASS="REPLACEABLE"
+><I
+>r</I
+></TT
+>
+    <TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+> , <TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>   , <TT
+CLASS="REPLACEABLE"
+><I
+>r</I
+></TT
+></PRE
+><P>
+
+ここで<TT
+CLASS="LITERAL"
+>(<TT
+CLASS="REPLACEABLE"
+><I
+>x</I
+></TT
+>,<TT
+CLASS="REPLACEABLE"
+><I
+>y</I
+></TT
+>)</TT
+>は円の中心点、<TT
+CLASS="REPLACEABLE"
+><I
+>r</I
+></TT
+>は円の半径です。
+    </P
+><P
+>円は最初の構文で出力されます。
+    </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="datatype-enum.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="datatype-net-types.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>列挙型</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="datatype.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ネットワークアドレス型</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

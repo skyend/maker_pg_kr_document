@@ -1,0 +1,1064 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>動的追跡</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="データベース活動状況の監視"
+HREF="monitoring.html"><LINK
+REL="PREVIOUS"
+TITLE="ロックの表示"
+HREF="monitoring-locks.html"><LINK
+REL="NEXT"
+TITLE="ディスク使用量の監視"
+HREF="diskusage.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ロックの表示"
+HREF="monitoring-locks.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="データベース活動状況の監視"
+HREF="monitoring.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 27&#31456;データベース活動状況の監視</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="データベース活動状況の監視"
+HREF="monitoring.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="ディスク使用量の監視"
+HREF="diskusage.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DYNAMIC-TRACE"
+>27.4. 動的追跡</A
+></H1
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は、データベースサーバの動的追跡をサポートする機能を提供します。これにより、外部ユーティリティをコードの特定のポイントで呼び出すことができ、追跡を行うことができるようになります。
+  </P
+><P
+>多くの追跡やプローブ用のポイントは、すでにソースコード内部に存在します。これらのプローブはデータベースの開発者や管理者が使うことを意図しています。デフォルトでは、これらのプローブは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にコンパイルされません。ユーザは明示的にconfigureスクリプトでプローブを有効にするように設定する必要があります。
+  </P
+><P
+>現在、OpenSolaris、Soralis 10、そして　Mac OS X Leopardで利用可能な<A
+HREF="http://opensolaris.org/os/community/dtrace/"
+TARGET="_top"
+>DTrace</A
+>ユーティリティのみがサポートされています。DTraceは将来FreeBSDやその他のオペレーティングシステムで利用できるようになることが予定されています。<A
+HREF="http://sourceware.org/systemtap/"
+TARGET="_top"
+>SystemTap</A
+>プロジェクトではDtrace相当の機能をLinux向けに提供しています。他の動的追跡ユーティリティのサポートは、<TT
+CLASS="FILENAME"
+>src/include/utils/probes.h</TT
+>内の<TT
+CLASS="LITERAL"
+>PG_TRACE</TT
+>マクロ定義を変更することで、理論上は可能です。
+  </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="COMPILING-FOR-TRACE"
+>27.4.1. 動的追跡のためのコンパイル</A
+></H2
+><P
+>デフォルトでは、プローブは有効ではありません。そのため、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>でプローブが利用できるようにするためにconfigureスクリプトで明示的に設定しなければなりません。DTraceサポートを含めるには、configureに<TT
+CLASS="OPTION"
+>--enable-dtrace</TT
+>を指定します。詳細は<A
+HREF="install-procedure.html"
+>&#38917;15.4</A
+>を参照してください。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TRACE-POINTS"
+>27.4.2. 組み込み済みのプローブ</A
+></H2
+><P
+><A
+HREF="dynamic-trace.html#DTRACE-PROBE-POINT-TABLE"
+>&#34920;27-3</A
+>で示されるように、多くの標準的なプローブがソースコード内で提供されています。<A
+HREF="dynamic-trace.html#TYPEDEFS-TABLE"
+>&#34920;27-4</A
+>はプローブで使用している型を示しています。また、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>内の可観測性を強化するためのプローブ追加が可能です。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="DTRACE-PROBE-POINT-TABLE"
+></A
+><P
+><B
+>&#34920; 27-3. 組み込み済みのDtraceプローブ</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>名前</TH
+><TH
+>パラメータ</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>transaction-start</TD
+><TD
+>(LocalTransactionId)</TD
+><TD
+>新しいトランザクションの開始を捕捉するプローブ。arg0はトランザクションIDです。</TD
+></TR
+><TR
+><TD
+>transaction-commit</TD
+><TD
+>(LocalTransactionId)</TD
+><TD
+>トランザクションの正常終了を捕捉するプローブ。arg0はトランザクションIDです。</TD
+></TR
+><TR
+><TD
+>transaction-abort</TD
+><TD
+>(LocalTransactionId)</TD
+><TD
+>トランザクションの異常終了を捕捉するプローブ。arg0はトランザクションIDです。</TD
+></TR
+><TR
+><TD
+>query-start</TD
+><TD
+>(const char *)</TD
+><TD
+>問い合わせ処理の開始を捕捉するプローブ。arg0は問い合わせ文字列です。</TD
+></TR
+><TR
+><TD
+>query-done</TD
+><TD
+>(const char *)</TD
+><TD
+>問い合わせ処理の正常終了を捕捉するプローブ。arg0は問い合わせ文字列です。</TD
+></TR
+><TR
+><TD
+>query-parse-start</TD
+><TD
+>(const char *)</TD
+><TD
+>問い合わせのパース処理の開始を捕捉するプローブ。arg0は問い合わせ文字列です。</TD
+></TR
+><TR
+><TD
+>query-parse-done</TD
+><TD
+>(const char *)</TD
+><TD
+>問い合わせのパース処理の正常終了を捕捉するプローブ。arg0は問い合わせ文字列です。</TD
+></TR
+><TR
+><TD
+>query-rewrite-start</TD
+><TD
+>(const char *)</TD
+><TD
+>問い合わせの書き換え処理の開始を捕捉するプローブ。arg0は問い合わせ文字列です。</TD
+></TR
+><TR
+><TD
+>query-rewrite-done</TD
+><TD
+>(const char *)</TD
+><TD
+>問い合わせの書き換え処理の正常終了を捕捉するプローブ。arg0は問い合わせ文字列です。</TD
+></TR
+><TR
+><TD
+>query-plan-start</TD
+><TD
+>()</TD
+><TD
+>問い合わせのプランナ処理の開始を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>query-plan-done</TD
+><TD
+>()</TD
+><TD
+>問い合わせのプランナ処理の正常終了を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>query-execute-start</TD
+><TD
+>()</TD
+><TD
+>問い合わせの実行(エクゼキュータ)処理の開始を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>query-execute-done</TD
+><TD
+>()</TD
+><TD
+>問い合わせの実行(エクゼキュータ)処理の正常終了を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>statement-status</TD
+><TD
+>(const char *)</TD
+><TD
+>サーバプロセスによる<TT
+CLASS="STRUCTNAME"
+>pg_stat_activity</TT
+>.<TT
+CLASS="STRUCTFIELD"
+>current_query</TT
+>の状態の更新を捕捉するプローブ。
+  arg0は新しい状態の文字列です。</TD
+></TR
+><TR
+><TD
+>checkpoint-start</TD
+><TD
+>(int)</TD
+><TD
+>チェックポイントの開始を捕捉するプローブです。arg0はチェックポイントの種類の違い(shutdown、immediate、force)を区別するためのビットフラグを持っています。</TD
+></TR
+><TR
+><TD
+>checkpoint-done</TD
+><TD
+>(int, int, int, int, int)</TD
+><TD
+>チェックポイントの正常終了を捕捉するプローブ(以下に示すプローブはチェックポイント進行に従い順番に捕捉されます）。
+     arg0は書き込まれたバッファ数、arg1はバッファの総数、arg2、3、4はそれぞれ追加、削除、再利用されたxlogの数です。</TD
+></TR
+><TR
+><TD
+>clog-checkpoint-start</TD
+><TD
+>(bool)</TD
+><TD
+>CLOG部分のチェックポイントの開始を捕捉するプローブ。arg0がtrueならば通常のチェックポイントであり、falseならばシャットダウン時のチェックポイントを示します。</TD
+></TR
+><TR
+><TD
+>clog-checkpoint-done</TD
+><TD
+>(bool)</TD
+><TD
+>CLOG部分のチェックポイントの正常終了を捕捉するプローブ。arg0はclog-checkpoint-startと同じ意味を持ちます。</TD
+></TR
+><TR
+><TD
+>subtrans-checkpoint-start</TD
+><TD
+>(bool)</TD
+><TD
+>サブトランザクション部分のチェックポイントの開始を捕捉するプローブ。arg0がtrueならば通常のチェックポイントであり、falseならばシャットダウン時のチェックポイントを示します。</TD
+></TR
+><TR
+><TD
+>subtrans-checkpoint-done</TD
+><TD
+>(bool)</TD
+><TD
+>サブトランザクション部分のチェックポイントの正常終了を捕捉するプローブ。arg0はsubtrans-checkpoint-startと同じ意味を持ちます。</TD
+></TR
+><TR
+><TD
+>multixact-checkpoint-start</TD
+><TD
+>(bool)</TD
+><TD
+>マルチトランザクション部分のチェックポイントの開始を捕捉するプローブ。arg0がtrueならば通常のチェックポイントであり、falseならばシャットダウン時のチェックポイントを示します。</TD
+></TR
+><TR
+><TD
+>multixact-checkpoint-done</TD
+><TD
+>(bool)</TD
+><TD
+>マルチトランザクション部分のチェックポイントの正常終了を捕捉するプローブ。arg0はmultixact-checkpoint-startと同じ意味を持ちます。</TD
+></TR
+><TR
+><TD
+>buffer-checkpoint-start</TD
+><TD
+>(int)</TD
+><TD
+>チェックポイントのバッファ書き込み部分の開始を捕捉するプローブ。arg0はチェックポイントの種類の違い(shutdown、immediate、force)を区別するためのビットフラグを持っています。</TD
+></TR
+><TR
+><TD
+>buffer-sync-start</TD
+><TD
+>(int, int)</TD
+><TD
+>チェックポイント中のダーティバッファの書き出し開始を捕捉するプローブ(どのバッファが書き出す必要があるのかを判定した後です)。arg0はバッファの総数で、arg1は現在ダーティであり、書き出す必要のあるバッファ数です。</TD
+></TR
+><TR
+><TD
+>buffer-sync-written</TD
+><TD
+>(int)</TD
+><TD
+>チェックポイント中のそれぞれのバッファを書き出し後を捕捉するプローブ。arg0はバッファのIDを示します。</TD
+></TR
+><TR
+><TD
+>buffer-sync-done</TD
+><TD
+>(int, int, int)</TD
+><TD
+>全てのダーティバッファの書き出し後を捕捉するプローブ。arg0はバッファの総数です。arg1はチェックポイント処理により実際に書き出されたバッファ数です。arg2は書き出されるであろうと見積もられたバッファ数(buffer-sync-startのarg1相当)です。この違いはチェックポイント中に他のプロセスにより書き出されたバッファ分です。</TD
+></TR
+><TR
+><TD
+>buffer-checkpoint-sync-start</TD
+><TD
+>()</TD
+><TD
+>カーネルへのダーティバッファの書き出し処理発行の後、そして同期書き出し要求を開始する前を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>buffer-checkpoint-done</TD
+><TD
+>()</TD
+><TD
+>バッファからディスクへの同期書き出し処理の終了を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>twophase-checkpoint-start</TD
+><TD
+>()</TD
+><TD
+>二相コミット部分のチェックポイントの開始を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>twophase-checkpoint-done</TD
+><TD
+>()</TD
+><TD
+>二相コミット部分のチェックポイントの正常終了を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>buffer-read-start</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid, int, bool)</TD
+><TD
+>  バッファ読み込みの開始を捕捉するプローブ。arg0はとarg1は読み込みページのフォーク番号とブロック番号です(ただし、リレーションの拡張要求があった場合、arg1は-1になるでしょう)。
+  arg2、arg3、arg4は対象のリレーションを識別するテーブル空間、データベース、そしてリレーションのOIDです。
+  arg5は一時テーブルをローカルバッファに作成していればそのバックエンドのIDであり、無効なバックエンドID(-1)であれは共有バッファを指します。
+  arg6はtrueならばリレーションの拡張要求、falseは通常の読み込みを示します。</TD
+></TR
+><TR
+><TD
+>buffer-read-done</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid, int, bool, bool)</TD
+><TD
+>バッファ読み込みの終了を捕捉するプローブ。arg0とarg1は読み込みページのフォーク番号とブロック番号です(もしリレーションの拡張要求があった場合、arg1は新たに追加されたブロックの番号を含みます)。
+  arg2、arg3、arg4は対象のテーブルを識別するテーブル空間、データベース、そしてテーブルのOIDです。arg5は一時テーブルをローカルバッファに作成していればそのバックエンドのIDであり、無効なバックエンドID(-1)であれは共有バッファを指します。
+  arg6はtrueならばリレーションの拡張要求、falseは通常の読み込みを示します。arg7はtrueならばバッファがプール内にある、falseはプール内に無かったことを示します。</TD
+></TR
+><TR
+><TD
+>buffer-flush-start</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid)</TD
+><TD
+>共有バッファへの書き込み要求開始を捕捉するプローブ。arg0とarg1はそのページのフォーク番号とブロック番号です。arg2、arg3、arg4は対象のリレーションを識別するテーブル空間、データベース、そしてテーブルのOIDです。</TD
+></TR
+><TR
+><TD
+>buffer-flush-done</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid)</TD
+><TD
+>書き込み要求の終了を捕捉するプローブ。(これはカーネルへデータを渡したタイミングのみを反映していることに注意してください; 大抵、この時点ではまだ実際にディスクへ書き込まれていません。)引数はbuffer-flush-startと同じです。</TD
+></TR
+><TR
+><TD
+>buffer-write-dirty-start</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid)</TD
+><TD
+>サーバプロセスによるダーティバッファの書き出し開始を捕捉するプローブ。(もしこれが頻発するようでしたら、<A
+HREF="runtime-config-resource.html#GUC-SHARED-BUFFERS"
+>shared_buffers</A
+>が少な過ぎるか、バックグラウンドライタ制御のパラメータの調節が必要なことを意味します。)arg0とarg1はそのページのフォーク番号とブロック番号です。arg2、arg3、arg4は対象のリレーションを識別するテーブル空間、データベース、そしてリレーションのOIDです。</TD
+></TR
+><TR
+><TD
+>buffer-write-dirty-done</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid)</TD
+><TD
+>ダーティバッファの書き出しの終了を捕捉するプローブです。引数はbuffer-write-dirty-startと同じです。</TD
+></TR
+><TR
+><TD
+>wal-buffer-write-dirty-start</TD
+><TD
+>()</TD
+><TD
+>WALバッファ領域の不足によるサーバプロセスのダーティなWALバッファを書き出しを捕捉するプローブ。(もしこれが頻発するようでしたら、<A
+HREF="runtime-config-wal.html#GUC-WAL-BUFFERS"
+>wal_buffers</A
+>が小さすぎることを意味します。)</TD
+></TR
+><TR
+><TD
+>wal-buffer-write-dirty-done</TD
+><TD
+>()</TD
+><TD
+>ダーティなWALバッファの書き出し終了を捕捉するプローブ。</TD
+></TR
+><TR
+><TD
+>xlog-insert</TD
+><TD
+>(unsigned char, unsigned char)</TD
+><TD
+>WALレコードの挿入を捕捉するプローブ。arg0はレコードのリソースマネージャ(rmid)です。arg1は情報フラグです。</TD
+></TR
+><TR
+><TD
+>xlog-switch</TD
+><TD
+>()</TD
+><TD
+>WALセグメントのスイッチ要求を捕捉するプローブです。</TD
+></TR
+><TR
+><TD
+>smgr-md-read-start</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid, int)</TD
+><TD
+>リレーションからのブロック読み込みの開始を捕捉するプローブ。arg0とarg1はそのページのフォーク番号とブロック番号です。arg2、arg3、arg4は対象のリレーションを識別するテーブル空間、データベース、そしてリレーションのOIDです。arg5は一時テーブルをローカルバッファに作成していればそのバックエンドのIDであり、無効なバックエンドID(-1)であれは共有バッファを指します。</TD
+></TR
+><TR
+><TD
+>smgr-md-read-done</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid, int, int, int)</TD
+><TD
+>ブロックの読み込み終了を捕捉するプローブ。arg0とarg1はそのページのフォーク番号とブロック番号です。arg2、arg3、arg4は対象のリレーションを識別するテーブル空間、データベース、そしてリレーションのOIDです。arg5は一時テーブルをローカルバッファに作成していればそのバックエンドのIDであり、無効なバックエンドID(-1)であれは共有バッファを指します。arg6は実際に読み込んだバイト数、arg7はリクエストされた読み込みバイト数です(もし、これらに差異があった場合、何らかの問題があることを示します)。</TD
+></TR
+><TR
+><TD
+>smgr-md-write-start</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid, int)</TD
+><TD
+>リレーションへのブロック書き出しの開始を捕捉するプローブ。arg0とarg1はそのページのフォーク番号とブロック番号です。arg2、arg3、arg4は対象のリレーションを識別するテーブル空間、データベース、そしてリレーションのOIDです。arg5は一時テーブルをローカルバッファに作成していればそのバックエンドのIDであり、無効なバックエンドID(-1)であれは共有バッファを指します。</TD
+></TR
+><TR
+><TD
+>smgr-md-write-done</TD
+><TD
+>(ForkNumber, BlockNumber, Oid, Oid, Oid, int, int, int)</TD
+><TD
+>ブロックの書き出し終了を捕捉するプローブ。arg0とarg1はそのページのフォーク番号とブロック番号です。arg2、arg3、arg4は対象のリレーションを識別するテーブル空間、データベース、そしてリレーションのOIDです。arg5は一時テーブルをローカルバッファに作成していればそのバックエンドのIDであり、無効なバックエンドID(-1)であれは共有バッファを指します。arg6は実際に書き出したバイト数、arg7はリクエストされた書き出しバイト数です(もし、これらに差異があった場合、何らかの問題があることを示します)。</TD
+></TR
+><TR
+><TD
+>sort-start</TD
+><TD
+>(int, bool, int, int, bool)</TD
+><TD
+>ソート処理の開始を捕捉するプローブ。arg0は対象データがヒープ、インデックス、またはdatumのどれかを示します。arg1はtrueならば一意性を必要としていることを示します。arg2はカラムのキー数です。arg3は許容されている作業メモリ(work_mem)のキロバイト数です。arg4はtrueならばソート結果に対するランダムアクセスが要求されていることを示します。</TD
+></TR
+><TR
+><TD
+>sort-done</TD
+><TD
+>(bool, long)</TD
+><TD
+>ソート処理の終了を捕捉するプローブ。arg0はtrueならば外部ソート、falseは内部ソートを示します。arg1は外部ソートで使用されたディスクブロック数、もしくは内部ソートで使用されたメモリーのキロバイト数を示します。</TD
+></TR
+><TR
+><TD
+>lwlock-acquire</TD
+><TD
+>(LWLockId, LWLockMode)</TD
+><TD
+>LWLock(軽量ロック)の取得を捕捉するプローブ。arg0は軽量ロックのIDを示します。arg1は要求されたロックモード(排他、もしくは共有)を示します。</TD
+></TR
+><TR
+><TD
+>lwlock-release</TD
+><TD
+>(LWLockId)</TD
+><TD
+>軽量ロックの開放を捕捉するプローブ(ただし、開放待ちのプロセスはまだこのロックを取得できないことに注意して下さい)。arg0は軽量ロックのIDを示します。</TD
+></TR
+><TR
+><TD
+>lwlock-wait-start</TD
+><TD
+>(LWLockId, LWLockMode)</TD
+><TD
+>軽量ロックを即座に取得できなかったため、サーバプロセスがロックを利用できるまでロック待機状態になった際の開始を捕捉するプローブ。arg0は軽量ロックのIDを示します。arg1は要求されたロックモード(排他、もしくは共有)を示します。</TD
+></TR
+><TR
+><TD
+>lwlock-wait-done</TD
+><TD
+>(LWLockId, LWLockMode)</TD
+><TD
+>サーバプロセスの軽量ロック待機の開放を捕捉するプローブ(実際にはまだロックは取得していません)。arg0は軽量ロックのIDを示します。arg1は要求されたロックモード(排他、もしくは共有)を示します。</TD
+></TR
+><TR
+><TD
+>lwlock-condacquire</TD
+><TD
+>(LWLockId, LWLockMode)</TD
+><TD
+>呼び出し元が待機しないことを指定した際の、軽量ロックの獲得成功を捕捉するプローブ。arg0は軽量ロックのIDを示します。arg1は要求されたロックモード(排他、もしくは共有)を示します。</TD
+></TR
+><TR
+><TD
+>lwlock-condacquire-fail</TD
+><TD
+>(LWLockId, LWLockMode)</TD
+><TD
+>呼び出し元が待機しないことを指定した際の、軽量ロックの獲得失敗を捕捉するプローブ。arg0は軽量ロックのIDを示します。arg1は要求されたロックモード(排他、もしくは共有)を示します。</TD
+></TR
+><TR
+><TD
+>lock-wait-start</TD
+><TD
+>(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, LOCKMODE)</TD
+><TD
+>通常のロック(lmgr lock)を即座に取得できなかったため、サーバプロセスがロックを利用できるまでロック待ち状態になった際の開始を捕捉するプローブ。arg0からarg3はロックされたオブジェクトの識別用タグ領域です。arg4はロックされたオブジェクトのタイプを示します。arg5は要求されたロックの種類を示します。</TD
+></TR
+><TR
+><TD
+>lock-wait-done</TD
+><TD
+>(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, LOCKMODE)</TD
+><TD
+>通常のロック(lmgr lock)要求の待機終了を捕捉するプローブ(つまりロックを取得した)。
+引数はlock-wait-startと同じです。</TD
+></TR
+><TR
+><TD
+>deadlock-found</TD
+><TD
+>()</TD
+><TD
+>デッドロック検知器によるデッドロックの発見を捕捉するプローブ。</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><DIV
+CLASS="TABLE"
+><A
+NAME="TYPEDEFS-TABLE"
+></A
+><P
+><B
+>&#34920; 27-4. プローブパラメータで使われる型の定義</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><THEAD
+><TR
+><TH
+>型</TH
+><TH
+>定義</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>LocalTransactionId</TD
+><TD
+>unsigned int</TD
+></TR
+><TR
+><TD
+>LWLockId</TD
+><TD
+>int</TD
+></TR
+><TR
+><TD
+>LWLockMode</TD
+><TD
+>int</TD
+></TR
+><TR
+><TD
+>LOCKMODE</TD
+><TD
+>int</TD
+></TR
+><TR
+><TD
+>BlockNumber</TD
+><TD
+>unsigned int</TD
+></TR
+><TR
+><TD
+>Oid</TD
+><TD
+>unsigned int</TD
+></TR
+><TR
+><TD
+>ForkNumber</TD
+><TD
+>int</TD
+></TR
+><TR
+><TD
+>bool</TD
+><TD
+>char</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="USING-TRACE-POINTS"
+>27.4.3. プローブの利用</A
+></H2
+><P
+>以下の例では、システムにおけるトランザクション数を解析するDTraceスクリプトを示します。性能試験前後で<TT
+CLASS="STRUCTNAME"
+>pg_stat_database</TT
+>のスナップショットを取ることで代替可能です。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>#!/usr/sbin/dtrace -qs
+
+postgresql$1:::transaction-start
+{
+      @start["Start"] = count();
+      self-&#62;ts  = timestamp;
+}
+
+postgresql$1:::transaction-abort
+{
+      @abort["Abort"] = count();
+}
+
+postgresql$1:::transaction-commit
+/self-&#62;ts/
+{
+      @commit["Commit"] = count();
+      @time["Total time (ns)"] = sum(timestamp - self-&#62;ts);
+      self-&#62;ts=0;
+}</PRE
+><P>
+実行すると、例のDスクリプトは以下のような出力をします。
+</P><PRE
+CLASS="SCREEN"
+># ./txn_count.d `pgrep -n postgres` or ./txn_count.d &lt;PID&gt;
+^C
+
+Start                                          71
+Commit                                         70
+Total time (ns)                        2312105013</PRE
+><P>
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>基本となる追跡ポイントの互換性はありますが、SystemTapはDTraceと異なる追跡スクリプトの表記を用います。
+表記に関して特に注意すべき点として、SystemTapでは参照する追跡ポイント名のハイフンの代わりに二重のアンダースコアを用いる必要があります。
+これは将来的なSystemTapのリリースで修正されることを期待しています。
+   </P
+></BLOCKQUOTE
+></DIV
+><P
+>DTraceスクリプトの作成には注意が必要であり、デバッグが必要であることは忘れないでください。さもないと、収集される追跡情報の意味がなくなるかもしれません。ほとんどの場合、見つかる問題はシステムではなく使用方法の間違いです。動的追跡を使用して見つかった情報に関して議論を行う際には、スクリプトの検査や議論もできるようにスクリプトも含めるようにしてください。
+  </P
+><P
+>さらに多くのサンプルスクリプトがPgFoundryの<A
+HREF="http://pgfoundry.org/projects/dtrace/"
+TARGET="_top"
+>dtrace project</A
+>にあります。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DEFINING-TRACE-POINTS"
+>27.4.4. 新規プローブの定義</A
+></H2
+><P
+>開発者が望めばコード内に新しくプローブを定義することができます。しかし、これには再コンパイルが必要です。下記は、新規プローブの定義の手順です。
+  </P
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+>プローブの名前とプローブの処理を通じて取得可能とするデータを決めます
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><TT
+CLASS="FILENAME"
+>src/backend/utils/probes.d</TT
+>にプローブの定義を追加します
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>もし、プローブポイントを含むモジュールが<TT
+CLASS="FILENAME"
+>pg_trace.h</TT
+>をインクルードしてなければそれをインクルードし、ソースコード中のプローブを行いたい場所に<TT
+CLASS="LITERAL"
+>TRACE_POSTGRESQL</TT
+>マクロを挿入します
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>再コンパイルを行い、新規プローブが利用できるか確認します
+    </P
+></LI
+></OL
+></DIV
+><DIV
+CLASS="FORMALPARA"
+><P
+><B
+>例: </B
+>これはトランザクションIDを用いて新規トランザクションを追跡するプローブ追加の仕方の例です。
+   </P
+></DIV
+><DIV
+CLASS="PROCEDURE"
+><OL
+TYPE="1"
+><LI
+CLASS="STEP"
+><P
+>プローブ名を<TT
+CLASS="LITERAL"
+>transaction-start</TT
+>とし、パラメータとしてLocalTransactionId型を必要とすることを決めます
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+><TT
+CLASS="FILENAME"
+>src/backend/utils/probes.d</TT
+>にプローブの定義を追加します:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>      probe transaction__start(LocalTransactionId);</PRE
+><P>
+プローブ名に二重のアンダースコアを使用する場合は注意して下さい。DTraceスクリプトでプローブを用いる場合、二重のアンダースコアをハイフンに置き換える必要があります。そのため、<TT
+CLASS="LITERAL"
+>transaction-start</TT
+>がユーザ向けの文書に記載される名前となります。
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>コンパイル時に、<TT
+CLASS="LITERAL"
+>transaction__start</TT
+>は<TT
+CLASS="LITERAL"
+>TRACE_POSTGRESQL_TRANSACTION_START</TT
+>と呼ばれるマクロに変換されます(ここではアンダースコアはひとつになります)。このマクロは、<TT
+CLASS="FILENAME"
+>pg_trace.h</TT
+>をインクルードすることにより使用可能となります。このマクロをソースコード中の適切な箇所へ追加していきます。この場合、以下の様になります。
+</P><PRE
+CLASS="PROGRAMLISTING"
+>    TRACE_POSTGRESQL_TRANSACTION_START(vxid.localTransactionId);</PRE
+><P>
+    </P
+></LI
+><LI
+CLASS="STEP"
+><P
+>再コンパイル後に新しいバイナリでサーバを起動し、下記の様なDTraceコマンドの実行により新たに追加したプローブが利用可能なチェックします。下記の様な出力が確認できるはずです:
+</P><PRE
+CLASS="SCREEN"
+># dtrace -ln transaction-start
+   ID    PROVIDER          MODULE           FUNCTION NAME
+18705 postgresql49878     postgres     StartTransactionCommand transaction-start
+18755 postgresql49877     postgres     StartTransactionCommand transaction-start
+18805 postgresql49876     postgres     StartTransactionCommand transaction-start
+18855 postgresql49875     postgres     StartTransactionCommand transaction-start
+18986 postgresql49873     postgres     StartTransactionCommand transaction-start</PRE
+><P>
+    </P
+></LI
+></OL
+></DIV
+><P
+>Cのソースコードに追跡用のマクロを追加する際、いくつかの注意点があります:
+
+   <P
+></P
+></P><UL
+><LI
+><P
+>プローブの引数に指定したデータ型がマクロで使用される変数のデータ型と一致するよう注意しなければなりません。でなければ、コンパイル時にエラーとなるでしょう。
+     </P
+></LI
+><LI
+><P
+>ほとんどのプラットホームでは、もし<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が<TT
+CLASS="OPTION"
+>--enable-dtrace</TT
+>付きでビルドされた場合、<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>何の追跡がされなかった</I
+></SPAN
+>としても、制御がマクロを通過する際はいつでも追跡用マクロの引数が評価されます。ごく少数のローカルな変数を報告するような場合はそれほど心配はいりません。ただし、追加した高価な関数が引数を呼ぶような場合は注意して下さい。もしそのような関数が必要ある場合、追跡が実際に可能かどうかをチェックするマクロを利用して不要なマクロの実施を避けることを考慮してください:
+</P><PRE
+CLASS="PROGRAMLISTING"
+>    if (TRACE_POSTGRESQL_TRANSACTION_START_ENABLED())
+        TRACE_POSTGRESQL_TRANSACTION_START(some_function(...));</PRE
+><P>
+各追跡マクロは対応する<TT
+CLASS="LITERAL"
+>ENABLED</TT
+>マクロを持っています。
+
+     </P
+></LI
+></UL
+><P>
+
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="monitoring-locks.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="diskusage.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ロックの表示</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="monitoring.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>ディスク使用量の監視</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

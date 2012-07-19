@@ -1,0 +1,976 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>接続と認証</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="サーバの設定"
+HREF="runtime-config.html"><LINK
+REL="PREVIOUS"
+TITLE="ファイルの場所"
+HREF="runtime-config-file-locations.html"><LINK
+REL="NEXT"
+TITLE="資源の消費"
+HREF="runtime-config-resource.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="ファイルの場所"
+HREF="runtime-config-file-locations.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 18&#31456;サーバの設定</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="サーバの設定"
+HREF="runtime-config.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="資源の消費"
+HREF="runtime-config-resource.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUNTIME-CONFIG-CONNECTION"
+>18.3. 接続と認証</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-CONNECTION-SETTINGS"
+>18.3.1. 接続設定</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-LISTEN-ADDRESSES"
+></A
+><TT
+CLASS="VARNAME"
+>listen_addresses</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	 クライアントアプリケーションからの接続をサーバが監視する TCP/IP アドレスを指定します。
+	 この値は、ホスト名をコンマで区切ったリスト、そして/もしくは、数値によるIPアドレスです。
+	 <TT
+CLASS="LITERAL"
+>*</TT
+>という特別なエントリは利用可能な全てのIPインタフェースに対応します。
+	 エントリ<TT
+CLASS="LITERAL"
+>0.0.0.0</TT
+>は全てのIPv4アドレスの監視を、そしてエントリ<TT
+CLASS="LITERAL"
+>::</TT
+>は全てのIPv6アドレスの監視を許容します。
+	 リストが空の場合、サーバはいかなるIPインターフェイスも全く監視しないで、Unixドメインソケットのみを使用して接続が行われます。
+	 デフォルトの値は<SPAN
+CLASS="SYSTEMITEM"
+>localhost</SPAN
+>で、ローカルなTCP/IP <SPAN
+CLASS="QUOTE"
+>"loopback"</SPAN
+>接続のみ許可します。
+	 クライアント認証 (<A
+HREF="client-authentication.html"
+>&#31532;19&#31456;</A
+>)は誰がサーバにアクセス可能かをきめ細かく制御するのに対し、<TT
+CLASS="VARNAME"
+>listen_addresses</TT
+>はどのインターフェイスが接続を試みるかを制御します。
+	 これにより、安全でないネットワークインターフェイス上において繰り返して行われる悪意のある接続要求の防止に役立ちます。このパラメータはサーバ起動時のみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-PORT"
+></A
+><TT
+CLASS="VARNAME"
+>port</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	サーバが監視するTCPポートで、デフォルトは 5432です。
+	サーバが監視する全てのIPアドレスに対し、同じポート番号が使用されることを覚えておいてください。
+	このパラメータはサーバ起動時のみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-MAX-CONNECTIONS"
+></A
+><TT
+CLASS="VARNAME"
+>max_connections</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	データベースサーバに同時接続する最大数を決定します。
+	デフォルトは典型的に100接続ですが、カーネルの設定が（<SPAN
+CLASS="APPLICATION"
+>initdb</SPAN
+>の過程で）それをサポートしていない場合、もっと少なくなることがあります。
+	このパラメータはサーバ起動時のみに設定可能です。
+       </P
+><P
+>       
+	このパラメータを増加させると、使用しているオペレーティングシステムのデフォルト構成が許容する<SPAN
+CLASS="SYSTEMITEM"
+>System V</SPAN
+>共有メモリ、またはセマフォの限界を越えた要求を <SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が要求する原因となることがあります。
+	必要であれば、このパラメータの調整の仕方について<A
+HREF="kernel-resources.html#SYSVIPC"
+>&#38917;17.4.1</A
+>を参照ください。
+       </P
+><P
+>       
+	スタンバイサーバを運用している場合、このパラメータはマスターサーバでの設定と同じ、もしくはより高い値に設定しなければなりません。そうしないと問い合わせがスタンバイサーバ内で受け入れられません。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SUPERUSER-RESERVED-CONNECTIONS"
+></A
+><TT
+CLASS="VARNAME"
+>superuser_reserved_connections</TT
+>
+      (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のスーパユーザによる接続のために予約されている接続<SPAN
+CLASS="QUOTE"
+>"開口部（スロット）"</SPAN
+>の数を決定します。
+	最大、<A
+HREF="runtime-config-connection.html#GUC-MAX-CONNECTIONS"
+>max_connections</A
+>の数までの接続を同時に有効にすることができます。
+	何時の時点にあっても、有効な接続数は、少なくとも<TT
+CLASS="VARNAME"
+>max_connections</TT
+>から<TT
+CLASS="VARNAME"
+>superuser_reserved_connections</TT
+>を差し引いた数であって、新規接続はスーパユーザのみが許可され、新たなレプリケーション接続は受け入れられません。
+       </P
+><P
+>       
+	デフォルトの値は3です。
+この値は <TT
+CLASS="VARNAME"
+>max_connections</TT
+>での値より小さくなくてはなりません。
+このパラメータはサーバ起動時のみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-UNIX-SOCKET-DIRECTORY"
+></A
+><TT
+CLASS="VARNAME"
+>unix_socket_directory</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	サーバがクライアントアプリケーションからの接続要求を監視するUnixドメインソケットのディレクトリを指定します。デフォルトは通常<TT
+CLASS="FILENAME"
+>/tmp</TT
+>ですが、構築時に変更できます。このパラメータはサーバ起動時のみ設定可能です。
+       </P
+><P
+>       
+	ソケットファイル、これは<TT
+CLASS="REPLACEABLE"
+><I
+>nnnn</I
+></TT
+>がポート番号である、<TT
+CLASS="LITERAL"
+>.s.PGSQL.<TT
+CLASS="REPLACEABLE"
+><I
+>nnnn</I
+></TT
+></TT
+>と名前が付いているもの、それ自身に加え、<TT
+CLASS="LITERAL"
+>.s.PGSQL.<TT
+CLASS="REPLACEABLE"
+><I
+>nnnn</I
+></TT
+>.lock</TT
+>と名前が付いている通常のファイルが<TT
+CLASS="VARNAME"
+>unix_socket_directory</TT
+>ディレクトリの中に作成されることがあります。
+	いずれのファイルも手作業で削除してはいけません。
+       </P
+><P
+>       
+	Unixドメインソケットを持たないWindowsではこのパラメータは無関係です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-UNIX-SOCKET-GROUP"
+></A
+><TT
+CLASS="VARNAME"
+>unix_socket_group</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	Unixドメインソケットを所有するグループを設定します（ソケットを所有するユーザは常にサーバを起動するユーザです）。
+<TT
+CLASS="VARNAME"
+>unix_socket_permissions</TT
+>パラメータとの組合せで、Unixドメインソケット接続の追加的アクセス管理機構として使うことができます。
+デフォルトでは空文字列で、どのユーザがサーバユーザのデフォルトグループかを示します。このパラメータはサーバ起動時のみ設定可能です。
+       </P
+><P
+>       
+	Unixドメインソケットを持たないWindowsではこのパラメータは無関係です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-UNIX-SOCKET-PERMISSIONS"
+></A
+><TT
+CLASS="VARNAME"
+>unix_socket_permissions</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	Unixドメインソケットのアクセス許可を設定します。
+Unixドメインソケットは通常のUnixファイルシステム許可設定の一式を使用します。
+パラメータ値は、<CODE
+CLASS="FUNCTION"
+>chmod</CODE
+>および<CODE
+CLASS="FUNCTION"
+>umask</CODE
+>システムコールが受け付ける数値形式での指定を想定しています。（通常使われる8進数形式を使用するのであれば、<TT
+CLASS="LITERAL"
+>0</TT
+>（ゼロ）で始まらなければなりません。）
+       </P
+><P
+>       
+	デフォルトでの許可は、誰でも接続できる<TT
+CLASS="LITERAL"
+>0777</TT
+>になっています。 
+変更するならば<TT
+CLASS="LITERAL"
+>0770</TT
+>（ユーザとグループのみです。<TT
+CLASS="OPTION"
+>UNIX_SOCKET_GROUP</TT
+>も参照してください）や<TT
+CLASS="LITERAL"
+>0700</TT
+>（ユーザのみ）が適切です。（実際、Unixドメインソケットでは書き込み権限だけが問題です。そのため、読み込み許可や実行許可を設定または解除する意味はありません。）
+       </P
+><P
+>       
+	のアクセス制御機構は <A
+HREF="client-authentication.html"
+>&#31532;19&#31456;</A
+>で記述されたものとは別個のものです。
+       </P
+><P
+>       
+	このパラメータはサーバ起動時のみ設定可能です。
+       </P
+><P
+>       
+	Unixドメインソケットを持たないWindowsではこのパラメータは無関係です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-BONJOUR"
+></A
+><TT
+CLASS="VARNAME"
+>bonjour</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	<SPAN
+CLASS="PRODUCTNAME"
+>Bonjour</SPAN
+>によりサーバの存在を公表することを可能にします。デフォルトはoffです。このパラメータはサーバ起動時のみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-BONJOUR-NAME"
+></A
+><TT
+CLASS="VARNAME"
+>bonjour_name</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	<SPAN
+CLASS="PRODUCTNAME"
+>Bonjour</SPAN
+>サービス名を指定します。
+このパラメータが空文字列<TT
+CLASS="LITERAL"
+>''</TT
+>（デフォルトです）に設定されていると、コンピュータ名が使用されます。
+サーバが<SPAN
+CLASS="PRODUCTNAME"
+>Bonjour</SPAN
+>サポート付でコンパイルでされていない場合は無視されます。
+このオプションはサーバ起動時のみに設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-TCP-KEEPALIVES-IDLE"
+></A
+><TT
+CLASS="VARNAME"
+>tcp_keepalives_idle</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	別の待機接続にkeepaliveを送信するまでの秒単位の時間を指定します。0の場合はシステムのデフォルト値を使用します。このパラメータは<TT
+CLASS="SYMBOL"
+>TCP_KEEPIDLE</TT
+>または<TT
+CLASS="SYMBOL"
+>TCP_KEEPALIVE</TT
+>シンボルをサポートするシステムとWindowsのみサポートされます。
+	その他のシステムではゼロでなければなりません。このパラメータはUnixドメインソケットによる接続では無視されます。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	  
+	   Windowsでは値0はこのパラメータを2時間に設定します。なぜなら、Windowsはシステムデフォルト値を読む手段を提供していないからです。
+          </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-TCP-KEEPALIVES-INTERVAL"
+></A
+><TT
+CLASS="VARNAME"
+>tcp_keepalives_interval</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	別の待機接続にkeepaliveを送信するまでの秒単位の時間を指定します。0の場合はシステムのデフォルト値を使用します。このパラメータは<TT
+CLASS="SYMBOL"
+>TCP_KEEPINTVL</TT
+>シンボルをサポートするシステムとWindowsのみサポートされます。その他のシステムではゼロでなければなりません。このパラメータはUnixドメインソケットによる接続では無視されます。
+	</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	  
+	    Windowsでは値0はこのパラメータを1秒に設定します。なぜなら、Windowsはシステムデフォルト値を読む手段を提供していないからです。
+          </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-TCP-KEEPALIVES-COUNT"
+></A
+><TT
+CLASS="VARNAME"
+>tcp_keepalives_count</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	別の待機接続にkeepaliveパケットを送信する数を指定します。0の場合はシステムのデフォルト値を使用します。
+	このパラメータは<TT
+CLASS="SYMBOL"
+>TCP_KEEPCNT</TT
+>シンボルをサポートするシステムのみサポートされます。その他のシステムではゼロでなければなりません。
+	このパラメータはUnixドメインソケットによる接続では無視されます。
+	</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	  
+	   このパラメータはWindowsではサポートされておらず、ゼロでなければなりません。
+          </P
+></BLOCKQUOTE
+></DIV
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RUNTIME-CONFIG-CONNECTION-SECURITY"
+>18.3.2. セキュリティと認証</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-AUTHENTICATION-TIMEOUT"
+></A
+><TT
+CLASS="VARNAME"
+>authentication_timeout</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	秒単位による、クライアント認証を完了するまでの最大時間です。
+もし、この時間内に自称クライアントが認証プロトコルを完了しない場合、サーバは接続を閉じます。
+これはハングしたクライアントが接続を永久に占有することを防ぎます。
+デフォルトは1分（<TT
+CLASS="LITERAL"
+>1m</TT
+>）です。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、またはサーバのコマンドラインでのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SSL"
+></A
+><TT
+CLASS="VARNAME"
+>ssl</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>による接続を有効にします。これを使用する前に<A
+HREF="ssl-tcp.html"
+>&#38917;17.9</A
+>をお読みください。デフォルトは<TT
+CLASS="LITERAL"
+>off</TT
+>です。このパラメータはサーバ起動時のみ設定可能です。<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>通信はTCP/IP接続の場合のみ有効です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-SSL-RENEGOTIATION-LIMIT"
+></A
+><TT
+CLASS="VARNAME"
+>ssl_renegotiation_limit</TT
+> (<TT
+CLASS="TYPE"
+>integer</TT
+>)</DT
+><DD
+><P
+>       
+	そのセッションキーの再調停が行われる前に、<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>暗号化接続上で、どれだけの量のデータのが流れても良いかを指定します。
+	再調停は攻撃者が大量のトラフィックを送出した場合、暗号解析を行う機会を減少させます。しかし、同時に多大な性能上の不利益をもたらします。
+	送出されたのと受け取られたトラフィックの合計はその限度の検証に使用されます。もしパラメータが0に設定されると再調停は無効になります。デフォルトは<TT
+CLASS="LITERAL"
+>512MB</TT
+>です。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	
+	 SSLプロトコルにおける脆弱性によりSSL再調停を使用した場合、2009年11月以前のSSLライブラリは安全でありません。
+	 この脆弱性への応急的な対処として、いくつかのベンダーは再調停を行う機能がないSSLライブラリを出荷しました。
+	 もしこれらのライブラリがクライアントまたはサーバで使用されているのであれば、SSL再調停は無効にすべきです。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+><DT
+><A
+NAME="GUC-SSL-CIPHERS"
+></A
+><TT
+CLASS="VARNAME"
+>ssl_ciphers</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	安全な接続で使用できる<ACRONYM
+CLASS="ACRONYM"
+>SSL</ACRONYM
+>暗号のリストを指定します。
+サポートされる暗号のリストについては<SPAN
+CLASS="APPLICATION"
+>openssl</SPAN
+>のマニュアルページを参照してください。
+        </P
+></DD
+><DT
+><A
+NAME="GUC-PASSWORD-ENCRYPTION"
+></A
+><TT
+CLASS="VARNAME"
+>password_encryption</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	<TT
+CLASS="LITERAL"
+>ENCRYPTED</TT
+>もしくは<TT
+CLASS="LITERAL"
+>UNENCRYPTED</TT
+>の指定なしで、<A
+HREF="sql-createuser.html"
+>CREATE USER</A
+> もしくは<A
+HREF="sql-alteruser.html"
+>ALTER USER</A
+>にてパスワードが指定されている場合、このパラメータはパスワードを暗号化するか否かを決定します。
+デフォルトは<TT
+CLASS="LITERAL"
+>on</TT
+>（パスワードを暗号化）です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-KRB-SERVER-KEYFILE"
+></A
+><TT
+CLASS="VARNAME"
+>krb_server_keyfile</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	Kerberosサーバの鍵ファイルの場所を設定します。詳細は<A
+HREF="auth-methods.html#KERBEROS-AUTH"
+>&#38917;19.3.5</A
+>または<A
+HREF="auth-methods.html#GSSAPI-AUTH"
+>&#38917;19.3.3</A
+>を参照してください。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、またはサーバのコマンドラインでのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-KRB-SRVNAME"
+></A
+><TT
+CLASS="VARNAME"
+>krb_srvname</TT
+> (<TT
+CLASS="TYPE"
+>string</TT
+>)</DT
+><DD
+><P
+>       
+	Kerberosのサービス名を設定します。詳細は<A
+HREF="auth-methods.html#KERBEROS-AUTH"
+>&#38917;19.3.5</A
+>を参照してください。
+	このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイルか、サーバコマンドラインでのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-KRB-CASEINS-USERS"
+></A
+><TT
+CLASS="VARNAME"
+>krb_caseins_users</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	KerberosおよびGSSAPIのユーザ名が大文字小文字を区別すべきかの設定をします。
+デフォルトは<TT
+CLASS="LITERAL"
+>off</TT
+>（大文字小文字を区別する）です。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル、またはサーバのコマンドラインでのみ設定可能です。
+       </P
+></DD
+><DT
+><A
+NAME="GUC-DB-USER-NAMESPACE"
+></A
+><TT
+CLASS="VARNAME"
+>db_user_namespace</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>       
+	このパラメータはデータベース毎のユーザ名を可能にします。
+デフォルトではオフです。
+このパラメータは<TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>ファイル内、またはサーバのコマンドラインのみで設定可能です。
+       </P
+><P
+>       
+	これがオンの場合、<TT
+CLASS="LITERAL"
+>username@dbname</TT
+>の様にしてユーザを作成しなければなりません。<TT
+CLASS="LITERAL"
+>username</TT
+>が接続中のクライアントより渡された時、 <TT
+CLASS="LITERAL"
+>@</TT
+>およびデータベース名がユーザ名に付加され、そのデータベース特有のユーザ名をサーバが見に行きます。SQL環境下で<TT
+CLASS="LITERAL"
+>@</TT
+>を含む名前のユーザを作成する場合、そのユーザ名は引用符で括られなければならないことに注意してください。
+       </P
+><P
+>       
+	このパラメータを有効にしていても通常の広域ユーザを作成することができます。
+クライアントにユーザ名を指定する時に、たとえば<TT
+CLASS="LITERAL"
+>joe@</TT
+>のように単に<TT
+CLASS="LITERAL"
+>@</TT
+>を付け加えてください。<TT
+CLASS="LITERAL"
+>@</TT
+>はサーバがユーザ名を検索する以前に取り去られます。
+       </P
+><P
+>       
+	<TT
+CLASS="VARNAME"
+>db_user_namespace</TT
+>はクライアントとサーバのユーザ名の表示を区別することができます。
+認証検査は常にサーバのユーザ名で行われるので、認証方式はクライアントのではなくサーバのユーザ名で構成されなければなりません。
+<TT
+CLASS="LITERAL"
+>md5</TT
+>では、クライアントおよびサーバの両方でユーザ名をソルトとして使用しますので、<TT
+CLASS="LITERAL"
+>md5</TT
+>を<TT
+CLASS="VARNAME"
+>db_user_namespace</TT
+>と一緒に使用することはできません。
+       </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>	
+	 この機能は完全な解決策が見つかるまでの暫定的な手段です。見つかった時点でこのオプションは削除されます。
+        </P
+></BLOCKQUOTE
+></DIV
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="runtime-config-file-locations.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="runtime-config-resource.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>ファイルの場所</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="runtime-config.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>資源の消費</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

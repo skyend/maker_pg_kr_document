@@ -1,0 +1,807 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>ウィンドウ関数</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="関数と演算子"
+HREF="functions.html"><LINK
+REL="PREVIOUS"
+TITLE="集約関数"
+HREF="functions-aggregate.html"><LINK
+REL="NEXT"
+TITLE="副問い合わせ式"
+HREF="functions-subquery.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="集約関数"
+HREF="functions-aggregate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#31532; 9&#31456;関数と演算子</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="関数と演算子"
+HREF="functions.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="副問い合わせ式"
+HREF="functions-subquery.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTIONS-WINDOW"
+>9.19. ウィンドウ関数</A
+></H1
+><P
+>  
+   <I
+CLASS="FIRSTTERM"
+>ウィンドウ関数</I
+>は現在の問い合わせ行に関連した行集合に渡っての計算処理機能を提供します。この機能の手引きは<A
+HREF="tutorial-window.html"
+>&#38917;3.5</A
+>を参照してください。
+  </P
+><P
+>  
+   組み込みウィンドウ関数は<A
+HREF="functions-window.html#FUNCTIONS-WINDOW-TABLE"
+>&#34920;9-44</A
+>に一覧されています。これらの関数は<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必ず</I
+></SPAN
+>ウィンドウ関数構文で呼び出されなければなりません。つまり、<TT
+CLASS="LITERAL"
+>OVER</TT
+>句が必要です。
+  </P
+><P
+>  
+   これら関数に加え、どんな組み込み、またはユーザ定義の集約関数もウィンドウ関数として使用できます（組み込み集約関数一覧は<A
+HREF="functions-aggregate.html"
+>&#38917;9.18</A
+>を参照）。集約関数は、呼び出しの後<TT
+CLASS="LITERAL"
+>OVER</TT
+>句が続いた場合のみウィンドウ関数として動作します。それ以外、通常の集約関数として動作します。
+  </P
+><DIV
+CLASS="TABLE"
+><A
+NAME="FUNCTIONS-WINDOW-TABLE"
+></A
+><P
+><B
+>&#34920; 9-44. 汎用ウィンドウ関数</B
+></P
+><TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+><COL><COL><COL><THEAD
+><TR
+><TH
+>関数</TH
+><TH
+>戻り値</TH
+><TH
+>説明</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>row_number()</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bigint</TT
+>
+      </TD
+><TD
+>1から数えたパーティション内の現在行の数</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>rank()</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bigint</TT
+>
+      </TD
+><TD
+>ギャップを含んだ現在行の階層で、その最初の（対となる）ピアの<CODE
+CLASS="FUNCTION"
+>row_number</CODE
+>と同一</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>dense_rank()</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>bigint</TT
+>
+      </TD
+><TD
+>ギャップを含まない現在行の階層で、この関数は（対となる）ピアグループ数を計算する</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>percent_rank()</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>現在行の相対順位。 (<CODE
+CLASS="FUNCTION"
+>rank</CODE
+> - 1) / (総行数 - 1)</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>cume_dist()</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>double precision</TT
+>
+      </TD
+><TD
+>現在行の相対順位。 (先行する行または現在の行を持つピアの番号) / (total rows)</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>ntile(<TT
+CLASS="REPLACEABLE"
+><I
+>num_buckets</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>)</CODE
+>
+      </TD
+><TD
+>       <TT
+CLASS="TYPE"
+>integer</TT
+>
+      </TD
+><TD
+>できるだけ等価にパーティションで割り算した、1から引数値までの整数</TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>         lag(<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="TYPE"
+>any</TT
+>
+             [, <TT
+CLASS="REPLACEABLE"
+><I
+>offset</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>
+             [, <TT
+CLASS="REPLACEABLE"
+><I
+>default</I
+></TT
+> <TT
+CLASS="TYPE"
+>any</TT
+> ]])
+       </CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>と同じ型</TT
+>
+      </TD
+><TD
+>      
+       パーティション内の現在行以前の<TT
+CLASS="REPLACEABLE"
+><I
+>offset</I
+></TT
+>行である行で評価された<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を返します。該当する行がない場合、その代わりとして<TT
+CLASS="REPLACEABLE"
+><I
+>default</I
+></TT
+>を返します。<TT
+CLASS="REPLACEABLE"
+><I
+>offset</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>default</I
+></TT
+>は共に現在行について評価されます。省略された場合、<TT
+CLASS="REPLACEABLE"
+><I
+>offset</I
+></TT
+>は1となり、<TT
+CLASS="REPLACEABLE"
+><I
+>default</I
+></TT
+>はNULLになります。
+      </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>         lead(<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="TYPE"
+>any</TT
+>
+              [, <TT
+CLASS="REPLACEABLE"
+><I
+>offset</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>
+              [, <TT
+CLASS="REPLACEABLE"
+><I
+>default</I
+></TT
+> <TT
+CLASS="TYPE"
+>any</TT
+> ]])
+       </CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>と同じ型</TT
+>
+      </TD
+><TD
+>      
+       パーティション内の現在行以降の<TT
+CLASS="REPLACEABLE"
+><I
+>offset</I
+></TT
+>行である行で評価された<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を返します。該当する行がない場合、その代わりとして<TT
+CLASS="REPLACEABLE"
+><I
+>default</I
+></TT
+>を返します。<TT
+CLASS="REPLACEABLE"
+><I
+>offset</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>default</I
+></TT
+>は共に現在行について評価されます。省略された場合、<TT
+CLASS="REPLACEABLE"
+><I
+>offset</I
+></TT
+>は1となり、<TT
+CLASS="REPLACEABLE"
+><I
+>default</I
+></TT
+>はNULLになります。
+      </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>first_value(<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="TYPE"
+>any</TT
+>)</CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>と同じ型</TT
+>
+      </TD
+><TD
+>      
+       ウィンドウフレームの最初の行である行で評価された<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> を返す
+      </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>last_value(<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="TYPE"
+>any</TT
+>)</CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>と同じ型</TT
+>
+      </TD
+><TD
+>      
+       ウィンドウフレームの最後の行である行で評価された<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> を返す
+      </TD
+></TR
+><TR
+><TD
+>       
+       <CODE
+CLASS="FUNCTION"
+>         nth_value(<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+> <TT
+CLASS="TYPE"
+>any</TT
+>, <TT
+CLASS="REPLACEABLE"
+><I
+>nth</I
+></TT
+> <TT
+CLASS="TYPE"
+>integer</TT
+>)
+       </CODE
+>
+      </TD
+><TD
+>      
+       <TT
+CLASS="TYPE"
+><TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>と同じ型</TT
+>
+      </TD
+><TD
+>      
+       ウィンドウフレームの（１から数えて）<TT
+CLASS="REPLACEABLE"
+><I
+>nth</I
+></TT
+>番目の行である行で評価された<TT
+CLASS="REPLACEABLE"
+><I
+>value</I
+></TT
+>を返す。行が存在しない場合はNULLを返す
+      </TD
+></TR
+></TBODY
+></TABLE
+></DIV
+><P
+>  
+   <A
+HREF="functions-window.html#FUNCTIONS-WINDOW-TABLE"
+>&#34920;9-44</A
+>に列挙された関数はすべて、対応するウィンドウ定義の<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>句で指定されるソート順に依存します。
+   <TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>順で重複する行は<I
+CLASS="FIRSTTERM"
+>ピア</I
+>と呼ばれます。
+   4つの順位付け関数は、任意の2つのピア間で同じ答えになるように定義されています。
+  </P
+><P
+>  
+   <CODE
+CLASS="FUNCTION"
+>first_value</CODE
+>、<CODE
+CLASS="FUNCTION"
+>last_value</CODE
+>、<CODE
+CLASS="FUNCTION"
+>nth_value</CODE
+>関数は<SPAN
+CLASS="QUOTE"
+>"ウィンドウフレーム"</SPAN
+>内の行のみを考慮することに注意してください。
+   デフォルトで、ウィンドウフレームにはパーティションの先頭から現在の行の最終ピアまでの行が含まれます。
+   これは<CODE
+CLASS="FUNCTION"
+>last_value</CODE
+>、または時々<CODE
+CLASS="FUNCTION"
+>nth_value</CODE
+>では有用ではない結果を得ることになりがちです。
+   <TT
+CLASS="LITERAL"
+>OVER</TT
+>句に適切なフレーム指定(<TT
+CLASS="LITERAL"
+>RANGE</TT
+>もしくは<TT
+CLASS="LITERAL"
+>ROWS</TT
+>)を加えることで、フレームを再定義することができます。
+   フレーム指定についての詳細は<A
+HREF="sql-expressions.html#SYNTAX-WINDOW-FUNCTIONS"
+>&#38917;4.2.8</A
+>を参照してください。
+  </P
+><P
+>  
+   集約関数をウィンドウ関数として使用する場合、現在の行のウィンドウフレーム内の行に渡って集約処理を行います。
+   <TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を付けた集約、および、デフォルトのウィンドウフレーム定義では、<SPAN
+CLASS="QUOTE"
+>"中間和"</SPAN
+>のような動作を行います。
+   これが望まれる場合もあれば、望まれない場合もあります。パーティション全体に渡る集約処理を行うためには、<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>を省略するか<TT
+CLASS="LITERAL"
+>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</TT
+>を使用してください。他ののフレーム指定を使用することで様々な結果を得ることができます。
+  </P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>&#27880;&#24847;: </B
+>   
+    SQL標準は、<CODE
+CLASS="FUNCTION"
+>lead</CODE
+>、<CODE
+CLASS="FUNCTION"
+>lag</CODE
+>、<CODE
+CLASS="FUNCTION"
+>first_value</CODE
+>、<CODE
+CLASS="FUNCTION"
+>last_value</CODE
+>、および<CODE
+CLASS="FUNCTION"
+>nth_value</CODE
+>に対し<TT
+CLASS="LITERAL"
+>RESPECT NULLS</TT
+>、または<TT
+CLASS="LITERAL"
+>IGNORE NULLS</TT
+>オプションを定義します。これは<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に実装されていません。動作は常に標準のデフォルトと同一です。つまり、<TT
+CLASS="LITERAL"
+>RESPECT NULLS</TT
+>です。同様にして、標準の<CODE
+CLASS="FUNCTION"
+>nth_value</CODE
+>に対する<TT
+CLASS="LITERAL"
+>FROM FIRST</TT
+>、または<TT
+CLASS="LITERAL"
+>FROM LAST</TT
+>オプションは実装されていません。デフォルトの<TT
+CLASS="LITERAL"
+>FROM FIRST</TT
+>動作のみに対応しています。（<TT
+CLASS="LITERAL"
+>ORDER BY</TT
+>順序付けを逆に行うことで、<TT
+CLASS="LITERAL"
+>FROM LAST</TT
+>の結果を得ることができます。）
+   </P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="functions-aggregate.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="functions-subquery.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>集約関数</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="functions.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>副問い合わせ式</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

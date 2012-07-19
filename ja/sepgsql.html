@@ -1,0 +1,1122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>sepgsql</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"><LINK
+REL="PREVIOUS"
+TITLE="seg"
+HREF="seg.html"><LINK
+REL="NEXT"
+TITLE="spi"
+HREF="contrib-spi.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="SECT1"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="seg"
+HREF="seg.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+>&#20184;&#37682; F. 追加で提供されるモジュール</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="追加で提供されるモジュール"
+HREF="contrib.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="spi"
+HREF="contrib-spi.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SEPGSQL"
+>F.38. sepgsql</A
+></H1
+><P
+><TT
+CLASS="FILENAME"
+>sepgsql</TT
+>は、SELinuxのセキュリティポリシーに基づいた、ラベルベースの強制アクセス制御（MAC; Mandatory Access Control）機能を提供するモジュールです。
+ </P
+><DIV
+CLASS="WARNING"
+><P
+></P
+><TABLE
+CLASS="WARNING"
+BORDER="1"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="CENTER"
+><B
+>&#35686;&#21578;</B
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+><P
+>現在の実装にはいくつかの重要な制限事項があり、そのため、全ての操作に対して強制アクセス制御を適用するわけではありません。
+詳細は <A
+HREF="sepgsql.html#SEPGSQL-LIMITATIONS"
+>&#38917;F.38.6</A
+> をご覧ください。
+   </P
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEPGSQL-OVERVIEW"
+>F.38.1. 概要</A
+></H2
+><P
+>このモジュールは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>が標準で提供しているものに加えて、<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>と統合されたアクセス制御のレイヤーを追加します。
+<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>の視点からは、このモジュールが<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>をユーザ空間オブジェクトマネージャとして機能することを可能にします。
+すなわち、DMLクエリによる個々のテーブルや関数へのアクセスは、オペレーティングシステムのセキュリティポリシーによってチェックされます。
+このチェックは、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>による通常のSQLパーミッションチェックに対して追加的に実施されます。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>におけるアクセス制御の意思決定は、<TT
+CLASS="LITERAL"
+>system_u:object_r:sepgsql_table_t:s0</TT
+>のような書式を持ったセキュリティラベルと呼ばれる文字列を用いて行われます。
+個々のアクセス制御の意思決定には、２種類のラベルが利用されます。
+すなわち、ある操作を行おうとする主体（サブジェクト）のラベルと、その操作の対象となるオブジェクトのラベルです。
+これらのラベルはあらゆる種類のオブジェクトに対して適用されるため、（このモジュールを用いる事で）データベースに格納されたオブジェクトに対するアクセス制御は、他の一般的なオブジェクト、例えばファイルに対するものと同一の基準に従って意思決定される事になります。
+このデザインは、情報資産を格納する方法とは独立に、一元管理されたセキュリティポリシーによって情報資産を保護することを意図しています。
+  </P
+><P
+><A
+HREF="sql-security-label.html"
+>SECURITY LABEL</A
+>を用いてデータベースオブジェクトにセキュリティラベルを設定することができます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEPGSQL-INSTALLATION"
+>F.38.2. インストール</A
+></H2
+><P
+>このモジュールは<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>が有効な<SPAN
+CLASS="PRODUCTNAME"
+>Linux</SPAN
+>カーネル 2.6.28 以上で動作します。その他のプラットフォーム上では利用する事はできません。
+加えて、<SPAN
+CLASS="PRODUCTNAME"
+>libselinux</SPAN
+> 2.0.93以上、<SPAN
+CLASS="PRODUCTNAME"
+>selinux-policy</SPAN
+> 3.9.13以上（ディストリビューションによっては、必要なルールを古いバージョンのポリシーにバックポートしているか可能性があります）が必要で、<TT
+CLASS="LITERAL"
+>--with-selinux</TT
+>オプションによって明示的に有効化しなければいけません。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>sestatus</TT
+>コマンドを用いて<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>の状態を確認することができます。典型的な出力例は以下の通りです。
+</P><PRE
+CLASS="SCREEN"
+>$ sestatus
+SELinux status:                 enabled
+SELinuxfs mount:                /selinux
+Current mode:                   enforcing
+Mode from config file:          enforcing
+Policy version:                 24
+Policy from config file:        targeted</PRE
+><P>
+<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>が無効化されている、あるいはインストールされていない場合、このモジュールのインストールの前に、<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>のセットアップを行わねばなりません。
+  </P
+><P
+>   このモジュールをビルドするには、PostgreSQLの<TT
+CLASS="LITERAL"
+>configure</TT
+>
+   コマンドに<TT
+CLASS="LITERAL"
+>--with-selinux</TT
+>オプションを追加してください。
+   これは、ビルド時に<TT
+CLASS="FILENAME"
+>libselinux-devel</TT
+>パッケージがインストール
+   されている事を確認します。
+ </P
+><P
+>   このモジュールを利用するには、<A
+HREF="runtime-config-resource.html#GUC-SHARED-PRELOAD-LIBRARIES"
+>shared_preload_libraries</A
+>
+   パラメータに <TT
+CLASS="LITERAL"
+>sepgsql</TT
+> を追記する必要があります。これ以外の方法で
+   ロードされた場合、このモジュールは機能しません。
+   このモジュールのロード後、各データベースに対して<TT
+CLASS="FILENAME"
+>sepgsql.sql</TT
+>を
+   実行し、セキュリティラベル管理のための関数のインストールや、初期セキュリティ
+   ラベルの設定を行うべきです。
+  </P
+><P
+>   以下に<TT
+CLASS="FILENAME"
+>sepgsql</TT
+>関数およびセキュリティラベルと共にデータベース
+   クラスタを初期化する手順を示します。
+   インストール先に応じて、適宜パス名を読み替えるようにしてください。
+  </P
+><PRE
+CLASS="SCREEN"
+>$ export PGDATA=/path/to/data/directory
+$ initdb
+$ vi $PGDATA/postgresql.conf
+  change
+    #shared_preload_libraries = ''                # (change requires restart)
+  to
+    shared_preload_libraries = 'sepgsql'          # (change requires restart)
+$ for DBNAME in template0 template1 postgres; do
+    postgres --single -F -c exit_on_error=true $DBNAME \
+      &lt;/usr/local/pgsql/share/contrib/sepgsql.sql &gt;/dev/null
+  done</PRE
+><P
+>   <SPAN
+CLASS="PRODUCTNAME"
+>libselinux</SPAN
+>と<SPAN
+CLASS="PRODUCTNAME"
+>selinux-policy</SPAN
+>のバージョンに
+   よっては以下のようなメッセージが出力される事があります。
+</P><PRE
+CLASS="SCREEN"
+>/etc/selinux/targeted/contexts/sepgsql_contexts:  line 33 has invalid object type db_blobs
+/etc/selinux/targeted/contexts/sepgsql_contexts:  line 36 has invalid object type db_language
+/etc/selinux/targeted/contexts/sepgsql_contexts:  line 37 has invalid object type db_language
+/etc/selinux/targeted/contexts/sepgsql_contexts:  line 38 has invalid object type db_language
+/etc/selinux/targeted/contexts/sepgsql_contexts:  line 39 has invalid object type db_language
+/etc/selinux/targeted/contexts/sepgsql_contexts:  line 40 has invalid object type db_language</PRE
+><P>
+   これらのメッセージは無害ですので無視してください。
+  </P
+><P
+>インストール手順が正常に終了したら、通常通り、サーバを起動することができます。
+  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEPGSQL-REGRESSION"
+>F.38.3. リグレッションテスト</A
+></H2
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>の性質上、<TT
+CLASS="FILENAME"
+>sepgsql</TT
+>のリグレッションテストを
+実行するには、いくつかの追加的な設定が必要で、そのうちの幾つかは<TT
+CLASS="LITERAL"
+>root</TT
+>で
+実行する必要があります。
+リグレッションテストは通常の<TT
+CLASS="LITERAL"
+>make check</TT
+>や<TT
+CLASS="LITERAL"
+>make installcheck</TT
+>
+コマンドで実行する事はできません。必要な設定を行い、テスト用スクリプトを手動で
+実行する必要があります。
+このテストはPostgreSQLビルドツリーの<TT
+CLASS="FILENAME"
+>contrib/sepgsql</TT
+>ディレクトリで
+実行する必要があります。しかしビルドツリーを必要とする一方、このテストは
+インストールされたサーバに対して実行する必要があります。
+これは、<TT
+CLASS="LITERAL"
+>make check</TT
+>ではなく、<TT
+CLASS="LITERAL"
+>make installcheck</TT
+>に
+よく似ています。
+  </P
+><P
+>   最初に、<A
+HREF="sepgsql.html#SEPGSQL-INSTALLATION"
+>&#38917;F.38.2</A
+>に従って<TT
+CLASS="FILENAME"
+>sepgsql</TT
+>を
+   データベースにセットアップします。
+   使用するOS上のユーザは、認証無しでデータベース特権ユーザとして接続できる
+   必要があることに留意してください。
+  </P
+><P
+>   次に、リグレッションテスト用のポリシーパッケージのビルドとインストールを
+   行ってください。<TT
+CLASS="FILENAME"
+>sepgsql-regtest.pp</TT
+>はリグレッションテストの実行に
+   必要な一連のルールを含む特別な目的のポリシーパッケージです。
+   ポリシーのソースファイルである<TT
+CLASS="FILENAME"
+>sepgsql-regtest.te</TT
+>から、SELinuxの
+   提供するMakefileを用いて<TT
+CLASS="COMMAND"
+>make</TT
+>コマンドでビルドする事ができます。
+   この時、インストール先システムにおいて、適切な<TT
+CLASS="FILENAME"
+>Makefile</TT
+>の位置を
+   指定する必要があります。以下の例で示されているパスは一例です。
+   ビルドが完了したら、<TT
+CLASS="COMMAND"
+>semodule</TT
+>を用いてこのポリシーパッケージを
+   インストールする事ができます。このコマンドは、指定されたポリシーパッケージを
+   リンクし、カーネル空間にロードする役割を果たします。
+   インストールが正常終了したら、<TT
+CLASS="LITERAL"
+><TT
+CLASS="COMMAND"
+>semodule</TT
+> -l</TT
+>により
+   有効なパッケージの一覧として<TT
+CLASS="LITERAL"
+>sepgsql-regtest</TT
+>が表示されるはずです。
+  </P
+><PRE
+CLASS="SCREEN"
+>$ cd .../contrib/sepgsql
+$ make -f /usr/share/selinux/devel/Makefile
+$ sudo semodule -u sepgsql-regtest.pp
+$ sudo semodule -l | grep sepgsql
+sepgsql-regtest 1.03</PRE
+><P
+>   次に、<TT
+CLASS="LITERAL"
+>sepgsql_regression_test_mode</TT
+>ブーリアンを有効化して
+   ください。安全のため、デフォルトでは<TT
+CLASS="FILENAME"
+>sepgsql-regtest.pp</TT
+>に
+   含まれる全てのルールが有効化されている訳ではありません。
+   <TT
+CLASS="LITERAL"
+>sepgsql_regression_test_mode</TT
+>ブーリアンはリグレッションテストを
+   起動するための幾つかのルールに関連付けされており、<TT
+CLASS="COMMAND"
+>setsebool</TT
+>
+   コマンドによって有効化する事ができます。
+  </P
+><PRE
+CLASS="SCREEN"
+>$ sudo setsebool sepgsql_regression_test_mode on
+$ getsebool sepgsql_regression_test_mode
+sepgsql_regression_test_mode --&#62; on</PRE
+><P
+>   次に、シェルが<TT
+CLASS="LITERAL"
+>unconfined_t</TT
+>ドメインで動作している事を確認して下さい。
+  </P
+><P
+><TT
+CLASS="COMMAND"
+>id</TT
+>コマンドを使って現在のドメインを確認する事ができます。
+以下のように、シェルプロセスが<TT
+CLASS="LITERAL"
+>unconfined_t</TT
+>ドメインで動作している事を確認してください。
+  </P
+><PRE
+CLASS="SCREEN"
+>$ id -Z
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023</PRE
+><P
+>   利用者の動作ドメインを設定する方法について、必要であれば、
+   詳細は<A
+HREF="sepgsql.html#SEPGSQL-RESOURCES"
+>&#38917;F.38.7</A
+>をご覧ください。
+  </P
+><P
+>   最後に、リグレッションテストのスクリプトを実行します。
+  </P
+><PRE
+CLASS="SCREEN"
+>$ ./test_sepgsql</PRE
+><P
+>   このスクリプトは全ての設定ステップが正常に行われていることを確認し、
+   その後、<TT
+CLASS="FILENAME"
+>sepgsql</TT
+>モジュールに対するリグレッションテストを
+   実行します。
+  </P
+><P
+>   テストの実行後は<TT
+CLASS="LITERAL"
+>sepgsql_regression_test_mode</TT
+>ブーリアンを
+   無効化する事をお勧めします。
+  </P
+><PRE
+CLASS="SCREEN"
+>$ sudo setsebool sepgsql_regression_test_mode off</PRE
+><P
+>   <TT
+CLASS="FILENAME"
+>sepgsql-regtest</TT
+>ポリシーをアンロードする際は、以下のコマンドを
+   実行してください。
+  </P
+><PRE
+CLASS="SCREEN"
+>$ sudo semodule -r sepgsql-regtest</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEPGSQL-PARAMETERS"
+>F.38.4. GUCパラメータ</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+NAME="GUC-SEPGSQL-PERMISSIVE"
+></A
+><TT
+CLASS="VARNAME"
+>sepgsql.permissive</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>      このパラメータにより、オペレーティングシステムの設定に関わらず、
+      <TT
+CLASS="FILENAME"
+>sepgsql</TT
+>をパーミッシブモードで動作させる事ができます。
+      デフォルトの設定値はoffです。
+      <TT
+CLASS="FILENAME"
+>postgresql.conf</TT
+>内、およびサーバ起動時のコマンドラインでのみ、
+      このパラメータを設定する事ができます。
+     </P
+><P
+>このパラメータがonの場合、たとえオペレーティングシステムがエンフォーシングモードで動作していたとしても、<SPAN
+CLASS="PRODUCTNAME"
+>SE-PostgreSQL</SPAN
+>はパーミッシブモードで動作します。
+このパラメータは主としてテストの目的に有用です。
+     </P
+></DD
+><DT
+><A
+NAME="GUC-SEPGSQL-DEBUG-AUDIT"
+></A
+><TT
+CLASS="VARNAME"
+>sepgsql.debug_audit</TT
+> (<TT
+CLASS="TYPE"
+>boolean</TT
+>)</DT
+><DD
+><P
+>このパラメータにより、セキュリティポリシーの設定とは無関係に監査ログを出力する事が可能になります。
+デフォルト値はoff（セキュリティポリシーの設定に従う）です。
+     </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>のセキュリティポリシーには、特定のアクセスを監査ログに記録するか否かを制御するルールも存在します。
+デフォルトでは、ポリシーに違反したアクセスを記録し、それ以外はログに記録されません。
+     </P
+><P
+>システムのポリシーとは無関係に、このパラメータは全ての監査ログの出力を強制します。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEPGSQL-FEATURES"
+>F.38.5. 機能</A
+></H2
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN137889"
+>F.38.5.1. 制御されるオブジェクトの種類</A
+></H3
+><P
+>    <SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>のセキュリティモデルでは、全てのアクセス制御
+    ルールは動作主体（サブジェクト; 典型的にはデータベースクライアント）と
+    対象オブジェクト間の関係として記述し、これらはセキュリティラベルによって
+    識別されます。
+    ラベル付けされていないオブジェクトに対するアクセスが発生した場合、
+    そのオブジェクトはあたかも<TT
+CLASS="LITERAL"
+>unlabeled_t</TT
+>タイプが割り当てられて
+    いるかのように振舞います。
+   </P
+><P
+>現在の<SPAN
+CLASS="PRODUCTNAME"
+>sepgsql</SPAN
+>では、スキーマ、テーブル、カラム、シーケンス、ビューおよび関数に対するラベル付けがサポートされています。
+<SPAN
+CLASS="PRODUCTNAME"
+>sepgsql</SPAN
+>の利用時には、これらのデータベースオブジェクトに対して、その生成時に自動的にセキュリティラベルが割り当てられます。
+このラベルはデフォルトセキュリティラベルと呼ばれ、作成者のラベルと親関係にあたるオブジェクトのラベルに基づいて、システムのセキュリティポリシーが決定します。
+   </P
+><P
+>新しいデータベースオブジェクトのラベルは、タイプ遷移と呼ばれる異なったラベルを設定するための特別なルールがセキュリティポリシーに設定されている場合を除き、親関係にあるオブジェクトのラベルを引き継ぎます。
+スキーマの親オブジェクトはデータベースであり、テーブル、シーケンス、ビュー、および関数はその属するスキーマが、カラムはその属するテーブルが親オブジェクトという事になります。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN137898"
+>F.38.5.2. DMLパーミッション</A
+></H3
+><P
+>テーブルに対しては、構文の種類に応じて<TT
+CLASS="LITERAL"
+>db_table:select</TT
+>、<TT
+CLASS="LITERAL"
+>db_table:insert</TT
+>、<TT
+CLASS="LITERAL"
+>db_table:update</TT
+>あるいは<TT
+CLASS="LITERAL"
+>db_table:delete</TT
+>権限が全ての被参照テーブルに対してチェックされます。
+加えて、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句や<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句で参照されるカラム、又は<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>の際のデータ元として利用されるカラムの属するテーブルに対して<TT
+CLASS="LITERAL"
+>db_table:select</TT
+>権限もチェックされます。
+
+</P><PRE
+CLASS="SYNOPSIS"
+>UPDATE t1 SET x = 2, y = md5sum(y) WHERE z = 100;</PRE
+><P>
+
+この場合、<TT
+CLASS="LITERAL"
+>t1.a</TT
+>が<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句の中で参照されているため、利用者は<TT
+CLASS="LITERAL"
+>db_table:update</TT
+>権限に加えて、<TT
+CLASS="LITERAL"
+>db_table:select</TT
+>権限を有していなければいけません。
+さらに、参照されているカラムに対しては列レベルのパーミッションがチェックされます。
+   </P
+><P
+>カラムに対しては、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>構文で読み出されるカラムに対してだけでなく、他のDML構文で参照されるカラムに対しても<TT
+CLASS="LITERAL"
+>db_column:select</TT
+>権限がチェックされます。
+   </P
+><P
+>言うまでもなく、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>構文や<TT
+CLASS="LITERAL"
+>INSERT</TT
+>構文によって更新されるカラムに対しては、<TT
+CLASS="LITERAL"
+>db_column:update</TT
+>権限、もしくは<TT
+CLASS="LITERAL"
+>db_column:insert</TT
+>権限がチェックされます。
+   </P
+><P
+></P><PRE
+CLASS="SYNOPSIS"
+>UPDATE t1 SET x = 2, y = md5sum(y) WHERE z = 100;</PRE
+><P>
+この場合、更新される<TT
+CLASS="LITERAL"
+>t1.x</TT
+>に対して<TT
+CLASS="LITERAL"
+>db_column:update</TT
+>権限が、更新と同時に参照される<TT
+CLASS="LITERAL"
+>t1.y</TT
+>に対しては<TT
+CLASS="LITERAL"
+>db_column:{select update}</TT
+>権限が、そして、<TT
+CLASS="LITERAL"
+>WHERE</TT
+>句で参照されるだけの<TT
+CLASS="LITERAL"
+>t1.z</TT
+>には<TT
+CLASS="LITERAL"
+>db_column:select</TT
+>権限がチェックされます。
+また、テーブルレベルでは<TT
+CLASS="LITERAL"
+>db_table:{select update}</TT
+>権限がチェックされます。
+   </P
+><P
+><TT
+CLASS="LITERAL"
+>SELECT</TT
+>構文を用いてシーケンスを参照する場合、<TT
+CLASS="LITERAL"
+>db_sequence:get_value</TT
+>がチェックされます。
+しかし、現在のところ<TT
+CLASS="LITERAL"
+>lastval()</TT
+>など関連する関数の実行時にはパーミッションチェックを行わない事に留意してください。
+   </P
+><P
+>ビューに対しては<TT
+CLASS="LITERAL"
+>db_view:expand</TT
+>権限がチェックされ、次いで、ビューから展開されたオブジェクトに対するパーミッションが個別にチェックされます。
+   </P
+><P
+>関数に対して<TT
+CLASS="LITERAL"
+>db_procedure:{execute}</TT
+>権限が定義されていますが、現バージョンではチェックされません。
+   </P
+><P
+>クライアントは全ての被参照テーブル・カラムに対して参照の権限を有している必要があります。それらがビューに由来し、展開されたものであっても同様です。これにより、テーブルの内容がどのような方法によって参照されるかに関係なく、一貫したアクセス制御ルールを適用する事ができます。
+   </P
+><P
+>データベーススーパーユーザに対して、標準のデータベース権限システムはDMLを用いたシステムカタログの更新と、TOASTテーブルの参照および更新を許していますが、<SPAN
+CLASS="PRODUCTNAME"
+>sepgsql</SPAN
+>が有効なとき、これらの操作は禁止されます。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN137943"
+>F.38.5.3. DDLパーミッション</A
+></H3
+><P
+><A
+HREF="sql-security-label.html"
+>SECURITY LABEL</A
+>コマンドの実行時、ラベル付けされるオブジェクトの古いラベルに対して<TT
+CLASS="LITERAL"
+>setattr</TT
+>権限と<TT
+CLASS="LITERAL"
+>relabelfrom</TT
+>権限が、入力された新しいラベルに対して<TT
+CLASS="LITERAL"
+>relabelto</TT
+>権限がチェックされます。
+   </P
+><P
+>複数のラベルプロバイダがインストールされており、利用者が<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>の管理下にないセキュリティラベルを設定しようとした場合、<TT
+CLASS="LITERAL"
+>setattr</TT
+>権限だけがチェックされるべきです。しかし実装上の制約により、現在はこれをチェックしていません。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN137953"
+>F.38.5.4. トラステッド プロシジャ</A
+></H3
+><P
+>    トラステッド・プロシジャはSECURITY DEFINER関数やSet-UIDコマンドに似て
+    います。通常、機密データに対する高度にコントロールされたアクセス手段を
+    提供する目的で、<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>は利用者のものとは異なる
+    セキュリティラベルで信頼済みのコードを実行するための機能を持っています。
+    関数がトラステッド・プロシジャとして振舞うかどうかは、関数のセキュリティ
+    ラベルおよびオペレーティングシステムのセキュリティポリシーに従って
+    決まります。
+    例えば：
+   </P
+><PRE
+CLASS="SCREEN"
+>postgres=# CREATE TABLE customer (
+               cid     int primary key,
+               cname   text,
+               credit  text
+           );
+CREATE TABLE
+postgres=# SECURITY LABEL ON COLUMN customer.credit
+               IS 'system_u:object_r:sepgsql_secret_table_t:s0';
+SECURITY LABEL
+postgres=# CREATE FUNCTION show_credit(int) RETURNS text
+             AS 'SELECT regexp_replace(credit, ''-[0-9]+$'', ''-xxxx'', ''g'')
+                        FROM customer WHERE cid = $1'
+           LANGUAGE sql;
+CREATE FUNCTION
+postgres=# SECURITY LABEL ON FUNCTION show_credit(int)
+               IS 'system_u:object_r:sepgsql_trusted_proc_exec_t:s0';
+SECURITY LABEL</PRE
+><P
+>これらの操作は管理権限を持つ利用者で行ってください。
+   </P
+><PRE
+CLASS="SCREEN"
+>postgres=# SELECT * FROM customer;
+ERROR:  SELinux: security policy violation
+postgres=# SELECT cid, cname, show_credit(cid) FROM customer;
+ cid | cname  |     show_credit
+-----+--------+---------------------
+   1 | taro   | 1111-2222-3333-xxxx
+   2 | hanako | 5555-6666-7777-xxxx
+(2 rows)</PRE
+><P
+>この場合、一般の利用者は<TT
+CLASS="LITERAL"
+>customer.credit</TT
+>を直接参照することはできませんが、トラステッド・プロシジャである<TT
+CLASS="LITERAL"
+>show_credit</TT
+>を用いる事で、一部の桁がマスクされた顧客のクレジットカード番号をプリントする事が可能になります。
+   </P
+></DIV
+><DIV
+CLASS="SECT3"
+><H3
+CLASS="SECT3"
+><A
+NAME="AEN137963"
+>F.38.5.5. その他</A
+></H3
+><P
+>ロードされたモジュールは、セキュリティポリシーの適用を容易にバイパスできるため、<A
+HREF="sql-load.html"
+>LOAD</A
+>コマンドの実行は全面的に禁止されています。
+   </P
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEPGSQL-LIMITATIONS"
+>F.38.6. 制限事項</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>ユーザ空間アクセスベクタ・キャッシュ</DT
+><DD
+><P
+>まだ<SPAN
+CLASS="PRODUCTNAME"
+>sepgsql</SPAN
+>はユーザ空間アクセスベクタ・キャッシュをサポートしていません。この機能はパフォーマンスを改善するでしょう。
+     </P
+></DD
+><DT
+>Data Definition Language (DDL) パーミッション</DT
+><DD
+><P
+>実装上の制約により、DDLパーミッションはチェックされていません。
+     </P
+></DD
+><DT
+>Data Control Language (DCL) パーミッション</DT
+><DD
+><P
+>実装上の制約により、DCLパーミッションはチェックされていません。
+     </P
+></DD
+><DT
+>Row-level access control</DT
+><DD
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>は行レベルアクセス制御をサポートしていません。
+したがって、<TT
+CLASS="FILENAME"
+>sepgsql</TT
+>も同様です。
+     </P
+></DD
+><DT
+>隠れチャネル</DT
+><DD
+><P
+>たとえ利用者が参照を許可されていないオブジェクトであっても、<SPAN
+CLASS="PRODUCTNAME"
+>sepgsql</SPAN
+>はその存在を隠すことを意図していません。
+例えば、我々があるオブジェクトの内容を参照する事ができなくても、主キーの競合や外部キー違反、その他の方法によって不可視なオブジェクトが存在する事を推測できます。
+"最高機密"テーブルの存在を隠すことは不可能であり、その内容を秘匿することだけを意図しています。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEPGSQL-RESOURCES"
+>F.38.7. 外部リソース</A
+></H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><A
+HREF="http://wiki.postgresql.org/wiki/SEPostgreSQL"
+TARGET="_top"
+>SE-PostgreSQL Introduction</A
+></DT
+><DD
+><P
+>このwikiページでは、概要、セキュリティ・デザイン、アーキテクチャ、管理、および将来の機能について紹介しています。
+     </P
+></DD
+><DT
+><A
+HREF="http://docs.fedoraproject.org/selinux-user-guide/"
+TARGET="_top"
+>Fedora SELinux User Guide</A
+></DT
+><DD
+><P
+>このドキュメントは<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>システム管理に対する広範な知識を提供しています。
+主としてFedoraを対象としていますが、それに限ったものではありません。
+     </P
+></DD
+><DT
+><A
+HREF="http://docs.fedoraproject.org/selinux-faq"
+TARGET="_top"
+>Fedora SELinux FAQ</A
+></DT
+><DD
+><P
+>このドキュメントは<SPAN
+CLASS="PRODUCTNAME"
+>SELinux</SPAN
+>に関するよくある質問と回答(FAQ)です。
+主としてFedoraを対象としていますが、それに限ったものではありません。
+     </P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEPGSQL-AUTHOR"
+>F.38.8. 著者</A
+></H2
+><P
+>   KaiGai Kohei <CODE
+CLASS="EMAIL"
+>&#60;<A
+HREF="mailto:kaigai@ak.jp.nec.com"
+>kaigai@ak.jp.nec.com</A
+>&#62;</CODE
+>
+  </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="seg.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="contrib-spi.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>seg</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="contrib.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>spi</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>

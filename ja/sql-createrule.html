@@ -1,0 +1,722 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>CREATE RULE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version "><LINK
+REV="MADE"
+HREF="mailto:pgsql-docs@postgresql.org"><LINK
+REL="HOME"
+TITLE="PostgreSQL 9.1.4文書"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="SQLコマンド"
+HREF="sql-commands.html"><LINK
+REL="PREVIOUS"
+TITLE="CREATE ROLE"
+HREF="sql-createrole.html"><LINK
+REL="NEXT"
+TITLE="CREATE SCHEMA"
+HREF="sql-createschema.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="stylesheet.css"><META
+HTTP-EQUIV="Content-Type"
+CONTENT="text/html; charset=euc-jp"><META
+NAME="creation"
+CONTENT="2012-06-16T03:12:10"></HEAD
+><BODY
+CLASS="REFENTRY"
+><script type="text/javascript">
+var mod_layout = 'test';
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-50659-6");
+pageTracker._trackPageview();
+</script>
+<style>
+body{margin:0;}
+#lay_body{margin:8px;}
+#lay_header{margin:0 0 4px 0;border:0;padding:0;}
+#lay_header .b1{border-bottom:#cef solid 1px;}
+#lay_header .b2{border-bottom:#8df solid 1px;}
+#lay_header .b3{border-bottom:#4bf solid 1px;padding:5px 5px 3px 5px;background:#0af;text-align:center;color:#fff;}
+#lay_header a{text-decoration:none;color:#fff;font-weight:bold;}
+#lay_header a:hover{text-decoration:underline;}
+</style>
+<div id="lay_header"><div class="b1"><div class="b2"><div class="b3">
+<a href="http://lets.postgresql.jp/" target="_blank">PostgreSQLポータルサイト ＜Let's Postgres＞ http://lets.postgresql.jp/</a><br>
+入門から運用、チューニングノウハウ、新機能の解説など、幅広い内容の技術解説記事をお読みいただけます。
+</div></div></div></div>
+<div id="lay_body">
+<DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="5"
+ALIGN="center"
+VALIGN="bottom"
+><A
+HREF="index.html"
+>PostgreSQL 9.1.4文書</A
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE ROLE"
+HREF="sql-createrole.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="top"
+><A
+TITLE="CREATE ROLE"
+HREF="sql-createrole.html"
+>&#24059;&#25147;&#12375;</A
+></TD
+><TD
+WIDTH="60%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE SCHEMA"
+HREF="sql-createschema.html"
+>&#26089;&#36865;&#12426;</A
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="top"
+><A
+TITLE="CREATE SCHEMA"
+HREF="sql-createschema.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><H1
+><A
+NAME="SQL-CREATERULE"
+></A
+>CREATE RULE</H1
+><DIV
+CLASS="REFNAMEDIV"
+><A
+NAME="AEN66812"
+></A
+><H2
+>&#21517;&#21069;</H2
+>CREATE RULE&nbsp;--&nbsp;新しい書き換えルールを定義する
+  </DIV
+><DIV
+CLASS="REFSYNOPSISDIV"
+><A
+NAME="AEN66817"
+></A
+><H2
+>&#27010;&#35201;</H2
+><PRE
+CLASS="SYNOPSIS"
+>CREATE [ OR REPLACE ] RULE <TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+> AS ON <TT
+CLASS="REPLACEABLE"
+><I
+>event</I
+></TT
+>
+    TO <TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+> [ WHERE <TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+> ]
+    DO [ ALSO | INSTEAD ] { NOTHING | <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> | ( <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> ; <TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+> ... ) }</PRE
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66826"
+></A
+><H2
+>説明</H2
+><P
+><TT
+CLASS="COMMAND"
+>CREATE RULE</TT
+>により、指定したテーブルまたはビューに適用するルールを新しく定義できます。
+<TT
+CLASS="COMMAND"
+>CREATE OR REPLACE RULE</TT
+>を使用すると、新しいルールの作成、または、同じテーブルの同じ名前の既存ルールの置き換えのいずれかを実行します。
+  </P
+><P
+><SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>のルールシステムを使用すると、データベーステーブルに対する挿入、更新、削除時に本来の操作の代替として実行するアクションを定義できます。
+簡単に言えば、指定されたテーブルに対して指定されたコマンドが実行された時、ルールによって追加のコマンドが実行されるということです。
+その他にも、<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>ルールによって指定されたコマンドを他のコマンドに置き換えたり、まったくコマンドを実行しないようにすることも可能です。
+また、ルールはテーブルビューを実装するためにも使われます。
+重要なのは、ルールとは実際にコマンドを変換する仕組み、言い換えれば、コマンドのマクロであることです。
+ルールによる変換はコマンドの実行前に発生します。
+各物理行を個別に操作したい場合、ルールではなくトリガを使用する方が良いでしょう。
+ルールシステムについての詳細は、<A
+HREF="rules.html"
+>&#31532;37&#31456;</A
+>に記載されています。
+  </P
+><P
+>現時点では、<TT
+CLASS="LITERAL"
+>ON SELECT</TT
+>ルールは、条件を持たない<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>ルールでなければなりません。また、<TT
+CLASS="LITERAL"
+>ON SELECT</TT
+>ルールが持つアクションは、単独の<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドのみで構成される必要があります。
+したがって、<TT
+CLASS="LITERAL"
+>ON SELECT</TT
+>ルールを使えば、効率的にテーブルをビューにすることができます。このビューでは、元のテーブルの内容ではなく、ルールに含まれる<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドが返す行が、ビューの内容として提示されます。
+ただし、テーブル自体を作成し、それに<TT
+CLASS="LITERAL"
+>ON SELECT</TT
+>ルールを定義するよりは、<TT
+CLASS="COMMAND"
+>CREATE VIEW</TT
+>コマンドを使用する方をお勧めします。
+  </P
+><P
+><TT
+CLASS="LITERAL"
+>ON INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>ON UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>ON DELETE</TT
+>ルールを必要に応じて定義し、ビューに対する更新操作を他のテーブルに対する適切な更新操作に置換することで、更新可能なビューという実在しないオブジェクトを作成することができます。
+<TT
+CLASS="COMMAND"
+>INSERT RETURNING</TT
+>などをサポートしたければ、これらのルールに適切な<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を確実につけてください。
+この他の方法として<TT
+CLASS="LITERAL"
+>INSTEAD OF</TT
+>トリガを使用して更新可能なビューを実装することができます（<A
+HREF="sql-createtrigger.html"
+>CREATE TRIGGER</A
+>参照）。</P
+><P
+>ビューの更新に条件付きルールを使用しようとする場合、落とし穴があります。
+そのビューに許可するそれぞれの操作に、条件を持たない<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>ルールを用意する<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>必要がある</I
+></SPAN
+>ことです。
+ルールが条件付きであったり、<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>でない場合、システムは更新操作を拒否します。
+その場合、システムが、場合によっては、ビューのダミーテーブルに対する操作になる可能性があるとみなすからです。
+使用する全てのケースについて条件付きルールを作成する場合は、条件を持たない<TT
+CLASS="LITERAL"
+>DO INSTEAD NOTHING</TT
+>ルールを追加し、ダミーテーブルに対する更新は呼び出されないことをシステムに明示します。さらに、条件付きルールには、<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>と指定しないようにします。
+これらの条件が満たされた場合、デフォルトの<TT
+CLASS="LITERAL"
+>INSTEAD NOTHING</TT
+>アクションにルールに含まれるアクションが追加されます。
+（しかし現在、この方法では<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>問い合わせのサポートがうまく動作しません。）
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66860"
+></A
+><H2
+>パラメータ</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>name</I
+></TT
+></DT
+><DD
+><P
+>作成するルールの名前です。  
+この名前は、同じテーブルの他のルールとは異なる名前にする必要があります。
+同一テーブルにイベントの種類が同じルールが複数あった場合、ルール名の順番（アルファベット順）に適用されます。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>event</I
+></TT
+></DT
+><DD
+><P
+>イベントとは、<TT
+CLASS="LITERAL"
+>SELECT</TT
+>、<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>のいずれかです。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>table</I
+></TT
+></DT
+><DD
+><P
+>ルールを適用するテーブルまたはビューの名前です（スキーマ修飾名も可）。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+></DT
+><DD
+><P
+>任意の<ACRONYM
+CLASS="ACRONYM"
+>SQL</ACRONYM
+>条件式です（<TT
+CLASS="TYPE"
+>boolean</TT
+>型を返します）。
+条件式では、<TT
+CLASS="LITERAL"
+>NEW</TT
+>および<TT
+CLASS="LITERAL"
+>OLD</TT
+>以外のテーブルは参照できません。
+また、集約関数を含めることもできません。
+     </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>INSTEAD</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>は、元のコマンドの<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>代わりに</I
+></SPAN
+>このコマンドが実行されることを示します。
+     </P
+></DD
+><DT
+><TT
+CLASS="OPTION"
+>ALSO</TT
+></DT
+><DD
+><P
+><TT
+CLASS="LITERAL"
+>ALSO</TT
+>は元のコマンドに<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>加えて</I
+></SPAN
+>このコマンドが実行されることを示します。
+     </P
+><P
+><TT
+CLASS="LITERAL"
+>ALSO</TT
+>も<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>も指定されなかった場合、<TT
+CLASS="LITERAL"
+>ALSO</TT
+>がデフォルトです。
+     </P
+></DD
+><DT
+><TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+></DT
+><DD
+><P
+>ルールのアクションを構成する単一または複数のコマンドです。
+有効なコマンドは、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>、<TT
+CLASS="COMMAND"
+>INSERT</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE</TT
+>、<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>です。
+     </P
+></DD
+></DL
+></DIV
+><P
+><TT
+CLASS="REPLACEABLE"
+><I
+>condition</I
+></TT
+>と<TT
+CLASS="REPLACEABLE"
+><I
+>command</I
+></TT
+>の内部では、対象とするテーブルの値を参照するために、特別なテーブル名<TT
+CLASS="LITERAL"
+>NEW</TT
+>と<TT
+CLASS="LITERAL"
+>OLD</TT
+>を使用できます。
+<TT
+CLASS="LITERAL"
+>NEW</TT
+>は、<TT
+CLASS="LITERAL"
+>ON INSERT</TT
+>と<TT
+CLASS="LITERAL"
+>ON UPDATE</TT
+>ルールで有効です。挿入または更新される新しい行を参照します。
+<TT
+CLASS="LITERAL"
+>OLD</TT
+>は、<TT
+CLASS="LITERAL"
+>ON UPDATE</TT
+>と<TT
+CLASS="LITERAL"
+>ON DELETE</TT
+>ルールで有効です。更新または削除される既存の行を参照します。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66930"
+></A
+><H2
+>注釈</H2
+><P
+>テーブルにルールを定義する、または、そのルールを変更するためには所有者でなければなりません。
+  </P
+><P
+>ビュー上の<TT
+CLASS="LITERAL"
+>INSERT</TT
+>、<TT
+CLASS="LITERAL"
+>UPDATE</TT
+>、<TT
+CLASS="LITERAL"
+>DELETE</TT
+>ルールでは、<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を追加して、ビューの列を返すことができます。
+ルールが<TT
+CLASS="COMMAND"
+>INSERT RETURNING</TT
+>、<TT
+CLASS="COMMAND"
+>UPDATE RETURNING</TT
+>、<TT
+CLASS="COMMAND"
+>DELETE RETURNING</TT
+>コマンドによって呼び出された場合、この句は出力を計算することに使用されます。
+<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>なしでルールが呼び出された場合、ルールの<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句は無視されます。
+現在の実装では、無条件の<TT
+CLASS="LITERAL"
+>INSTEAD</TT
+>ルールのみが<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>を含むことができます。
+さらに、同一イベント用のすべてのルールの中で多くても1つの<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句を持つことができます。
+（これにより確実に、結果を計算するために使用される<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>句の候補が1つのみになります。）
+ビュー上の<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>問い合わせは、利用可能なルールすべてで<TT
+CLASS="LITERAL"
+>RETURNING</TT
+>が存在しない場合に拒絶されます。
+  </P
+><P
+>ルールの循環は絶対に避けるよう注意してください。
+例えば、下記の2つのルール定義それぞれが<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>に受け入れられた場合、ルールが再帰的に展開されるため、<TT
+CLASS="COMMAND"
+>SELECT</TT
+>コマンドが、<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>にエラーを表示させます。
+
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE RULE "_RETURN" AS
+    ON SELECT TO t1
+    DO INSTEAD
+	SELECT * FROM t2;
+
+CREATE RULE "_RETURN" AS
+    ON SELECT TO t2
+    DO INSTEAD
+	SELECT * FROM t1;
+
+SELECT * FROM t1;</PRE
+><P>
+  </P
+><P
+>現在、ルールのアクションに<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>問い合わせが含まれる場合、<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>は無条件に実行されます。
+つまり、ルールを適用すべき行が存在しなかったとしても、<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>が発行されます。
+例えば、
+</P><PRE
+CLASS="PROGRAMLISTING"
+>CREATE RULE notify_me AS ON UPDATE TO mytable DO ALSO NOTIFY mytable;
+
+UPDATE mytable SET name = 'foo' WHERE id = 42;</PRE
+><P>
+では、<TT
+CLASS="LITERAL"
+>id = 42</TT
+>という条件に一致する行があってもなくても、<TT
+CLASS="COMMAND"
+>UPDATE</TT
+>の際、1つの<TT
+CLASS="COMMAND"
+>NOTIFY</TT
+>イベントが送信されます。
+これは実装上の制限であり、将来のリリースでは修正されるかもしれません。
+  </P
+></DIV
+><DIV
+CLASS="REFSECT1"
+><A
+NAME="AEN66962"
+></A
+><H2
+>互換性</H2
+><P
+>問い合わせ書き換えシステム全体同様、<TT
+CLASS="COMMAND"
+>CREATE RULE</TT
+>は<SPAN
+CLASS="PRODUCTNAME"
+>PostgreSQL</SPAN
+>の拡張です。
+  </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="sql-createrole.html"
+ACCESSKEY="P"
+>&#21069;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>&#12507;&#12540;&#12512;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sql-createschema.html"
+ACCESSKEY="N"
+>&#27425;&#12398;&#12506;&#12540;&#12472;</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CREATE ROLE</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="sql-commands.html"
+ACCESSKEY="U"
+>&#19978;&#12395;&#25147;&#12427;</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>CREATE SCHEMA</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+></div>
